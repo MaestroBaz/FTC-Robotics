@@ -83,7 +83,8 @@ Done and tested:
 
 GitHub Issues on MaestroBaz/FTC-Robotics hold all open work: next steps, known issues, ideas and follow-up sessions. No doc keeps a second list.
 
-- Start with `gh issue list --label before-session`.
+- Start with `gh issue list --label before-crash-course`.
+- The Crash Course readiness map is issue 34.
 - File an issue for each new bug, idea or doc conflict you find. Close the issue when the fix lands.
 - This repo is public, so issues name no students and hold no private notes.
 
