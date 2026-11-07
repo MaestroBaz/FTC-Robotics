@@ -14,6 +14,14 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 Infer the repo from `git remote -v`; `gh` does this automatically when run inside a clone.
 
+## Rules for this repo
+
+- GitHub Issues hold all open work. `docs/backlog.md` retired on 2026-11-07, and its last version sits in commit `a3059b8`.
+- Each issue carries one category label (`bug` or `enhancement`) and one state label from `triage-labels.md`.
+- Timing labels: `before-session` for work due before the crash course, `follow-up-session` for work after the crash course.
+- This repo is public. Issues name no students and hold no private notes.
+- A commit reaches an issue with `Refs #<n>`, or `Fixes #<n>` when the commit finishes the work. GitHub closes the issue when the commit reaches `main` on GitHub. Until a push, close by hand only if the fix counts as done.
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_

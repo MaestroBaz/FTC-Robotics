@@ -61,3 +61,9 @@ Output: zip contents copied into the repo root. `npm install` added `package-loc
 Request: run the setup for the Matt Pocock engineering skills.
 
 Output: `docs/agents/` with the issue tracker, triage labels and domain docs, an Agent skills section in `CLAUDE.md`, and 4 new triage labels on the GitHub repo. Issues live in GitHub Issues. Domain docs use the single-context layout and also read `docs/decisions.md`. No lab change.
+
+## 10. Backlog moved to GitHub Issues (2026-11-07)
+
+Request: switch open work from `docs/backlog.md` to GitHub Issues without losing information, and update the repo to use GitHub Issues from now on.
+
+Output: issues 1 to 33. All 25 backlog lines moved word for word, checked by script against the live issues. 9 issues record findings from the setup check. `docs/backlog.md` removed, with the last version in commit `a3059b8`. Two recurring backlog rules moved to `CLAUDE.md`. No lab change.

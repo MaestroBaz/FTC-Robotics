@@ -34,3 +34,4 @@
 | Response markers with standard names plus a plain-words table | Students learn the real terms (rise time, settling time, steady-state error) and what each means for scoring. "Response time" is flagged as ambiguous. |
 | Colors only through CSS tokens | Light and dark themes stay correct. |
 | Plain ASCII in all content | Baz's style rule. Also avoids encoding issues in code panels. |
+| GitHub Issues hold all open work, no backlog file | Baz's choice. One list stops drift, and the engineering skills read the tracker. |

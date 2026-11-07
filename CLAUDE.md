@@ -23,7 +23,6 @@ lab/index.html              the lab (about 4000 lines: CSS, HTML for 8 tabs, one
 docs/architecture.md        how the lab code is built: modules, time loop, charts, PID sim
 docs/decisions.md           teaching and technical decisions, with the reason for each
 docs/history.md             what was built, request by request
-docs/backlog.md             open issues, known quirks, ideas
 docs/writing-style.md       rules for lab copy and for replies to Baz
 docs/agents/                config for the engineering skills: issue tracker, triage labels, domain docs
 docs/course/crash-course-plan.md      the session plan, module by module (source of truth for teaching)
@@ -67,6 +66,10 @@ Details in `docs/architecture.md`.
 
 The repo is now the source of truth for the lab file. To update the artifact, either run Claude with the claude.ai artifacts connector and republish `lab/index.html` to the slug above, or upload the file in a claude.ai chat in the Project. A second option for sharing: GitHub Pages on `lab/` (the file is static).
 
+Until these issues close:
+- After any lab change, republish and update the version id above (issue 8 decides where the lab lives).
+- After any course doc change, sync the copy in the claude.ai Project (issue 29 decides whether the sync continues).
+
 ## Current state (2026-11-07)
 
 Done and tested:
@@ -76,7 +79,15 @@ Done and tested:
 - PID response markers (dead time, rise time, overshoot, peak time, settling band and time, steady-state error) with a kid-friendly table. Launcher markers: dip, recovery time, open-loop offset.
 - Auto-aim fixed: search turn when the HIVE leaves the camera view, draggable HIVE, state banner, gains shown live in the control loop diagram.
 
-Next steps and known issues: `docs/backlog.md`.
+## Open work
+
+GitHub Issues on MaestroBaz/FTC-Robotics hold all open work: next steps, known issues, ideas and follow-up sessions. No doc keeps a second list.
+
+- Start with `gh issue list --label before-session`.
+- File an issue for each new bug, idea or doc conflict you find. Close the issue when the fix lands.
+- This repo is public, so issues name no students and hold no private notes.
+
+Labels and commit conventions: `docs/agents/issue-tracker.md`.
 
 ## Working with Baz
 
