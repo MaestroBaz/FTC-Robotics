@@ -79,3 +79,9 @@ Output: map in issue 34 with tickets 35 to 43, `GLOSSARY.md` with the settled te
 Request: fix the personal email exposed by the first push.
 
 Output: the first 4 commits rewritten to the GitHub noreply address and force-pushed, this repo's git config set to the noreply address, and the commit reference for `docs/backlog.md` updated. File contents did not change in the rewrite. No lab change.
+
+## 13. Prep for the Crash Course tomorrow (2026-11-07)
+
+Request: Baz set the Crash Course for Sunday 2026-11-08 and approved the tonight plan with defaults.
+
+Output: the map Notes allow execution tonight. Decision tickets for length, the "P too high" demo, the PR checklist and where the lab runs closed with the defaults. Lab fixes: tab references name tabs 6 and 7, and the launcher closed loop gained the PID tab's I-zone, so a zero-shot spin-up peaks near 1169 instead of 1306. Two new smoke checks, 17 of 17 pass. Docs: a clean build passes the PR checklist on the day, the PID plan shows "P too high" on the aim job, PD ends past the target. New `docs/course/run-sheet.md`. The artifact was not republished, per the decision to run the lab from the local file.

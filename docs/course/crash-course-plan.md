@@ -29,6 +29,8 @@ Optional practice without a robot: Beta8397/virtual_robot (https://github.com/Be
 
 ## Before the day (mentor checklist)
 
+The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fallbacks for the day.
+
 - [ ] Every laptop has Android Studio Narwhal 3 Feature Drop or later, with the team repo cloned and Gradle sync finished on school Wi-Fi. The first sync downloads several GB. Do not leave this for the session.
 - [ ] Every student has a GitHub account (GitHub requires age 13+) and has accepted the org invite.
 - [ ] GitHub org and repos set up per `github-team-workflow.md`.
