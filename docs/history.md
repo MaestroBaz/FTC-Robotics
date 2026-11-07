@@ -103,3 +103,9 @@ Facts from Baz: still tomorrow, demo-driven with no laptops, no robot in the roo
 Audit: the Java tab used static, final on fields, this., constructors, void, return, parameters, enum, switch, else, &&, hardwareMap.get(X.class, name) and @TeleOp(name) without explaining them.
 
 Output: a 6-team scoreboard in the top bar, A/B/C votes with a tally on all 9 Ask the room blocks, and the Every word explained card with MainTeleOp, Robot and PIDController where every word is clickable. 12 new smoke checks, 28 of 28 pass. Plan rewritten for the 3-hour agenda with team rounds, run sheet rewritten with the new gates, GLOSSARY gained Team and Team Round, decisions gained the format change. The artifact was not republished: the lab runs from the local file.
+
+## 16. Git terminal commands on the GitHub tab (2026-11-07)
+
+Request: show the git terminal commands next to the Android Studio steps.
+
+Output: a terminal box under Part A (the command for each button press, including the rejected push), under each PR loop step and under each conflict story step. 5 new smoke checks, 33 of 33 pass.

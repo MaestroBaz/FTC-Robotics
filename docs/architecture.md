@@ -108,6 +108,10 @@ Response markers (`response(step, tEnd)`): first non-null error `e0`, progress `
 
 `PIDVIZ.loop()` draws the control loop SVG `#pid-loop` (viewBox 1040 x 280). Term boxes show `gain x input = term` live, dashed when a term is switched off, "not running" when the PID is skipped. `PIDVIZ.minis()` draws the integral (area under error since the last reset, last 6 s) and derivative (slope over the last 2 s) mini charts.
 
+## GitHub tab terminal boxes
+
+Each step in the PR loop (`PR[]`) and the conflict story (`STEPS[]`) carries a `cmd` field, rendered into `pre.code.term` under the Android Studio line. Part A buttons call `cmd()` with the git command for the press, including the rejected push. The `$ ` prompt comes from CSS, so the text stays plain commands.
+
 ## Team game (top bar and every tab)
 
 - `TEAMS`: 6 teams in `#tm-list`, rendered from one immutable array `{name, pts}`. Keys 1 to 6 add a point (global keydown handler), `+` and `-` buttons adjust, the name input renames, `#tm-reset` zeroes, `#tm-toggle` hides the bar. Saved in `localStorage` under `ftc-lab-teams` inside try/catch, so a private window still works for the page's lifetime. The team with the top score gets `.lead`.

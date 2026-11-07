@@ -68,6 +68,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(!!(await pg.$('#jv-wcode .w[data-w="this"]')) && !!(await pg.$('#jv-wcode .w[data-w="ctor"]')), "PIDController shows this. and the constructor");
   await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-words.png") });
 
+  // ---- GitHub tab: terminal commands next to the Android Studio steps ----
+  await pg.goto(URL + "#gitflow"); await pg.waitForTimeout(300);
+  await pg.click("#gx-edit"); await pg.click("#gx-commit"); await pg.click("#gx-partner"); await pg.click("#gx-push");
+  check(/git push\n# ! \[rejected\]/.test(await pg.textContent("#gx-cmd")), "a rejected push shows the git push error in the terminal box");
+  await pg.click("#gx-pull");
+  check((await pg.textContent("#gx-cmd")) === "git pull", "Pull shows git pull");
+  await pg.click("#gx-prnext");
+  check(/git switch -c maya\/slow-mode/.test(await pg.textContent("#gx-prcmd")), "the PR loop shows the branch command");
+  await pg.click("#gt-next"); await pg.click("#gt-next");
+  check(/git commit -m "Add slow mode on left bumper"/.test(await pg.textContent("#gt-cmd")), "the conflict story shows the commit command");
+  check((await pg.$$eval("pre.term", els => els.filter(e => e.textContent.trim()).length)) === 3, "all three terminal boxes hold a command");
+
   // ---- every tab loads, at 1x and at 2x ----
   const tabs = ["gitflow", "java", "lifecycle", "mecanum", "oneloop", "feedback", "pid", "encoders"];
   for (const t of tabs) { await pg.goto(URL + "#" + t); await pg.waitForTimeout(400); }
