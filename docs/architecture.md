@@ -77,7 +77,7 @@ Interaction: drag on any chart canvas zooms to the selection. Double-click retur
 
 - Model: flywheel with `KV = 116` ticks/s per volt, time constant `TAU = 0.35` s. Target 1160, HIVE window 1120-1200.
 - Open loop `o.w`: `setPower(0.8)`, speed follows battery voltage `V`.
-- Closed loop `c.w`: feedforward at 12 V + P (0.004) + I (0.003, integral clamped to +/-400).
+- Closed loop `c.w`: feedforward at 12 V + P (0.004) + I (0.003, integral clamped to +/-400, I-zone `|0.004 * error| < 0.35` as on the PID tab, so spin-up peaks near 1170, inside the HIVE window).
 - Shots (`feed()`) drop each flywheel to 78% and record `{t, k, w, res}`.
 - "Run a 2-minute match" drains the battery from 13.6 V to 11.7 V over 30 sim seconds and feeds every 2 s.
 - `hist` samples every 0.03 s: `{t, o, c}`.

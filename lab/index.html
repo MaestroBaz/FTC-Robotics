@@ -1815,9 +1815,9 @@ const FB = (function(){
     while (queue.length && queue[0] <= T){ queue.shift(); feed(); }
     // open loop
     o.w += (KV * V * 0.8 - o.w) * (dt / TAU);
-    // closed loop: feedforward tuned at 12 V + P + I
+    // closed loop: feedforward tuned at 12 V + P + I, with the same I-zone as the PID tab
     const err = TARGET - c.w;
-    c.i = clamp(c.i + err * dt, -400, 400);
+    if (Math.abs(0.004 * err) < 0.35) c.i = clamp(c.i + err * dt, -400, 400); else c.i = 0;
     const u = clamp(TARGET / (KV * 12) + 0.004 * err + 0.003 * c.i, 0, 1); lastU = u;
     c.w += (KV * V * u - c.w) * (dt / TAU);
   }
@@ -2268,7 +2268,7 @@ const PIDLAB = (function(){
     ["Hold heading while strafing", "IMU", "same as above", "Keeps the launcher pointed at the HIVE during field-centric driving"],
     ["Auto-aim on a button", "Camera: AprilTag bearing or Limelight tx", "bearing (deg)", "Camera data is late and noisy: PD is enough, I adds overshoot"],
     ["Lift, arm or pivot to a preset", "Motor encoder", "target - position", "Gravity: add a small kI or a feedforward"],
-    ["Launcher speed", "Motor encoder velocity", "target - velocity", "setVelocity() already runs PIDF on the hub (tab 5)"],
+    ["Launcher speed", "Motor encoder velocity", "target - velocity", "setVelocity() already runs PIDF on the hub (tab 6)"],
     ["Park at a distance from a wall", "REV 2m distance sensor", "distance - target", "Same class, different numbers"]
   ].map(r => "<tr><td>" + r.map(esc).join("</td><td>") + "</td></tr>").join("");
 
@@ -2691,7 +2691,7 @@ const JV = (function(){
     {n: "Robot.java", k: "class", d: 3, m: "The hardware class: motors, sensors, and actions like drive(). One per robot."},
     {n: "MainTeleOp.java", k: "OpMode", d: 3, m: "The driver-controlled OpMode. It has a Robot object and tells it what to do."},
     {n: "LeaveAndPark.java", k: "OpMode", d: 3, m: "The 30-second AUTO OpMode."},
-    {n: "PIDController.java", k: "class", d: 3, m: "The reusable PID class from tab 6. Used by AUTO turns, auto-aim and the lift."},
+    {n: "PIDController.java", k: "class", d: 3, m: "The reusable PID class from tab 7. Used by AUTO turns, auto-aim and the lift."},
     {n: "build.gradle", k: "build file", d: 2, m: "Tells Android Studio how to build TeamCode. You touch it only to add a library, such as a path-following library."}
   ];
   (function buildTree(){

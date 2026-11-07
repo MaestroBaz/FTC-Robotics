@@ -23,6 +23,10 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const respRows = () => pg.evaluate(() => [...document.querySelectorAll("#pid-resp tr")].slice(1)
     .map(r => r.children[0].textContent.split(" (")[0] + "=" + r.children[1].textContent).join("; "));
 
+  // ---- cross-tab references name the right tab ----
+  const src = fs.readFileSync(path.resolve(__dirname, "..", "lab", "index.html"), "utf8");
+  check(src.includes("runs PIDF on the hub (tab 6)") && src.includes("PID class from tab 7"), "launcher and PID references name tabs 6 and 7");
+
   // ---- every tab loads, at 1x and at 2x ----
   const tabs = ["gitflow", "java", "lifecycle", "mecanum", "oneloop", "feedback", "pid", "encoders"];
   for (const t of tabs) { await pg.goto(URL + "#" + t); await pg.waitForTimeout(400); }
@@ -84,7 +88,16 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.getAttribute("#pid-cbar .tc-live", "aria-pressed")) === "true", "Reset run returns to live view");
 
   // ---- launcher chart ----
-  await pg.goto(URL + "#feedback"); await pg.waitForTimeout(3000);
+  await pg.goto(URL + "#feedback"); await pg.waitForTimeout(300);
+  await pg.click("#fb-cbar .tc-reset");
+  let peak = 0, low = Infinity;
+  for (let i = 0; i < 30; i++) {
+    await pg.waitForTimeout(100);
+    const w = +(await pg.textContent("#fb-ready")).match(/closed loop: (\d+)/)[1];
+    peak = Math.max(peak, w); low = Math.min(low, w);
+  }
+  console.log("  launcher closed-loop spin-up: low", low, "peak", peak);
+  check(low < 800 && peak > 1100 && peak < 1200, "closed-loop launcher spins up without overshooting the HIVE window");
   await pg.click("#fb-feed"); await pg.waitForTimeout(2500);
   await pg.$eval("#fb-v", el => { el.value = 11.8; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(2500);
   await pg.click("#fb-feed"); await pg.waitForTimeout(2000);
