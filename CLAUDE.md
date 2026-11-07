@@ -25,6 +25,7 @@ docs/decisions.md           teaching and technical decisions, with the reason fo
 docs/history.md             what was built, request by request
 docs/backlog.md             open issues, known quirks, ideas
 docs/writing-style.md       rules for lab copy and for replies to Baz
+docs/agents/                config for the engineering skills: issue tracker, triage labels, domain docs
 docs/course/crash-course-plan.md      the session plan, module by module (source of truth for teaching)
 docs/course/homework.md               night-before homework (snapshot of the claude.ai doc)
 docs/course/team-coding-standard.md   printed handout: the Java the team uses and avoids
@@ -91,3 +92,17 @@ Baz set these rules for every reply. Follow them in chat output and in docs you 
 Writing style (full list in `docs/writing-style.md`): short active sentences, "you" and "your", plain ASCII, no em dashes, en dashes, semicolons, hashtags or filler, and a banned-word list that includes can, may, just, that, very, really, it.
 
 He is an engineer (computer engineering, robotics minor, 10 years in IoT). Skip beginner explanations of code for him. The students are the beginners.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on MaestroBaz/FTC-Robotics, through the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default names: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` and `docs/adr/` at the root, plus the existing `docs/decisions.md`. See `docs/agents/domain.md`.

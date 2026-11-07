@@ -55,3 +55,9 @@ This repo: lab source, course docs, tests, and these context docs.
 Request: read the docs, verify the setup, check the screenshots and the first commit, report back, and stop before any lab change.
 
 Output: zip contents copied into the repo root. `npm install` added `package-lock.json`. `npm run check` and `npm test` pass, 14 of 14 checks. No lab change and no commit. Findings went to Baz in chat.
+
+## 9. Engineering skills setup (2026-11-07)
+
+Request: run the setup for the Matt Pocock engineering skills.
+
+Output: `docs/agents/` with the issue tracker, triage labels and domain docs, an Agent skills section in `CLAUDE.md`, and 4 new triage labels on the GitHub repo. Issues live in GitHub Issues. Domain docs use the single-context layout and also read `docs/decisions.md`. No lab change.
