@@ -1,0 +1,57 @@
+# Build history
+
+Work done in claude.ai chats inside the Project "FIRST Tech Challenge (FTC)", 2026-11-01 to 2026-11-07. Requests are summarized in Baz's words where they matter.
+
+## 1. Research and course plan (2026-11-01)
+
+Request: the kids use AI to write code they do not understand (modules, inheritance, imports, private/public, a multi-threaded part). Research the program, device, environment, sensors, camera, rules, REV guides. Pick the most useful topics for a 4-5 hour Java-on-REV crash course. Include practical GitHub material: how the team works on repos in an organized way, with a code repo and a CAD repo.
+
+Answers Baz gave: Android Studio, some Java basics, 4-8 kids, Onshape for CAD, rewrite the code simply.
+
+Output: `ftc-reference-2026-27.md`, `github-team-workflow.md`, `team-coding-standard.md`, `crash-course-plan.md`.
+
+## 2. Visual lab
+
+Request: no time for each kid to test, so lean on illustrations, visuals and interactive examples.
+
+Output: the lab artifact with tabs for lifecycle, mecanum, one loop, feedback, encoders.
+
+## 3. More tabs
+
+Request: (1) add field-centric drive with a compass and robot direction, working in both modes, with use cases (Baz thought field-centric fits the 30 s AUTO). (2) Make the P controller a full PID with an illustration, plus an auto-aim PID from camera tracking on a button press. Show PID with each sensor, tuning by trial and error, and code reuse. (3) A Java intro: imports, modules, classes, inheritance, private, lists, variables, constants, scope.
+
+Output: Drive modes tab with robot-centric, field-centric and AUTO, PID tab with turn, aim and lift jobs, Java basics tab. Pushback given: field-centric belongs in TeleOp, AUTO uses the rotation math on odometry.
+
+## 4. Homework, slow motion, more visuals, GitHub first
+
+Request: (1) self-study resources for the night before. (2) A way to slow time in the lab. (3) A control loop diagram plus small charts for the integral and derivative. (4) More visuals and charts everywhere. (5) Start with GitHub.
+
+Output: homework Docs artifact, sim speed buttons (1x to 0.1x), Pause and Step, PID loop diagram and I/D mini charts, diagrams on every tab, GitHub teamwork tab moved to position 1 and the agenda reordered.
+
+## 5. Java visuals
+
+Request: visuals for modules and packages: a project with files and the relations between them, class vs module, what an import is and how it connects files. Students should fix an import error and a missing package.
+
+Output: project map, zoom levels (module, package, class, method), import address, error decoder, build line, error clinic with 9 errors, inheritance window, variable boxes, blueprint. Plan updated with card timings.
+
+## 6. Speed slider, charts, markers, aim fix (2026-11-07)
+
+Request, verbatim:
+- "I want the SIM speed to be a slider that goes to 0.05x minimum and 2x max (logarithmic scale) i want to be able to slow it down a lot."
+- "I want the line graphs to not have a fixed window, I want to be able to see the entire graph or scroll back to earlier parts or zoom in to a selected part. Add a pause, play, reset buttons."
+- "I would like to see indicators with dotted lines for the things like rise time, response time, overshoot, settling time, offset, etc."
+- "Are you sure the auto-aim at hive is working as expected? ... the device is not trying to turn to and face the Hive. I think the Kp, KI, Kd sliders are not being reflected in the control loop."
+
+Finding: the sliders did change the output. The loop diagram did not show the gains. The real failures: "Move the target" often put the HIVE outside the 35 deg camera view and the robot then did nothing, and the 0.05 friction deadband stalled the robot about 3 deg off, outside the 1.5 deg tolerance.
+
+Output: log slider, TimeChart component, response markers and table, launcher markers, aim search and drag, tolerance 3 deg, new aim presets, live gain math in the loop diagram. Plan doc updated. Published as artifact version `1794040580-c5ad`.
+
+## 7. Move to Claude Code (2026-11-07)
+
+This repo: lab source, course docs, tests, and these context docs.
+
+## 8. Setup check in Claude Code (2026-11-07)
+
+Request: read the docs, verify the setup, check the screenshots and the first commit, report back, and stop before any lab change.
+
+Output: zip contents copied into the repo root. `npm install` added `package-lock.json`. `npm run check` and `npm test` pass, 14 of 14 checks. No lab change and no commit. Findings went to Baz in chat.
