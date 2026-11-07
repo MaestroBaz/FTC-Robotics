@@ -1,48 +1,52 @@
 # Run Sheet: Crash Course, Sunday 2026-11-08
 
-5 hours, 4-8 students. Lab: `lab/index.html` from the projector laptop disk, plus a copy on a USB stick. Students get no lab link.
+3 hours, about 30 students in 6 teams, no student laptops, no robot. Lab: `lab/index.html` from the projector laptop disk, plus a copy on a USB stick. Students get no lab link.
 
 ## No-go Gates
 
-Check each gate the evening before. Recheck gates 1 and 3 in the morning before students arrive. If a gate fails and has no fix by the start, move the date.
+Check the evening before, and again in the morning before students arrive. If a gate fails and has no fix by the start, run the day from your laptop screen with teams gathered around, or move the date.
 
 | # | Gate | Check | Done |
 |---|---|---|---|
-| 1 | Student laptops: repo cloned, Gradle sync finished | Build > Make Project ends clean on each laptop. Gate holds with at most 2 students per working laptop. | [ ] |
-| 2 | GitHub: org, code repo, protected `main`, `team-roster.md` on `main`, old code on `archive/ai-code-2026`, every student invited and accepted | Open the repo as a student account: push to `main` fails, a PR opens. | [ ] |
-| 3 | Lab reads from the back row | Projector, browser zoom 125-150%, local file. Read a code line from the last seat. | [ ] |
+| 1 | The lab reads from the back row | Projector on, browser zoom 125-150%, `lab/index.html` open from disk. Read a code line on the Every word explained card from the last seat. | [ ] |
+| 2 | The scoreboard and votes work on the projector laptop | Press key 3: Team 3 shows 1. Click an A/B/C button on any Ask the room: the tally shows 1. Reset scores. | [ ] |
+| 3 | Printouts in the room | 30 copies of `team-coding-standard.md`, this sheet, 6 sets of A, B and C cards. | [ ] |
 
-A dead robot, no internet or a dead projector does not block the Crash Course. See Fallbacks.
+No internet and no robot do not block the day. See Fallbacks.
 
 ## Prep tonight, in order
 
-1. [ ] Send the homework now. The claude.ai link opens for you alone: share the artifact first, or send the GitHub copy of `docs/course/homework.md`. Ask each student to reply with a GitHub username.
-2. [ ] Set up the GitHub org and code repo per `github-team-workflow.md` (about 45 min).
-3. [ ] Invite each student as usernames arrive.
-4. [ ] Get every laptop cloned and Gradle synced (gate 1). Decide who does this tonight: the homework tells students no Android Studio work tonight.
-5. [ ] Update the Control Hub and Driver Hub. Pre-build `Robot.java` on the robot.
-6. [ ] Print `team-coding-standard.md` (one per student) and this sheet.
-7. [ ] Copy `lab/index.html` to the USB stick. Open the file on the projector laptop once.
+1. [ ] Send the homework link now. The claude.ai link opens for you alone: share the artifact first, or send the GitHub copy of `docs/course/homework.md`.
+2. [ ] Print `team-coding-standard.md` (30), this sheet (2), and 6 copies of `vote-cards.html` (3 pages: A, B, C).
+3. [ ] Decide the 6 team names, or let teams name themselves in Module 0 (click a name in the top bar to rename).
+4. [ ] Test the projector (gate 1) and the scoreboard (gate 2) on the laptop you bring.
+5. [ ] Tomorrow morning, not tonight: copy the final `lab/index.html` to the USB stick and to the projector laptop.
+
+Laptops, GitHub org, invites, robot config and the archive branch moved to the hands-on Follow-up Session. Nothing on that list blocks tomorrow.
 
 ## On the day
 
 | Elapsed | Checkpoint |
 |---|---|
-| Before start | Gates 1 and 3 rechecked. Robot boots and drives on the pre-built code. |
-| 1:55 break | Module 3 done: every student has an OpMode PR open. |
-| 3:20 break | Behind schedule: cut Module 7 to the turn and auto-aim demos. Skip the lift job. |
-| 4:50 | Wrap-up starts on time, even if Module 7 runs short. |
+| Before start | Gates 1 and 2 rechecked. Scores at 0. Tab 3 open on the AI version for Module 0. |
+| 0:10 | Teams named and seated together. Each team holds its A, B, C cards. |
+| 0:45 | Java module done. If behind, cut the Lists card and keep the Error clinic round. |
+| 1:20 break | GitHub module done. If behind, cut the conflict drill demo and keep the commit-then-push vote. |
+| 1:55 | Drive modes done. If behind, cut the AUTO demo and keep field-centric. |
+| 2:25 | One loop and launcher done. If behind, cut the match demo and keep the sleep vote. |
+| 2:50 | Final round starts on time, even if PID runs short. Cut the lift job first, then auto-aim. |
 
-Robot moments: the mentor deploys one student branch per module. A clean build passes the PR checklist on the day.
+Scoring: one point per team per right vote, per found word in a word hunt, per right fix in Spot the bug. Press the team's number key or click +. The final round doubles points.
 
 ## Fallbacks (act within 5 minutes)
 
 | Failure | Do this |
 |---|---|
-| Projector down | Pass the USB stick. Each student opens `lab/index.html` in a browser on the student laptop. Run demos on your laptop with students gathered around. |
-| No internet | The lab runs from disk. Builds run on the synced Gradle cache (turn on Gradle offline mode if a build stalls). Students commit locally. Run push, PRs and the conflict drill from a phone hotspot, or move them to the end of the day. |
-| Robot down | Skip robot moments. A clean build stays the test. Write down whose branch was next and deploy at the next practice. |
-| Student laptop not synced | Pair the student with a neighbor. Swap driver and navigator each module. Do not start a sync on the room Wi-Fi. |
+| Projector down | Gather the 6 teams around your laptop in two rows. Run the same modules with the browser zoom at 100%. |
+| Laptop down | Open `lab/index.html` from the USB stick on any laptop in the room. Scores restart at 0, so write the old scores on the whiteboard. |
+| No internet | Nothing on the day needs internet. The lab runs from disk and the fonts fall back to system fonts. |
+| Lab file broken on the projector laptop | Copy it again from the USB stick. If both copies fail, open the repo on GitHub from a phone hotspot, download `lab/index.html` (Download raw file), and open the download from disk. |
+| Teams stop paying attention | Call a word hunt on the Every word explained card. First team to find the word on the projector scores. |
 
 ## Issues
 

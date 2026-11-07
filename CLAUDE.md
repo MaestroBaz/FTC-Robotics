@@ -6,13 +6,13 @@ Context for Claude Code. Read this first, then the doc the task points to.
 
 Baz (Ahmed El-Baz) is the software mentor for a local FIRST Tech Challenge (FTC) team. The team uses REV hardware (Control Hub, Driver Hub) and codes in Java in Android Studio. CAD lives in Onshape. Season: 2026-27, game BIOBUZZ, FTC SDK v12.0.
 
-The students' old code was AI-written and too complex for them (threads, inheritance, modules they did not understand). Baz chose to archive it and have the students rewrite it simply. This repo holds his 4-5 hour crash course for 4-8 students with basic Java:
+The students' old code was AI-written and too complex for them (threads, inheritance, modules they did not understand). Baz chose to archive it and have the students rewrite it simply. This repo holds his 3-hour, demo-driven crash course for about 30 students with basic Java, run as a team game on a projector (6 teams, votes on every question, a scoreboard in the lab):
 
 - `lab/index.html`: the interactive projector lab. One self-contained HTML file, 8 tabs. This is the main build artifact and most of the work.
 - `docs/course/`: the course plan, homework, team coding standard, GitHub workflow, and the FTC season reference.
 - `tests/`: Playwright smoke test and a syntax/ASCII check.
 
-The course format: no time for each student to test on the robot, so the course runs on visuals and interactive demos on a projector, plus code-alongs where a clean build is the "test". One mentor deploys one student's branch per module ("robot moment").
+The course format (changed 2026-11-07 for 30 students, 3 hours, no laptops and no robot in the room): every module opens with a team vote, runs on the lab's sims and games on the projector, and scores points. Students type code in a later hands-on session, not on the day.
 
 ## Repo map
 
@@ -28,6 +28,7 @@ docs/agents/                config for the engineering skills: issue tracker, tr
 docs/course/crash-course-plan.md      the session plan, module by module (source of truth for teaching)
 docs/course/homework.md               night-before homework (snapshot of the claude.ai doc)
 docs/course/run-sheet.md              one printable page: go or no-go gates, prep order, fallbacks
+docs/course/vote-cards.html           printable A, B, C cards, one set per team
 docs/course/team-coding-standard.md   printed handout: the Java the team uses and avoids
 docs/course/github-team-workflow.md   org, repos, branch rules, PR template, drills
 docs/course/ftc-reference-2026-27.md  season rules, hardware, SDK, sensors, vision, links
@@ -74,7 +75,8 @@ Until these issues close:
 ## Current state (2026-11-07)
 
 Done and tested:
-- 8 tabs: 1 GitHub teamwork, 2 Java basics (10 cards incl. project map, import address, error clinic), 3 OpMode lifecycle, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift), 8 Encoders in auto.
+- 8 tabs: 1 GitHub teamwork, 2 Java basics (11 cards incl. Every word explained, project map, import address, error clinic), 3 OpMode lifecycle, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift), 8 Encoders in auto.
+- Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser), A/B/C votes with a tally on every Ask the room, word hunt chips on the Every word explained card.
 - Sim speed slider, log scale 0.05x to 2x, plus Pause, Step 0.1 s, keys P [ ] .
 - Tabs 6 and 7 charts keep the full history: live window 5-60 s, Show all, drag to zoom, scroll back, zoom buttons, Pause / Play / Reset run.
 - PID response markers (dead time, rise time, overshoot, peak time, settling band and time, steady-state error) with a kid-friendly table. Launcher markers: dip, recovery time, open-loop offset.

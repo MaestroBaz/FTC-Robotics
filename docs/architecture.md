@@ -108,6 +108,12 @@ Response markers (`response(step, tEnd)`): first non-null error `e0`, progress `
 
 `PIDVIZ.loop()` draws the control loop SVG `#pid-loop` (viewBox 1040 x 280). Term boxes show `gain x input = term` live, dashed when a term is switched off, "not running" when the PID is skipped. `PIDVIZ.minis()` draws the integral (area under error since the last reset, last 6 s) and derivative (slope over the last 2 s) mini charts.
 
+## Team game (top bar and every tab)
+
+- `TEAMS`: 6 teams in `#tm-list`, rendered from one immutable array `{name, pts}`. Keys 1 to 6 add a point (global keydown handler), `+` and `-` buttons adjust, the name input renames, `#tm-reset` zeroes, `#tm-toggle` hides the bar. Saved in `localStorage` under `ftc-lab-teams` inside try/catch, so a private window still works for the page's lifetime. The team with the top score gets `.lead`.
+- Votes: every `details.ask` holds a `span.vote` with `data-right` and `button.opt` children inside the summary. The enhancer after `TEAMS` adds the letter, a tally `<b>`, and the `right` class. Click adds one, right-click takes one back, both stop the summary toggle. Opening the details (Reveal answer) lights the right option and fades the rest through CSS.
+- `JVW` (Java tab, card 1 "Every word explained"): three code listings in `FILES`, a word table `W` of `[id, regex source, color class, label, explanation]`, one combined regex `RE`. `lineHtml()` wraps each match in `span.w[data-w]`. Patterns with inner groups must use `(?:...)`, because the match index maps back to `W`. Clicking a word or a chip highlights every match of the word and fills `#jv-wname` and `#jv-wmsg`.
+
 ## Testing
 
 `tests/smoke.js` drives the page with Playwright from `file://`. Modules are not on `window`, so tests read the DOM (chips, aria-pressed, table text). Add a check there for each new behavior.

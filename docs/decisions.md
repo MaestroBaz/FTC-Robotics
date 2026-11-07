@@ -10,7 +10,10 @@
 | GitHub first (Module 1), then every exercise ends in a commit and PR | Practice Git all day instead of one lecture. |
 | GitHub organization with separate code and CAD repos, no submodules | Submodules stall students. Onshape already versions CAD, so the CAD repo holds links, exports, BOM and decisions. |
 | New code repo each season, forked from FtcRobotController | The SDK changes every September. gm0 recommends it. |
-| Demo-driven format: ask the room, show the lab, code-along, one robot moment | No time for each student to test on the robot. A clean build is the room's test. |
+| Demo-driven format: ask the room, show the lab, code-along, one robot moment | No time for each student to test on the robot. A clean build is the room's test. Superseded on 2026-11-07, next row. |
+| Team game, no student typing: 6 teams, a vote before every demo, a scoreboard, word hunts and spot-the-bug rounds | The room grew to about 30 students with 3 hours, no laptops and no robot. Prediction before a demo keeps the learning, and points keep 30 teenagers in the room. Typing moves to a hands-on Follow-up Session. |
+| GitHub module after Java, cut to 20 minutes | GitHub first made sense when every exercise ended in a commit. With no exercises, the Java module earns the fresh attention. |
+| Every word explained card: three real files, every word clickable | The audit found the lab used static, this, void, return, enum, switch and constructors without explaining them. One card with real code beats ten new glossary cards. |
 | Code model: FIRST's `RobotHardware` sample and the REV Starter Bot | One plain hardware class, private motors, public actions, one loop. |
 | One flat `teamcode` folder | Subfolders change `package` lines and add imports students do not need yet. |
 | `List` and our own `PIDController` class allowed | Needed for detections and reusable control. Everything else in the "avoid" table needs mentor approval. |

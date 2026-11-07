@@ -93,3 +93,13 @@ Request: Baz reported the tab buttons did nothing in the Claude browser pane.
 Finding: the pane opens the lab as a `data:` URL, and Chrome blocks hash navigation on a `data:` top frame. The smoke test never clicked a tab, so it missed this.
 
 Output: tab links switch through a click handler, with `history.pushState` in try/catch. New smoke check loads the lab as a `data:` URL and clicks a tab, 18 of 18 pass.
+
+## 15. Rebuild for 30 students and 3 hours (2026-11-07)
+
+Request: audit the lab (static used but never explained), rethink the method for close to 30 students in 3 hours, and make the lab more interactive and complete.
+
+Facts from Baz: still tomorrow, demo-driven with no laptops, no robot in the room.
+
+Audit: the Java tab used static, final on fields, this., constructors, void, return, parameters, enum, switch, else, &&, hardwareMap.get(X.class, name) and @TeleOp(name) without explaining them.
+
+Output: a 6-team scoreboard in the top bar, A/B/C votes with a tally on all 9 Ask the room blocks, and the Every word explained card with MainTeleOp, Robot and PIDController where every word is clickable. 12 new smoke checks, 28 of 28 pass. Plan rewritten for the 3-hour agenda with team rounds, run sheet rewritten with the new gates, GLOSSARY gained Team and Team Round, decisions gained the format change. The artifact was not republished: the lab runs from the local file.

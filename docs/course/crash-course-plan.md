@@ -1,216 +1,112 @@
-# FTC Java Crash Course (5 hours, Android Studio, REV)
+# FTC Java Crash Course (3 hours, demo-driven, about 30 students)
 
-Audience: 4-8 students with basic Java (variables, if, loops). Goal: every student writes, explains, reviews, and merges real robot code by the end of the day.
+Audience: about 30 students with basic Java (variables, if, loops), in 6 teams of about 5. No student laptops and no robot in the room. The mentor runs the lab on the projector from the local file `lab/index.html`. Students do not type code on this day. Goal: every team reads a full OpMode, names each part, and predicts what the robot does before the demo shows the answer. A hands-on Follow-up Session covers cloning, building and pull requests.
 
-Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 GitHub teamwork, 2 Java basics, 3 OpMode lifecycle, 4 Drive modes, 5 One loop, 6 Feedback, 7 PID control, 8 Encoders in auto).
+Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 GitHub teamwork, 2 Java basics, 3 OpMode lifecycle, 4 Drive modes, 5 One loop, 6 Feedback, 7 PID control, 8 Encoders in auto). On the day, open the same file from disk.
 
 Homework for the night before: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S (FTC Crash Course: Homework for Tonight, about 3 hours, GitHub first).
 
-Slow motion: the slider under the tabs sets the simulation speed on a log scale from 0.05x to 2x. Click a label (0.05, 0.1, 0.25, 0.5, 1, 2) to jump to it, or press 1x. Pause, and Step 0.1 s. Keys: P pause, [ slower, ] faster, . step. Run each demo once at 1x so the room sees the real speed, then replay at 0.1x or 0.05x and pause on the moment you explain.
+Slow motion: the slider under the tabs sets the simulation speed on a log scale from 0.05x to 2x. Click a label (0.05, 0.1, 0.25, 0.5, 1, 2) to jump to a speed, or press 1x. Pause, and Step 0.1 s. Keys: P pause, [ slower, ] faster, . step. Run each demo once at 1x so the room sees the real speed, then replay at 0.1x or 0.05x and pause on the moment you explain.
 
-Charts (tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live window (5 to 60 s), press Show all, drag across a chart to zoom into that part, or use the Scroll back slider. Double-click a chart to return to live. Each chart bar also has Pause, Play and Reset run.
+Charts (tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live window (5 to 60 s), press Show all, drag across a chart to zoom into one part, or use the Scroll back slider. Double-click a chart to return to live. Each chart bar also has Pause, Play and Reset run.
 
-## Teaching format: demo-driven, everyone still writes code
+## Teaching format: demo-driven, teams score points
 
-Time does not allow each student to test on a robot. The format below replaces hands-on robot testing with visuals, and keeps students typing:
+Nobody types on this day. The lab replaces hands-on testing with visuals, and the team game replaces typing with predictions. Every module runs the same four moves:
 
-1. Ask the room (2 min). Each lab tab opens with a question. Students commit to an answer out loud or on a sticky note before you click Reveal. A wrong prediction followed by the demo sticks better than a lecture.
-2. Show the lab (5-10 min). Run the interactive tab on the projector. Turn on the bug toggles. Let a student drive the controls.
-3. Code-along (10-20 min). Every student types the change in Android Studio on their own branch and runs Build > Make Project. A clean build is the "test" for the room. No robot needed.
-4. Robot moment (3 min). The mentor deploys ONE student's branch to the single robot over USB-C, with the Driver Hub on the document camera or held up. Rotate the student each module, so each student's code runs on the real robot once.
+1. Ask the room (2 min). Each lab tab opens with a question and three answers, A, B and C. Teams talk for 30 seconds and hold up one printed card. You click the answer each team holds up (right-click takes one back), then click Reveal answer, then press the key 1 to 6 for each team with the right answer. A wrong prediction followed by the demo sticks better than a lecture.
+2. Show the lab (5-10 min). Run the tab on the projector. Turn on the bug toggles. Let a student from the leading team drive the controls.
+3. Team round (3-5 min). One of four games, listed per module below: a vote, a word hunt, a spot-the-bug, or a prediction before a demo.
+4. Read the code aloud (2 min). Point at the real file on the Java tab and say what one line does. Teams listen for words to hunt later.
+
+The four games:
+- Vote: the Ask the room question. One point per team with the right answer.
+- Word hunt: open the Java tab, card 1 "Every word explained". You say what a word does ("this word locks a number so nobody changes the tuned value"). The first team to shout the word scores one point. Click the word to show the plain-words explanation to the room.
+- Spot the bug: Java tab, card 10. Put an error on the projector. The team whose turn comes picks a fix. Click the fix. The room sees the result. A right fix scores one point. A wrong fix passes the same error to the next team.
+- Prediction: before you press a lab button, each team holds up A, B or C for what the robot will do. Right prediction, one point.
+
+Scoreboard: the top bar of the lab holds 6 teams. Keys 1 to 6 give a point. Click a name to rename a team. Reset scores clears the board. The Teams button hides the bar when you need the screen.
 
 Design choices:
-- One working TeleOp with field-centric drive, a launcher state machine and auto-aim, built in steps. Every exercise ends in a commit, so GitHub is practiced all day.
+- One working TeleOp with field-centric drive, a launcher state machine and auto-aim, shown in steps. The same three files (MainTeleOp.java, Robot.java, PIDController.java) come back in every module, so by the end the room has read them many times.
 - The code model is FIRST's own `RobotHardware` sample and the REV Starter Bot: one hardware class, plain methods, one loop. No threads, no inheritance beyond `extends LinearOpMode`.
+- GitHub moved after Java because with no laptops nothing ends in a commit, so the GitHub module teaches the flow and the hands-on session practices the flow.
 - Camera setup is out of scope. BIOBUZZ has no randomization, so the camera matters for aiming only. The auto-aim code takes a bearing number and builds without a camera. Setting up VisionPortal is a follow-up session.
-- The day now holds Java basics, drive modes and PID. Something had to go: encoder AUTO (lab tab 8) moves to the follow-up session. To fit 4 hours, also shorten Module 7 (PID) to the turn and auto-aim demos only.
-
-Optional practice without a robot: Beta8397/virtual_robot (https://github.com/Beta8397/virtual_robot) is a 2D FTC simulator that runs LinearOpModes from Android Studio with an abridged copy of the SDK. Students paste their OpMode into its TeamCode folder and drive a simulated mecanum robot. Use it for homework, not in the session: setup takes time, its hardware names differ from our robot config, and the abridged SDK lacks some v12.0 features. [Verify] the setup on one laptop before you recommend it.
+- Three hours hold Java basics, lifecycle, GitHub, drive modes, one loop with the launcher, and PID. Encoder AUTO (lab tab 8) moves to a Follow-up Session.
 
 ## Before the day (mentor checklist)
 
 The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fallbacks for the day.
 
-- [ ] Every laptop has Android Studio Narwhal 3 Feature Drop or later, with the team repo cloned and Gradle sync finished on school Wi-Fi. The first sync downloads several GB. Do not leave this for the session.
-- [ ] Every student has a GitHub account (GitHub requires age 13+) and has accepted the org invite.
-- [ ] GitHub org and repos set up per `github-team-workflow.md`.
-- [ ] Control Hub and Driver Hub updated with REV Hardware Client 2. Robot config uses the names in `Robot.java` below.
-- [ ] One robot, one USB-C cable, one mentor laptop for "robot moments". Pre-build `Robot.java` on the robot so each robot moment takes 3 minutes, not 15.
-- [ ] Projector: lab page open, browser zoom at 125-150% so the code lines read from the back row. Test the page on the projector before the day.
-- [ ] Old AI-written code archived on a branch named `archive/ai-code-2026` and removed from `main`.
-- [ ] `team-roster.md` on main with the single line `Team members: ` for the Module 1 conflict drill.
-- [ ] Homework link sent to students tonight. Ask each to reply with their GitHub username so you can invite them before the session.
 - [ ] Print `team-coding-standard.md`, one per student.
+- [ ] Print `run-sheet.md`.
+- [ ] Print 6 sets of A, B and C cards, one set per team.
+- [ ] Test the projector with `lab/index.html` opened from disk, browser zoom at 125-150%, so the code lines read from the back row.
+- [ ] On the morning of the course, copy `lab/index.html` to a USB stick.
+- [ ] Send the homework link to the students.
+
+Laptops, GitHub org and invites, robot config and the archive branch moved to the hands-on Follow-up Session plan at the end of this doc.
 
 ## Agenda
 
-GitHub comes first, so every exercise after it ends in a commit and a pull request.
-
 | Time | Module | Lab tab | Output |
 |---|---|---|---|
-| 0:00-0:15 | 0. Why we are here | 3 (AI version) | Team rules agreed |
-| 0:15-0:55 | 1. GitHub teamwork | 1 GitHub teamwork | Everyone cloned the repo, opened a PR, and fixed a real merge conflict |
-| 0:55-1:30 | 2. Java basics | 2 Java basics | Students read a full OpMode and name each part |
-| 1:30-1:55 | 3. Toolchain and OpMode lifecycle | 3 OpMode lifecycle | Own OpMode builds, committed, PR open |
-| 1:55-2:05 | Break | | |
-| 2:05-2:50 | 4. Driving: robot-centric and field-centric | 4 Drive modes | Mecanum TeleOp with a field-centric toggle builds |
-| 2:50-3:20 | 5. One Robot class, reviewed in pairs | 2 (public and private) | TeleOp uses Robot.java, PRs reviewed and merged |
-| 3:20-3:30 | Break | | |
-| 3:30-4:05 | 6. One loop, feedback, state machines | 5 One loop, 6 Feedback | Launcher state machine builds |
-| 4:05-4:50 | 7. PID control and auto-aim | 7 PID control | PIDController.java and auto-aim on a button build |
-| 4:50-5:00 | Wrap-up | | Each student explains one file out loud |
+| 0:00-0:10 | 0. Why we are here, teams and the rules of the game | 3 (AI version) | Teams named, rules agreed |
+| 0:10-0:45 | 1. Java basics, the robot way | 2 Java basics | Teams read a full OpMode and name each part |
+| 0:45-1:00 | 2. What runs when you press INIT, START and STOP | 3 OpMode lifecycle | Teams predict the next line before each press |
+| 1:00-1:20 | 3. GitHub: how the team shares one robot's code | 1 GitHub teamwork | Teams explain commit, push, pull, PR and conflict |
+| 1:20-1:30 | Break | | |
+| 1:30-1:55 | 4. Drive modes, robot-centric and field-centric | 4 Drive modes | Teams predict where the robot goes in each mode |
+| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 5 One loop, 6 Feedback | Teams explain why no sleep and why closed loop |
+| 2:25-2:50 | 6. PID control and auto-aim | 7 PID control | Teams name P, I and D on the chart |
+| 2:50-3:00 | Final round, scores, what comes next | 2 (Every word explained) | Winner named, next session dated |
 
-## Module 0: Why we are here (15 min)
+Encoders (tab 8) stay in a Follow-up Session.
 
-Talking points:
+## Module 0: Why we are here, teams and the rules of the game (10 min)
+
+Talking points (5 min):
 - Judges interview students, not code. A robot the team cannot explain loses Control and Inspire contention.
 - FIRST allows AI and asks for credit. The team rule: you merge only code you explain line by line to a reviewer. "The AI wrote it" does not pass review.
-- Show the old code for 2 minutes. Ask: "Who can tell me what this thread does at STOP?" Silence makes the point. Do not shame anyone.
+- Show the old code for 2 minutes. Ask: "Who tells me what this thread does at STOP?" Silence makes the point. Do not shame anyone.
 - Then open lab tab 3, pick "AI version with thread", press INIT. The robot breaks rule G304.H before the match starts, and after STOP the app restarts. Two minutes, no lecture needed.
 - Show the 3 rules on the wall:
   1. One loop. No threads. No `sleep()` inside TeleOp.
   2. Two kinds of files: `Robot.java` (hardware) and OpModes (behavior).
   3. Every change goes through a pull request with a human reviewer.
 
-## Module 1: GitHub teamwork (40 min)
+Teams and the game (5 min):
+- Press Reset scores. Click each team name in the top bar and type the name the team picks. Hand out one set of A, B and C cards per team.
+- Practice vote, no points: the tab 3 Ask the room question about the AI version. Walk through the moves once: teams hold up a card, you click each team's answer, Reveal answer, then a key per right team. Explain the four games in one sentence each.
 
-Lab tab 1, parts A to D (15 min):
-- A, where your code lives: press Edit, Commit, then "Your partner pushes", then Push. The push gets rejected. Ask the room why, then Pull and Push.
-- B, how the repos fit: point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
-- C, one pull request: step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back.
-- D, merge conflict: step through Maya and Leo. Let a student pick the side at step 8.
+Team rounds:
+- Practice vote on tab 3 (0 points, shows the moves).
 
-Live drill on the real repo (25 min). Safe file first, robot code later:
-1. Each student accepts the org invite and clones `robot-code-2026-biobuzz` in Android Studio (File > New > Project from Version Control). The clone and the Gradle sync should already be done on each laptop (checklist above).
-2. The mentor has put `team-roster.md` on main with one line: `Team members: `.
-3. Each student: Git > New Branch `yourname/roster`, adds their name at the end of that same line, commits, pushes, opens a PR.
-4. The mentor approves and merges the first PR. Every other PR now shows a conflict, because everyone changed the same line.
-5. Each student fixes their own conflict: Git > Merge `origin/main`, keep both names in the 3-pane merge tool, commit, push. Merge them one at a time on the projector.
-6. Everyone pulls main. The roster holds every name. Each student has done every step of tab 1 for real, with no robot code at risk.
+## Module 1: Java basics, the robot way (35 min)
 
-Use this PR flow for every exercise from here on.
-
-## Module 2: Java basics (35 min)
-
-Lab tab 2 has 10 cards. 35 minutes does not cover all of them in depth, so spend the time where students get stuck in Android Studio: structure, imports, and errors.
+Lab tab 2 has 11 cards. 35 minutes does not cover all of them in depth, so spend the time on the two cards with the games: Every word explained and Spot the bug.
 
 | Card | Time | What to click | The one sentence to remember |
 |---|---|---|---|
 | 0 Anatomy of a file | 3 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
-| 1 Modules and packages | 6 min | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
-| 2 Imports | 4 min | An import name to read its address, then untick an import | An import is the full address of a class: folders, then the class. Alt+Enter > Import class, never Create class. |
-| 3 Classes and objects | 2 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
-| 4 Variables and constants | 2 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
-| 5 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
-| 6 public and private | 2 min | Press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
-| 7 Inheritance | 2 min | Click telemetry, gamepad1, waitForStart | `extends LinearOpMode` is why telemetry and gamepad1 exist. Stop at one level. A TeleOp has a Robot. |
-| 8 Lists | 2 min | Add shots, run the average loop | A List holds many values in order, index from 0. |
-| 9 Error clinic | 10 min | Errors 1, 4, 6 and 7 live, students vote on the fix first | Read the red text, find it in the decoder, apply the fix. Fix the first error first. |
+| 1 Every word explained | 8 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
+| 2 Modules and packages | 4 min | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
+| 3 Imports | 3 min | An import name to read the address, then untick an import | An import is the full address of a class: folders, then the class. |
+| 4 Classes and objects | 2 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
+| 5 Variables and constants | 2 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
+| 6 Scope | 1 min | Next line, 10 times | A variable lives until the `}` of its block. |
+| 7 public and private | 2 min | Press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
+| 8 Inheritance | 2 min | Click telemetry, gamepad1, waitForStart | `extends LinearOpMode` is why telemetry and gamepad1 exist. Stop at one level. A TeleOp has a Robot. |
+| 9 Lists | 1 min | Add shots, run the average loop | A List holds many values in order, index from 0. |
+| 10 Spot the bug | 7 min | Errors 1, 4, 6 and 7, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
 
-Error clinic routine: put an error on the projector. Students hold up 1 to 4 fingers for the fix they pick. Then click the most popular one, wrong or right: a wrong answer teaches more when the explanation appears on screen. Assign errors 2, 3, 5, 8 and 9 as pair practice during the Module 3 code-along, when the first real red lines show up.
+Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (inside Robot.java) sets up card 7.
 
-Check for understanding: put MainTeleOp on the projector. Point at 8 random words. A student names what each one is (keyword, class, object, method, variable, constant). Repeat at wrap-up.
+Word hunt routine (card 1): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the word chips at the bottom for the final round.
 
-## Module 3: Toolchain and OpMode lifecycle (25 min)
+Spot the bug routine (card 10): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 3, 5, 8 and 9 stay for the final round if time allows.
 
-Lab tab 3: press INIT, START, STOP with the team version. Ask before each press: "Which line runs next?" The state diagram under the code lights up each state. The match timeline shows where INIT, AUTO and TELEOP sit in the 158 seconds.
-
-Teach:
-- Project layout. Students only touch `TeamCode/src/main/java/org/firstinspires/ftc/teamcode`. The `FtcRobotController` folder holds the SDK and samples. Read, never edit.
-- Robot configuration on the Driver Hub: names in the config must match the strings in `hardwareMap.get(...)`. Most "my code crashes at INIT" bugs come from a name mismatch.
-- Build vs deploy: Build > Make Project checks the code on the laptop. Deploy (Run with the Control Hub on USB-C) puts it on the robot. Students build. The mentor deploys during robot moments.
-- Explain each line of the file once: `package`, `import`, `@TeleOp`, `public class ... extends LinearOpMode`, `@Override`. Keep the explanation of `extends` to one sentence: "This makes our class an OpMode the Driver Hub can list and run."
-
-Exercise 1 (each student, in their own branch, PR at the end):
-
-```java
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-@TeleOp(name = "Hello Maya", group = "Practice")
-public class PracticeHelloMaya extends LinearOpMode {
-
-    @Override
-    public void runOpMode() {
-        telemetry.addLine("Hello from Maya. Press START.");
-        telemetry.update();
-
-        waitForStart();
-
-        while (opModeIsActive()) {
-            telemetry.addData("Left stick Y", gamepad1.left_stick_y);
-            telemetry.addData("A pressed", gamepad1.a);
-            telemetry.update();
-        }
-    }
-}
-```
-
-Done when: Build > Make Project succeeds and the student commits with message `Add PracticeHelloMaya practice OpMode`. Robot moment: deploy one student's OpMode, show it in the Driver Hub list, and show stick values changing on telemetry.
-
-Discussion point: push the stick forward. Why is `left_stick_y` negative? (Gamepad Y points down.) This explains the minus sign in every drive sample.
-
-## Module 4: Driving: robot-centric and field-centric (45 min)
-
-Lab tab 4, in this order:
-1. Robot-centric: press each preset. Read the wheel powers out loud. Turn off Normalize with Forward + turn and watch the robot curve. Turn on the front_left bug and ask what the drivers would see.
-2. Ask the room question, then press "Rotate robot 90 deg by hand" and Forward in each mode. The compass needle shows the IMU heading. The "rotation in one picture" panel shows the stick vector on the left and what the robot receives on the right.
-3. Field-centric with a wrong zero: rotate the robot by hand without pressing Reset IMU yaw, then rotate back. Show why the A button matters.
-4. AUTO: click points on the field, then tick "turn to 90 deg while driving". The path stays straight while the robot turns. Point out: no driver here, and the robot needs its position from odometry, not only its heading.
-5. Read the three use-case cards together.
-
-Correct a common belief: field-centric is a way to read the driver's sticks, so it belongs in TeleOp. In the 30-second AUTO there are no sticks. What carries over to AUTO is the same rotation math, applied to field coordinates from odometry (Pinpoint or dead wheels) or AprilTag localization.
-
-Teach the LinearOpMode lifecycle on the whiteboard:
-
-```
-INIT pressed  -> code before waitForStart() runs (set up hardware, no movement: rule G304.H)
-START pressed -> waitForStart() returns
-loop          -> while (opModeIsActive()) runs about 50-100 times per second
-STOP pressed  -> opModeIsActive() becomes false, loop ends, code after the loop runs
-```
-
-Key idea: each loop pass must finish fast. Anything that waits (sleep, a while loop inside the loop) freezes the drivers' sticks.
-
-Mecanum math (from SDK sample BasicOmniOpMode_Linear). Draw the 4 wheels and the rollers. Show how forward, strafe and turn add up per wheel.
-
-```java
-double axial   = -gamepad1.left_stick_y;  // forward/back
-double lateral =  gamepad1.left_stick_x;  // strafe
-double yaw     =  gamepad1.right_stick_x; // turn
-
-double frontLeftPower  = axial + lateral + yaw;
-double frontRightPower = axial - lateral - yaw;
-double backLeftPower   = axial - lateral + yaw;
-double backRightPower  = axial + lateral - yaw;
-
-// Keep every power between -1 and 1 without changing the ratio between wheels.
-double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
-max = Math.max(max, Math.abs(backLeftPower));
-max = Math.max(max, Math.abs(backRightPower));
-if (max > 1.0) {
-    frontLeftPower  /= max;
-    frontRightPower /= max;
-    backLeftPower   /= max;
-    backRightPower  /= max;
-}
-```
-
-Exercise 2: copy BasicOmniOpMode_Linear into TeamCode as `DriveTeleOp`, rename, remove `@Disabled`, set motor names to match config, build. Then add slow mode: while the left bumper is held, multiply all 4 powers by 0.4.
-
-Exercise 2b (fast students): add a field-centric toggle. Copy `driveFieldCentric()` from lab tab 4 (based on SDK sample RobotTeleopMecanumFieldRelativeDrive). gamepad1 X switches modes, gamepad1 A calls `imu.resetYaw()`. Show the current mode on telemetry so the drivers always know.
-
-Robot moment: deploy one student's DriveTeleOp. Wheel test first: push one stick slowly and check each wheel spins the right way. Wrong direction means fix `setDirection`, never flip signs in the math (the lab's bug toggle showed why).
-
-## Module 5: One Robot class, reviewed in pairs (30 min)
-
-Problem to show: TeleOp and Auto both need the same motors. Copy-paste means two places to fix every bug. Solution: one `Robot.java` that knows the hardware. OpModes decide behavior.
-
-Teach `public` and `private` with one rule: fields (motors, sensors) are `private`, methods other files call are `public`. Teach `import` with one rule: Android Studio adds them, press Alt+Enter on red text.
-
-Target file (adapt names, directions and the launcher to the real robot):
+Read aloud (card 1 shows these two files): say what each method does while you scroll. Students follow on the projector.
 
 ```java
 package org.firstinspires.ftc.teamcode;
@@ -229,7 +125,7 @@ public class Robot {
     // Tune these on the real robot.
     public static final double LAUNCH_VELOCITY = 1160;   // encoder ticks per second
     public static final double VELOCITY_TOLERANCE = 50;  // ticks per second
-    public static final double COUNTS_PER_INCH = 42.8;   // example: 537.7 counts/rev, 4 in wheel. Formula in Module 6
+    public static final double COUNTS_PER_INCH = 42.8;   // example: 537.7 counts/rev, 4 in wheel. Formula in the encoders session
 
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -333,7 +229,7 @@ public class Robot {
 }
 ```
 
-TeleOp after the refactor:
+The TeleOp, which uses the Robot class:
 
 ```java
 @TeleOp(name = "Main TeleOp", group = "Competition")
@@ -366,23 +262,100 @@ public class MainTeleOp extends LinearOpMode {
 }
 ```
 
-Exercise 3 (pairs): one student writes `Robot.java`, the partner rewrites `MainTeleOp` to use it. Both commit on their own branches and open PRs. Open lab tab 2, card "public and private", before you start: it shows why the motors are private.
+Problem to show with the two files: TeleOp and Auto both need the same motors. Copy-paste means two places to fix every bug. Solution: one `Robot.java` knows the hardware. OpModes decide behavior. Teach `public` and `private` with one rule: fields (motors, sensors) are `private`, methods other files call are `public`.
 
-Review in pairs (10 min of the 30): each student reviews the partner's PR with the checklist. The reviewer asks 2 "what does this line do" questions, and the author answers out loud. Merge the Robot.java PR first, then the TeleOp PR. Robot moment: the mentor deploys the merged main and a student drives.
+Team rounds:
+- Vote: "Where does Java find the word drive?" (1 point per right team).
+- Word hunt on card 1: 4 words (1 point each, first team).
+- Spot the bug on card 10: errors 1, 4, 6 and 7 (1 point per right fix).
 
-## Module 6: One loop, feedback, state machines (35 min)
+## Module 2: What runs when you press INIT, START and STOP (15 min)
 
-Part A, feedback (lab tab 6, 10 min):
-- Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Press "Run a 2-minute match" and compare hit rates on the scoreboard. Then point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
-- IMU: show heading on telemetry, rotate the robot by hand. `resetYaw()` sets zero.
-- Mention bulk reads: one line in `init`, faster loops.
+Lab tab 3: press INIT, START, STOP with the team version. Before each press, teams hold up A, B or C for which line runs next, from three lines you name. The state diagram under the code lights up each state. The match timeline shows where INIT, AUTO and TELEOP sit in the 158 seconds.
 
-Part B, why no threads (lab tab 5, 5 min):
+Teach on the whiteboard:
+
+```
+INIT pressed  -> code before waitForStart() runs (set up hardware, no movement: rule G304.H)
+START pressed -> waitForStart() returns
+loop          -> while (opModeIsActive()) runs about 50-100 times per second
+STOP pressed  -> opModeIsActive() becomes false, loop ends, code after the loop runs
+```
+
+Teach:
+- Project layout. The team only touches `TeamCode/src/main/java/org/firstinspires/ftc/teamcode`. The `FtcRobotController` folder holds the SDK and samples. Read, never edit.
+- Robot configuration on the Driver Hub: names in the config must match the strings in `hardwareMap.get(...)`. Most "my code crashes at INIT" bugs come from a name mismatch. Point at `"front_left"` in Robot.java.
+- Explain each line of the file once: `package`, `import`, `@TeleOp`, `public class ... extends LinearOpMode`, `@Override`. Keep the explanation of `extends` to one sentence: "This makes our class an OpMode the Driver Hub lists and runs."
+- Ask without points: a driver pushes the left stick forward. Why does `left_stick_y` read negative? (Gamepad Y points down.) This explains the minus sign in every drive sample.
+
+Team rounds:
+- Prediction before INIT, START and STOP: which line runs next (1 point each).
+- Prediction at STOP on the AI version, replayed from Module 0: does the thread stop? (1 point).
+
+## Module 3: GitHub: how the team shares one robot's code (20 min)
+
+Lab tab 1, parts A to D:
+- Open with the vote: "Your laptop dies before you push. Does your team have your code?" Reveal, then score.
+- A, where your code lives (6 min): press Edit, Commit, then "Your partner pushes", then Push. Stop before Push: teams predict A accepted, B rejected, C merged on the server. Press Push. The push gets rejected. Ask a team why, then Pull and Push.
+- B, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
+- C, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
+- D, merge conflict (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep, A Maya, B Leo, C both. Click the most popular side, then show why "both" wins for a roster line.
+
+Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words.
+
+Team rounds:
+- Vote: laptop dies before push (1 point per right team).
+- Prediction: what happens at Push after the partner pushed (1 point).
+- Vote at conflict step 8: which side to keep (1 point for "both").
+
+## Module 4: Drive modes, robot-centric and field-centric (25 min)
+
+Lab tab 4, in this order:
+1. Robot-centric (6 min): press each preset. Read the wheel powers out loud. Turn off Normalize with Forward + turn and watch the robot curve. Turn on the front_left bug and ask what the drivers would see. Before you turn the bug on, teams predict: A drives straight, B curves, C spins in place.
+2. Vote (3 min): the robot faces the left wall, the driver pushes the stick up. Reveal, score, then press "Rotate robot 90 deg by hand" and Forward in each mode. The compass needle shows the IMU heading. The "rotation in one picture" panel shows the stick vector on the left and what the robot receives on the right.
+3. Field-centric with a wrong zero (5 min): rotate the robot by hand without pressing Reset IMU yaw, then rotate back. Teams predict first: where does Forward go now? Show why the A button matters.
+4. AUTO (5 min): click points on the field, then tick "turn to 90 deg while driving". The path stays straight while the robot turns. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
+5. Read the three use-case cards together (3 min).
+
+Correct a common belief: field-centric is a way to read the driver's sticks, so field-centric belongs in TeleOp. In the 30-second AUTO there are no sticks. What carries over to AUTO is the same rotation math, applied to field coordinates from odometry (Pinpoint or dead wheels) or AprilTag localization.
+
+Mecanum math (3 min, from SDK sample BasicOmniOpMode_Linear). Draw the 4 wheels and the rollers. Show how forward, strafe and turn add up per wheel, then point at the same lines inside `robot.drive()` in Robot.java.
+
+```java
+double axial   = -gamepad1.left_stick_y;  // forward/back
+double lateral =  gamepad1.left_stick_x;  // strafe
+double yaw     =  gamepad1.right_stick_x; // turn
+
+double frontLeftPower  = axial + lateral + yaw;
+double frontRightPower = axial - lateral - yaw;
+double backLeftPower   = axial - lateral + yaw;
+double backRightPower  = axial + lateral - yaw;
+```
+
+Wrong wheel direction on a real robot means fix `setDirection` in Robot.java, never flip signs in the math. The front_left bug toggle showed why.
+
+Team rounds:
+- Prediction before the front_left bug (1 point).
+- Vote: left wall, stick up, both modes (1 point per right team).
+- Prediction before the wrong-zero demo (1 point).
+
+## Module 5: One loop, no sleep, and the launcher across a match (30 min)
+
+Part A, why no sleep (lab tab 5, 10 min):
+- Open with the vote: during `sleep(1000)` the motors keep the last power. What happens while the driver steers? Reveal, score.
 - Set the speed to 0.25x and press Launch. The sleep() robot drives blind for 1.3 seconds and leaves the target. The state machine robot keeps following. Point at the gap in the loop ticks, and at the yellow box moving through the state machine diagram.
 - Ask the room how to fire the launcher, wait for speed, then feed, without freezing the drive. Answer: a state machine.
 - Cite gm0: hardware calls share one lock per hub, so threads do not speed anything up and they hide crashes.
+- Key idea: each loop pass must finish fast. Anything waiting (sleep, a while loop inside the loop) freezes the drivers' sticks.
 
-Part C, state machine (20 min). Add to `MainTeleOp`:
+Part B, feedback across a match (lab tab 6, 10 min):
+- Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)`? Reveal, score.
+- Before you press "Run a 2-minute match", teams predict which robot wins on the scoreboard and by how much: A open loop, B closed loop by a little, C closed loop by a lot. Press, then compare hit rates.
+- Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
+- Markers: dip, recovery time, open-loop offset. Pause on the dip after a shot and name each one.
+- IMU: show heading on telemetry. `resetYaw()` sets zero. Mention bulk reads: one line in `init`, faster loops.
+
+Part C, the state machine, read aloud (10 min). This goes into `MainTeleOp`:
 
 ```java
 // Above runOpMode():
@@ -422,37 +395,57 @@ telemetry.addData("Launcher velocity", robot.launcherVelocity());
 
 Teach: each pass through the loop checks the state once and moves on. Driving keeps working while the launcher spins up. `rightBumperWasPressed()` fires once per press, not every loop (SDK edge detection, confirmed in the v12.0 samples alongside `leftBumperWasPressed()`, `rightTriggerWasPressed()`, `crossWasPressed()`). Contrast with `gamepad2.right_bumper`, which stays true every loop while held.
 
-Exercise 5: add a cancel button. Pressing gamepad2 B in any state returns to IDLE.
+Spot the bug on the whiteboard: cross out one `break`. Teams hold up A the launcher never spins, B two states run in one pass, C a compile error. Then ask where a cancel button (gamepad2 B returns to IDLE) would go. Teams answer A inside IDLE, B inside every case, C above the switch.
 
-## Module 7: PID control and auto-aim (45 min)
+Team rounds:
+- Vote: sleep and the sticks (1 point per right team).
+- Vote: battery and setPower (1 point per right team).
+- Prediction: who wins the 2-minute match (1 point).
+- Spot the bug: missing break, then the cancel button (1 point each).
+
+## Module 6: PID control and auto-aim (25 min)
 
 Lab tab 7. The message for the room: one class, every sensor. The PID code never changes. Only the sensor, the error, and 3 numbers change.
 
-Part A, what P, I and D do (15 min). Use "Turn to heading (IMU)" at 0.25x speed, and pause on the moments below:
-0. Start with the control loop diagram at the top: target, error, the 3 term boxes, power, drivetrain, IMU, and the arrow back. Trace one lap with your finger. Each term box shows the live math, for example `0.020 x -12.3 = -0.25`, so moving a slider changes the box at once. The two small charts under it show what I and D mean: I is the shaded area under the error curve, D is the slope of the red line.
-0b. Response markers (dotted lines on the Target vs sensor chart, with a table under it). Name each one with the room: dead time (delay before the sensor sees motion), rise time (10% to 90% of the way), overshoot and peak time, settling time (enters the green band and stays), steady-state error (offset at the end). Use the table to compare presets. Save "P too high" for the aim job in Part B, where its overshoot shows up in the table. "Response time" is a loose word: ask students to say rise time or settling time instead.
+Part A, what P, I and D do (12 min). Use "Turn to heading (IMU)" at 0.25x speed, and pause on the moments below:
+0. Start with the control loop diagram at the top: target, error, the 3 term boxes, power, drivetrain, IMU, and the arrow back. Trace one lap with your finger. Each term box shows the live math, for example `0.020 x -12.3 = -0.25`, so moving a slider changes the box at once. The two small charts under the diagram show what I and D mean: I is the shaded area under the error curve, D is the slope of the red line.
+0b. Response markers (dotted lines on the Target vs sensor chart, with a table under the chart). Name each one with the room: dead time (delay before the sensor sees motion), rise time (10% to 90% of the way), overshoot and peak time, settling time (enters the green band and stays), steady-state error (offset at the end). Use the table to compare presets. Save "P too high" for the aim job in Part B, where the overshoot shows up in the table. "Response time" is a loose word: ask students to say rise time or settling time instead.
 1. Preset "P only". P = kP x error. Point at the blue P line on the bottom chart: big error, big push.
-2. Skip "P too high" here. The 0.6 power limit caps both P presets for most of the turn, so it looks like "P only". Show it on the aim job in Part B.
-3. Preset "PD". D = kD x (how fast the error changes). The red D line pushes against the motion near the target: the brake. Then show the robot stopping about 2 degrees past the target: friction beats the tiny P power near the end.
+2. Skip "P too high" here. The 0.6 power limit caps both P presets for most of the turn, so the two look alike. Show the difference on the aim job in Part B.
+3. Preset "PD". D = kD x (how fast the error changes). The red D line pushes against the motion near the target: the brake. Before you press Play, teams predict where the robot stops: A on the target, B about 2 degrees short, C past the target. Then show the robot stopping about 2 degrees past the target: friction beats the tiny P power near the end.
 4. Preset "PID (tuned)". I adds up the leftover error over time. The yellow I line grows until the robot finishes.
-5. Press "Bump the robot". The controller recovers on its own.
+5. Press "Bump the robot". Before the press, teams predict: A the robot stays at the bumped angle, B the robot comes back, C the robot overshoots the other way. The controller recovers on its own.
 
 Part B, same class, other sensors (10 min):
-- "Lift to height (encoder)": P only holds 1.8 in low. Ask the room question. Then PID, then tick "Carrying 3 balls". Then try the gravity feedforward with P only.
-- "Auto-aim at the HIVE (camera)": the aim button starts held. Drag the HIVE to a new spot and release: the robot turns to face it. Drag it outside the yellow camera cone: the banner reads SEARCHING and the robot spins toward the side it last saw the target, then the PID takes over. This is why the code has an `else` branch with `lastBearing`. Without it the robot sits still when the camera loses the target. Then tick "Driver strafes side to side". The robot keeps facing the target while it slides. Compare "P only" and "P too high" in the markers table first: overshoot grows from about half the move to about two thirds, so too much P overshoots. Then compare the PD and PID presets: I adds overshoot here, so not every job needs all three terms.
+- "Lift to height (encoder)": P only holds 1.8 in low. Open the vote: which term fixes the 2-inch gap, and why does P alone fail? Reveal, score. Then PID, then tick "Carrying 3 balls". Then try the gravity feedforward with P only.
+- "Auto-aim at the HIVE (camera)": the aim button starts held. Drag the HIVE to a new spot and release: the robot turns to face the HIVE. Drag the HIVE outside the yellow camera cone: the banner reads SEARCHING and the robot spins toward the side where the camera last saw the target, then the PID takes over. This is why the code has an `else` branch with `lastBearing`. Without the branch the robot sits still when the camera loses the target. Then tick "Driver strafes side to side". The robot keeps facing the target while sliding. Before you switch presets, teams predict what "P too high" does to overshoot in the markers table: A smaller, B the same, C bigger. Compare "P only" and "P too high": overshoot grows from about half the move to about two thirds, so too much P overshoots. Then compare the PD and PID presets: I adds overshoot here, so not every job needs all three terms.
 
-Part C, code-along (20 min): every student creates `PIDController.java` from the lab (copy by typing, not by pasting, and explain each line to a partner). Then add auto-aim on the right bumper to `MainTeleOp`, from the "Using it for this job" panel of the camera job. It builds without a camera attached. The robot moment uses the real camera, if the team has one mounted.
+Part C, the class in words (3 min): open the Java tab, card 1, PIDController.java. Word hunt for 3 words: the number multiplied by the error, the stored error from the last loop pass, the method the OpMode calls every loop. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is 6 lines in MainTeleOp. The code builds without a camera attached.
 
-Tuning on the real robot: kP first until it overshoots a little, then kD until the overshoot stops, then a small kI only if it stops short. Test 5 times. Commit the numbers with a message that says what you tested.
+Tuning on the real robot: kP first until the robot overshoots a little, then kD until the overshoot stops, then a small kI only if the robot stops short. Test 5 times. Commit the numbers with a message saying what you tested.
 
-[Verify] where the HIVE AprilTags sit this season (CM 9.9: clusters under each CELL, facing down) and whether the team's camera sees them from its mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
+[Verify] where the HIVE AprilTags sit this season (CM 9.9: clusters under each CELL, facing down) and whether the team's camera sees them from the mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
+
+Team rounds:
+- Prediction: where PD stops (1 point).
+- Prediction: what the bump does (1 point).
+- Vote: which term fixes the lift gap (1 point per right team).
+- Prediction: "P too high" and overshoot on the aim job (1 point).
+- Word hunt on PIDController.java: 3 words (1 point each).
+
+## Final round, scores, what comes next (10 min)
+
+- Final word hunt (5 min): Java tab, card 1, MainTeleOp. Use the word chips at the bottom. Five words, 2 points each. Pick words the room met during the day: the method the loop calls on the Robot object, the condition the loop checks, the call waiting for START, the annotation listing the OpMode on the Driver Hub, the keyword making a field private.
+- If time allows, two leftover Spot the bug errors from card 10, 2 points each.
+- Scores (2 min): read the scoreboard. Name the winner. Press the Teams button to hide the bar for the last slide.
+- What comes next (3 min): the hands-on Follow-up Session, where every student clones the repo, builds, and opens a pull request. Hand out `team-coding-standard.md` if not done at the door. Ask each student to bring a GitHub username to the next meeting.
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
 Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug and press STOP mid-drive.
-Then use `turnToHeading()` from Module 7 for turns.
+Then use `turnToHeading()` from Module 6 for turns.
 
-BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a fancy auto that fails 1 match in 3.
+BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a fancy auto failing 1 match in 3.
 
 Counts per inch:
 
@@ -504,7 +497,7 @@ public class LeaveAndPark extends LinearOpMode {
         waitForStart();
 
         driveInches(24, 0.5);
-        // turnToHeading(90) is Exercise 6
+        // turnToHeading(90) is the exercise below
     }
 
     private void driveInches(double inches, double power) {
@@ -520,15 +513,20 @@ public class LeaveAndPark extends LinearOpMode {
 
 Exercise: add a turn after the drive with `turnToHeading(90)` from lab tab 7 (the PID turn job), using the team's PIDController. Reference: SDK sample RobotAutoDriveByGyro_Linear.
 
-## Wrap-up (10 min)
+## Follow-up sessions (not in the 3 hours)
 
-- Each student picks one file and explains it to the group without notes. Gaps go on the issue board as learning tasks.
-- Hand out the follow-up list: encoder AUTO (lab tab 8), vision setup for auto-aim (AprilTag clusters in SDK v12.0), PID tuning on the real robot, odometry (Pinpoint) for AUTO go-to-point.
-- Next meeting: each student owns one GitHub issue.
-
-## Follow-up sessions (not in the 5 hours)
-
-1. Vision: VisionPortal + AprilTag targeting of the HIVE. Start from ConceptAprilTagEasy. Read the v12.0 cluster guide first.
-2. Odometry with goBILDA Pinpoint, then AUTO go-to-point in field coordinates (lab tab 4, AUTO mode).
-3. Control Award portfolio page: list each sensor, the problem it solves, and how the code uses it.
-4. Path following (Pedro Pathing or Road Runner) only after the team runs a clean encoder auto.
+1. Hands-on session: every student clones the repo, builds, and opens a pull request. Prep moved here from the Crash Course checklist:
+   - Every laptop has Android Studio Narwhal 3 Feature Drop or later, with the team repo cloned and Gradle sync finished on school Wi-Fi. The first sync downloads several GB. Do not leave this for the session.
+   - Every student has a GitHub account (GitHub requires age 13+) and has accepted the org invite. Collect usernames at the Crash Course.
+   - GitHub org and repos set up per `github-team-workflow.md`.
+   - Control Hub and Driver Hub updated with REV Hardware Client 2. Robot config uses the names in `Robot.java` above.
+   - One robot, one USB-C cable, one mentor laptop. Pre-build `Robot.java` on the robot so each deploy takes 3 minutes, not 15.
+   - Old AI-written code archived on a branch named `archive/ai-code-2026` and removed from `main`.
+   - `team-roster.md` on main with the single line `Team members: ` for the conflict drill: each student adds a name on the same line on an own branch, the first PR merges, every other PR conflicts, each student fixes the conflict in the 3-pane merge tool.
+   - Session content: the PracticeHello OpMode, DriveTeleOp from BasicOmniOpMode_Linear with slow mode, Robot.java plus MainTeleOp in pairs with PR review, the launcher state machine, PIDController.java typed by hand and auto-aim on a button. Each piece ends in a commit and a reviewed PR, and the mentor deploys one merged main per piece.
+   - Optional practice at home without a robot: Beta8397/virtual_robot (https://github.com/Beta8397/virtual_robot), a 2D FTC simulator running LinearOpModes from Android Studio with an abridged SDK. [Verify] the setup on one laptop before you recommend the simulator: hardware names differ from our robot config, and the abridged SDK lacks some v12.0 features.
+2. Autonomous with encoders (lab tab 8), see the section above.
+3. Vision: VisionPortal + AprilTag targeting of the HIVE. Start from ConceptAprilTagEasy. Read the v12.0 cluster guide first.
+4. Odometry with goBILDA Pinpoint, then AUTO go-to-point in field coordinates (lab tab 4, AUTO mode).
+5. Control Award portfolio page: list each sensor, the problem each one solves, and how the code uses each one.
+6. Path following (Pedro Pathing or Road Runner) only after the team runs a clean encoder auto.

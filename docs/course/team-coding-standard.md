@@ -73,7 +73,7 @@ Base the code on the official FTC SDK sample: <sample name>.
 ## Before you open a PR
 
 - [ ] Builds without errors
-- [ ] Tested on the robot (at the Crash Course, a clean build is enough: the mentor tests on the robot at each robot moment)
+- [ ] Tested on the robot (in a mentor-led session, a clean build is enough: the mentor tests on the robot)
 - [ ] No threads, no sleep in TeleOp
 - [ ] Robot does not move between INIT and START
 - [ ] I explain every line

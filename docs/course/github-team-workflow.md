@@ -98,7 +98,7 @@ Save as `.github/pull_request_template.md`:
 
 ## How did you test it on the robot?
 - [ ] Builds in Android Studio
-- [ ] Deployed and ran on the robot (Crash Course: leave this unticked, the mentor tests at the robot moment)
+- [ ] Deployed and ran on the robot (in a mentor-led session, leave this unticked: the mentor tests)
 - [ ] Telemetry shows the values I expected
 
 ## AI use

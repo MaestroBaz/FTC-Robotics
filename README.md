@@ -1,6 +1,6 @@
 # FTC Java Crash Course
 
-A 4-5 hour crash course for an FTC team (REV hardware, Java, Android Studio, BIOBUZZ 2026-27, FTC SDK v12.0), built around an interactive lab for the projector.
+A 3-hour, demo-driven crash course for an FTC team of about 30 students (REV hardware, Java, Android Studio, BIOBUZZ 2026-27, FTC SDK v12.0), built around an interactive lab for the projector.
 
 ## Open the lab
 
