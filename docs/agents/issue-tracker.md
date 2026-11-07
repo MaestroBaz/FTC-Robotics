@@ -16,7 +16,7 @@ Infer the repo from `git remote -v`; `gh` does this automatically when run insid
 
 ## Rules for this repo
 
-- GitHub Issues hold all open work. `docs/backlog.md` retired on 2026-11-07, and its last version sits in commit `a3059b8`.
+- GitHub Issues hold all open work. `docs/backlog.md` retired on 2026-11-07, and its last version sits in commit `1bb7991`.
 - Each issue carries one category label (`bug` or `enhancement`) and one state label from `triage-labels.md`.
 - Timing labels: `before-crash-course` for work due before the Crash Course, `follow-up-session` for work in a Follow-up Session.
 - Wayfinder maps and tickets carry `wayfinder:` labels only, so the category and state rule skips them.

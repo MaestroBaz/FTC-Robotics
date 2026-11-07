@@ -66,10 +66,16 @@ Output: `docs/agents/` with the issue tracker, triage labels and domain docs, an
 
 Request: switch open work from `docs/backlog.md` to GitHub Issues without losing information, and update the repo to use GitHub Issues from now on.
 
-Output: issues 1 to 33. All 25 backlog lines moved word for word, checked by script against the live issues. 9 issues record findings from the setup check. `docs/backlog.md` removed, with the last version in commit `a3059b8`. Two recurring backlog rules moved to `CLAUDE.md`. No lab change.
+Output: issues 1 to 33. All 25 backlog lines moved word for word, checked by script against the live issues. 9 issues record findings from the setup check. `docs/backlog.md` removed, with the last version in commit `1bb7991`. Two recurring backlog rules moved to `CLAUDE.md`. No lab change.
 
 ## 11. Crash Course readiness map (2026-11-07)
 
 Request: chart a wayfinder map. Baz chose Crash Course readiness as the destination, with a one-page run sheet at the end.
 
 Output: map in issue 34 with tickets 35 to 43, `GLOSSARY.md` with the settled terms, and the label `before-session` renamed to `before-crash-course`. Research tickets 40 and 42 went to subagents. No lab change.
+
+## 12. Commit email fix (2026-11-07)
+
+Request: fix the personal email exposed by the first push.
+
+Output: the first 4 commits rewritten to the GitHub noreply address and force-pushed, this repo's git config set to the noreply address, and the commit reference for `docs/backlog.md` updated. File contents did not change in the rewrite. No lab change.
