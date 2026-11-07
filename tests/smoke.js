@@ -35,6 +35,39 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await dp.$eval("section.lab.on", s => s.id)) === "lab-pid", "tab button switches tabs on a data: URL page");
   await dp.close();
 
+  // ---- team scoreboard: keys, buttons, persistence, toggle ----
+  await pg.goto(URL + "#java"); await pg.waitForTimeout(300);
+  await pg.click("#tm-reset");
+  await pg.keyboard.press("3");
+  await pg.click('.team[data-i="2"] button[data-d="1"]');
+  check((await pg.textContent('.team[data-i="2"] b')) === "2" && !!(await pg.$('.team[data-i="2"].lead')), "key 3 and + give team 3 two points and the lead");
+  await pg.reload(); await pg.waitForTimeout(300);
+  check((await pg.textContent('.team[data-i="2"] b')) === "2", "scores survive a reload");
+  await pg.click("#tm-reset");
+  check((await pg.textContent('.team[data-i="2"] b')) === "0", "Reset scores clears the board");
+  await pg.click("#tm-toggle");
+  check(!(await pg.isVisible("#teambar")), "Teams button hides the scoreboard");
+  await pg.click("#tm-toggle");
+
+  // ---- Ask the room votes: tally, undo, reveal ----
+  const optB = '#lab-java details.ask .opt:nth-child(2)';
+  await pg.click(optB); await pg.click(optB); await pg.click(optB, { button: "right" });
+  check((await pg.textContent(optB + " b")) === "1" && !(await pg.$("#lab-java details.ask[open]")), "a vote click counts, right-click undoes, and the answer stays hidden");
+  await pg.click("#lab-java details.ask .reveal");
+  check(!!(await pg.$("#lab-java details.ask[open] .opt.right")) && (await pg.$eval(optB, o => o.classList.contains("right"))), "reveal marks option B as the right answer");
+  check((await pg.$$("details.ask .vote")).length === 9, "every Ask the room has a vote");
+
+  // ---- Every word explained ----
+  await pg.click('.jt[data-jt="words"]');
+  await pg.click('#jv-wfiles button[data-f="Robot.java"]');
+  await pg.click('#jv-wcode .w[data-w="static"]');
+  check((await pg.textContent("#jv-wname")) === "static" && /class name/.test(await pg.textContent("#jv-wmsg")), "clicking static explains static");
+  await pg.click('#jv-wlist button[data-w="hwget"]');
+  check((await pg.$$('#jv-wcode .w.on')).length === 2, "the hardwareMap.get chip finds both lines");
+  await pg.click('#jv-wfiles button[data-f="PIDController.java"]');
+  check(!!(await pg.$('#jv-wcode .w[data-w="this"]')) && !!(await pg.$('#jv-wcode .w[data-w="ctor"]')), "PIDController shows this. and the constructor");
+  await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-words.png") });
+
   // ---- every tab loads, at 1x and at 2x ----
   const tabs = ["gitflow", "java", "lifecycle", "mecanum", "oneloop", "feedback", "pid", "encoders"];
   for (const t of tabs) { await pg.goto(URL + "#" + t); await pg.waitForTimeout(400); }
