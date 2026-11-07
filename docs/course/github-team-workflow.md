@@ -72,7 +72,7 @@ Use Android Studio's built-in Git tools (Git menu and the Commit tool window) an
 ```
 1. Start   : Git > Pull                          (get the latest main)
 2. Branch  : Git > New Branch  maya/slow-mode    (name/what-it-does)
-3. Code    : small change, deploy, test on robot
+3. Code    : small change, build, test on robot   (Crash Course: build only)
 4. Commit  : Ctrl+K (Cmd+K on Mac), message in the form "Add slow mode on left bumper"
 5. Push    : Ctrl+Shift+K
 6. PR      : github.com > Compare & pull request, fill the template, assign a reviewer
@@ -98,7 +98,7 @@ Save as `.github/pull_request_template.md`:
 
 ## How did you test it on the robot?
 - [ ] Builds in Android Studio
-- [ ] Deployed and ran on the robot
+- [ ] Deployed and ran on the robot (Crash Course: leave this unticked, the mentor tests at the robot moment)
 - [ ] Telemetry shows the values I expected
 
 ## AI use
