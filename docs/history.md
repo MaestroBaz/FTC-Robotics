@@ -85,3 +85,11 @@ Output: the first 4 commits rewritten to the GitHub noreply address and force-pu
 Request: Baz set the Crash Course for Sunday 2026-11-08 and approved the tonight plan with defaults.
 
 Output: the map Notes allow execution tonight. Decision tickets for length, the "P too high" demo, the PR checklist and where the lab runs closed with the defaults. Lab fixes: tab references name tabs 6 and 7, and the launcher closed loop gained the PID tab's I-zone, so a zero-shot spin-up peaks near 1169 instead of 1306. Two new smoke checks, 17 of 17 pass. Docs: a clean build passes the PR checklist on the day, the PID plan shows "P too high" on the aim job, PD ends past the target. New `docs/course/run-sheet.md`. The artifact was not republished, per the decision to run the lab from the local file.
+
+## 14. Tab buttons in the preview pane (2026-11-07)
+
+Request: Baz reported the tab buttons did nothing in the Claude browser pane.
+
+Finding: the pane opens the lab as a `data:` URL, and Chrome blocks hash navigation on a `data:` top frame. The smoke test never clicked a tab, so it missed this.
+
+Output: tab links switch through a click handler, with `history.pushState` in try/catch. New smoke check loads the lab as a `data:` URL and clicks a tab, 18 of 18 pass.

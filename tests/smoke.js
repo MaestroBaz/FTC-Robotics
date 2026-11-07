@@ -27,6 +27,14 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const src = fs.readFileSync(path.resolve(__dirname, "..", "lab", "index.html"), "utf8");
   check(src.includes("runs PIDF on the hub (tab 6)") && src.includes("PID class from tab 7"), "launcher and PID references name tabs 6 and 7");
 
+  // ---- tab buttons work when the page opens as a data: URL (blocks hash navigation) ----
+  const dp = await b.newPage();
+  dp.on("pageerror", e => errs.push(e.message));
+  await dp.goto("data:text/html;charset=utf-8," + encodeURIComponent(src));
+  await dp.click('nav.tabs a[data-tab="pid"]'); await dp.waitForTimeout(200);
+  check((await dp.$eval("section.lab.on", s => s.id)) === "lab-pid", "tab button switches tabs on a data: URL page");
+  await dp.close();
+
   // ---- every tab loads, at 1x and at 2x ----
   const tabs = ["gitflow", "java", "lifecycle", "mecanum", "oneloop", "feedback", "pid", "encoders"];
   for (const t of tabs) { await pg.goto(URL + "#" + t); await pg.waitForTimeout(400); }

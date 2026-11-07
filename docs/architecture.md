@@ -30,7 +30,7 @@ const LABS = {gitflow: GITTAB, java: JAVATAB, lifecycle: LC, mecanum: MC, oneloo
 const VIZ  = {lifecycle: () => DG.lifecycle(), ..., pid: () => { PIDVIZ.loop(); PIDVIZ.minis(); }};
 ```
 
-`route()` reads `location.hash`, shows one section, calls `show()`, and forces a first draw of the SVG diagrams. Only the current tab ticks.
+`route(id)` takes a tab id (default: `location.hash`), shows one section, calls `show()`, and forces a first draw of the SVG diagrams. Only the current tab ticks. Tab links call `route()` from a click handler and set the hash with `history.pushState` inside try/catch, because a page opened as a `data:` URL blocks hash navigation.
 
 ## Time and the frame loop
 
@@ -44,7 +44,7 @@ function after(sec, fn)   // run fn after sec of SIMULATED time
 - paused: advance only by `TIME.step` (the Step button adds 0.1 s), max 1/60 s per frame.
 - running: `sd = dt * TIME.scale`.
 - runs due `after()` callbacks, then calls `LABS[current].tick()` in chunks of at most 1/30 s (2x speed gives up to 3 ticks per frame), then the VIZ hook.
-- if the theme changed (`P.ink` differs), calls `route()` to repaint.
+- if the theme changed (`P.ink` differs), calls `route(current)` to repaint.
 
 Speed control: `setScale(v)` clamps to 0.05..2 and snaps to the labels 0.05, 0.1, 0.25, 0.5, 1, 2 when within about 5%. The slider maps log10 linearly onto 0..1000. `setPause(p)` is also exposed as `window.__setPause` for the chart bars.
 

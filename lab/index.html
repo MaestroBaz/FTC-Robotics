@@ -3919,8 +3919,8 @@ const VIZ = {
   encoders: () => DG.encoder()
 };
 let current = "gitflow";
-function route(){
-  const id = (location.hash || "#gitflow").slice(1);
+function route(id){
+  id = id || (location.hash || "#gitflow").slice(1);
   current = LABS[id] ? id : "gitflow";
   $$("section.lab").forEach(s => s.classList.toggle("on", s.id === "lab-" + current));
   $$("nav.tabs a").forEach(a => { if (a.dataset.tab === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
@@ -3932,7 +3932,13 @@ function route(){
   if (current === "pid") PIDVIZ.loop(true);
   if (current === "java" && window.__anatomyPaint) window.__anatomyPaint();
 }
-window.addEventListener("hashchange", route);
+window.addEventListener("hashchange", () => route());
+// Tabs switch without navigating: a page opened as a data: URL (some previews) blocks hash navigation.
+$$("nav.tabs a").forEach(a => a.addEventListener("click", e => {
+  e.preventDefault();
+  try { history.pushState(null, "", "#" + a.dataset.tab); } catch(err){ /* data: URL keeps the old address */ }
+  route(a.dataset.tab);
+}));
 /* ---------- slow motion ---------- */
 const TS_LO = Math.log10(0.05), TS_HI = Math.log10(2), TS_TICKS = [0.05, 0.1, 0.25, 0.5, 1, 2];
 const tsPos = v => (Math.log10(v) - TS_LO) / (TS_HI - TS_LO) * 1000;
@@ -3986,7 +3992,7 @@ function frame(now){
     TIME.q = TIME.q.filter(x => x.at > TIME.sim);
     due.forEach(x => { try { x.fn(); } catch(e){ console.error(e); } });
   }
-  if (P.ink !== lastInk){ lastInk = P.ink; try { route(); } catch(e){ console.error(e); } }
+  if (P.ink !== lastInk){ lastInk = P.ink; try { route(current); } catch(e){ console.error(e); } }
   try { let rem = sd; do { const hh = Math.min(rem, 1 / 30); LABS[current].tick(hh); rem -= hh; } while (rem > 1e-9); } catch(e){ console.error(e); }
   try { if (VIZ[current]) VIZ[current](); } catch(e){ console.error(e); }
   requestAnimationFrame(frame);
