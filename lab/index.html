@@ -1811,15 +1811,16 @@ const MC = (function(){
   }
   function table(m){
     const cls = v => v > 0.005 ? "pos" : v < -0.005 ? "neg" : "";
+    const d0 = r => Math.round(deg(r)) || 0;   // whole degrees, never "-0"
     let html = "";
     if (m.rot){
       html += "<tr><th>Step</th><th>Math</th><th colspan=2>Value</th></tr>";
       if (mode === "auto") html += "<tr><td>error to point</td><td>errX, errY (in)</td><td colspan=2>" + m.rot.ey.toFixed(1) + ", " + (-m.rot.ex).toFixed(1) + "</td></tr>";
       else html += "<tr><td>stick</td><td>forward, right</td><td colspan=2>" + f2(m.sF) + ", " + f2(m.sR) + "</td></tr>";
-      html += "<tr><td>" + (mode === "auto" ? "direction angle" : "stick angle") + "</td><td>theta = atan2(forward, right)</td><td colspan=2>" + deg(m.rot.th).toFixed(0) + " deg</td></tr>";
-      html += mode === "auto" ? "<tr><td>Pinpoint heading</td><td>headingDegrees()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>"
-        : "<tr><td>IMU heading</td><td>getYaw()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>";
-      html += "<tr><td>turn by heading</td><td>theta - heading</td><td colspan=2>" + deg(m.rot.t2).toFixed(0) + " deg</td></tr>";
+      html += "<tr><td>" + (mode === "auto" ? "direction angle" : "stick angle") + "</td><td>theta = atan2(forward, right)</td><td colspan=2>" + d0(m.rot.th) + " deg</td></tr>";
+      html += mode === "auto" ? "<tr><td>Pinpoint heading</td><td>headingDegrees()</td><td colspan=2>" + d0(m.rot.hd) + " deg</td></tr>"
+        : "<tr><td>IMU heading</td><td>getYaw()</td><td colspan=2>" + d0(m.rot.hd) + " deg</td></tr>";
+      html += "<tr><td>turn by heading</td><td>theta - heading</td><td colspan=2>" + d0(m.rot.t2) + " deg</td></tr>";
       html += "<tr><td>robot-centric</td><td>axial, lateral</td><td colspan=2>" + f2(m.axial) + ", " + f2(m.lateral) + "</td></tr>";
     }
     html += "<tr><th>Wheel</th><th>Formula</th><th>Raw</th><th>Sent</th></tr>";
@@ -1863,8 +1864,9 @@ const MC = (function(){
     arrow(ctx, cx, cy + 8, cx, cy - R + 16, P.muted, 2);
     const hd = heading();
     ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.sin(hd) * (R - 5), cy - Math.cos(hd) * (R - 5)); ctx.stroke();
-    text(ctx, "heading " + deg(hd).toFixed(0) + " deg", outside ? cx : ox + side - 6, cy + R + 16, {align: outside ? "center" : "right", size: 14, weight: "600", color: P.red});
-    text(ctx, "F = field forward", ox + 8, oy + 18, {size: 14, color: P.muted});
+    text(ctx, "heading " + (Math.round(deg(hd)) || 0) + " deg", outside ? cx : ox + side - 6, cy + R + 16, {align: outside ? "center" : "right", size: 14, weight: "600", color: P.red});
+    // bottom-left: field-centric Forward parks the robot on the top wall, on top of a label there
+    text(ctx, "F = field forward", ox + 8, oy + side - 8, {size: 14, color: P.muted});
     // last path before Reset robot, dashed, so two runs compare side by side
     if (ghost.length > 1){
       ctx.setLineDash([6, 5]); ctx.strokeStyle = P.muted; ctx.lineWidth = 2; ctx.beginPath();
@@ -1879,12 +1881,15 @@ const MC = (function(){
       const gx = ox + goal.x * sc, gy = oy + goal.y * sc;
       ctx.setLineDash([5, 5]); ctx.strokeStyle = P.ok; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ox + robot.x * sc, oy + robot.y * sc); ctx.lineTo(gx, gy); ctx.stroke(); ctx.setLineDash([]);
       ctx.strokeStyle = P.ok; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(gx, gy, 10, 0, Math.PI * 2); ctx.moveTo(gx - 15, gy); ctx.lineTo(gx + 15, gy); ctx.moveTo(gx, gy - 15); ctx.lineTo(gx, gy + 15); ctx.stroke();
-      const lr = gx > ox + side - 160;   // near the right wall: put the label left of the target
-      text(ctx, "target", lr ? gx - 16 : gx + 14, gy - 14, {color: P.ok, weight: "600", size: 14, align: lr ? "right" : "left"});
     }
     const rx = ox + robot.x * sc, ry = oy + robot.y * sc;
     // a thick bar on the front edge: which way the robot faces reads from the back row
     drawRobot(ctx, rx, ry, robot.h, 18 * sc, {extra: (c, s) => { c.strokeStyle = P.pollen; c.lineWidth = 5; c.beginPath(); c.moveTo(-s / 2, -s / 2); c.lineTo(s / 2, -s / 2); c.stroke(); }});
+    // target label after the robot, so a robot parked on the target never covers it
+    if (mode === "auto"){
+      const gx = ox + goal.x * sc, gy = oy + goal.y * sc, lr = gx > ox + side - 160;   // near the right wall: put the label left of the target
+      text(ctx, "target", lr ? gx - 16 : gx + 14, gy - 14, {color: P.ok, weight: "600", size: 14, align: lr ? "right" : "left"});
+    }
     // actual motion first and wide, the stick request on top and thin, so both stay visible
     const L = 30 * sc;
     if (Math.hypot(robot.vx, robot.vy) > 2) arrow(ctx, rx, ry, rx + robot.vx / 45 * L, ry + robot.vy / 45 * L, P.accent, 5);

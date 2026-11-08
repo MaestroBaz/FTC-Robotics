@@ -558,6 +558,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const fg = await pg.evaluate(() => { const c = document.querySelector("#mc-field"), w = c.getBoundingClientRect().width, h = c.getBoundingClientRect().height, side = Math.min(w - 16, h - 40); return { w, side, ox: (w - side) / 2 }; });
   const compassX = await pg.evaluate(() => { let x = null; const f = CanvasRenderingContext2D.prototype.fillText; CanvasRenderingContext2D.prototype.fillText = function (s, X) { if (this.canvas.id === "mc-field" && /^heading /.test(s)) x = X; return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.fillText = f; r(x); }, 150)); });
   check(compassX > fg.ox + fg.side, "the compass heading sits right of the field, clear of targets in the top-right corner: x " + Math.round(compassX) + " > field edge " + Math.round(fg.ox + fg.side));
+  // fix-mecanum-r4: the "target" label draws after the robot, "F = field forward" sits low, clear of the top wall
+  const fieldSeq = await pg.evaluate(() => { const ev = []; const P2 = CanvasRenderingContext2D.prototype, ft = P2.fillText, st = P2.stroke;
+    P2.fillText = function (s, x, y) { if (this.canvas.id === "mc-field") ev.push([String(s), y]); return ft.apply(this, arguments); };
+    P2.stroke = function () { if (this.canvas.id === "mc-field" && this.lineWidth === 5) ev.push(["<lw5>"]); return st.apply(this, arguments); };
+    return new Promise(r => setTimeout(() => { P2.fillText = ft; P2.stroke = st; r(ev); }, 150)); });
+  const fIdx = fieldSeq.findIndex(e => e[0] === "F = field forward"), frame = fieldSeq.slice(fIdx, fieldSeq.findIndex((e, i) => i > fIdx && e[0] === "F = field forward"));
+  check(frame.findIndex(e => e[0] === "target") > frame.findIndex(e => e[0] === "<lw5>") && frame.some(e => e[0] === "<lw5>"), "AUTO: the target label draws after the robot, so a robot on the target never covers it");
+  check(fieldSeq[fIdx][1] > 8 + fg.side / 2, "the F = field forward label sits in the bottom half, clear of a robot parked on the top wall: y " + Math.round(fieldSeq[fIdx][1]));
+  // fix-mecanum-r4: parked at the target inside the 1 deg deadband, no row or compass reads "-0 deg"
+  await pg.waitForTimeout(5000); await hookDrawn(); await pg.waitForTimeout(150);
+  const degCells = await pg.$$eval("#mc-table td", ts => ts.map(t => t.textContent).filter(t => / deg$/.test(t)));
+  check(degCells.length >= 3 && !degCells.some(t => /^-0 /.test(t)) && !(await drawnOn("mc-field", 40)).some(s => /-0 deg/.test(s)), "AUTO parked: heading rows read whole degrees, never -0: " + degCells.join(", "));
   // fix-mecanum: the wheel view draws every arrow in ink, red only for the bug wheel, no wheel-color dots; the chart names the wheels at their power
   await pg.check('#lab-mecanum input[value="robot"]'); await pg.click('#lab-mecanum [data-p="1,0,0"]');
   const wheelCols = () => pg.evaluate(() => { const s = new Set(); const f = CanvasRenderingContext2D.prototype.stroke; CanvasRenderingContext2D.prototype.stroke = function () { if (this.canvas.id === "mc-wheels" && this.lineWidth === 4) s.add(String(this.strokeStyle).toLowerCase()); return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.stroke = f; const c = document.createElement("canvas").getContext("2d"); const n = v => { c.strokeStyle = v; return String(c.strokeStyle).toLowerCase(); }; const cs = getComputedStyle(document.documentElement); r({got: [...s], ink: n(cs.getPropertyValue("--ink").trim()), red: n(cs.getPropertyValue("--red").trim())}); }, 300)); });
