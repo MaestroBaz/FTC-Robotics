@@ -29,6 +29,7 @@ docs/course/crash-course-plan.md      the session plan, module by module (source
 docs/course/homework.md               night-before homework (snapshot of the claude.ai doc)
 docs/course/run-sheet.md              one printable page: go or no-go gates, prep order, fallbacks
 docs/course/vote-cards.html           printable A, B, C cards, one set per team
+docs/course/cheatsheet.html           two-page student cheat sheet, printed double sided
 docs/course/team-coding-standard.md   printed handout: the Java the team uses and avoids
 docs/course/github-team-workflow.md   org, repos, branch rules, PR template, drills
 docs/course/ftc-reference-2026-27.md  season rules, hardware, SDK, sensors, vision, links

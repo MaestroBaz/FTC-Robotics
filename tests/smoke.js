@@ -156,6 +156,19 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#fb-feed"); await pg.waitForTimeout(2000);
   await pg.locator("#lab-feedback").screenshot({ path: path.join(SHOTS, "feedback.png") });
 
+  // ---- cheat sheet prints on exactly two letter pages, nothing clipped ----
+  const cs = await b.newPage();
+  await cs.emulateMedia({ media: "print" });
+  await cs.goto("file://" + path.resolve(__dirname, "..", "docs", "course", "cheatsheet.html")); await cs.waitForTimeout(300);
+  const fit = await cs.evaluate(() => [...document.querySelectorAll(".page")].map(p => {
+    const box = p.getBoundingClientRect(), kids = [...p.children], foot = kids[kids.length - 1], body = kids[kids.length - 2];
+    const clippedCode = [...p.querySelectorAll("pre")].some(pre => pre.scrollWidth > pre.clientWidth + 1);
+    return { fits: body.getBoundingClientRect().bottom + foot.getBoundingClientRect().height <= box.bottom + 1, clippedCode };
+  }));
+  check(fit.length === 2 && fit.every(f => f.fits), "cheat sheet content fits on two pages above the footers");
+  check(fit.every(f => !f.clippedCode), "no cheat sheet code line is clipped");
+  await cs.close();
+
   // ---- phone width ----
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   m.on("pageerror", e => errs.push("mobile: " + e.message));

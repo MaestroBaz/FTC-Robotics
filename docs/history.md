@@ -109,3 +109,9 @@ Output: a 6-team scoreboard in the top bar, A/B/C votes with a tally on all 9 As
 Request: show the git terminal commands next to the Android Studio steps.
 
 Output: a terminal box under Part A (the command for each button press, including the rejected push), under each PR loop step and under each conflict story step. 5 new smoke checks, 33 of 33 pass.
+
+## 17. Student cheat sheet (2026-11-07)
+
+Request: printable cheat sheets for the students, 1-2 pages, double sided.
+
+Output: `docs/course/cheatsheet.html`, two letter pages. Page 1, Read any OpMode: the 3 rules, an annotated MainTeleOp with the 8 parts, who does what, and 24 words with one-line meanings. Page 2, How the robot thinks: one loop and the state machine, open vs closed loop, drive modes, PID with the tuning recipe and the response words, git in Android Studio and the terminal, a build error decoder, and the PR checklist. Rendered with Playwright to confirm 2 pages. Two smoke checks guard the page count and clipped code lines.

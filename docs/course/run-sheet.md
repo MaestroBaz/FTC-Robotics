@@ -10,14 +10,14 @@ Check the evening before, and again in the morning before students arrive. If a 
 |---|---|---|---|
 | 1 | The lab reads from the back row | Projector on, browser zoom 125-150%, `lab/index.html` open from disk. Read a code line on the Every word explained card from the last seat. | [ ] |
 | 2 | The scoreboard and votes work on the projector laptop | Press key 3: Team 3 shows 1. Click an A/B/C button on any Ask the room: the tally shows 1. Reset scores. | [ ] |
-| 3 | Printouts in the room | 30 copies of `team-coding-standard.md`, this sheet, 6 sets of A, B and C cards. | [ ] |
+| 3 | Printouts in the room | 30 cheat sheets, 30 copies of `team-coding-standard.md`, this sheet, 6 sets of A, B and C cards. | [ ] |
 
 No internet and no robot do not block the day. See Fallbacks.
 
 ## Prep tonight, in order
 
 1. [ ] Send the homework link now. The claude.ai link opens for you alone: share the artifact first, or send the GitHub copy of `docs/course/homework.md`.
-2. [ ] Print `team-coding-standard.md` (30), this sheet (2), and 6 copies of `vote-cards.html` (3 pages: A, B, C).
+2. [ ] Print `cheatsheet.html` double sided (30), `team-coding-standard.md` (30), this sheet (2), and 6 copies of `vote-cards.html` (3 pages: A, B, C).
 3. [ ] Decide the 6 team names, or let teams name themselves in Module 0 (click a name in the top bar to rename).
 4. [ ] Test the projector (gate 1) and the scoreboard (gate 2) on the laptop you bring.
 5. [ ] Tomorrow morning, not tonight: copy the final `lab/index.html` to the USB stick and to the projector laptop.
