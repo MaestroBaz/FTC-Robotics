@@ -361,6 +361,14 @@ td.hit{color:var(--ok);}
 .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
 #jv-ovprob{font-size:14px; line-height:1.5;}   /* the javac lines are the lesson: readable from the back row */
 #jv-ovprob .ph2{font-size:12px;}
+.entab td:first-child{font:13px var(--mono); color:var(--ink); width:auto; white-space:normal;}
+.entab td code{overflow-wrap:anywhere;}
+.hublist{border:1px solid var(--line); border-radius:8px; padding:10px 12px; background:var(--codebg); display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; font-size:14px;}
+.hublist h4{margin:0 0 2px; font-size:13px; color:var(--muted);}
+.hublist .op{padding:4px 8px; border:1px solid var(--line); border-radius:6px; margin-bottom:4px;}
+.hublist .op.new{border-color:var(--accent); color:var(--accent); font-weight:600;}
+.hublist .none{color:var(--muted); font-style:italic;}
+.hublist .cap{grid-column:1 / -1; color:var(--muted); font-size:13px;}
 /* ==== end area java-a ==== */
 /* ==== area java-b: Java cards 6 to 10 (scope, words, imports, errors, map) ==== */
 /* the room reads the red text aloud from the back row */
@@ -710,6 +718,18 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
             <div class="msg" id="jv-ovmsg">Pick a version.</div>
           </div>
         </div>
+        <div class="panel" style="margin-top:14px" id="jv-an">
+          <h3>Annotations: the @ lines <small>pick one, then read what the Driver Hub shows</small></h3>
+          <p>An <b>annotation</b> starts with <code>@</code> and sits on the line above a class or a method. It runs no code. It is a label for someone else to read. <code>@Override</code> is read by the Java <b>compiler</b>: the part of Android Studio that checks your code when you build. <code>@TeleOp</code>, <code>@Autonomous</code> and <code>@Disabled</code> are read by the <b>Robot Controller app</b>, the FTC app on the Control Hub that runs your OpModes. When it starts, it reads these labels and builds the OpMode list the Driver Hub shows.</p>
+          <div class="row" id="jv-anbtns" style="margin-bottom:10px"></div>
+          <div class="grid2" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+            <pre class="code" id="jv-ancode"></pre>
+            <div class="stack">
+              <div class="hublist" id="jv-anhub"></div>
+              <div class="msg" id="jv-anmsg">Pick an annotation.</div>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- decisions: if, else, switch -->
       <div class="jpane" data-jp="decide">
@@ -763,6 +783,37 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
                 <div><code class="bad">if (power == 0.3)</code><br>Decimal math rounds a tiny bit: 0.1 + 0.2 is 0.30000000000000004. Ask "close enough" instead. Fix: <code class="good">Math.abs(power - 0.3) &lt; 0.01</code></div>
                 <div><code class="bad">if (stick &gt; 0.05) ... else if (stick &gt; 0.5)</code><br>The order matters. 0.8 passes the first test, so the second never runs. Fix: put the strictest test first.</div>
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px" id="jv-enum">
+          <div class="stack">
+            <div class="panel">
+              <h3>enum: the list the switch picks from</h3>
+              <p>An <b>enum</b> is a type you make with a short, fixed list of values. <code>LaunchState</code> has exactly three. A <code>LaunchState</code> variable holds one of them, never anything else. The values are written in CAPS, like constants.</p>
+            </div>
+            <pre class="code" id="jv-encode"></pre>
+            <div class="panel">
+              <h3>Compile it: what does Java accept?</h3>
+              <div class="stack" id="jv-encompile" style="gap:8px"></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <h3>Why not a String or an int?</h3>
+              <table class="ops entab" id="jv-enwhy"></table>
+            </div>
+            <div class="panel">
+              <h3>Three rules</h3>
+              <ul class="tight">
+                <li>Compare an enum with <code>==</code>: <code>launchState == LaunchState.IDLE</code>. Each value exists once, so <code>==</code> is right. Text needs <code>.equals()</code>, an enum does not.</li>
+                <li>After <code>case</code>, write the plain name: <code>case IDLE:</code>. Everywhere else, write the type first: <code>LaunchState.IDLE</code>.</li>
+                <li>To add a state, write its name on the enum line, then add its <code>case</code> to the switch. Forget the case and Java builds fine, but the new state does nothing.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>The SDK uses enums too</h3>
+              <table class="ops entab" id="jv-ensdk"></table>
             </div>
           </div>
         </div>
@@ -3936,6 +3987,36 @@ const JV = (function(){
     $$("#jv-ovbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.ov == i ? "true" : "false"));
   }
   $$("#jv-ovbtns .b").forEach(b => b.addEventListener("click", () => showOv(+b.dataset.ov)));
+  // annotations: each example shows its file and the Driver Hub list it makes. tele/auto = what the hub lists, hi = the name this file adds
+  const AN = [
+    {b: "@TeleOp", file: "MainTeleOp", ok: true, code: ["import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", "@TeleOp(name = \"Main TeleOp\")", "public class MainTeleOp extends LinearOpMode {", "    @Override", "    public void runOpMode() { ... }", "}"], mark: [3],
+      tele: ["Main TeleOp"], auto: ["Leave and Park"], hi: "Main TeleOp",
+      msg: "@TeleOp puts this class on the Driver Hub TeleOp list. The hub shows the text in name = \"...\", not the class name MainTeleOp. Pick it, press INIT, and runOpMode() starts."},
+    {b: "@Autonomous", file: "LeaveAndPark", ok: true, code: ["import com.qualcomm.robotcore.eventloop.opmode.Autonomous;", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "", "@Autonomous(name = \"Leave and Park\", group = \"Competition\",", "        preselectTeleOp = \"Main TeleOp\")", "public class LeaveAndPark extends LinearOpMode {", "    @Override", "    public void runOpMode() { ... }", "}"], mark: [3, 4],
+      tele: ["Main TeleOp"], auto: ["Leave and Park"], hi: "Leave and Park",
+      msg: "@Autonomous puts the class on the AUTO list instead. group sorts the list: OpModes with the same group sit together. preselectTeleOp = \"Main TeleOp\": when AUTO ends, the Driver Hub has Main TeleOp picked and ready for INIT. The name must match the @TeleOp name exactly."},
+    {b: "@Disabled", file: "DriveTeleOp", ok: false, code: ["import com.qualcomm.robotcore.eventloop.opmode.Disabled;", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", "@TeleOp(name = \"Drive TeleOp\")", "@Disabled", "public class DriveTeleOp extends LinearOpMode {", "    ..."], mark: [5],
+      tele: ["Main TeleOp"], auto: ["Leave and Park"], hi: null,
+      msg: "@Disabled hides the class from the list, even with @TeleOp above it. The SDK samples ship with @Disabled so the list stays short. Copied a sample and it is missing? Delete the @Disabled line and its import, then build and deploy."},
+    {b: "No annotation", file: "IntakeTest", ok: false, code: ["import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "", "public class IntakeTest extends LinearOpMode {", "    @Override", "    public void runOpMode() { ... }", "}"], mark: [2],
+      tele: ["Main TeleOp"], auto: ["Leave and Park"], hi: null,
+      msg: "No @TeleOp and no @Autonomous: the build passes, but the class never shows on the Driver Hub. Nothing tells the app it is an OpMode you want to run. Fix: add import com.qualcomm.robotcore.eventloop.opmode.TeleOp; at the top and @TeleOp(name = \"Intake Test\") above the class line, then build and deploy."},
+    {b: "@Override", code: ["@TeleOp(name = \"Main TeleOp\")", "public class MainTeleOp extends LinearOpMode {", "    @Override", "    public void runOpMode() {", "        ...", "    }", "}"], mark: [2], file: "MainTeleOp", ok: true,
+      tele: ["Main TeleOp"], auto: ["Leave and Park"], hi: null,
+      msg: "@Override changes nothing on the Driver Hub. Only the Java compiler on your laptop reads it: it checks that runOpMode() matches a method in LinearOpMode. A typo fails the build (see above). It needs no import: it is part of Java itself."}
+  ];
+  function showAn(i){
+    const a = AN[i];
+    renderCode($("#jv-ancode"), a.code);
+    $$(".ln", $("#jv-ancode")).forEach((ln, k) => ln.classList.toggle("run", a.mark.includes(k)));
+    const col = (t, list) => "<div><h4>" + t + "</h4>" + (list.length ? list.map(n => '<div class="op' + (n === a.hi ? " new" : "") + '">' + esc(n) + "</div>").join("") : '<div class="none">empty</div>') + "</div>";
+    $("#jv-anhub").innerHTML = col("TeleOp list", a.tele) + col("AUTO list", a.auto) + '<div class="cap">' + esc("This file: " + a.file + ".java. " + (a.b === "@Override" ? "@Override adds nothing to the list." : a.hi ? "Highlighted: the entry it puts on the list." : "It is on the robot, but not on the list.")) + '</div>';
+    const m = $("#jv-anmsg"); m.textContent = a.msg; m.className = "msg " + (a.ok ? "ok" : "bad");
+    $$("#jv-anbtns .b").forEach(b => b.setAttribute("aria-pressed", +b.dataset.an === i ? "true" : "false"));
+  }
+  $("#jv-anbtns").innerHTML = AN.map((a, i) => '<button class="b" data-an="' + i + '">' + esc(a.b) + "</button>").join("");
+  $$("#jv-anbtns .b").forEach(b => b.addEventListener("click", () => showAn(+b.dataset.an)));
+  showAn(0);
   showOv(0);
 
   /* ---- 3b decisions: if / else if / else, operators, switch ---- */
@@ -4019,6 +4100,43 @@ const JV = (function(){
   $$("#jv-swbtns .b").forEach(b => b.addEventListener("click", () => { swState = b.dataset.s; sw(); }));
   $("#jv-swbrk").addEventListener("change", sw);
   sw();
+  // enum: the type behind launchState. The enum line and the field match MainTeleOp on the Every word explained card
+  renderCode($("#jv-encode"), [
+    "public class MainTeleOp extends LinearOpMode {",
+    "    // the type: a fixed list of 3 values",
+    "    enum LaunchState { IDLE, SPINNING_UP, FEEDING }",
+    "",
+    "    // the field: holds one value, starts at IDLE",
+    "    private LaunchState launchState = LaunchState.IDLE;",
+    "",
+    "    // in the loop: store a value, or test it",
+    "    //     launchState = LaunchState.SPINNING_UP;",
+    "    //     if (launchState == LaunchState.FEEDING)",
+    "    //     switch (launchState) { case IDLE: ... }",
+    "}"
+  ]);
+  const ENQ = [
+    ["launchState = LaunchState.FEEDING;", true, "OK. FEEDING is on the list."],
+    ["launchState = LaunchState.SPINING_UP;", false, "Error: cannot find symbol: variable SPINING_UP. The typo fails the build, so it never reaches the robot."],
+    ["launchState = \"FEEDING\";", false, "Error: incompatible types: String cannot be converted to LaunchState. Quotes make text, not a state."],
+    ["launchState = 2;", false, "Error: incompatible types: int cannot be converted to LaunchState. A number is not a state."]
+  ];
+  $("#jv-encompile").innerHTML = ENQ.map((q, i) => '<div class="cmp"><code>' + esc(q[0]) + '</code><button class="b" data-q="' + i + '">Compile</button><div class="res" id="jv-enq' + i + '"></div></div>').join("");
+  $$("#jv-encompile [data-q]").forEach(b => b.addEventListener("click", () => {
+    const q = ENQ[+b.dataset.q], r = $("#jv-enq" + b.dataset.q);
+    r.className = "res " + (q[1] ? "ok" : "bad"); r.textContent = q[2];
+  }));
+  $("#jv-enwhy").innerHTML = "<tr><th>State held as</th><th>A typo</th><th>What happens</th></tr>" + [
+    ["String: \"SPINNING_UP\"", "\"SPINING_UP\"", "Builds fine. No case matches, so the launcher never feeds. You find it on the field."],
+    ["int: 1", "3", "Builds fine. No case 3, so the launcher stops. And nobody reading the code knows what 1 means."],
+    ["enum: LaunchState.SPINNING_UP", "LaunchState.SPINING_UP", "Build fails at once, with the line number. Fix it at your desk."]
+  ].map(r => "<tr><td><code>" + esc(r[0]) + "</code></td><td><code>" + esc(r[1]) + "</code></td><td>" + esc(r[2]) + "</td></tr>").join("");
+  $("#jv-ensdk").innerHTML = "<tr><th>Enum</th><th>Values you use</th><th>Where</th></tr>" + [
+    ["DcMotor.Direction", "FORWARD, REVERSE", "setDirection()"],
+    ["DcMotor.ZeroPowerBehavior", "BRAKE, FLOAT", "setZeroPowerBehavior()"],
+    ["DcMotor.RunMode", "RUN_USING_ENCODER, RUN_TO_POSITION", "setMode()"],
+    ["AngleUnit", "DEGREES, RADIANS", "getYaw()"]
+  ].map(r => "<tr><td><code>" + esc(r[0]) + "</code></td><td><code>" + esc(r[1]) + "</code></td><td><code>" + esc(r[2]) + "</code></td></tr>").join("");
 
   /* ---- loops and arithmetic: step a for or a while one line at a time ---- */
   const LP = {

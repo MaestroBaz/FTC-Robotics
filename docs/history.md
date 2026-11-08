@@ -219,3 +219,13 @@ Output:
 - Lab: a "Hold heading (TeleOp: the loop never ends)" checkbox beside Bump, off by default. Ticked, the loop never breaks: the robot turns back at once, every bump gets fixed, and every slider move acts on the next pass. The code panel swaps to the TeleOp lines. A chip reads "hold on: every pass fixes the heading".
 - Plan Part A step 4: tick Hold heading after the "robot stays" bump, bump again, move kP live, then untick before tab 8.
 - Smoke test: Hold heading pulls the robot back, fixes a new bump, and a kP move changes the output on the next pass.
+
+## 28. Enums and annotations on the Java tab (2026-11-08)
+
+Request: Baz asked for enums in Java basics, then for annotations explained with real examples.
+
+Output:
+- Card 5 Decisions: an enum section under the switch. The LaunchState enum line and field from MainTeleOp, 4 Compile buttons with the javac messages (a value on the list, a typo, a String, an int), a table on why an enum beats a String or an int, three rules (== to compare, the plain name after case, add a state on the enum line) and the SDK enums students meet (DcMotor.Direction, ZeroPowerBehavior, RunMode, AngleUnit).
+- Card 4 extends and @Override: an Annotations panel. Five buttons: @TeleOp, @Autonomous (group, preselectTeleOp), @Disabled, no annotation and @Override. Each shows the file and the Driver Hub TeleOp and AUTO lists it makes. @Override is read by the compiler, the other three by the Robot Controller app.
+- No new card, so card numbers in the plan, run sheet and cheat sheet stay the same. The plan adds both as "If ahead" steps, with no change to the times.
+- Smoke test: the enum code, the 4 compile results, the tables, and all 5 annotation examples with their Driver Hub lists.

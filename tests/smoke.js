@@ -222,6 +222,14 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/does not override or implement/.test(await pg.textContent("#jv-ovprob")), "@Override on a typo fails the build with the javac message");
   await pg.click('#jv-ovbtns .b[data-ov="2"]');
   check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-ovprob")) && /never resets|nobody calls/.test(await pg.textContent("#jv-ovmsg")), "Start() without @Override builds and never runs");
+  // annotations panel: each example sets the code and the Driver Hub lists
+  const hub = async i => { await pg.click('#jv-anbtns .b[data-an="' + i + '"]'); return [await pg.textContent("#jv-anhub"), await pg.textContent("#jv-anmsg"), await pg.textContent("#jv-ancode"), await pg.$$eval("#jv-anhub .op.new", e => e.map(x => x.textContent).join("|")), await pg.getAttribute("#jv-anmsg", "class")]; };
+  const anT = await hub(0), anA = await hub(1), anD = await hub(2), anN = await hub(3), anO = await hub(4);
+  check(/@TeleOp\(name = "Main TeleOp"\)/.test(anT[2]) && /not the class name/.test(anT[1]) && anT[3] === "Main TeleOp" && /ok/.test(anT[4]), "annotations: @TeleOp puts Main TeleOp on the hub list: " + anT[3]);
+  check(/preselectTeleOp = "Main TeleOp"/.test(anA[2]) && anA[3] === "Leave and Park" && /must match the @TeleOp name/.test(anA[1]), "annotations: @Autonomous puts Leave and Park on the AUTO list, with group and preselectTeleOp: " + anA[3]);
+  check(/@Disabled/.test(anD[2]) && anD[3] === "" && !/Drive TeleOp/.test(anD[0]) && /bad/.test(anD[4]) && anN[3] === "" && /build passes/.test(anN[1]) && /import com\.qualcomm\.robotcore\.eventloop\.opmode\.TeleOp;/.test(anN[1]) && /bad/.test(anN[4]), "annotations: @Disabled and a missing @TeleOp add no hub entry, and the fix names the import");
+  check(anO[3] === "" && /compiler/.test(anO[1]) && /@TeleOp\(name = "Main TeleOp"\)/.test(anO[2]), "annotations: @Override adds no entry and is for the compiler");
+  await shot(pg.locator("#jv-an"), "java-annotations.png");
   check(/private final Robot robot = new Robot\(\);/.test(await pg.textContent("#jv-ovcode")) && !/matchTimer/.test(await pg.textContent("#jv-ovcode")), "the @Override versions declare robot, so BUILD SUCCESSFUL is true");
   check(/comes from this file, your Robot class, the SDK \(the class you extend or an import\), or Java itself/.test(await pg.textContent("#lab-java .lede")), "the Java lede names the four places a word comes from: this file, Robot, the SDK, Java");
   await pg.click('.jt[data-jt="decide"]');
@@ -235,6 +243,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/falls into FEEDING/.test(await pg.textContent("#jv-swmsg")) && /nothing launches/.test(await pg.textContent("#jv-swmsg")) && !/falls short/.test(await pg.textContent("#jv-swmsg")), "forgetting break falls through into FEEDING, which turns the feeder off at once: nothing launches");
   check(await pg.$$eval("#jv-swcode .ln", ls => { const f = ls.findIndex(l => /case FEEDING/.test(l.textContent)); const fell = ls.slice(f + 1, f + 4); const skipped = ls.filter(l => /feedTimer\.reset|= LaunchState\.FEEDING/.test(l.textContent)); return fell.every(l => l.classList.contains("err") && !l.classList.contains("run")) && skipped.length === 2 && skipped.every(l => !l.classList.contains("run") && !l.classList.contains("err")); }), "fall-through lines show red, not green, and the skipped feedTimer.reset() line stays unlit to match the message");
   await shot(pg.locator("#lab-java"), "java-decide.png");
+  // enum section on the Decisions card: the declaration, 4 compile checks with javac messages, why not String or int, SDK enums
+  check(/enum LaunchState \{ IDLE, SPINNING_UP, FEEDING \}/.test(await pg.textContent("#jv-encode")) && /private LaunchState launchState = LaunchState\.IDLE;/.test(await pg.textContent("#jv-encode")), "enum section shows the same enum line and field as MainTeleOp");
+  for (let i = 0; i < 4; i++) await pg.click('#jv-encompile [data-q="' + i + '"]');
+  const enRes = await pg.$$eval("#jv-encompile .res", rs => rs.map(r => r.className + "|" + r.textContent));
+  check(/ok\|OK/.test(enRes[0]) && /bad\|Error: cannot find symbol: variable SPINING_UP/.test(enRes[1]) && /String cannot be converted to LaunchState/.test(enRes[2]) && /int cannot be converted to LaunchState/.test(enRes[3]), "enum compile checks: FEEDING builds, a typo, a String and an int fail with the javac message: " + enRes.join(" / "));
+  check((await pg.$$eval("#jv-enwhy tr", r => r.length)) === 4 && /DcMotor\.Direction/.test(await pg.textContent("#jv-ensdk")), "enum section explains why not String or int and names SDK enums");
+  await pg.locator("#jv-enum").scrollIntoViewIfNeeded();
+  { const ph = await b.newPage({ viewport: { width: 390, height: 800 } }); await ph.goto(URL + "#java"); await ph.waitForTimeout(300);
+    for (const jt of ["decide", "inherit"]) { await ph.click('.jt[data-jt="' + jt + '"]'); await ph.waitForTimeout(150);
+      const sw = await ph.evaluate(() => document.documentElement.scrollWidth); check(sw <= 390, "390 px: Java card " + jt + " (enum, annotations) has no sideways scroll: " + sw); }
+    await ph.close(); }
+  await shot(pg.locator("#jv-enum"), "java-enum.png");
 
   // ---- Ask the room: Hide folds the question, Show brings it back ----
   await pg.click("#lab-java details.ask .ask-x");

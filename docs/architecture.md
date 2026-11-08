@@ -57,6 +57,7 @@ Time:
 - `performance.now()` sits in two places only. The frame loop reads it: real time is the source of `dt`. `throttle(ms)` reads it: it caps how often a diagram redraws, a CPU cost, not sim behavior. Pause and the speed slider still freeze the values the diagram draws.
 - Reset scores disarms on mouse leave and blur, not on a timer.
 - The ElapsedTime objects on Java card 1 count `TIME.sim`, so Pause and the speed slider apply.
+- Java card 4 holds the Annotations panel (`#jv-an`, data `AN`, `showAn()`): each example sets `#jv-ancode` and the `.hublist` mock of the Driver Hub lists. Java card 5 holds the enum section (`#jv-enum`): `#jv-encode`, the compile list `ENQ` in `#jv-encompile` (same `.cmp` rows as card 2), `#jv-enwhy` and `#jv-ensdk`. Both live inside existing cards, so the card numbers stay 0 to 11.
 
 Color:
 - Hex colors sit only in the CSS token definitions (`--bg`, `--ink`, ...) and in two fixed-dark mock panels: `.dhub` (the Driver Hub screen) and `.ide-problems` (the Android Studio build output, classes `pe`, `pk`, `iok`, `iwarn`, `ix`). Both mocks look the same in either theme on purpose, as the real screens do.
