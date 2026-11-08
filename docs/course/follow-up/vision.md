@@ -249,7 +249,7 @@ Vote first:
 
 Answer B. Same bearing twice in a row = zero change = D reads zero. Then a new frame arrives, the bearing jumps, and D kicks. The robot shakes. Fix: run the PID only on passes with a new frame, and hold the last output in between. The `PIDController` timer then measures the time since the last frame, not one loop pass, so D divides each change by the real time between frames.
 
-Show both on the projector, lab tab 7, aim job, preset "PD (tuned: no I needed)". Read the note under the D chart: the red D line spikes, then drops to 0. Tick "PID only on new frames": D stops dropping to 0, and the "Using it for this job" panel switches to the code below.
+Show both on the projector, lab tab 7, aim job, preset "PD (tuned: no I needed)". Read the note under the D chart: the lab loop runs 50 times per second, so fewer passes repeat a frame than in the vote. A faster loop repeats more. The red D line spikes, then drops to 0. Tick "PID only on new frames": D stops dropping to 0, and the "Using it for this job" panel switches to the code below.
 
 Students type (pairs, branch `yourname/camera-aim`). In `MainTeleOp`, add `import com.qualcomm.robotcore.util.Range;` if the file lacks the import. Above `runOpMode()`, replace the placeholder fields from the last session:
 

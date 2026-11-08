@@ -783,6 +783,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   console.log("  lift PD + F vs last run:", ghostHead.join(" | "), ghostOff.join(" | "));
   check((await pg.textContent("#pid-ghostkey")).includes("last run: PD") && !(await pg.$eval("#pid-ghostkey", e => e.hidden)), "pid: a preset change keeps the last run as a faint line with a legend entry");
   check(ghostHead.includes("Last run: PD") && Math.abs(parseFloat(ghostOff[0])) < 0.3 && parseFloat(ghostOff[1]) > 1.5, "pid: markers table reads lift PD + F next to the last run, PD, which stops short");
+  const ghostCol = await pg.$$eval("#pid-resp td.ghost", tds => tds.map(t => t.textContent).join(" | "));
+  check(/never reached 90%/.test(ghostCol) && /not settled/.test(ghostCol) && !/cut/.test(ghostCol) && !/\(cut\)/.test(ghostHead.join(" ")), "pid: a stuck move reads 'never reached 90%' and 'not settled' in the Last run column, not cut: " + ghostCol);
   await pg.click('[data-tg="4"]'); await pg.waitForTimeout(500); await pg.click("#pid-bump"); await pg.waitForTimeout(600);
   const cutTxt = await pg.textContent("#pid-resp");
   check(/The bump cut this move/.test(cutTxt) && /This move \(cut\)/.test(cutTxt) && /cut before settling/.test(cutTxt), "pid: a move cut before it settled is labeled cut, with what was measured before the cut");

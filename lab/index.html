@@ -1161,7 +1161,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
       <p class="lede">A PID controller turns an error, how far you are from the target, into motor power. P pushes toward the target. D brakes before you overshoot. Pick a job below. The PID code stays the same. Only the sensor, the error and the numbers change.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift stops about 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="2"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">A bigger kP, as big as needed</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">I. Gravity needs 0.18 power to hold the lift. P gives power only from an error: kP x error = 0.18, so the lift stops 1.8 in short. D gives nothing here. The lift sits still, so the error does not change. A bigger kP shrinks the gap but never closes the gap, and the lift starts to bounce. I adds up the leftover error until the power reaches 0.18. Pick the lift job next: F sends the 0.18 from the first pass, before any error shows.</div>
+      <div class="a">I. Gravity needs 0.18 power to hold the lift. P gives power only from an error: kP x error = 0.1 x 1.8 = 0.18, so the lift stops 1.8 in short. D gives nothing here. The lift sits still, so the error does not change. A bigger kP shrinks the gap but never closes the gap, and the lift starts to bounce. I adds up the leftover error until the power reaches 0.18. Pick the lift job next: F sends the 0.18 from the first pass, before any error shows.</div>
     </details>
   </div>
   <div class="row" style="margin-bottom:14px" role="tablist" aria-label="PID application">
@@ -3306,7 +3306,8 @@ const PIDLAB = (function(){
       if (swing) off = null;
     }
     const os = pmax > 1.005 ? (pmax - 1) : 0;
-    const ended = isFinite(tEnd), cutBy = ended && ts === null ? (st.tEnd !== undefined && st.tEnd <= tEnd ? "the bump" : "the next move") : null;   // cut: ended before it settled, so the values are partial
+    const ended = isFinite(tEnd), stalled = off !== null;   // sat still outside the band for the last 0.5 s: stuck, not cut
+    const cutBy = ended && ts === null && !stalled ? (st.tEnd !== undefined && st.tEnd <= tEnd ? "the bump" : "the next move") : null;   // cut: ended before it settled, so the values are partial
     return {e0, tS, td, t10, t90, pmax, tp, os, band, ts, off, swing, tLast, ended, cutBy};
   }
   function cfgNow(){   // the gains a move starts with, and a name for them
