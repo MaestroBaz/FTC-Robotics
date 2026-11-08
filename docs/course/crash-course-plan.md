@@ -273,14 +273,14 @@ Team rounds:
 
 ## Module 2: What runs when you press INIT, START and STOP (15 min)
 
-Lab tab 2: press INIT, START, STOP with the team version. Before each press, teams hold up A, B or C for which line runs next, from three lines you name. The state diagram under the code lights up each state. The match timeline shows where INIT, AUTO and TELEOP sit in the 158 seconds.
+Lab tab 2: press INIT, START, STOP with the team version. Before each press, the message under the Driver Hub asks the vote: teams hold up A, B or C for which lines run next. The highlight after the press is the reveal. The state diagram under the message lights up each state. The match timeline shows two OpModes, AUTO then TeleOp, each with its own INIT, START and STOP.
 
 Teach on the whiteboard:
 
 ```
 INIT pressed  -> code before waitForStart() runs (set up hardware, no movement: rule G304.H)
 START pressed -> waitForStart() returns
-loop          -> while (opModeIsActive()) runs about 50-100 times per second
+loop          -> while (opModeIsActive()) runs about 50 times per second
 STOP pressed  -> opModeIsActive() becomes false, loop ends, code after the loop runs
 ```
 
@@ -292,7 +292,7 @@ Teach:
 
 Team rounds:
 - Prediction before INIT, START and STOP: which line runs next (1 point each).
-- Prediction at STOP on the AI version, replayed from Module 0: does the thread stop? (1 point).
+- Prediction at STOP on the AI version, replayed from Module 0: does the thread stop? (1 point). It does not: STOP ends `runOpMode()`, and the thread keeps running until the Robot Controller app restarts. A second INIT does not stop it either.
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)
 
