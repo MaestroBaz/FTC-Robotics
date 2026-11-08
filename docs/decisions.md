@@ -23,6 +23,8 @@
 | Field-centric drive taught as TeleOp | It reads driver sticks. AUTO uses the same rotation math on odometry coordinates. |
 | PID with an I-zone instead of an integral cap | A cap still lets I pile up during long moves. The I-zone (`|kP * error| < 0.35`) stops windup and stays simple. |
 | Aim presets show PD as the tuned answer and PID as worse | Camera data is late and noisy. Teaches that not every job needs all three terms. |
+| Aim "P only" keeps its overshoot of about 48% (measured 2026-11-08: 44 to 51% over 20 runs, about 14 deg on a 29 deg move) | The big number sets up the case for D. P too high reads about 69% and PD about 14%, so the three presets still rank clearly. Revisit if students read 48% as a bug. |
+| Auto-aim D spikes get a note and one dot per loop pass, no filtered derivative (2026-11-08) | A filter adds code to PIDController.java and a new idea to a full day. The note under the D chart names the cause: 30 camera frames per second against 50 loop passes, so the error jumps on some passes and holds on the rest. |
 | Search turn toward the last seen bearing when the target is lost | Without it the robot sits still when the HIVE leaves the view, which looked like a broken PID. |
 | Tab bar follows the teaching order (2026-11-07): Java, lifecycle, GitHub, drive, one loop, then 6, 7, 8 | GitHub sits third, before the break: it is the low-intensity module, and its conflict story reuses the slow-mode line from MainTeleOp. One loop stays next to the launcher because its state machine calls launcherReady(). Lifecycle and one loop stay separate tabs, because a merged tab doubles the scroll on the projector. |
 | Java Basics cards follow the words a student meets reading MainTeleOp top to bottom (2026-11-07) | Classes, types, private, extends and scope come before the read-through card. Imports come before the error clinic. The project map comes last. Lists leaves the day and waits for the Follow-up Session. |
@@ -37,6 +39,8 @@
 | Full chart history with zoom instead of a fixed window | Baz wanted to scroll back and zoom into one part of a run. |
 | Plain mouse wheel scrolls the page, Shift/Ctrl + wheel act on the chart | The lab is a long page. Hijacking the wheel traps the scroll on a projector. |
 | Response markers with standard names plus a plain-words table | Students learn the real terms (rise time, settling time, steady-state error) and what each means for scoring. "Response time" is flagged as ambiguous. |
+| Compare runs on tab 7: the last run with other gains stays as a faint line and a Last run column (2026-11-08) | Lift PD vs PD + F reads side by side on the chart and in the table. The faint line is scaled onto the current start and target, so a 26 to 14 in move compares with a 14 to 26 in move. Gravity makes up and down moves differ, so the line shows shape, not an exact replay. |
+| A move cut before settling reads "cut", not partial numbers (2026-11-08) | A new target or a bump ends a move early. The table marks the column cut, says when, and writes "cut before settling" in place of a number the cut hid. |
 | Colors only through CSS tokens | Light and dark themes stay correct. |
 | Plain ASCII in all content | Baz's style rule. Also avoids encoding issues in code panels. |
 | GitHub Issues hold all open work, no backlog file | Baz's choice. One list stops drift, and the engineering skills read the tracker. |
