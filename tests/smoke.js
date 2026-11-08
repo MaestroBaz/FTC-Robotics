@@ -408,6 +408,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // ==== end area oneloop ====
 
   // ==== area feedback: smoke checks for the feedback teaching fixes go below this line ====
+  await pg.goto(URL + "#feedback"); await pg.waitForTimeout(300);
+  const fbUi = await pg.evaluate(() => ({
+    primary: document.querySelector("#lab-feedback .b.primary").id,
+    resetGone: !document.querySelector("#fb-reset"),
+    hitCell: !!document.querySelector("#fb-score td.hit"),
+    lede: document.querySelector("#lab-feedback .lede").textContent,
+    code: document.querySelector("#fb-codeB").textContent,
+    blocks: document.querySelector("#fb-blocks").textContent
+  }));
+  check(fbUi.primary === "fb-match" && fbUi.resetGone, "feedback: the match is the primary button and Reset run is the only reset");
+  check(fbUi.hitCell && /Yellow/.test(fbUi.lede) && /ticks per second/.test(fbUi.lede), "feedback: lede names the yellow line and defines ticks per second, IN HIVE reads green");
+  check(/Robot\.java/.test(fbUi.code) && (fbUi.blocks.match(/battery/g) || []).length === 2 && /ticks\/s/.test(fbUi.blocks), "feedback: code panels name Robot.java, both block diagrams feel the battery");
   // ==== end area feedback ====
 
   // ==== area pid: smoke checks for the pid teaching fixes go below this line ====
