@@ -43,7 +43,7 @@ Format: the Crash Course moves, cut down for typing. Each module opens with a vo
 
 Do this before any explanation:
 1. Robot on the floor, `mentor/vision-demo` deployed. Select Main TeleOp, press INIT, press B for red. Press START.
-2. A student holds a printed tag from a red cluster about 1 m in front of the robot, at CELL height. Hold the right bumper. The robot turns to face the tag.
+2. A student holds a printed tag from a red cluster about 1 m in front of the robot, at CELL height. Hold the right bumper. The robot turns to face the CELL opening the tag belongs to, a few degrees off the card.
 3. The student walks the tag left and right. The robot follows. Release the bumper: the driver turns the robot again.
 4. Put lab tab 7 on the projector next to the robot. Drag the HIVE. Say: "Same code. The lab fakes the camera. Today you plug in the real one."
 
@@ -114,7 +114,7 @@ Check for done: the file builds. Open a PR. The mentor merges one PR and deploys
 On the robot (mentor drives, the room reads the Driver Hub):
 - Press INIT. Tap the 3 dots on the Driver Hub, then Camera Stream, to see one frame. Tap again to refresh. Close the stream before START.
 - Press START. Hold up one tag. Write on the whiteboard: cluster name, percent found, range, bearing, roll.
-- Measure the camera-to-tag distance with a tape. Compare with `range`. Off by more than 10%: check the print size, then the camera calibration.
+- Hold the tag on a tape mark and read `range`. Move the tag 12 in farther along the tape. `range` grows by 12 in, within 1.5 in. The number itself points at the CELL opening, not at the card, so never compare `range` with the tape directly. The 12 in step reads wrong by a fixed factor: check the print size, then the camera calibration. [Verify] on the robot.
 - Move the tag to the robot's left. Bearing goes positive. Move the tag right: negative.
 - Flip the tag upside down. Roll jumps near 180 and Scores reads false.
 - Hold one tag of each cluster in turn. Write all 4 cluster names on the whiteboard. [Verify] these names against the robot, then use them in Module 3.

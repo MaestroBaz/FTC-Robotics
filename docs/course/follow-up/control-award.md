@@ -12,7 +12,7 @@ The lab charts come from a simulator, not from your robot. The Control Award jud
 
 ## What the Control Award asks for
 
-Source: FTC Competition Manual 2026-27, Section 6.3.7 Control Award and Table 6-8 Control Award Criteria, https://ftc-resources.firstinspires.org/ftc/game/manual-06, read on 2026-11-08. [Verify] the manual version in the page header. The team reference doc lists TU07, dated 2026-10-29.
+Source: FTC Competition Manual 2026-27, Section 6.3.7 Control Award and Table 6-8 Control Award Criteria, https://ftc-resources.firstinspires.org/ftc/game/manual-06, read on 2026-11-08. The team reference doc cites TU08, dated 2026-11-05. The Section 6 page header reads TU06: each section carries its own version.
 
 The award goes to a team using sensors and software to solve game challenges creatively: in AUTO, in TELEOP, or both. The portfolio holds a summary of the software, the sensors and the mechanical control system. Full code is not required. [Certain]
 
@@ -26,7 +26,7 @@ Table 6-8, in our words: [Certain]
 | Encouraged 4 | The team explains how reliable the solution is: show the solution working, or say how to improve the solution. |
 | Encouraged 5 | The team describes what they learned using the engineering process on the control solution. |
 
-Our candidates for Required 2: the launcher on `setVelocity()` (motor encoder), the turn to heading (IMU), the lift to height (lift encoder), the auto-aim (camera bearing), the AUTO drive on the drive encoders (`driveInches()` with `RUN_TO_POSITION`), and `goToPoint()` on the Pinpoint. TeleOp drive on `setPower()` does not count: the driver closes the loop by eye. AUTO drive counts. [Certain]
+Our candidates for Required 2: the launcher on `setVelocity()` (motor encoder), the turn to heading (IMU), the lift to height (lift encoder), the auto-aim (camera bearing), the AUTO drive on the drive encoders (`driveInches()` with `RUN_TO_POSITION`), and `goToPoint()` on the Pinpoint. TeleOp stick driving on `setPower()` does not count: the driver closes the loop by eye. The aim button counts: the camera bearing closes the loop. AUTO drive counts. [Certain]
 
 Advancement: Control sits in one group with Innovate and Design. At small events the judges give only one award of the three (Table 6-1). [Certain] on the table text. [Verify] the size bracket of our event.
 
@@ -70,7 +70,7 @@ As the team reference doc (`docs/course/ftc-reference-2026-27.md`, section 4) st
 
 ## Session plan (60 min)
 
-1. Open (5 min). Put Table 6-8 on the projector. Ask the room: which part of our robot uses no external feedback in TeleOp? A the launcher, B the drive, C the lift. Answer: B. In TeleOp the drive runs on `setPower()` and the driver closes the loop by eye. In AUTO the drive uses the drive encoders, so AUTO drive counts. One point per right team on the scoreboard.
+1. Open (5 min). Put Table 6-8 on the projector. Ask the room: which part runs with no external feedback while the driver steers with the sticks (aim button released)? A the launcher, B the drive, C the lift. Answer: B. Stick driving runs on `setPower()` and the driver closes the loop by eye. In AUTO the drive uses the drive encoders, so AUTO drive counts. One point per right team on the scoreboard.
 2. Sensor list (10 min). Each team fills in the sensor table on the template. Columns A, B and C match Required 1 (A), (B) and (C). The feedback column answers Required 2.
 3. Before run (10 min). Tab 7, your job, preset "P only". Pick one target and run one move. Pause. Press Save PNG above the "Target vs sensor" chart: one picture with both PID charts. Copy the gains next to the sliders and four rows of the Response markers table: rise time, overshoot, settling time, steady-state error. Team 6: tab 6, battery 12.5 V, Fire 3 fast. Save PNG. Copy the dip and the recovery time for open loop and closed loop.
 4. Tune, then the after run (15 min). Follow "How to tune" on tab 7. Try at least 3 gain sets. Write each set and the result in the gains table. Run the best set on the same target as the before run, or the comparison means nothing. Save PNG. Copy the markers again. Team 6 compares open loop (before) with closed loop (after).

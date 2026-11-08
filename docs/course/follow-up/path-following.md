@@ -115,7 +115,7 @@ public class Waypoint {
 Teach:
 - `final` fields: a waypoint never changes after `new`. Same idea as the tuned constants in `Robot.java`.
 - The constructor: the method with the class name. `new Waypoint(24, 0, 0, true)` fills the 4 boxes.
-- A `List<Waypoint>` holds the points in order, the same `List` as the Lists card on lab tab 1.
+- A `List<Waypoint>` holds the points in order: the `List<Type>` and `ArrayList` row of `team-coding-standard.md`.
 
 Team round, paper: each pair writes the list for a 24 in square, starting and ending on the start mark, heading 0 the whole way. Compare lists. Common mistakes: Y sign flipped (left is +), the start point listed as the first waypoint (the robot sits there already).
 
@@ -146,12 +146,14 @@ public class PracticePathSquare extends LinearOpMode {
     private static final double PASS_RADIUS = 4.0;        // inches: close enough to move on
     private static final double STOP_RADIUS = 1.0;        // inches: close enough to stop
     private static final double HEADING_TOLERANCE = 2.0;  // degrees
+    private static final double SETTLE_TIME = 0.25;       // seconds inside the stop window before we stop
     private static final double WAYPOINT_TIMEOUT = 3.0;   // seconds per waypoint, then move on
 
     private final Robot robot = new Robot();
     private final PIDController drivePID = new PIDController(0.05, 0, 0.005);    // copy the tuned gains from LeaveAndParkPinpoint
     private final PIDController headingPID = new PIDController(0.02, 0, 0.002);  // copy from LeaveAndParkPinpoint
     private final ElapsedTime waypointTimer = new ElapsedTime();
+    private final ElapsedTime windowTimer = new ElapsedTime();
     private final ElapsedTime pathTimer = new ElapsedTime();
     private int timeouts = 0;
 
@@ -195,6 +197,7 @@ public class PracticePathSquare extends LinearOpMode {
         drivePID.reset();
         headingPID.reset();
         waypointTimer.reset();
+        windowTimer.reset();
         while (opModeIsActive()) {
             robot.updatePose();                                   // read the Pinpoint once per pass
             Pose2D pose = robot.getPose();
@@ -203,10 +206,16 @@ public class PracticePathSquare extends LinearOpMode {
             double distance = Math.hypot(errX, errY);             // inches left to go
             double headingError = AngleUnit.normalizeDegrees(wp.heading - robot.headingDegrees());
 
-            // Close enough? A stop point needs position AND heading. A pass point needs position only.
+            // Close enough? A stop point needs position AND heading for SETTLE_TIME in a row.
+            // A pass point needs position only.
             boolean closeEnough;
             if (wp.stopHere) {
-                closeEnough = distance < STOP_RADIUS && Math.abs(headingError) < HEADING_TOLERANCE;
+                boolean inWindow = distance < STOP_RADIUS
+                        && Math.abs(headingError) < HEADING_TOLERANCE;
+                if (!inWindow) {
+                    windowTimer.reset();                          // outside: start the count again
+                }
+                closeEnough = inWindow && windowTimer.seconds() > SETTLE_TIME;
             } else {
                 closeEnough = distance < PASS_RADIUS;
             }
@@ -249,7 +258,7 @@ public class PracticePathSquare extends LinearOpMode {
 Read aloud, in this order:
 1. The list in `runOpMode()`: the path is data. Changing the path means changing numbers, not code.
 2. The `for` loop: one waypoint after another. `opModeIsActive()` in the condition: STOP ends the path.
-3. `driveTo()`: the same go-to-point math as lab tab 4 AUTO, with two changes. The power comes from one place, and the loop has two exits: close enough, or the timeout.
+3. `driveTo()`: the same go-to-point math as lab tab 4 AUTO, with two changes. The power comes from one place, and the loop has two exits: close enough, or the timeout. A stop point needs the same "on target AND stopped" window as `goToPoint()` in `odometry.md`: the robot passes through the 1 in circle at speed, so the window timer waits `SETTLE_TIME` before the stop.
 4. A blocking `while` inside AUTO is fine: no driver steers in AUTO, and `opModeIsActive()` keeps STOP working. The same rule as `driveInches()` in the encoder session.
 
 First run: all 4 waypoints stop (`true`). Before the first run, teams predict where the robot ends: A on the start mark within 1 in, B within 3 in, C more than 3 in off. Run 5 times. Fill the results table for each run. Then reveal the Module 0 vote with the path time.
@@ -293,7 +302,7 @@ Team rounds:
 - Ask the room why the timeout matters in a match: AUTO lasts 30 s. A robot stuck on one point for 30 s scores nothing. A robot giving up after 3 s still reaches PARK.
 - Ask the room what the timeout costs: after a timeout the robot drives on from the wrong spot. The next segment starts off the path. For a match, pick the timeout from the slowest clean run in the table plus 1 s.
 - Press STOP mid-path on one run. The robot halts: `opModeIsActive()` sits in both loops. Point at both lines.
-- Remove the box. Lift the robot by hand off the field mid-path and set the robot down 6 in to the side. The Pinpoint pods leave the floor, so the pose goes wrong, and the robot misses the end mark. Lesson: odometry tracks only while the pods touch the floor. A hit from another robot does the same.
+- Remove the box. Let the path finish, so the OpMode sits in the results loop with the motors stopped. Never grab a driving robot. The mentor lifts the robot, moves the robot 6 in to the side and sets the robot down. Read End X and End Y: the pose did not move. The pods left the floor, so the Pinpoint never saw the 6 in. Lesson: odometry tracks only while the pods touch the floor. A hit from another robot does the same.
 
 Team round:
 - Prediction: box on waypoint 2 (1 point).

@@ -64,7 +64,7 @@ Sample offsets in the SDK sample: `setOffsets(-84.0, -168.0, DistanceUnit.MM)`, 
 - [ ] Measure the pod offsets in mm from the robot center (Module 1 uses them). Write them on a card.
 - [ ] Tape on the floor: a start box, a line 48 in long away from the drivers, a line 24 in long toward the left wall. A tape measure at the robot station.
 - [ ] Lab open on the projector at tab 4, AUTO mode. A, B and C cards for each team.
-- [ ] Practice branch: `PracticePinpoint.java` from Module 2 already deployed, so the opener demo runs on the real robot.
+- [ ] Mentor branch `mentor/pinpoint-demo` with the Module 1 Robot.java changes and `PracticePinpoint.java` from Module 2, built and deployed, so the opener demo runs on the real robot. `PracticePinpoint` compiles only with the Module 1 methods.
 
 ## Agenda
 
@@ -144,6 +144,8 @@ Inside `init()`, after the IMU lines:
 ```
 
 The team rule for heading: one heading source. Once the Pinpoint is fitted, every heading in the code comes from the Pinpoint: the pose, `driveFieldCentric()`, the Heading telemetry and `turnToHeading()`. The Pinpoint computes X and Y with its own heading. Rotate the drive by a second gyro and the two headings drift apart, so the robot drives at a slant. `turnRateDegrees()` stays on the Control Hub IMU: a turn rate, not a heading, so nothing drifts apart. [Likely]
+
+Every INIT runs `resetPosAndIMU()`, so TeleOp starts at heading 0 wherever AUTO stopped. The encoder `Robot.java` did the same with `imu.resetYaw()`. After `LeaveAndParkPinpoint` the robot faces the PARK heading, so on a field-centric TeleOp (`driveFieldCentric()`, lab tab 4) the drivers point the front away from the drivers and press A (`resetHeading()`) before they drive. Robot-centric MainTeleOp ignores the heading. [Verify] on the robot after `LeaveAndParkPinpoint`.
 
 New methods:
 
@@ -435,6 +437,7 @@ Check for done: 5 runs in a row from the start box, robot ends inside the PARK z
 | Robot drives at a slant on the second move | Two headings: `driveFieldCentric()` or `headingDegrees()` still reads the Control Hub IMU, the pose reads the Pinpoint | Both methods read `pinpoint.getHeading()`. One heading source |
 | Heading telemetry in MainTeleOp stays frozen after the merge | `updatePose()` missing in MainTeleOp | `robot.updatePose()` as the first line inside the while loop |
 | Encoder LeaveAndPark spins and never stops after the merge | `turnToHeading()` never calls `updatePose()`, so the Pinpoint heading freezes | `robot.updatePose();` as the first line in the `turnToHeading()` loop |
+| Field-centric drive turned 90 deg at the start of TeleOp | INIT zeroed the Pinpoint while the robot faced the PARK heading | Point the front away from the drivers and press A |
 | Robot drives sideways toward the right wall instead of left | `right = speed * errY / distance` without the minus | `right = -speed * errY / distance` |
 | Robot turns the wrong way and keeps spinning | `turn` passed without the minus | `driveFieldCentric(forward, right, -turn)` |
 | Status reads `CALIBRATING` or the heading drifts from the first second | Robot moved during `resetPosAndIMU()` | Hands off the robot during INIT. Restart the OpMode |
