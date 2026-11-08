@@ -4,7 +4,7 @@ Nov 6, 2026 - @Ahmed El-Baz
 
 ## Before you start
 
-Tonight takes about 3 hours. Do the must-do list in order. Tomorrow starts with GitHub, so the GitHub items come first.
+Tonight takes about 3 hours. Do the must-do list in order. Tomorrow you need a GitHub account, so the GitHub items come first.
 
 - [ ] Make a free GitHub account at [github.com](https://github.com/signup) (you must be 13 or older). Pick a username without your full name, and send it to your mentor.
 - [ ] Open a notebook or a notes file. Write down every question you get stuck on. Bring the list tomorrow.

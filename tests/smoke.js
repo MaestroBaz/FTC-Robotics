@@ -137,12 +137,22 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#gx-edit"); await pg.click("#gx-commit"); await pg.click("#gx-partner"); await pg.click("#gx-push");
   check(/git push\n# ! \[rejected\]/.test(await pg.textContent("#gx-cmd")), "a rejected push shows the git push error in the terminal box");
   await pg.click("#gx-pull");
-  check((await pg.textContent("#gx-cmd")) === "git pull", "Pull shows git pull");
+  check(/^git pull/.test(await pg.textContent("#gx-cmd")), "Pull shows git pull");
   await pg.click("#gx-prnext");
   check(/git switch -c maya\/slow-mode/.test(await pg.textContent("#gx-prcmd")), "the PR loop shows the branch command");
   await pg.click("#gt-next"); await pg.click("#gt-next");
   check(/git commit -m "Add slow mode on left bumper"/.test(await pg.textContent("#gt-cmd")), "the conflict story shows the commit command");
   check((await pg.$$eval("pre.term", els => els.filter(e => e.textContent.trim()).length)) === 3, "all three terminal boxes hold a command");
+
+  // ==== area gitflow: part 1 does not leak the prediction, a rejected push stays red ====
+  await pg.click("#gx-reset"); await pg.click("#gx-edit"); await pg.click("#gx-commit"); await pg.click("#gx-partner");
+  check(/to pull: \?/.test(await pg.textContent("#gx-status")), "after Leo pushes, the laptop does not know the pull count yet");
+  await pg.click("#gx-push"); await pg.waitForTimeout(900);
+  check(await pg.evaluate(() => document.querySelectorAll("#gx-places .place")[2].classList.contains("reject")), "a rejected push keeps the GitHub box red");
+  await pg.click("#gx-pull");
+  check(await pg.evaluate(() => !document.querySelector("#gx-places .reject")), "Pull clears the red GitHub box");
+  check((await pg.$$eval("#gx-prsteps, #gt-steps", els => els[1].children.length)) === 10 && !(await pg.textContent("#gx-org")).includes("Sync fork"), "conflict story has 10 steps and the org map has no mentor jargon");
+  // ==== end area gitflow ====
 
   // ---- every tab loads, at 1x and at 2x ----
   const tabs = ["gitflow", "java", "lifecycle", "mecanum", "oneloop", "feedback", "pid", "encoders"];
