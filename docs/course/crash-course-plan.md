@@ -84,7 +84,7 @@ Team rounds:
 
 ## Module 1: Java basics, the robot way (35 min)
 
-Lab tab 1 has 11 cards. 35 minutes does not cover all of them in depth, so spend the time on Decisions and the two cards with the games: Every word explained and Error clinic: fix it.
+Lab tab 1 has 12 cards. 35 minutes does not cover all of them in depth, so spend the time on Decisions and the two cards with the games: Every word explained and Error clinic: fix it.
 
 | Card | Time | What to click | The one sentence to remember |
 |---|---|---|---|
@@ -94,13 +94,14 @@ Lab tab 1 has 11 cards. 35 minutes does not cover all of them in depth, so spend
 | 3 Robot.java: public and private | 3 min | Teams guess which two calls build, then press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
 | 4 extends and @Override | 4 min | Click telemetry and @Override, then the three @Override versions | `extends LinearOpMode` is why telemetry and gamepad1 exist. `@Override` is a spelling check: a typo fails the build instead of never running. |
 | 5 Decisions: if, else, switch | 6 min | Move the stick slider to 0.8, 0.3, -0.4 and 0. Then the switch states, then tick Forget the break | Java asks the questions top to bottom and runs only the first true one. Every `case` ends with `break`. `==` compares, `=` stores. |
-| 6 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
-| 7 Every word explained | 6 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
-| 8 Imports | 1 min | An import name to read the address | An import is the full address of a class: folders, then the class. |
-| 9 Error clinic: fix it | 7 min | Errors 1, 4, 6, 7, 3 and 8, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
-| 10 The project map | if time | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
+| 6 Loops and arithmetic | hands-on session | for: Next step through the 4 wheels. while: count the balls, then tick Forget the line. Run the two 5 / 2 lines | `for` counts, `while` repeats until its question says false. Something inside must move it toward false. `5 / 2` is 2 in Java. |
+| 7 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
+| 8 Every word explained | 6 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
+| 9 Imports | 1 min | An import name to read the address | An import is the full address of a class: folders, then the class. |
+| 10 Error clinic: fix it | 7 min | Errors 1, 4, 6, 7, 3 and 8, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
+| 11 The project map | if time | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
 
-The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends and @Override, then the if and switch inside the loop, then scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
+The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends and @Override, then the if and switch inside the loop, then loops and arithmetic (skipped on the day, taught in the hands-on Follow-up Session), then scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
 
 Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (inside Robot.java) sets up the "Robot.java: public and private" card, 8 minutes in.
 
@@ -115,6 +116,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -127,6 +129,7 @@ public class Robot {
     // Tune these on the real robot.
     public static final double LAUNCH_VELOCITY = 1160;   // encoder ticks per second
     public static final double VELOCITY_TOLERANCE = 40;  // ticks per second
+    public static final double FEED_POWER = 1.0;         // [Verify] direction and speed on the real feeder
     public static final double COUNTS_PER_INCH = 42.8;   // example: 537.7 counts/rev, 4 in wheel. Formula in the encoders session
 
     private DcMotor frontLeft;
@@ -134,6 +137,7 @@ public class Robot {
     private DcMotor backLeft;
     private DcMotor backRight;
     private DcMotorEx launcher;
+    private CRServo feeder;   // [Verify] a continuous servo pushes one ball into the launcher. Swap in the team's real feeder
     private IMU imu;
 
     public void init(HardwareMap hardwareMap) {
@@ -153,6 +157,8 @@ public class Robot {
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        feeder = hardwareMap.get(CRServo.class, "feeder");
 
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -206,6 +212,14 @@ public class Robot {
 
     public double launcherVelocity() {
         return launcher.getVelocity();
+    }
+
+    public void feederOn() {
+        feeder.setPower(FEED_POWER);
+    }
+
+    public void feederOff() {
+        feeder.setPower(0);
     }
 
     public double headingDegrees() {
@@ -385,9 +399,9 @@ switch (launchState) {
 
     case FEEDING:
         robot.launcherOn();
-        // robot.feederOn();   // add the team's feeder mechanism here
+        robot.feederOn();
         if (feedTimer.seconds() > 0.3) {
-            // robot.feederOff();
+            robot.feederOff();
             launchState = LaunchState.IDLE;
         }
         break;
@@ -397,6 +411,8 @@ telemetry.addData("Launcher velocity", robot.launcherVelocity());
 ```
 
 Teach: each pass through the loop checks the state once and moves on. Driving keeps working while the launcher spins up. `rightBumperWasPressed()` fires once per press, not every loop (SDK edge detection, confirmed in the v12.0 samples alongside `leftBumperWasPressed()`, `rightTriggerWasPressed()`, `crossWasPressed()`). Contrast with `gamepad2.right_bumper`, which stays true every loop while held.
+
+`feederOn()` and `feederOff()` live in Robot.java next to the launcher. The plan assumes a continuous servo named `"feeder"` in the robot configuration [Verify]. If the team's feeder is a motor or a standard servo, only those two method bodies change. MainTeleOp stays the same: that is rule 2 at work. Lab tab 5 (code B), the Decisions card switch and the Every word explained card call the same two methods.
 
 Spot the bug on the whiteboard: cross out one `break`. Teams hold up A the launcher never spins, B two states run in one pass, C a compile error. Then ask where a cancel button (gamepad2 B returns to IDLE) would go. Teams answer A inside IDLE, B inside every case, C above the switch.
 
@@ -538,7 +554,7 @@ Exercise: add a turn after the drive with `turnToHeading(90)` from lab tab 7 (th
    - One robot, one USB-C cable, one mentor laptop. Pre-build `Robot.java` on the robot so each deploy takes 3 minutes, not 15.
    - Old AI-written code archived on a branch named `archive/ai-code-2026` and removed from `main`.
    - `team-roster.md` on main with the single line `Team members: ` for the conflict drill: each student adds a name on the same line on an own branch, the first PR merges, every other PR conflicts, each student fixes the conflict in the 3-pane merge tool.
-   - Session content: the PracticeHello OpMode, DriveTeleOp from BasicOmniOpMode_Linear with slow mode, Robot.java plus MainTeleOp in pairs with PR review, the launcher state machine, PIDController.java typed by hand and auto-aim on a button. Each piece ends in a commit and a reviewed PR, and the mentor deploys one merged main per piece.
+   - Session content: the Loops and arithmetic card (lab tab 1, card 6) before anyone types, the PracticeHello OpMode, DriveTeleOp from BasicOmniOpMode_Linear with slow mode, Robot.java plus MainTeleOp in pairs with PR review, the launcher state machine with feederOn() and feederOff() in Robot.java, PIDController.java typed by hand and auto-aim on a button. Each piece ends in a commit and a reviewed PR, and the mentor deploys one merged main per piece.
    - Optional practice at home without a robot: Beta8397/virtual_robot (https://github.com/Beta8397/virtual_robot), a 2D FTC simulator running LinearOpModes from Android Studio with an abridged SDK. [Verify] the setup on one laptop before you recommend the simulator: hardware names differ from our robot config, and the abridged SDK lacks some v12.0 features.
 2. Autonomous with encoders (lab tab 8), see the section above.
 3. Vision: VisionPortal + AprilTag targeting of the HIVE. Start from ConceptAprilTagEasy. Read the v12.0 cluster guide first.

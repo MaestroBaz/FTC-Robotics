@@ -417,9 +417,9 @@
           <g stroke="#1d5fd0" stroke-width="2"><path d="M332 86 v12 M340 86 v12 M348 86 v12"/></g>
           <text x="212" y="114" class="c" style="font-size:8.5px">1 s frozen: sticks ignored, the</text><text x="212" y="125" class="c" style="font-size:8.5px">motor keeps its old power, the</text><text x="212" y="136" class="c" style="font-size:8.5px">driver cannot steer. Hits the wall.</text>
           <text x="212" y="160" class="b">timing without sleep</text>
-          <text x="206" y="174" class="m" style="font-size:7.5px">if (timer.seconds() &gt; 0.5) {</text>
-          <text x="224" y="186" class="m" style="font-size:7.5px">robot.feedOnce();</text>
-          <text x="224" y="198" class="m" style="font-size:7.5px">timer.reset();</text>
+          <text x="206" y="174" class="m" style="font-size:7.5px">if (feedTimer.seconds() &gt; 0.3) {</text>
+          <text x="224" y="186" class="m" style="font-size:7.5px">robot.feederOff();</text>
+          <text x="224" y="198" class="m" style="font-size:7.5px">// then back to IDLE</text>
           <text x="206" y="210" class="m" style="font-size:7.5px">}</text>
           <text x="212" y="226" class="c" style="font-size:8.5px">the loop keeps running in between</text>
           </g>
@@ -432,10 +432,10 @@
         <g style="font-size:9.5px">
           <circle cx="62" cy="130" r="40" class="bx"/><text x="62" y="134" text-anchor="middle" class="b m">IDLE</text>
           <circle cx="178" cy="60" r="40" class="sf"/><text x="178" y="56" text-anchor="middle" class="b m" style="font-size:9px">SPINNING</text><text x="178" y="68" text-anchor="middle" class="b m" style="font-size:9px">_UP</text>
-          <circle cx="294" cy="130" r="40" class="ok"/><text x="294" y="134" text-anchor="middle" class="b m">FEEDING</text>
+          <circle cx="294" cy="130" r="40" class="ok"/><text x="294" y="128" text-anchor="middle" class="b m">FEEDING</text><text x="294" y="142" text-anchor="middle" class="m" style="font-size:8px">feederOn()</text>
           <path d="M92 102 L144 72" class="ac"/><text x="40" y="58" class="c">bumper pressed:</text><text x="40" y="69" class="c m" style="font-size:8.3px">launcherOn()</text>
           <path d="M212 72 L264 102" class="ac"/><text x="232" y="70" class="c m" style="font-size:8.3px">launcherReady()</text><text x="232" y="81" class="c">speed in the window</text>
-          <path d="M254 140 L102 140" class="ac"/><text x="178" y="156" text-anchor="middle" class="c m" style="font-size:8.3px">feedOnce()</text><text x="178" y="167" text-anchor="middle" class="c">one ball, back to IDLE</text>
+          <path d="M254 140 L102 140" class="ac"/><text x="178" y="156" text-anchor="middle" class="c m" style="font-size:8.3px">feedTimer.seconds() &gt; 0.3</text><text x="178" y="167" text-anchor="middle" class="c">feederOff(), back to IDLE</text>
           <path d="M294 170 C294 204 62 204 62 170" class="ad"/><text x="178" y="216" text-anchor="middle" class="c">B in any state: cancel, back to IDLE</text>
           <text x="178" y="230" text-anchor="middle" class="c">while it spins up, driving keeps working: the loop never waits</text>
         </g>

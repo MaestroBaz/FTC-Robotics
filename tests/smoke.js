@@ -35,7 +35,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const nav = await pg.$$eval("nav.tabs a", as => as.map(a => a.querySelector(".n").textContent + ":" + a.dataset.tab).join(" "));
   check(nav === "1:java 2:lifecycle 3:gitflow 4:mecanum 5:oneloop 6:feedback 7:pid 8:encoders", "tab bar reads 1 Java ... 8 Encoders in the teaching order: " + nav);
   const cards = await pg.$$eval("nav.jtopics .jt", bs => bs.map(b => b.dataset.jt).join(" "));
-  check(cards === "anatomy classes vars private inherit decide scope words imports errors modules", "eleven Java cards in reading order, Lists off the nav: " + cards);
+  check(cards === "anatomy classes vars private inherit decide loops scope words imports errors modules", "twelve Java cards in reading order, Loops after Decisions, Lists off the nav: " + cards);
   check(src.includes('"import com.qualcomm.robotcore.hardware.DcMotorEx;"') && !src.includes("imu.resetYaw();   // driver"), "words card Robot.java imports DcMotorEx and field-centric calls robot.resetHeading()");
 
   // ---- tab buttons work when the page opens as a data: URL (blocks hash navigation) ----
@@ -526,6 +526,46 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await m.goto(URL + "#pid"); await m.waitForTimeout(1500);
   check((await m.evaluate(() => document.documentElement.scrollWidth)) <= 390, "no sideways scroll at 390 px");
   await m.screenshot({ path: path.join(SHOTS, "mobile-pid.png") });
+
+  // ==== area java ====
+  {
+    // #45 Loops and arithmetic card: numbered 6 after Decisions, the rest renumbered, steps through a for and a while
+    const jp = await b.newPage({ viewport: { width: 1366, height: 768 } });
+    jp.on("pageerror", e => errs.push("java: " + e.message));
+    await jp.goto(URL + "#java"); await jp.waitForTimeout(300);
+    const nums = await jp.$$eval("nav.jtopics .jt span", ss => ss.map(x => x.textContent).join(" "));
+    check(nums === "0 1 2 3 4 5 6 7 8 9 10 11" && /Twelve cards/.test(await jp.textContent("#lab-java .lede")), "java: the rail reads 0 to 11 and the lede counts twelve cards: " + nums);
+    // #46 card 2: all 6 Will it compile items above the fold at 1366x768 with auto-hide on
+    check(await jp.evaluate(() => document.body.classList.contains("autohide")), "java: the fold check runs with auto-hide on");
+    await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="vars"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
+    const qb = await jp.$$eval("#jv-compile .cmp", cs => cs.map(c => Math.round(c.getBoundingClientRect().bottom)));
+    check(qb.length === 6 && qb.every(y => y > 0 && y <= 768), "java card 2: all 6 quiz items show without scrolling at 1366x768: " + qb.join(", "));
+    await jp.click('.jt[data-jt="loops"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
+    check(/^6\. Loops/.test(await jp.textContent('.jpane[data-jp="loops"] h3')), "java loops: the card heading carries rail number 6");
+    const vars = () => jp.$$eval("#jv-lpvars .vbox", vs => vs.map(v => { const n = v.querySelector("b").textContent; return n + "=" + v.textContent.slice(n.length); }).join(" "));
+    const next = async n => { for (let i = 0; i < n; i++) await jp.click("#jv-lpnext"); };
+    await next(5);
+    const v5 = await vars();
+    check(v5 === "power=0.5 wheels=4 motors i=1" && (await jp.$$("#jv-lptable tr")).length === 3 && /frontRight/.test(await jp.textContent("#jv-lpmsg")), "java loops: for pass 2 shows i = 1 and frontRight: " + v5);
+    await next(5);
+    check(/4 < 4 is false/.test(await jp.textContent("#jv-lpmsg")) && (await jp.$$("#jv-lptable tr")).length === 5, "java loops: the for ends when i reaches 4, after 4 passes");
+    await next(1);
+    check(!/i=/.test(await vars()) && /i is gone/.test(await jp.textContent("#jv-lpmsg")) && (await jp.$eval("#jv-lpnext", x => x.disabled)), "java loops: after the for, i is gone and Next stops");
+    await jp.click('#jv-lppick [data-lp="while"]'); await next(12);
+    const vw = await vars();
+    check(vw === "balls=0 shots=3" && /Shots: 3/.test(await jp.textContent("#jv-lpmsg")), "java loops: the while counts 3 balls down to 0: " + vw);
+    await jp.check("#jv-lpforget"); await next(11);
+    check((await vars()) === "balls=3 shots=3" && /never ends/.test(await jp.textContent("#jv-lpmsg")) && /\bbad\b/.test(await jp.getAttribute("#jv-lpmsg", "class")) && /forgotten/.test(await jp.textContent("#jv-lpcode")), "java loops: forgetting balls-- loops forever, shown red");
+    await jp.click('#jv-arquiz [data-ar="2"]'); await jp.click('#jv-arquiz [data-ar="3"]'); await jp.click('#jv-arquiz [data-ar="5"]');
+    check(/^half is 2, not 2\.5/.test(await jp.textContent("#jv-ar2")) && /^half is 2\.0/.test(await jp.textContent("#jv-ar3")) && /^heading is 10/.test(await jp.textContent("#jv-ar5")), "java loops: Run shows the integer-division trap and % wrap-around");
+    await jp.close();
+    // #44 one feeder API: the plan's Robot.java owns feederOn()/feederOff() and its state machine calls them for real
+    const plan = fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8");
+    check(plan.includes('feeder = hardwareMap.get(CRServo.class, "feeder");') && plan.includes("public void feederOn() {") && plan.includes("public void feederOff() {") && !plan.includes("// robot.feederOn()") && !plan.includes("// robot.feederOff()"), "plan: Robot.java has the feeder and the state machine calls feederOn() and feederOff()");
+    const docsSrc = ["cheatsheet.html", "homework.md", "team-coding-standard.md", "crash-course-plan.md"].map(f => fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", f), "utf8")).join("\n");
+    check(!/feedOnce/.test(docsSrc + src) && (src.match(/robot\.feederOn\(\)/g) || []).length >= 3, "no feedOnce() left in the lab or the course docs, and the lab calls robot.feederOn()");
+  }
+  // ==== end area java ====
 
   check(errs.length === 0, "no page errors" + (errs.length ? ": " + errs.join(" | ") : ""));
   await b.close();
