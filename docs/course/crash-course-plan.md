@@ -44,7 +44,7 @@ The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fal
 - [ ] Print `cheatsheet.html` double sided, one set of 2 sheets per student.
 - [ ] Print `run-sheet.md`.
 - [ ] Print 6 sets of A, B and C cards, one set per team.
-- [ ] Test the projector with `lab/index.html` opened from disk at browser zoom 125%, not more. Check that the vote options and code read from the back row. Press Hide after each vote so the demo gets the screen.
+- [ ] Test the projector with `lab/index.html` opened from disk, browser full screen (F11) at zoom 100%. Check that the vote options and code read from the back row, and that all 6 Compile answers on Java card 2 show without scrolling. Set zoom 125% only if the back row fails at 100%: card 2 and the error clinic then need a scroll. Press Hide after each vote so the demo gets the screen.
 - [ ] On the morning of the course, copy `lab/index.html` to a USB stick. The git tag `crash-course-day` holds the fallback copy. The tag and GitHub still hold the lab of 2026-11-07, with 11 Java cards: move the tag and push first (steps in `run-sheet.md`).
 - [ ] Send the homework link to the students.
 

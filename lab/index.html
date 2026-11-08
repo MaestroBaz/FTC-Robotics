@@ -682,7 +682,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
             <div class="panel">
               <h3>extends and @Override</h3>
               <p><b><code>extends</code> means "is a kind of".</b> MainTeleOp extends LinearOpMode, so it gets everything LinearOpMode and OpMode have. That is why <code>telemetry</code>, <code>gamepad1</code> and <code>waitForStart()</code> work without you creating them.</p>
-              <p><b><code>@Override</code> means "my version replaces the parent's".</b> LinearOpMode leaves <code>runOpMode()</code> empty for you to fill. When the driver presses INIT, the SDK calls <code>runOpMode()</code> and runs yours.</p>
+              <p><b><code>@Override</code> means "my version replaces the parent's".</b> LinearOpMode names <code>runOpMode()</code> but leaves out its body (abstract): you must write it. When the driver presses INIT, the SDK calls <code>runOpMode()</code> and runs yours.</p>
               <p><code>@Override</code> also checks your spelling against the parent. A typo fails the build on your laptop, not on the field. Try the three versions below.</p>
             </div>
             <pre class="code" id="jv-icode"></pre>
@@ -3837,7 +3837,7 @@ const JV = (function(){
     gamepad1: ["OpMode", "gamepad1 is a field of OpMode. The SDK updates its sticks and buttons many times per second."],
     waitForStart: ["LinearOpMode", "waitForStart() is a method of LinearOpMode. It pauses your code until the driver presses START."],
     opModeIsActive: ["LinearOpMode", "opModeIsActive() is a method of LinearOpMode. It returns true until STOP is pressed or the match timer ends."],
-    runOpMode: ["MainTeleOp", "LinearOpMode has a runOpMode() with nothing inside. You write your own runOpMode(), and the SDK runs yours when INIT is pressed."],
+    runOpMode: ["MainTeleOp", "LinearOpMode names runOpMode() but has no body for it (abstract). You write your own runOpMode(), and the SDK runs yours when INIT is pressed."],
     Override: ["MainTeleOp", "@Override is a spelling check. It asks Java to confirm that LinearOpMode really has a runOpMode(). If you mistype the name, the build fails on this line. Try it in the panel below."]
   };
   $$(".ln", $("#jv-icode")).forEach(ln => {
@@ -5269,6 +5269,9 @@ const JVW = (function(){
     ["params", "double axial, double lateral, double yaw", "kw", "parameters", "The inputs a method needs, each with a type and a name. The caller fills them in order: robot.drive(0.5, 0, 0) puts 0.5 in axial, 0 in lateral and 0 in yaw."],
     ["ctor", "PIDController\\(double kP, double kI, double kD\\)", "kw", "constructor", "A method with the class name and no return type: the constructor. It runs once, inside new PIDController(0.02, 0, 0.003), to fill in the boxes of the new object."],
     ["hwget", "hardwareMap\\.get\\(DcMotorE?x?\\.class, \"[a-z_]+\"\\)", "str", "hardwareMap.get(...)", "Finds one device in the robot configuration. DcMotor.class says which kind of device. The text in quotes is the name typed on the Driver Hub, and it must match letter for letter."],
+    ["robotdef", "\\b(?:init|drive|launcherReady)(?=\\()", "kw", "drive() and the other actions", "A method you write inside Robot.java. MainTeleOp calls it with a dot: robot.drive(0.5, 0, 0). public on the same line lets other files call it."],
+    ["sdktype", "\\b(?:DcMotorEx|DcMotor|HardwareMap)\\b", "kw", "DcMotor, DcMotorEx, HardwareMap", "SDK classes: a motor, a motor that also reads its speed, and the list of devices. Each needs its import line at the top."],
+    ["motorcall", "\\b(?:setPower|getVelocity)\\b", "kw", "setPower() / getVelocity()", "setPower(p) sends a power from -1 to 1 to the motor. getVelocity() reads the motor speed in encoder ticks per second."],
     ["robotcall", "\\brobot\\.(?:init|drive|launcherOn|launcherOff|launcherReady|feederOn|feederOff|headingDegrees|stopDrive)\\b", "kw", "robot.method()", "A call on your Robot object. Java follows the dot: robot is the object, and the word after the dot is a public method inside Robot.java. Click Robot.java above to find drive()."],
     ["hwmap", "\\bhardwareMap\\b", "kw", "hardwareMap", "The list of every device in the robot configuration. The SDK fills in hardwareMap before runOpMode() starts. MainTeleOp hands hardwareMap to robot.init(), so Robot.java finds the motors."],
     ["runop", "\\brunOpMode\\(\\)", "kw", "runOpMode()", "The method the SDK runs when the driver presses INIT. Your whole OpMode lives inside runOpMode(), from INIT to STOP."],
@@ -5281,7 +5284,7 @@ const JVW = (function(){
     ["update", "telemetry\\.update\\(\\)", "kw", "telemetry.update()", "Sends the queued lines to the screen. Forget this line, and the screen never changes."],
     ["waitforstart", "waitForStart\\(\\)", "kw", "waitForStart()", "Waits until the driver presses START. Rule G304.H: once init finishes, the robot stays fully motionless until START. Our team rule is stricter: nothing moves before this line, INIT included."],
     ["active", "opModeIsActive\\(\\)", "kw", "opModeIsActive()", "true from START until STOP. As the loop condition, it ends the loop the moment the driver presses STOP."],
-    ["mathabs", "Math\\.abs", "kw", "Math.abs", "Distance from zero: Math.abs(-3) is 3. Math is a Java class you use through its name, with no object and no import."],
+    ["mathabs", "Math\\.(?:abs|max)", "kw", "Math.abs / Math.max", "Distance from zero: Math.abs(-3) is 3. Math is a Java class you use through its name, with no object and no import. Math.max(a, b) hands back the bigger of the two."],
     ["enumval", "\\b(?:LaunchState\\.)?(?:IDLE|SPINNING_UP|FEEDING)\\b", "num", "LaunchState.IDLE", "One value of the enum. Outside a switch you write LaunchState.IDLE. After case, the plain name is enough: case IDLE:. The launcher is always in exactly one of the three states."],
     ["lstate", "\\b[Ll]aunchState\\b", "kw", "LaunchState / launchState", "LaunchState, capital L, is the enum type declared in this file. launchState, small l, is the field holding the state the launcher is in right now."],
     ["upper", "\\b(?:MAX_SPEED|LAUNCH_VELOCITY|VELOCITY_TOLERANCE)\\b", "num", "UPPER_CASE names", "Constants get UPPER_CASE names with underscores, so a tuned number stands out at a glance. Change it in one place and every use follows."],
@@ -5318,12 +5321,15 @@ const JVW = (function(){
     ["brace", "[{}]", "ink", "{ }", "A block: lines that belong together. A block ends at its closing brace, and so do the variables made inside it."]
   ];
   const PARENT = "the SDK: a field of OpMode, the parent of LinearOpMode";
+  const GP = "the SDK: gamepad1 is a field of OpMode, the parent of LinearOpMode. The word after the dot is a field of its Gamepad class";
+  const TM = "the SDK: telemetry is a field of OpMode, the parent of LinearOpMode. The word after the dot is a method of telemetry";
   const FROM = {
     annot: "the SDK: the TeleOp class, imported at the top", params: "this file: you pick the names", ctor: "this file: PIDController.java",
-    hwget: "the SDK: get() belongs to HardwareMap, and DcMotor is an imported class", robotcall: "Robot.java, your class",
+    hwget: "the SDK: get() belongs to HardwareMap, and DcMotor is an imported class", robotcall: "Robot.java, your class", robotdef: "Robot.java: you write these methods",
+    sdktype: "the SDK: an imported class", motorcall: "the SDK: a method of DcMotor (getVelocity() needs DcMotorEx)",
     hwmap: PARENT + ". In Robot.java, the init() parameter brings it in", runop: "the SDK: LinearOpMode, the class you extend. You write the body",
-    stick: PARENT, sticksx: PARENT, bumper: PARENT, gp2: PARENT, adddata: PARENT + " (telemetry)", update: PARENT + " (telemetry)",
-    waspressed: "the SDK: a method of the Gamepad class", waitforstart: "the SDK: LinearOpMode, the class you extend", active: "the SDK: LinearOpMode, the class you extend",
+    stick: GP, sticksx: GP, bumper: GP, gp2: PARENT, adddata: TM, update: TM,
+    waspressed: "the SDK: gamepad2 is a field of OpMode. rightBumperWasPressed() is a method of its Gamepad class", waitforstart: "the SDK: LinearOpMode, the class you extend", active: "the SDK: LinearOpMode, the class you extend",
     mathabs: "Java itself: the Math class, no import needed", enumval: "this file: the LaunchState enum", lstate: "this file",
     upper: "Robot.java: you name and tune them", extends: "Java (extends) and the SDK (LinearOpMode, imported at the top)",
     robotcls: "Robot.java, your class", robotvar: "this file: the field holding your Robot object", mainteleop: "this file",
@@ -5347,7 +5353,8 @@ const JVW = (function(){
   function render(){
     const lines = FILES[file];
     $("#jv-wcode").innerHTML = lines.map((l, i) => '<span class="ln" data-n="' + (i + 1) + '">' + (lineHtml(l) || " ") + "</span>").join("");
-    const here = W.filter(w => lines.some(l => new RegExp(w[1]).test(l)));
+    const shown = new Set($$("#jv-wcode .w").map(s => s.dataset.w));   // a chip only for a word underlined in this file
+    const here = W.filter(w => shown.has(w[0]));
     $("#jv-wlist").innerHTML = here.map(w => '<button type="button" data-w="' + w[0] + '">' + esc(w[3]) + "</button>").join("");
     $("#jv-wfiles").innerHTML = Object.keys(FILES).map(f => '<button class="b' + (f === file ? " primary" : "") + '" data-f="' + f + '">' + f + "</button>").join("");
     paint();

@@ -858,6 +858,27 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     const from = {};
     for (const id of ["robotcls", "lstate", "gp2", "waitforstart", "timer", "public"]) { await jp.click('#jv-wlist button[data-w="' + id + '"]'); from[id] = await jp.textContent("#jv-wmsg b"); }
     check(/Robot\.java/.test(from.robotcls) && /this file/.test(from.lstate) && /OpMode/.test(from.gp2) && /LinearOpMode/.test(from.waitforstart) && /ElapsedTime|this file/.test(from.timer) && /Java itself/.test(from.public), "words card: each word says where it comes from: " + JSON.stringify(from));
+    // provenance: the word after gamepad1. or telemetry. belongs to Gamepad or telemetry, not to OpMode
+    for (const id of ["bumper", "adddata"]) { await jp.click('#jv-wlist button[data-w="' + id + '"]'); from[id] = await jp.textContent("#jv-wmsg b"); }
+    check(/Gamepad class/.test(from.bumper) && /method of telemetry/.test(from.adddata), "words card: left_bumper is a Gamepad field and addData() a telemetry method: " + from.bumper + " | " + from.adddata);
+    // Robot.java: drive() and the SDK words a student meets there are clickable, so "Click Robot.java above to find drive()" lands
+    await jp.click('#jv-wfiles button[data-f="Robot.java"]');
+    const rw = await jp.$$eval("#jv-wcode .w", ws => ws.map(w => w.dataset.w + ":" + w.textContent));
+    check(["robotdef:drive", "robotdef:init", "robotdef:launcherReady", "sdktype:DcMotorEx", "sdktype:HardwareMap", "motorcall:setPower", "motorcall:getVelocity", "mathabs:Math.max"].every(x => rw.includes(x)), "words card Robot.java: drive(), DcMotor types, setPower(), getVelocity() and Math.max are clickable");
+    const deadChips = [];
+    for (const f of ["MainTeleOp.java", "Robot.java", "PIDController.java"]) {
+      await jp.click('#jv-wfiles button[data-f="' + f + '"]');
+      deadChips.push(...(await jp.$$eval("#jv-wlist button", bs => bs.map(x => x.dataset.w).filter(w => !document.querySelector('#jv-wcode .w[data-w="' + w + '"]')))).map(w => f + ":" + w));
+    }
+    check(deadChips.length === 0, "words card: every chip under Words in this file underlines a word in the code: " + (deadChips.join(" ") || "none dead"));
+    await jp.click('#jv-wfiles button[data-f="Robot.java"]');
+    await jp.click('#jv-wcode .w[data-w="robotdef"]');
+    check(/Robot\.java: you write/.test(await jp.textContent("#jv-wmsg b")), "words card Robot.java: drive() says it comes from Robot.java");
+    await jp.click('#jv-wfiles button[data-f="MainTeleOp.java"]');
+    check(/leaves out its body \(abstract\)/.test(await jp.textContent('.jpane[data-jp="inherit"]')) && src.includes("has no body for it (abstract)") && !src.includes("runOpMode() with nothing inside"), "java card 4: runOpMode() in LinearOpMode is abstract, not empty");
+    // run sheet and plan: full screen at zoom 100%, the size every fold check here measures
+    const rs = fs.readFileSync(path.join(__dirname, "..", "docs", "course", "run-sheet.md"), "utf8"), cp = fs.readFileSync(path.join(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8");
+    check([rs, cp].every(d => /full screen \(F11\) at zoom 100%/.test(d) && !/zoom 125%, not more/.test(d)), "docs: run sheet and plan set full screen (F11) at zoom 100%, the size of the fold checks");
     // #23: the ElapsedTime objects on card 1 count sim time, so Pause stops them
     await jp.click('.jt[data-jt="classes"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(400);
     const objT = () => jp.$$eval("#jv-objs [data-oi]", es => es.map(e => +e.textContent));

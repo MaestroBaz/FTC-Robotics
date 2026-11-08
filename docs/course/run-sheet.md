@@ -8,7 +8,7 @@ Check the evening before, and again in the morning before students arrive. If a 
 
 | # | Gate | Check | Done |
 |---|---|---|---|
-| 1 | The lab reads from the back row | Projector on, browser zoom 125%, not more, `lab/index.html` open from disk. Read a code line on the Every word explained card from the last seat. | [ ] |
+| 1 | The lab reads from the back row | Projector on, `lab/index.html` open from disk, browser full screen (F11) at zoom 100%. Every fold check in `npm test` measures this size. Read a code line on the Every word explained card from the last seat. Open Java card 2 and press all 6 Compile buttons: every answer shows without scrolling. Set zoom 125% only if the back row fails at 100%, and then scroll on card 2 and the error clinic. | [ ] |
 | 2 | The header, the scoreboard and the votes work on the projector laptop | The header sits folded to one thin line (auto-hide, on by default). Point at the line: the tabs, the sim speed and the scores open. Press key H twice: auto-hide goes off, then on again. Press key 3: Team 3 shows 1. Click an A/B/C button on any Ask the room: the tally shows 1. Press Reveal answer, then Hide. Press Reset scores twice: the first click reads "Click again to clear", the second clears the board. | [ ] |
 | 3 | Printouts in the room | 30 cheat sheet sets (2 double-sided sheets each), 30 copies of `team-coding-standard.md`, this sheet, 6 sets of A, B and C cards. | [ ] |
 
