@@ -97,7 +97,7 @@ Lab tab 1 has 11 cards. 35 minutes does not cover all of them in depth, so spend
 | 6 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
 | 7 Every word explained | 6 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
 | 8 Imports | 1 min | An import name to read the address | An import is the full address of a class: folders, then the class. |
-| 9 Error clinic: fix it | 7 min | Errors 1, 4, 6 and 7, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
+| 9 Error clinic: fix it | 7 min | Errors 1, 4, 6, 7, 3 and 8, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
 | 10 The project map | if time | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
 
 The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends and @Override, then the if and switch inside the loop, then scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
@@ -106,9 +106,9 @@ Open the tab with the Ask the room vote: "Where does Java find the word `drive`?
 
 Word hunt routine ("Every word explained" card): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the word chips at the bottom for the final round.
 
-Spot the bug routine ("Error clinic: fix it" card): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 3, 5, 8 and 9 stay for the final round if time allows.
+Spot the bug routine ("Error clinic: fix it" card): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 5 and 9 stay for the final round if time allows.
 
-Read aloud (the "Every word explained" card shows these two files): say what each method does while you scroll. Students follow on the projector.
+Read aloud: the Every word explained card shows a short version of each file. The full files are below. Say what each method does while you scroll. Students follow on the projector.
 
 ```java
 package org.firstinspires.ftc.teamcode;
@@ -269,7 +269,7 @@ Problem to show with the two files: TeleOp and Auto both need the same motors. C
 Team rounds:
 - Vote: "Where does Java find the word drive?" (1 point per right team).
 - Word hunt on the "Every word explained" card: 4 words (1 point each, first team).
-- Spot the bug on the "Error clinic: fix it" card: errors 1, 4, 6 and 7 (1 point per right fix).
+- Spot the bug on the "Error clinic: fix it" card: errors 1, 4, 6, 7, 3 and 8 (1 point per right fix).
 
 ## Module 2: What runs when you press INIT, START and STOP (15 min)
 
