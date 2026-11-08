@@ -134,3 +134,11 @@ Output: one-line definition of F wherever PIDF appears: the Feedback tab block d
 - PIDF on the lift: a 4th control, the F slider (kF, 0 to 0.4, default 0), and a 4th box in the loop diagram that the error does not feed. PIDController stays P, I and D. The OpMode adds one line, `power = power + kF`. This replaces the entry 18 choice to keep F out of tab 7.
 - Java cards reordered and renamed (ten cards). Lists is off the nav for the day.
 - Tab bar reordered to the plan's teaching order: Java, lifecycle, GitHub, drive, one loop, then 6, 7, 8. The lab opens on Java.
+
+## 20. Compact Ask the room block (2026-11-07)
+
+Request: after the header shrink, the first sim on every tab still sat below the fold at 1366x768. Baz asked to shrink the Ask the room block next.
+
+Finding: the block set the labhead height on all 8 tabs, 277 to 323 px, while the title and lede column took 110 to 158 px.
+
+Output: tag inline with the question, 13 px option buttons, the voting rules hidden behind the ? button, Reveal moved to the end of the vote row by the vote enhancer, h2 26 px, lede 14 px. The block is now 140 to 177 px and the first block of every tab starts at 283 to 320 px instead of 424 to 470 px. The pid control loop diagram is on screen without scrolling. One smoke check per tab for pid, feedback and one loop, plus a check that Reveal sits in every vote row.

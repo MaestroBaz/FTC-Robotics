@@ -65,6 +65,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.textContent("#lab-java details.ask .vnext")) === "Team 2 votes next", "after one vote the label says Team 2 votes next");
   await pg.click("#lab-java details.ask .opt:nth-child(1)");   // team 2 picks A, the wrong one
   await pg.click("#lab-java details.ask .reveal");
+  await pg.waitForSelector("#lab-java details.ask[open]"); await pg.waitForTimeout(50);   // the toggle event that pays the points is queued, not synchronous
   check(!!(await pg.$("#lab-java details.ask[open] .opt.right")) && (await pg.$eval(optB, o => o.classList.contains("right"))), "reveal marks option B as the right answer");
   check((await pg.textContent('.team[data-i="0"] b')) === "1" && (await pg.textContent('.team[data-i="1"] b')) === "0", "reveal pays team 1 (right) and not team 2 (wrong)");
   await pg.click(optB);   // team 3 votes B after the reveal
@@ -76,6 +77,15 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#tm-reset");
   check((await pg.textContent(optB + " b")) === "0" && (await pg.textContent('.team[data-i="0"] b')) === "0", "Reset clears votes and scores together");
   check((await pg.$$("details.ask .vote")).length === 9, "every Ask the room has a vote");
+  check((await pg.$$("details.ask .vote .reveal")).length === 9, "Reveal sits at the end of every vote row");
+
+  // ---- the Ask the room block is compact: the first sim starts above the fold on a 1366x768 projector ----
+  const fold = await b.newPage({ viewport: { width: 1366, height: 768 } });
+  const foldOf = async t => { await fold.goto(URL + "#" + t); await fold.waitForTimeout(300);
+    return fold.evaluate(() => { const lh = document.querySelector("section.lab.on .labhead"); return [Math.round(lh.getBoundingClientRect().height), Math.round(lh.nextElementSibling.getBoundingClientRect().top)]; }); };
+  for (const t of ["pid", "feedback", "oneloop"]) { const [lh, top] = await foldOf(t);
+    check(lh <= 190 && top <= 330, t + ": Ask the room block " + lh + " px, first block starts at " + top + " px"); }
+  await fold.close();
 
   // ---- Every word explained ----
   await pg.click('.jt[data-jt="words"]');
