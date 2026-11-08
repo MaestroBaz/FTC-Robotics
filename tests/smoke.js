@@ -113,6 +113,26 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#jv-wfiles button[data-f="PIDController.java"]');
   check(!!(await pg.$('#jv-wcode .w[data-w="this"]')) && !!(await pg.$('#jv-wcode .w[data-w="ctor"]')), "PIDController shows this. and the constructor");
   await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-words.png") });
+  // ==== area java-b: Scope, Every word explained, Error clinic ====
+  await pg.click('#jv-wfiles button[data-f="MainTeleOp.java"]');
+  await pg.click('#jv-wcode .w[data-w="robotcall"]');
+  check(/Java follows the dot/.test(await pg.textContent("#jv-wmsg")) && !!(await pg.$('#jv-wcode .w[data-w="runop"]')) && !!(await pg.$('#jv-wcode .w[data-w="hwmap"]')), "robot.drive(), runOpMode() and hardwareMap are clickable words");
+  check(!src.includes("Range.clip(axial") && src.includes("max = Math.max(max, 1.0);"), "words card drive() normalizes all 4 wheels instead of clipping one");
+  await pg.mouse.move(900, 20);
+  await pg.click('.jt[data-jt="scope"]');
+  await pg.mouse.move(900, 20);
+  for (let i = 0; i < 8; i++) await pg.click("#jv-snext");
+  check(/slow mode never turns off/.test(await pg.textContent("#jv-smsg")), "Scope shows the slow-mode latch bug");
+  await pg.mouse.move(900, 20);
+  await pg.click('.jt[data-jt="errors"]');
+  await pg.mouse.move(900, 20);
+  check((await pg.textContent("#jv-errlist [data-e='0']")) === "Error 1" && !(await pg.$eval("#jv-decoder", el => el.closest("details").open)), "error buttons hide the diagnosis and the decoder starts closed");
+  const firstRight = await pg.$$eval("#jv-echoices .choice", bs => bs.map(b => b.textContent).findIndex(t => /^Import class/.test(t)));
+  check(firstRight === 2, "error 1: the right fix is not the top choice");
+  await pg.click("#jv-echoices .choice[data-c='2']");
+  check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-eprob")) && (await pg.textContent("#jv-etitle")) === "1. Missing import", "the right fix builds and names the error");
+  await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-errors.png") });
+  // ==== end area java-b ====
 
   // ---- @Override tried three ways, and the Decisions card ----
   await pg.click('.jt[data-jt="inherit"]');

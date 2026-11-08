@@ -256,7 +256,7 @@ ul.tree .ro{color:var(--muted);}
 .cmp .res.ok{color:var(--ok);} .cmp .res.bad{color:var(--red);}
 .scopes{display:flex; flex-direction:column; gap:10px;}
 .scope{border:2px dashed var(--line); border-radius:10px; padding:8px 10px;}
-.scope > .lbl{font:600 12px var(--body); color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+.scope > .lbl{font:600 13px var(--mono); color:var(--muted); margin-bottom:6px;}
 .scope .vars{display:flex; flex-wrap:wrap; gap:8px;}
 .vbox{border:2px solid var(--accent); border-radius:8px; padding:6px 10px; font:13px var(--mono); background:var(--surface);}
 .vbox b{display:block; font:600 11px var(--body); color:var(--muted);}
@@ -371,6 +371,13 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 #jv-ovprob{font-size:14px; line-height:1.5;}   /* the javac lines are the lesson: readable from the back row */
 #jv-ovprob .ph2{font-size:12px;}
 /* ==== end area java-a ==== */
+/* ==== area java-b: Java cards 6 to 10 (scope, words, imports, errors, map) ==== */
+/* the room reads the red text aloud from the back row */
+.ide-problems{font:16px/1.5 var(--mono);}
+.ide-problems .ph2{font:600 13px var(--body);}
+#jv-wname{font:700 22px/1.2 var(--mono); text-transform:none; letter-spacing:0;}   /* Java names keep their real capitals */
+#jv-wmsg{font-size:18px; line-height:1.45;}
+/* ==== end area java-b ==== */
 </style>
 </head>
 <body>
@@ -529,10 +536,6 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
       <!-- errors -->
       <div class="jpane" data-jp="errors">
         <div class="panel" style="margin-bottom:14px">
-          <h3>Error decoder <small>read the red text, follow the arrow, apply the fix</small></h3>
-          <svg class="diag" id="jv-decoder" role="img" aria-label="Error message to fix flowchart"></svg>
-        </div>
-        <div class="panel" style="margin-bottom:14px">
           <h3>How to read a Build error</h3>
           <svg class="diag" id="jv-buildline" role="img" aria-label="Parts of a build error line"></svg>
         </div>
@@ -555,6 +558,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
             <div class="msg" id="jv-emsg">Pick the fix you would use.</div>
           </div>
         </div>
+        <details class="panel" style="margin-top:14px"><summary style="cursor:pointer; font-weight:600">Error decoder: 8 common errors on one page. Open it after the game.</summary><svg class="diag" id="jv-decoder" role="img" aria-label="Error message to fix flowchart"></svg></details>
       </div>
       <!-- classes -->
       <div class="jpane" data-jp="classes">
@@ -599,7 +603,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
           <div class="stack">
             <div class="panel">
               <h3>Scope</h3>
-              <p>A variable lives from the line that creates it to the closing <code>}</code> of the block it sits in. Outside that block it does not exist. Step through and watch the boxes appear and disappear.</p>
+              <p>A <b>block</b> is the code between a <code>{</code> and its matching <code>}</code>. A variable lives from the line that creates it to the <code>}</code> that closes its block. Outside that block it does not exist. Step through and watch the boxes appear and disappear.</p>
               <div class="row"><button class="b" id="jv-sback">Back</button><button class="b primary" id="jv-snext">Next line</button><button class="b" id="jv-sreset">Restart</button></div>
             </div>
             <pre class="code" id="jv-scode"></pre>
@@ -2998,7 +3002,7 @@ const JV = (function(){
 
   /* ---- 1 modules ---- */
   const TREE = [
-    {n: "MyTeam-2026-biobuzz", k: "project", m: "The whole Android Studio project. This folder is your Git repo: one clone holds everything below."},
+    {n: "robot-code-2026-biobuzz", k: "project", m: "The whole Android Studio project. This folder is your Git repo: one clone holds everything below."},
     {n: "FtcRobotController", k: "module, read only", ro: true, d: 1, m: "Module from FIRST: the Robot Controller app and the SDK samples. Read it, copy samples out of it, never edit it. Updating the SDK replaces this module."},
     {n: "org.firstinspires.ftc.robotcontroller.external.samples", k: "package", ro: true, d: 2, m: "Package with 100+ sample OpModes. To use one: copy it into TeamCode, rename it, delete @Disabled."},
     {n: "BasicOmniOpMode_Linear.java", k: "sample", ro: true, d: 3, m: "The mecanum sample our TeleOp starts from."},
@@ -3047,7 +3051,7 @@ const JV = (function(){
     "}"
   ];
   function renderImports(){
-    $("#jv-implist").innerHTML = IMPS.map((im, i) => '<label class="impitem"><input type="checkbox" data-i="' + i + '"' + (IMPON[i] ? " checked" : "") + "> import " + esc(im.p) + ".<b>" + esc(im.c) + "</b>;</label>").join("");
+    $("#jv-implist").innerHTML = IMPS.map((im, i) => '<label class="impitem"><input type="checkbox" data-i="' + i + '"' + (IMPON[i] ? " checked" : "") + "><span>import " + esc(im.p) + ".<b>" + esc(im.c) + "</b>;</span></label>").join("");
     $$("#jv-implist input").forEach(x => x.addEventListener("change", () => { IMPON[+x.dataset.i] = x.checked; renderImports(); }));
     const lines = ["package org.firstinspires.ftc.teamcode;", ""];
     IMPS.forEach((im, i) => { if (IMPON[i]) lines.push("import " + im.p + "." + im.c + ";"); });
@@ -3065,7 +3069,7 @@ const JV = (function(){
     $$(".ln", $("#jv-impcode")).forEach((n, i) => n.classList.toggle("err", bad.includes(i)));
     const msg = $("#jv-impmsg");
     if (errs.length){ msg.className = "msg bad"; msg.innerHTML = errs.map(esc).join("<br>"); }
-    else { msg.className = "msg ok"; msg.textContent = "Builds. Every class this file uses is either imported, in the same package (Robot), or built into Java (double)."; }
+    else { msg.className = "msg ok"; msg.textContent = "Builds. Every class this file uses is imported or sits in the same package as this file (Robot)."; }
   }
   renderImports();
 
@@ -3138,11 +3142,12 @@ const JV = (function(){
     {l: 1, c: ROBOT, msg: "A field. It lives as long as the MainTeleOp object, so every method in the class can use robot."},
     {l: 4, c: ROBOT, m: [["speed", "1.0"]], nw: "speed", msg: "speed is born inside runOpMode(). It lives until the } that closes runOpMode()."},
     {l: 5, c: ROBOT, m: [["speed", "1.0"]], msg: "waitForStart() makes no new variables."},
-    {l: 7, c: ROBOT, m: [["speed", "1.0"]], w: [["axial", "-0.80"]], nw: "axial", msg: "axial is born inside the while block. Every loop pass makes a fresh axial."},
-    {l: 9, c: ROBOT, m: [["speed", "1.0"]], w: [["axial", "-0.80"]], i: [["slow", "0.4"]], nw: "slow", msg: "slow lives only inside the if block."},
-    {l: 10, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "-0.80"]], i: [["slow", "0.4"]], nw: "speed", msg: "Inner blocks see outer variables: the if block changes speed, which belongs to runOpMode()."},
-    {l: 11, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "-0.80"]], msg: "The if block closed. slow is gone. speed keeps its new value, because speed lives outside."},
-    {l: 12, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "-0.80"]], msg: "axial and speed are both alive: drive(-0.80 x 0.4 = -0.32, 0, 0)."},
+    {l: 7, c: ROBOT, m: [["speed", "1.0"]], w: [["axial", "0.80"]], nw: "axial", msg: "axial is born inside the while block. Every loop pass makes a fresh axial."},
+    {l: 9, c: ROBOT, m: [["speed", "1.0"]], w: [["axial", "0.80"]], i: [["slow", "0.4"]], nw: "slow", msg: "slow lives only inside the if block."},
+    {l: 10, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], i: [["slow", "0.4"]], nw: "speed", msg: "Inner blocks see outer variables: the if block changes speed, which belongs to runOpMode()."},
+    {l: 11, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], msg: "The if block closed. slow is gone. speed keeps its new value, because speed lives outside."},
+    {l: 12, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], msg: "axial and speed are both alive: drive(0.80 * 0.4 = 0.32, 0, 0)."},
+    {l: 7, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], nw: "axial", msg: "Next loop pass. You let go of the bumper, but speed is still 0.4. speed lives outside the loop, so speed keeps its old value. Bug: slow mode never turns off. The real MainTeleOp (card 7) creates speed inside the loop, so every pass starts at 1.0."},
     {l: 13, c: ROBOT, m: [["speed", "0.4"]], msg: "STOP was pressed, the while block closed. axial is gone."},
     {l: 14, c: ROBOT, m: [["speed", "0.4"]], err: true, msg: "Compile error: cannot find symbol: variable axial. Android Studio catches this before the robot runs. Fix: create axial before the loop, or move this line inside the loop."}
   ];
@@ -3955,15 +3960,15 @@ const JV2 = (function(){
   };
   const USES = {
     MainTeleOp: ["TeleOp", "LinearOpMode", "ElapsedTime", "Range", "List", "Robot", "PIDController"],
-    Robot: ["DcMotor", "DcMotorEx", "HardwareMap", "Range"],
+    Robot: ["DcMotor", "DcMotorEx", "HardwareMap"],
     PIDController: ["ElapsedTime"],
     LeaveAndPark: ["Autonomous", "LinearOpMode", "Robot", "PIDController"],
     BasicOmniOpMode_Linear: ["TeleOp", "LinearOpMode", "DcMotor", "ElapsedTime"],
     SensorIMUOrthogonal: ["TeleOp", "LinearOpMode", "IMU"]
   };
   const DESC = {
-    MainTeleOp: "MainTeleOp uses 7 classes. Robot and PIDController sit in the same package, so they need no import. The other 5 live in other packages, so each one needs an import line.",
-    Robot: "Robot uses 3 SDK hardware classes from com.qualcomm.robotcore.hardware plus Range from com.qualcomm.robotcore.util, so Robot.java has 4 import lines. Nothing in Robot.java uses the OpMode classes.",
+    MainTeleOp: "This is MainTeleOp later in the season, with auto-aim and a shot list. It uses 7 classes. Robot and PIDController sit in the same package, so they need no import. The other 5 live in other packages, so each one needs an import line.",
+    Robot: "Robot uses 3 SDK hardware classes from com.qualcomm.robotcore.hardware, so Robot.java has 3 import lines. Nothing in Robot.java uses the OpMode classes.",
     PIDController: "PIDController needs only ElapsedTime, for the time between loop passes. One import.",
     LeaveAndPark: "The AUTO OpMode uses the same Robot and PIDController as MainTeleOp. One copy of each class, shared by both OpModes, with no imports needed.",
     BasicOmniOpMode_Linear: "A FIRST sample. Its package is the samples package, inside FIRST's module. To use it, copy it into TeamCode and change line 1 to package org.firstinspires.ftc.teamcode.",
@@ -3971,13 +3976,15 @@ const JV2 = (function(){
   };
   let sel = "MainTeleOp";
   const POS = {};
+  // the opmode package name is the longest: 39 mono characters at the 12 px floor need a 300 wide box
+  const PKW = {op: 300, ut: 300, hw: 250, ju: 250};
   function layout(){
     const files = {team: ["MainTeleOp", "Robot", "PIDController", "LeaveAndPark"], samp: ["BasicOmniOpMode_Linear", "SensorIMUOrthogonal"]};
     files.team.forEach((c, i) => POS[c] = {x: 64, y: 126 + i * 50, w: 258, h: 38, side: "L"});
     files.samp.forEach((c, i) => POS[c] = {x: 64, y: 448 + i * 50, w: 258, h: 38, side: "L"});
-    const box = {op: [404, 84], hw: [690, 84], ut: [404, 320], ju: [690, 340]};
+    const box = {op: [400, 84], hw: [712, 84], ut: [400, 320], ju: [712, 340]};
     const lists = {op: ["LinearOpMode", "TeleOp", "Autonomous"], hw: ["DcMotor", "DcMotorEx", "IMU", "HardwareMap"], ut: ["ElapsedTime", "Range"], ju: ["List", "ArrayList"]};
-    Object.keys(lists).forEach(k => lists[k].forEach((c, i) => POS[c] = {x: box[k][0] + 20, y: box[k][1] + 46 + i * 46, w: 230, h: 36, side: "R"}));
+    Object.keys(lists).forEach(k => lists[k].forEach((c, i) => POS[c] = {x: box[k][0] + 20, y: box[k][1] + 46 + i * 46, w: PKW[k] - 40, h: 36, side: "R"}));
     return box;
   }
   function drawMap(){
@@ -3994,8 +4001,8 @@ const JV2 = (function(){
     s += mod(24, 352, 334, 246, "MODULE: FtcRobotController (FIRST, read only)", P.muted);
     s += pkg(40, 380, 302, 206, "...robotcontroller.external.samples");
     s += mod(384, 44, 594, 554, "LIBRARIES: the FTC SDK + Java (Gradle downloads them, read only)", P.ok);
-    [["op", 290], ["hw", 270], ["ut", 270], ["ju", 270]].forEach(([k]) => { const [x, y] = box[k]; s += pkg(x, y, k === "op" || k === "ut" ? 270 : 272, k === "hw" ? 240 : k === "op" ? 210 : k === "ju" ? 136 : 150, PK[k].name); });
-    s += SV.box(404, 488, 558, 92, ["A class = one .java file (a blueprint).", "A package = a folder of classes, with a dotted name.", "A module = a part of the project that Android Studio builds on its own."], {fill: P.codebg, size: 13, weight: "600"});
+    [["op", 290], ["hw", 270], ["ut", 270], ["ju", 270]].forEach(([k]) => { const [x, y] = box[k]; s += pkg(x, y, PKW[k], k === "hw" ? 240 : k === "op" ? 210 : k === "ju" ? 136 : 150, PK[k].name); });
+    s += SV.box(400, 488, 562, 92, ["A class = one .java file (a blueprint).", "A package = a folder of classes, with a dotted name.", "A module = a part of the project that Android Studio builds on its own."], {fill: P.codebg, size: 13, weight: "600"});
     Object.keys(POS).forEach(c => {
       const p = POS[c], isSel = c === sel, isUsed = used.includes(c), clickable = !!USES[c];
       const stroke = isSel ? P.pollen : isUsed ? (CL[c] === CL[sel] ? P.ok : P.accent) : P.line;
@@ -4004,7 +4011,6 @@ const JV2 = (function(){
       s += '<g class="mapfile" data-c="' + c + '"' + (faded ? ' opacity="0.45"' : "") + (clickable ? ' style="cursor:pointer" tabindex="0" role="button" aria-label="' + c + '.java"' : "") + '>';
       s += '<rect x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (isSel || isUsed ? 2.5 : 1.2) + '"/>';
       s += SV.tx(p.x + 12, p.y + p.h / 2 + 5, c + (CL[c] === "team" || CL[c] === "samp" ? ".java" : ""), {anchor: "start", size: 13, mono: true, weight: isSel ? "700" : "500"});
-      if (clickable) s += SV.tx(p.x + p.w - 10, p.y + p.h / 2 + 4, "click", {anchor: "end", size: 10, col: "mut"});
       s += "</g>";
     });
     // arrows on top of the cards
@@ -4163,65 +4169,65 @@ const JV2 = (function(){
       code: ["package org.firstinspires.ftc.teamcode;", "", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", '@TeleOp(name = "Intake Test")', "public class IntakeTest extends LinearOpMode {", "    @Override", "    public void runOpMode() {", '        DcMotor intake = hardwareMap.get(DcMotor.class, "intake");', "        waitForStart();", "        while (opModeIsActive()) {", "            intake.setPower(gamepad1.right_trigger);", "        }", "    }", "}"],
       err: [9], prob: ["Cannot resolve symbol 'DcMotor'", "IntakeTest.java:10: error: cannot find symbol   symbol: class DcMotor"],
       ask: "Line 10 is red. You click DcMotor and press Alt+Enter. Which option do you pick?",
-      ch: [["Import class > com.qualcomm.robotcore.hardware.DcMotor", 1, "Android Studio adds the import line at the top. The real SDK DcMotor is now in reach and line 10 turns black."],
-        ["Create class 'DcMotor'", 0, "This makes a new, empty DcMotor.java in your package. The red goes away, but your code now talks to a fake class with no setPower(). If you did this, delete that file."],
+      ch: [["Create class 'DcMotor'", 0, "This makes a new, empty DcMotor.java in your package. The red goes away, but your code now talks to a fake class with no setPower(). If you did this, delete that file."],
         ["Change DcMotor to Dcmotor", 0, "Java is case-sensitive. The class is DcMotor with a capital M. Dcmotor does not exist at all."],
+        ["Import class > com.qualcomm.robotcore.hardware.DcMotor", 1, "Android Studio adds the import line at the top. The real SDK DcMotor is now in reach and line 10 turns black."],
         ["Delete line 10", 0, "Then intake does not exist, and line 13 turns red instead. The problem moves, it does not go away."]],
       fix: c => { const n = c.slice(); n.splice(4, 0, "import com.qualcomm.robotcore.hardware.DcMotor;"); return {code: n, ok: [4]}; }},
     {k: "Wrong class, same name", tab: "IntakeTest.java", path: TEAM + "IntakeTest.java",
       code: ["package org.firstinspires.ftc.teamcode;", "", "import android.util.Range;", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "import com.qualcomm.robotcore.hardware.DcMotor;", "", '@TeleOp(name = "Intake Test")', "public class IntakeTest extends LinearOpMode {", "    @Override", "    public void runOpMode() {", '        DcMotor intake = hardwareMap.get(DcMotor.class, "intake");', "        waitForStart();", "        while (opModeIsActive()) {", "            double power = Range.clip(gamepad1.right_trigger, 0, 0.8);", "            intake.setPower(power);", "        }", "    }", "}"],
       err: [14], hl: [2], prob: ["Cannot resolve method 'clip' in 'Range'", "IntakeTest.java:15: error: cannot find symbol   symbol: method clip(float,int,double)   location: class Range"],
       ask: "Range exists, but clip does not. Someone picked the first Range that Alt+Enter offered. What do you do?",
-      ch: [["Change line 3 to import com.qualcomm.robotcore.util.Range;", 1, "Two classes share the name Range. android.util.Range is for phone apps. The FTC one, with clip(), lives in com.qualcomm.robotcore.util."],
-        ["Add import com.qualcomm.robotcore.util.Range; under the first one", 0, "Java refuses two imports with the same class name: it cannot tell which Range you mean. Replace the wrong one."],
+      ch: [["Add import com.qualcomm.robotcore.util.Range; under the first one", 0, "Java refuses two imports with the same class name: it cannot tell which Range you mean. Replace the wrong one."],
+        ["Change line 3 to import com.qualcomm.robotcore.util.Range;", 1, "Two classes share the name Range. android.util.Range is for phone apps. The FTC one, with clip(), lives in com.qualcomm.robotcore.util."],
         ["Write a clip method into Range yourself", 0, "android.util.Range is not your file. You cannot add methods to an SDK or Android class."]],
       fix: c => { const n = c.slice(); n[2] = "import com.qualcomm.robotcore.util.Range;"; return {code: n, ok: [2, 14]}; }},
     {k: "Team class in another package", tab: "MainTeleOp.java", path: TEAM + "MainTeleOp.java",
       code: ["package org.firstinspires.ftc.teamcode;", "", "// Ava moved Robot.java into a new folder: teamcode/hardware", "// Its line 1 now says: package org.firstinspires.ftc.teamcode.hardware;", "", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", '@TeleOp(name = "Main TeleOp")', "public class MainTeleOp extends LinearOpMode {", "    private final Robot robot = new Robot();", "    ..."],
       err: [10], prob: ["Cannot resolve symbol 'Robot'", "MainTeleOp.java:11: error: cannot find symbol   symbol: class Robot"],
       ask: "Robot.java still exists, in a subfolder. MainTeleOp cannot see it anymore. Fix?",
-      ch: [["Add import org.firstinspires.ftc.teamcode.hardware.Robot;", 1, "A team class in another package needs an import, same as an SDK class. Our coding standard keeps one flat folder so this never comes up."],
-        ["Copy Robot.java back into the teamcode folder", 0, "Now 2 Robot classes exist. A fix in one never reaches the other, and the robot behaves differently in TeleOp and AUTO."],
-        ["Change MainTeleOp's line 1 to ...teamcode.hardware", 0, "Then MainTeleOp's package no longer matches its own folder. You trade one error for another."]],
+      ch: [["Copy Robot.java back into the teamcode folder", 0, "Now 2 Robot classes exist. A fix in one never reaches the other, and the robot behaves differently in TeleOp and AUTO."],
+        ["Change MainTeleOp's line 1 to ...teamcode.hardware", 0, "Then MainTeleOp's package no longer matches its own folder. You trade one error for another."],
+        ["Add import org.firstinspires.ftc.teamcode.hardware.Robot;", 1, "A team class in another package needs an import, same as an SDK class. Our coding standard keeps one flat folder so this never comes up."]],
       fix: c => { const n = c.slice(); n.splice(7, 0, "import org.firstinspires.ftc.teamcode.hardware.Robot;"); return {code: n, ok: [7, 11]}; }},
     {k: "Copied sample: wrong package", tab: "DriveTeleOp.java", path: TEAM + "DriveTeleOp.java",
       code: ["package org.firstinspires.ftc.robotcontroller.external.samples;", "", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", '@TeleOp(name = "Drive TeleOp")', "public class DriveTeleOp extends LinearOpMode {", "    ..."],
       err: [0], prob: ["Package name 'org.firstinspires.ftc.robotcontroller.external.samples' does not correspond to the file path 'org.firstinspires.ftc.teamcode'"],
       ask: "Maya copied BasicOmniOpMode_Linear into teamcode with File Explorer and renamed it. Line 1 is red. Fix?",
-      ch: [["Alt+Enter > Set package name to 'org.firstinspires.ftc.teamcode'", 1, "Line 1 must name the folder the file sits in. Copy samples inside Android Studio (Ctrl+C, Ctrl+V on the teamcode folder) and it fixes line 1 for you."],
-        ["Move the file back into the samples folder", 0, "The samples belong to FIRST's module. The next SDK update replaces that folder and deletes your file."],
+      ch: [["Move the file back into the samples folder", 0, "The samples belong to FIRST's module. The next SDK update replaces that folder and deletes your file."],
+        ["Alt+Enter > Set package name to 'org.firstinspires.ftc.teamcode'", 1, "Line 1 must name the folder the file sits in. Copy samples inside Android Studio (Ctrl+C, Ctrl+V on the teamcode folder) and it fixes line 1 for you."],
         ["Delete line 1", 0, "A file with no package line falls into the 'default package'. No other file can import it, and Android Studio warns."]],
       fix: c => { const n = c.slice(); n[0] = "package org.firstinspires.ftc.teamcode;"; return {code: n, ok: [0]}; }},
     {k: "Missing package line", tab: "PIDController.java", path: TEAM + "PIDController.java",
       code: ["import com.qualcomm.robotcore.util.ElapsedTime;", "", "public class PIDController {", "    private final double kP;", "    ..."],
       err: [0], prob: ["Missing package statement: 'org.firstinspires.ftc.teamcode'"],
       ask: "Leo pasted PIDController from a website. The file starts with an import. Fix?",
-      ch: [["Alt+Enter > Set package name to 'org.firstinspires.ftc.teamcode'", 1, "Every file in teamcode starts with that package line. Now MainTeleOp finds PIDController with no import."],
-        ["Ignore it: the robot still runs", 0, "Other classes cannot import a class in the default package. The build breaks later in a confusing way. Fix line 1 now."],
-        ["Create a new package called PIDController", 0, "A package is a folder of many classes, not one class. Put the file in the teamcode package."]],
+      ch: [["Ignore it: the robot still runs", 0, "Other classes cannot import a class in the default package. The build breaks later in a confusing way. Fix line 1 now."],
+        ["Create a new package called PIDController", 0, "A package is a folder of many classes, not one class. Put the file in the teamcode package."],
+        ["Alt+Enter > Set package name to 'org.firstinspires.ftc.teamcode'", 1, "Every file in teamcode starts with that package line. Now MainTeleOp finds PIDController with no import."]],
       fix: c => ({code: ["package org.firstinspires.ftc.teamcode;", ""].concat(c), ok: [0]})},
     {k: "Class name vs file name", tab: "MainTeleOp.java", path: TEAM + "MainTeleOp.java",
       code: ["package org.firstinspires.ftc.teamcode;", "", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", '@TeleOp(name = "Main TeleOp")', "public class MainTeleop extends LinearOpMode {", "    ..."],
       err: [6], prob: ["Class 'MainTeleop' is public, should be declared in a file named 'MainTeleop.java'"],
       ask: "The file is MainTeleOp.java. Line 7 says MainTeleop. One letter. Fix?",
-      ch: [["Rename the class to MainTeleOp with Shift+F6, so it matches the file exactly", 1, "A public class and its file must have the same name, capitals included. Shift+F6 renames every place that uses it."],
-        ["Delete the word public", 0, "The SDK only lists public OpMode classes on the Driver Hub. The error goes away, and so does your OpMode."],
+      ch: [["Delete the word public", 0, "The SDK only lists public OpMode classes on the Driver Hub. The error goes away, and so does your OpMode."],
+        ["Rename the class to MainTeleOp with Shift+F6, so it matches the file exactly", 1, "A public class and its file must have the same name, capitals included. Shift+F6 renames every place that uses it."],
         ["Rename the file in File Explorer to MainTeleop.java", 0, "Windows and macOS ignore capitals in file names, so Git can miss the rename. Always rename inside Android Studio."]],
       fix: c => { const n = c.slice(); n[6] = "public class MainTeleOp extends LinearOpMode {"; return {code: n, ok: [6]}; }},
     {k: "Private access", tab: "MainTeleOp.java", path: TEAM + "MainTeleOp.java",
       code: ["    while (opModeIsActive()) {", "        if (gamepad1.a) {", "            robot.frontLeft.setPower(1.0);   // test one wheel", "        }", "    }"],
       err: [2], prob: ["'frontLeft' has private access in 'Robot'"],
       ask: "Ava wants to test one wheel from MainTeleOp. Fix?",
-      ch: [["Add a public testWheel(double power) method to Robot.java, and call robot.testWheel(1.0)", 1, "Robot.java stays the only file that touches motors. The test is one clear, named action that anyone can find."],
-        ["Make frontLeft public in Robot.java", 0, "It compiles, but breaks the team rule. Now any file can spin one wheel alone, and nobody sees it in review."],
-        ["Copy the motor setup into MainTeleOp", 0, "Now 2 files own the same motor. hardwareMap gives both the same motor, and they fight over it."]],
+      ch: [["Make frontLeft public in Robot.java", 0, "It compiles, but breaks the team rule. Now any file can spin one wheel alone, and nobody sees it in review."],
+        ["Copy the motor setup into MainTeleOp", 0, "Now 2 files own the same motor. hardwareMap gives both the same motor, and they fight over it."],
+        ["Add a public testWheel(double power) method to Robot.java, and call robot.testWheel(1.0)", 1, "Robot.java stays the only file that touches motors. The test is one clear, named action that anyone can find."]],
       fix: c => { const n = c.slice(); n[2] = "            robot.testWheel(1.0);   // public method in Robot.java"; return {code: n, ok: [2]}; }},
     {k: "OpMode missing on Driver Hub", tab: "DriveTeleOp.java", path: TEAM + "DriveTeleOp.java",
       code: ["package org.firstinspires.ftc.teamcode;", "", "import com.qualcomm.robotcore.eventloop.opmode.Disabled;", "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;", "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;", "", '@TeleOp(name = "Drive TeleOp")', "@Disabled", "public class DriveTeleOp extends LinearOpMode {", "    ..."],
       err: [], prob: ["BUILD SUCCESSFUL. No errors.", "But Drive TeleOp is not in the Driver Hub's TeleOp list."], probOk: true,
       ask: "It builds. It deploys. It does not show up on the Driver Hub. Fix?",
-      ch: [["Delete the @Disabled line (and its import), build, deploy", 1, "Samples ship with @Disabled so the Driver Hub list stays short. A copied sample keeps it until you delete it."],
-        ["Restart the Driver Hub", 0, "The Driver Hub lists what the robot's app reports. The app skips every class marked @Disabled, restart or not."],
+      ch: [["Restart the Driver Hub", 0, "The Driver Hub lists what the robot's app reports. The app skips every class marked @Disabled, restart or not."],
+        ["Delete the @Disabled line (and its import), build, deploy", 1, "Samples ship with @Disabled so the Driver Hub list stays short. A copied sample keeps it until you delete it."],
         ["Reinstall Android Studio", 0, "Nothing is wrong with Android Studio. Read the annotations above the class line first."]],
       fix: c => { const n = c.filter((l, i) => i !== 2 && i !== 7); return {code: n, ok: [5]}; }},
     {k: "Grey unused import", tab: "Robot.java", path: TEAM + "Robot.java",
@@ -4236,7 +4242,7 @@ const JV2 = (function(){
   let ei = 0;
   const done = new Set();
   function renderErrList(){
-    $("#jv-errlist").innerHTML = E.map((e, i) => '<button class="b" data-e="' + i + '" aria-pressed="' + (i === ei) + '">' + (i + 1) + ". " + esc(e.k) + (done.has(i) ? " (fixed)" : "") + "</button>").join("");
+    $("#jv-errlist").innerHTML = E.map((e, i) => '<button class="b" data-e="' + i + '" aria-pressed="' + (i === ei) + '">' + (done.has(i) ? (i + 1) + ". " + esc(e.k) + " (fixed)" : "Error " + (i + 1)) + "</button>").join("");
     $$("#jv-errlist [data-e]").forEach(b => b.addEventListener("click", () => { ei = +b.dataset.e; showErr(); }));
   }
   function setProb(lines, kind){
@@ -4259,7 +4265,7 @@ const JV2 = (function(){
     $("#jv-epath").textContent = e.path;
     paint(e.code, e.err, [], e.dim, []);
     setProb(e.prob, e.probOk ? "warn" : e.probWarn ? "warn" : "err");
-    $("#jv-etitle").textContent = (ei + 1) + ". " + e.k;
+    $("#jv-etitle").textContent = done.has(ei) ? (ei + 1) + ". " + e.k : "Error " + (ei + 1);
     $("#jv-easks").textContent = e.ask;
     $("#jv-echoices").innerHTML = e.ch.map((c, i) => '<button class="b choice" data-c="' + i + '">' + esc(c[0]) + "</button>").join("");
     const m = $("#jv-emsg"); m.textContent = "Pick the fix you would use."; m.className = "msg";
@@ -4274,6 +4280,7 @@ const JV2 = (function(){
         paint(f.code, [], f.ok, [], []);
         setProb(["BUILD SUCCESSFUL. 0 errors, 0 warnings."], "ok");
         done.add(ei); renderErrList();
+        $("#jv-etitle").textContent = (ei + 1) + ". " + e.k;
       }
     }));
   }
@@ -4423,11 +4430,12 @@ const JVW = (function(){
       "import com.qualcomm.robotcore.hardware.DcMotor;",
       "import com.qualcomm.robotcore.hardware.DcMotorEx;",
       "import com.qualcomm.robotcore.hardware.HardwareMap;",
-      "import com.qualcomm.robotcore.util.Range;",
       "",
       "public class Robot {",
       "    public static final double MAX_SPEED = 0.8;   // one tuned number, used everywhere",
-      "    private static final double LAUNCH_VELOCITY = 1160;",
+      "    // launcher speeds in encoder ticks per second",
+      "    public static final double LAUNCH_VELOCITY = 1160;",
+      "    public static final double VELOCITY_TOLERANCE = 50;",
       "",
       "    private DcMotor frontLeft;        // only Robot.java touches motors",
       "    private DcMotorEx launcher;",
@@ -4438,12 +4446,21 @@ const JVW = (function(){
       "    }",
       "",
       "    public void drive(double axial, double lateral, double yaw) {",
-      "        double fl = Range.clip(axial + lateral + yaw, -MAX_SPEED, MAX_SPEED);",
-      "        frontLeft.setPower(fl);          // one wheel shown; the other three follow the same pattern",
+      "        double fl = axial + lateral + yaw;",
+      "        double fr = axial - lateral - yaw;",
+      "        double bl = axial - lateral + yaw;",
+      "        double br = axial + lateral - yaw;",
+      "        double max = Math.max(Math.abs(fl), Math.abs(fr));",
+      "        max = Math.max(max, Math.abs(bl));",
+      "        max = Math.max(max, Math.abs(br));",
+      "        max = Math.max(max, 1.0);       // only shrink, never grow",
+      "        frontLeft.setPower(fl / max * MAX_SPEED);",
+      "        // the other 3 wheels: the same line with fr, bl, br",
       "    }",
       "",
       "    public boolean launcherReady() {",
-      "        return Math.abs(launcher.getVelocity() - LAUNCH_VELOCITY) < 40;",
+      "        double error = launcher.getVelocity() - LAUNCH_VELOCITY;",
+      "        return Math.abs(error) < VELOCITY_TOLERANCE;",
       "    }",
       "",
       "    // launcherOn(), feedOnce(), headingDegrees() and stopDrive() are left out to keep this short",
@@ -4503,6 +4520,9 @@ const JVW = (function(){
     ["params", "double axial, double lateral, double yaw", "kw", "parameters", "The inputs a method needs, each with a type and a name. The caller fills them in order: robot.drive(0.5, 0, 0) puts 0.5 in axial, 0 in lateral and 0 in yaw."],
     ["ctor", "PIDController\\(double kP, double kI, double kD\\)", "kw", "constructor", "A method with the class name and no return type: the constructor. It runs once, inside new PIDController(0.02, 0, 0.003), to fill in the boxes of the new object."],
     ["hwget", "hardwareMap\\.get\\(DcMotorE?x?\\.class, \"[a-z_]+\"\\)", "str", "hardwareMap.get(...)", "Finds one device in the robot configuration. DcMotor.class says which kind of device. The text in quotes is the name typed on the Driver Hub, and it must match letter for letter."],
+    ["robotcall", "\\brobot\\.(?:init|drive|launcherOn|launcherReady|feedOnce|headingDegrees|stopDrive)\\b", "kw", "robot.method()", "A call on your Robot object. Java follows the dot: robot is the object, and the word after the dot is a public method inside Robot.java. Click Robot.java above to find drive()."],
+    ["hwmap", "\\bhardwareMap\\b", "kw", "hardwareMap", "The list of every device in the robot configuration. The SDK fills in hardwareMap before runOpMode() starts. MainTeleOp hands hardwareMap to robot.init(), so Robot.java finds the motors."],
+    ["runop", "\\brunOpMode\\(\\)", "kw", "runOpMode()", "The method the SDK runs when the driver presses INIT. Your whole OpMode lives inside runOpMode(), from INIT to STOP."],
     ["stick", "-gamepad1\\.left_stick_y", "kw", "-gamepad1.left_stick_y", "Pushing the stick up reads negative in the SDK. The minus sign flips it, so up means forward. The x axes need no flip. Both y axes do."],
     ["bumper", "gamepad1\\.left_bumper", "kw", "gamepad1.left_bumper", "A field: true on every loop pass while the bumper is held down. Good for a slow mode you hold."],
     ["waspressed", "rightBumperWasPressed\\(\\)", "kw", "rightBumperWasPressed()", "A method: true once per press, on the pass where the bumper went down. Use it for a button that starts something once, like the launcher."],
@@ -4511,9 +4531,8 @@ const JVW = (function(){
     ["waitforstart", "waitForStart\\(\\)", "kw", "waitForStart()", "Waits until the driver presses START. Nothing moves before this line, which is what rule G304.H asks for."],
     ["active", "opModeIsActive\\(\\)", "kw", "opModeIsActive()", "true from START until STOP. As the loop condition, it ends the loop the moment the driver presses STOP."],
     ["mathabs", "Math\\.abs", "kw", "Math.abs", "Distance from zero: Math.abs(-3) is 3. Math is a Java class you use through its name, with no object and no import."],
-    ["rangeclip", "Range\\.clip", "kw", "Range.clip", "Range.clip(x, low, high) keeps x between low and high. Motor power must stay inside -1 to 1, so clip every power you compute."],
     ["enumval", "LaunchState\\.(?:IDLE|SPINNING_UP|FEEDING)", "num", "LaunchState.IDLE", "One value of the enum, reached through the enum name. The launcher is always in exactly one of the three states."],
-    ["upper", "\\b(?:MAX_SPEED|LAUNCH_VELOCITY)\\b", "num", "UPPER_CASE names", "Constants get UPPER_CASE names with underscores, so a tuned number stands out at a glance. Change it in one place and every use follows."],
+    ["upper", "\\b(?:MAX_SPEED|LAUNCH_VELOCITY|VELOCITY_TOLERANCE)\\b", "num", "UPPER_CASE names", "Constants get UPPER_CASE names with underscores, so a tuned number stands out at a glance. Change it in one place and every use follows."],
     ["extends", "\\bextends LinearOpMode\\b", "kw", "extends LinearOpMode", "MainTeleOp gets everything LinearOpMode has: telemetry, gamepad1, hardwareMap, waitForStart(). Team rule: extend LinearOpMode, and stop there."],
     ["package", "\\bpackage\\b", "kw", "package", "Line 1 of every file: the folder this file lives in. Every file in TeamCode carries this exact line."],
     ["import", "\\bimport\\b", "kw", "import", "An address. Tells Java where a class from another package lives. In Android Studio, click the red word and press Alt+Enter to write the import for you."],
