@@ -10,7 +10,7 @@ Slow motion: the slider under the tabs sets the simulation speed on a log scale 
 
 Charts (tab 4 wheel powers, tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live window (5 to 60 s), press Show all, drag across a chart to zoom into one part, or use the Scroll back slider. Double-click a chart to return to live. Each chart bar also has Pause, Play, Reset run and Save PNG. Save PNG saves the chart as drawn, with its title, time span and legend. Inside the published artifact some browsers block the download: right-click the picture under the bar, Save image as.
 
-The header: auto-hide is on by default. The whole header folds to one thin line with the tab name, the sim state and the scores. Point at the line, or tap it, to open the tabs, the sim speed and the scores. The pin button at the right end of the tab row, or key H, turns auto-hide off and on. With auto-hide on, the Java card list folds to a rail of numbers.
+The header: auto-hide is on by default. The whole header folds to one thin line with the tab name, the sim state and the scores. Point at the line, or tap it, to open the tabs, the sim speed and the scores. The pin button at the right end of the tab row, or key H, turns auto-hide off and on. The Dark or Light button left of the pin, or key T, switches the theme. With auto-hide on, the Java card list folds to a rail of numbers.
 
 ## Teaching format: demo-driven, teams score points
 

@@ -277,6 +277,19 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await ahOn()) && !(await menuOpen()), "key H turns auto-hide back on");
   await pg.keyboard.press("h");   // back to the full menu for the clicks below
 
+  // ---- Theme button: switches light and dark, key T, the pick survives a reload ----
+  const themeNow = () => pg.evaluate(() => ({ t: document.documentElement.dataset.theme || "", bg: getComputedStyle(document.body).backgroundColor, label: document.querySelector("#theme-toggle span").textContent }));
+  const t0 = await themeNow();
+  await pg.click("#theme-toggle"); await pg.waitForTimeout(150);
+  const t1 = await themeNow();
+  check(t0.label === "Dark" && t1.t === "dark" && t1.bg === "rgb(17, 21, 27)" && t1.label === "Light", "the theme button switches to dark and then offers Light: " + JSON.stringify([t0, t1]));
+  await pg.keyboard.press("t"); await pg.waitForTimeout(150);
+  const t2 = await themeNow();
+  await pg.keyboard.press("t"); await pg.reload(); await pg.waitForTimeout(300);
+  const t3 = await themeNow();
+  check(t2.t === "light" && t2.bg !== t1.bg && t3.t === "dark" && t3.label === "Light", "key T switches back, and the pick survives a reload: " + JSON.stringify([t2, t3]));
+  await pg.evaluate(() => { localStorage.removeItem("ftc-lab-theme"); delete document.documentElement.dataset.theme; });
+
   // ---- GitHub tab: terminal commands next to the Android Studio steps ----
   await pg.goto(URL + "#gitflow"); await pg.waitForTimeout(300);
   await pg.click("#gx-edit"); await pg.click("#gx-commit"); await pg.click("#gx-partner"); await pg.click("#gx-push");

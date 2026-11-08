@@ -31,7 +31,7 @@ Rules set on 2026-11-08, when the day-of docs were checked against the final lab
 - Name a tab with its number and its exact lab title: 5 One loop, no sleep, 6 Closed loop: launcher, 8 Encoders (later).
 - Every Ask the room question in the plan names its right answer letter, read from `data-right` in the lab (0 = A, 1 = B, 2 = C).
 - Say the rule and the team rule apart: G304.H means "fully motionless following completion of OpMode initialization". The team rule adds no movement during INIT.
-- Name lab controls with their on-screen labels: Reveal answer, Hide, Reset scores (two clicks: "Click again to clear"), Save PNG, Clear last run, the pin and key H for auto-hide.
+- Name lab controls with their on-screen labels: Reveal answer, Hide, Reset scores (two clicks: "Click again to clear"), Save PNG, Clear last run, the pin and key H for auto-hide, the Dark or Light button and key T for the theme.
 - Content for the hands-on session (the Loops and arithmetic card) says so wherever a day-of doc names it.
 
 Changes made on 2026-11-08:

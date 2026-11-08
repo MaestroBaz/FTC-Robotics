@@ -198,3 +198,13 @@ Output:
 - Engineering: banner comments match the tabs, no setTimeout, no hex in drawing code (static scan), layout checked with Google Fonts blocked, smoke assertions for launcher behavior, PID canvas markers and aim states. window.__lab not added: the DOM checks cover it.
 - Docs: cheat sheet, run sheet, plan, vote cards, coding standard, homework and GitHub workflow match the lab word for word. Four follow-up plans under `docs/course/follow-up/` (vision, odometry, path following, Control Award), checked against the SDK 12.0 source.
 - Process: 9 builders in worktrees, 4 integrate agents, then 5 rounds of fresh reviewers and fixers. 304 smoke checks pass.
+
+## 26. Theme button in the header (2026-11-08)
+
+Request: Baz wanted to switch the lab between dark and light from the page. Before this, the lab followed the OS setting, and a `data-theme` set from the console was the only override.
+
+Output:
+- Lab: a Dark or Light button left of the auto-hide pin, and key T. The button names the theme a click switches to. The pick is saved in the browser. With no pick, the lab follows the OS. Canvases and diagrams repaint on the switch.
+- Docs: run sheet, plan, architecture, writing style and CLAUDE.md name the button and key T. The run sheet says to pick Light on the projector.
+- Cheat sheet (same day): the PID loop diagram draws F as a 4th block fed by an always-on source, I turns pollen to match tab 7.
+- Smoke test: the button switches to dark, key T switches back, the pick survives a reload. A cheat sheet check guards the F block.

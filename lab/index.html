@@ -283,6 +283,8 @@ ul.tree .ro{color:var(--muted);}
   .conf{grid-template-columns:1fr;}
 }
 /* ---- auto-hide: the title, tabs and controls fold into one 34 px line (tab, sim state, scores). Pointing at it, or keyboard focus, opens the full menu over the page; the Java card list folds to a rail of numbers ---- */
+nav.tabs .theme{margin-left:auto;}
+nav.tabs .theme + .pin{margin-left:6px;}
 nav.tabs .pin{margin-left:auto; align-self:center; display:inline-flex; gap:5px; align-items:center; padding:4px 9px; font-size:12px; color:var(--muted); background:transparent;}
 nav.tabs .pin[aria-pressed="true"]{color:var(--surface); background:var(--ink);}
 .peek{display:none;}
@@ -445,6 +447,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
   <a href="#feedback" data-tab="feedback"><span class="n">6</span> Closed loop: launcher</a>
   <a href="#pid" data-tab="pid"><span class="n">7</span> PID control</a>
   <a href="#encoders" data-tab="encoders"><span class="n">8</span> Encoders (later)</a>
+  <button class="b pin theme" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"/></svg><span>Dark</span></button>
   <button class="b pin" id="ah-toggle" type="button" aria-pressed="true" title="Auto-hide: the menu folds to one thin line until you point at it, and the Java card list folds to numbers. Key H."><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 1.5h6M6 1.5v5L3.5 9.5h9L10 6.5v-5M8 9.5V15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Auto-hide</span></button>
 </nav>
 <div class="ctlbar" role="group" aria-label="Simulation speed and team scores">
@@ -454,7 +457,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
   <button class="b" id="ts-pause" aria-pressed="false">Pause</button>
   <button class="b" id="ts-step" title="Step 0.1 s of sim time">Step</button>
   <span class="chip" id="ts-chip">real time</span>
-  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right. Charts: drag to zoom, double-click for live, Shift + wheel scrolls, Ctrl + wheel zooms." aria-label="Keyboard shortcuts and voting rules">?</button>
+  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. T: light or dark. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right. Charts: drag to zoom, double-click for live, Shift + wheel scrolls, Ctrl + wheel zooms." aria-label="Keyboard shortcuts and voting rules">?</button>
   <button class="b" id="tm-toggle" aria-pressed="true" aria-controls="teambar">Teams</button>
   <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset scores</button></span>
 </div>
@@ -5499,7 +5502,29 @@ document.addEventListener("keydown", e => {
   else if (e.key === "."){ if (!TIME.paused) setPause(true); TIME.step += 0.1; }
   else if (/^[1-6]$/.test(e.key)) TEAMS.add(+e.key - 1, 1);
   else if (e.key === "h" || e.key === "H") AUTOHIDE.toggle();
+  else if (e.key === "t" || e.key === "T") THEME.toggle();
 });
+/* ---------- theme: follows the OS until someone picks, then the pick sticks in this browser ---------- */
+const THEME = (function(){
+  const KEY = "ftc-lab-theme", root = document.documentElement, btn = $("#theme-toggle");
+  const osDark = () => { try { return matchMedia("(prefers-color-scheme: dark)").matches; } catch(e){ return false; } };
+  const dark = () => root.dataset.theme ? root.dataset.theme === "dark" : osDark();
+  function show(){   // the button names the theme a click switches to
+    const d = dark();
+    btn.querySelector("span").textContent = d ? "Light" : "Dark";
+    btn.title = "Switch to the " + (d ? "light" : "dark") + " theme. Key T.";
+  }
+  function set(theme){
+    root.dataset.theme = theme;
+    try { localStorage.setItem(KEY, theme); } catch(e){ /* per-page only */ }
+    show();
+  }
+  try { const saved = localStorage.getItem(KEY); if (saved === "light" || saved === "dark") root.dataset.theme = saved; } catch(e){ /* storage blocked: follow the OS */ }
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", show); } catch(e){}
+  btn.addEventListener("click", e => { set(dark() ? "light" : "dark"); if (e.detail > 0) btn.blur(); });
+  show();
+  return {toggle: () => set(dark() ? "light" : "dark"), get dark(){ return dark(); }};
+})();
 /* ---------- auto-hide: the whole menu folds to one line and opens over the page on hover, focus or tap; Java card list folds to a rail ---------- */
 const AUTOHIDE = (function(){
   const KEY = "ftc-lab-autohide", bar = $(".topbar"), btn = $("#ah-toggle");
