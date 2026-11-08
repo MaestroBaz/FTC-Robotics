@@ -8,7 +8,7 @@ Line numbers drift. Grep for the names below.
 
 | Tab (hash) | Section id | Module(s) | Viz hook (redrawn each frame) |
 |---|---|---|---|
-| 1 Java basics (`#java`) | `lab-java` | `JV` (anatomy, cards), `JV2` (project map `#jv-map`, import address `#jv-addr`, decoder, build line, error clinic, variable boxes `#jv-vbox`, blueprint `#jv-blueprint`), wrapped as `JAVATAB` | none |
+| 1 Java basics (`#java`) | `lab-java` | `JV` (anatomy, cards), `JV2` (project map `#jv-map`, import address `#jv-addr`, decoder, build line, error clinic, variable boxes `#jv-vbox`, blueprint `#jv-blueprint`, @Override demo `OV` in `#jv-ovcode`, Decisions card: if/else `DCODE` on `#jv-dstick`, logic toggles, `SW` switch with the break toggle `#jv-swbrk`), wrapped as `JAVATAB` | none |
 | 2 OpMode lifecycle (`#lifecycle`) | `lab-lifecycle` | `LC` | `DG.lifecycle()`, plus `DG.timeline()` on show |
 | 3 GitHub teamwork (`#gitflow`) | `lab-gitflow` | `GT` (git demo), `GX` (three places, org map, PR loop), wrapped as `GITTAB` | none |
 | 4 Drive modes (`#mecanum`) | `lab-mecanum` | `MC` | `DG.driveVec()` |
@@ -56,6 +56,7 @@ Speed control: `setScale(v)` clamps to 0.05..2 and snaps to the labels 0.05, 0.1
 - `drawRobot`, `arrow`, `alpha(hex, a)`, `clamp`, `throttle(ms)`.
 - `renderCode(el, lines)`: Java code panel with highlighting. `markLines` highlights lines.
 - `SV`: theme-aware SVG builder (`SV.box`, `SV.ar` arrows, `SV.tx`, `SV.circ`, `SV.defs`, `SV.set(el, w, h, s)`, `SV.col(name)`).
+- Diagram type scale: `SV.tx` never writes a font size under `SV.MIN` (12 viewBox units), and `SV.set` caps the rendered width at `w * SV.MAXSCALE` (1.25), centered. A diagram never scales its text past 1.25x, so text on every tab lands between 12 and 20 px. Draw boxes before their labels, so a label never hides under a box.
 - `P`: palette read from CSS tokens by `readPalette()`.
 
 ## TimeChart (charts on tabs 6 and 7)
@@ -91,7 +92,7 @@ Three jobs in `APPS`: `turn` (IMU heading), `aim` (camera bearing), `lift` (enco
 |---|---|---|
 | turn | 1.5 deg | P only 0.02/0/0, P too high 0.07/0/0, PD 0.02/0/0.002, PID (tuned) 0.02/0.04/0.002 |
 | aim | 3 deg | P only 0.02/0/0, P too high 0.06/0/0, PD (tuned) 0.02/0/0.002, PID worse 0.02/0.04/0.002 |
-| lift | 0.3 in | P only 0.1/0/0, P too high 0.35/0/0, PD 0.1/0/0.012, PID (tuned) 0.12/0.25/0.015 |
+| lift | 0.3 in | P only 0.1/0/0, P too high 0.35/0/0, PD 0.1/0/0.012, PID (tuned) 0.12/0.25/0.015, PD + F (tuned) 0.12/0/0.015 with kF 0.18. Lift presets carry a 4th value, kF, and every other lift preset sets kF to 0. |
 
 Sim:
 - `controlPass(0.02)` runs at 50 Hz and mirrors the Java `PIDController` class shown in the lab: first pass P only, I-zone (integral builds only while `|kP * error| < 0.35`, reset to 0 outside), derivative on error, output clipped.
@@ -108,6 +109,14 @@ Response markers (`response(step, tEnd)`): first non-null error `e0`, progress `
 
 `PIDVIZ.loop()` draws the control loop SVG `#pid-loop` (viewBox 1040 x 280). Term boxes show `gain x input = term` live, dashed when a term is switched off, "not running" when the PID is skipped. `PIDVIZ.minis()` draws the integral (area under error since the last reset, last 6 s) and derivative (slope over the last 2 s) mini charts.
 
+## OL (tab 5, one loop)
+
+`#ol-bar` holds Launch, Pause (calls `window.__setPause`, label synced each draw) and Reset run. `reset()` clears only this tab: both robots, loop ticks, states and error chips. Sim speed and Pause stay. Launch is ignored while either robot is mid-launch. `DG.stateMachine()` picks a wide (1000 x 130) or narrow (360 x 380) layout from the SVG's width.
+
+## EN (tab 8, encoders)
+
+`tick()` adds wheel counts at `power * 2400` ticks/s and moves the robot by those counts times `(1 - slip)`. Slip = Floor slip slider (`#en-slip`, 0 to 15%) times 2.5 when strafing, plus 0.35 for the first 0.3 s of an unramped start. Teaching numbers, not measured ones. `#en-ramp` swaps the code panel to the ramped loop and caps power at `0.5 * t / 0.5`. The kv list shows encoder inches next to tape inches and an odometry pod that reads the tape value. The end message names the cause: constants, slip, or both.
+
 ## GitHub tab terminal boxes
 
 Each step in the PR loop (`PR[]`) and the conflict story (`STEPS[]`) carries a `cmd` field, rendered into `pre.code.term` under the Android Studio line. Part A buttons call `cmd()` with the git command for the press, including the rejected push. The `$ ` prompt comes from CSS, so the text stays plain commands.
@@ -116,6 +125,8 @@ Each step in the PR loop (`PR[]`) and the conflict story (`STEPS[]`) carries a `
 
 - `TEAMS`: 6 teams in `#tm-list`, rendered from one immutable array `{name, pts}`. Keys 1 to 6 add a point (global keydown handler), `+` and `-` buttons adjust, the name input renames, `#tm-reset` zeroes, `#tm-toggle` hides the bar. Saved in `localStorage` under `ftc-lab-teams` inside try/catch, so a private window still works for the page's lifetime. The team with the top score gets `.lead`.
 - Votes: every `details.ask` holds a `span.vote` with `data-right` and `button.opt` children inside the summary. The enhancer after `TEAMS` adds the letter, a tally `<b>`, and the `right` class. Click adds one, right-click takes one back, both stop the summary toggle. Opening the details (Reveal answer) lights the right option and fades the rest through CSS.
+- Ask the room Hide: the enhancer puts a Hide button (`.ask-x`) inside each summary (a closed details renders only its summary) and a `.ask-show` button after the details. Hide adds `.qgone` to the labhead, so the title column takes the full width. Votes and points stay.
+- `AUTOHIDE`: `#ah-toggle` or key H. Scrolling down past 90 px slides the top bar away (`.topbar.away`) unless the pointer or focus is inside it. Scrolling up, the pointer at the top 16 px, or focus brings it back. While on, the Java card list folds to a 44 px rail of numbers and opens on hover or focus. A mouse click on a card shuts the rail at once (`.jtopics.shut`). Saved under `ftc-lab-autohide`, default on.
 - `JVW` (Java tab, "Every word explained" card): three code listings in `FILES`, a word table `W` of `[id, regex source, color class, label, explanation]`, one combined regex `RE`. `lineHtml()` wraps each match in `span.w[data-w]`. Patterns with inner groups must use `(?:...)`, because the match index maps back to `W`. Clicking a word or a chip highlights every match of the word and fills `#jv-wname` and `#jv-wmsg`.
 
 ## Testing

@@ -84,22 +84,23 @@ Team rounds:
 
 ## Module 1: Java basics, the robot way (35 min)
 
-Lab tab 1 has 10 cards. 35 minutes does not cover all of them in depth, so spend the time on the two cards with the games: Every word explained and Error clinic: fix it.
+Lab tab 1 has 11 cards. 35 minutes does not cover all of them in depth, so spend the time on Decisions and the two cards with the games: Every word explained and Error clinic: fix it.
 
 | Card | Time | What to click | The one sentence to remember |
 |---|---|---|---|
-| 0 Anatomy of a file | 2 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
-| 1 Classes and objects | 3 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
+| 0 Anatomy of a file | 1 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
+| 1 Classes and objects | 2 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
 | 2 Types, final and static | 3 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
 | 3 Robot.java: public and private | 3 min | Press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
-| 4 extends LinearOpMode | 3 min | Click telemetry, gamepad1, waitForStart | `extends LinearOpMode` is why telemetry and gamepad1 exist. Stop at one level. A TeleOp has a Robot. |
-| 5 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
-| 6 Every word explained | 8 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
-| 7 Imports | 2 min | An import name to read the address, then untick an import | An import is the full address of a class: folders, then the class. |
-| 8 Error clinic: fix it | 7 min | Errors 1, 4, 6 and 7, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
-| 9 The project map | 2 min | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
+| 4 extends and @Override | 4 min | Click telemetry and @Override, then the three @Override versions | `extends LinearOpMode` is why telemetry and gamepad1 exist. `@Override` is a spelling check: a typo fails the build instead of never running. |
+| 5 Decisions: if, else, switch | 6 min | Move the stick slider to 0.8, 0.3, -0.4 and 0. Then the switch states, then tick Forget the break | Java asks the questions top to bottom and runs only the first true one. Every `case` ends with `break`. `==` compares, `=` stores. |
+| 6 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
+| 7 Every word explained | 6 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
+| 8 Imports | 1 min | An import name to read the address | An import is the full address of a class: folders, then the class. |
+| 9 Error clinic: fix it | 7 min | Errors 1, 4, 6 and 7, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
+| 10 The project map | if time | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
 
-The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends, scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
+The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends and @Override, then the if and switch inside the loop, then scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
 
 Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (inside Robot.java) sets up the "Robot.java: public and private" card, 8 minutes in.
 
@@ -443,7 +444,7 @@ Team rounds:
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
-Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug and press STOP mid-drive.
+Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug and press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: the encoder reads 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
 Then use `turnToHeading()` from Module 6 for turns.
 
 BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a fancy auto failing 1 match in 3.

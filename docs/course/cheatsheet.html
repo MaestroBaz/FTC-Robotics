@@ -12,6 +12,7 @@
   :root{--ink:#18202c; --muted:#5a6474; --line:#c9cdc6; --accent:#1d5fd0; --ok:#1d8650; --red:#cf3535; --pollen:#e3ad00; --soft:#eef2fb; --code:#f6f7f4;}
   *{box-sizing:border-box;}
   html,body{margin:0; padding:0;}
+  html{font-feature-settings:"calt" 0, "liga" 0;}   /* show >= as two characters even where JetBrains Mono is installed */
   body{font:9.2pt/1.28 "IBM Plex Sans", "Segoe UI", Arial, Helvetica, sans-serif; color:var(--ink); background:#fff;}
   .page{width:7.6in; height:10.2in; margin:0 auto; padding:0; page-break-after:always; display:flex; flex-direction:column; gap:6pt; overflow:hidden;}
   .page:last-child{page-break-after:auto;}
@@ -546,8 +547,8 @@
           <path d="M325 124 L325 150 L100 150 L100 123" class="ag"/>
           <rect x="166" y="140" width="80" height="20" rx="5" class="ok"/><text x="206" y="154" text-anchor="middle" class="c">encoder measures</text>
           <text x="178" y="182" text-anchor="middle" class="c">sensor + target + correction, every pass. On any battery, the wheel hits 1160.</text>
-          <text x="178" y="196" text-anchor="middle" class="c">F = feedforward: power sized for the target itself, before any</text>
-          <text x="178" y="208" text-anchor="middle" class="c">error exists. The hub runs P, I, D and F for you, 4 numbers.</text>
+          <text x="178" y="196" text-anchor="middle" class="c">F: the power 1160 ticks/s usually needs, sent before any error.</text>
+          <text x="178" y="208" text-anchor="middle" class="c">P, I and D fix the rest. The hub runs all 4.</text>
         </g>
       </svg>
     </div>
@@ -592,7 +593,7 @@
         <path d="M704 92 L704 160 L118 160 L118 90" class="ag"/>
         <rect x="360" y="150" width="120" height="20" rx="5" class="ok"/><text x="420" y="164" text-anchor="middle" class="c">sensor: IMU, encoder or camera</text>
         <text x="560" y="118" text-anchor="middle" class="c">I-zone: I adds up only when |kP x error| &lt; 0.35,</text><text x="560" y="130" text-anchor="middle" class="c">so a long move cannot wind it up.</text>
-        <text x="560" y="144" text-anchor="middle" class="c" fill="#1d8650">F: feedforward, added with no error. Lift: a constant</text><text x="560" y="155" text-anchor="middle" class="c" fill="#1d8650">that holds against gravity. Flywheel: kF x target (hub).</text>
+        <text x="560" y="144" text-anchor="middle" class="c" fill="#1d8650">F = kF x what you know, no error needed. Lift: kF, the</text><text x="560" y="155" text-anchor="middle" class="c" fill="#1d8650">hold power. Flywheel: kF x target speed (hub).</text>
       </g>
     </svg>
   </div>
@@ -630,7 +631,7 @@
         <text x="14" y="34" class="m" style="font-size:8.6px">motor.setVelocity(ticksPerSec);   // hub firmware runs PIDF</text>
         <text x="14" y="47" class="m" style="font-size:8.6px">motor.setVelocityPIDFCoefficients(p, i, d, f);</text>
         <text x="14" y="62" class="c">SDK recipe: F = 32767 / maxTicksPerSec, P = 0.1 x F, I = 0.1 x P, D = 0.</text>
-        <text x="14" y="73" class="c">F = power sized for the target itself. Needs RUN_USING_ENCODER.</text>
+        <text x="14" y="73" class="c">f here is in hub units, not power: use the recipe. Needs RUN_USING_ENCODER.</text>
         <text x="14" y="86" class="c">Keep the defaults until the shots fall short late in a match.</text>
         <rect x="372" y="4" width="354" height="88" rx="6" class="gy"/>
         <text x="382" y="20" class="b">In your code: position, the lift (tab 7)</text>
@@ -652,7 +653,7 @@
         <circle cx="262" cy="26" r="12" fill="#cf3535"/><text x="262" y="30" text-anchor="middle" class="w b">2</text>
         <text x="282" y="22" class="b">kD up until the overshoot stops</text><text x="282" y="36" class="c">too high: jitters on a noisy sensor.</text>
         <circle cx="504" cy="26" r="12" fill="#1d8650"/><text x="504" y="30" text-anchor="middle" class="w b">3</text>
-        <text x="524" y="22" class="b">F for gravity, kI for friction</text><text x="524" y="36" class="c">only if it stops short. Commit what you tested.</text>
+        <text x="524" y="22" class="b">kF first on a lift or arm</text><text x="524" y="36" class="c">kI only if it still stops short. Commit what you tested.</text>
       </g>
     </svg>
   </div>

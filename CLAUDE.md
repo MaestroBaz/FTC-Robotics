@@ -76,7 +76,9 @@ Until these issues close:
 ## Current state (2026-11-07)
 
 Done and tested:
-- 8 tabs in the plan's teaching order: 1 Java basics (10 cards in reading order: anatomy, classes, types, public/private, extends, scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders in auto. The lab opens on Java.
+- 8 tabs in the plan's teaching order: 1 Java basics (11 cards in reading order: anatomy, classes, types, public/private, extends and @Override, Decisions (if, else, switch), scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders in auto (wheel slip, ramp, and a tracking fix ladder). The lab opens on Java.
+- Auto-hide (key H): the top bar slides away while scrolling down and the Java card list folds to a rail. Every Ask the room has a Hide button.
+- Diagram text: `SV.MIN` 12 and `SV.MAXSCALE` 1.25 keep every SVG label between 12 and 20 px.
 - Sticky header is 78 px: one row of tabs, one row with the sim speed and the six team chips, hints behind the ? button. The Ask the room block is compact (140 to 177 px), so the first sim of every tab starts above 330 px on a 1366x768 projector. The smoke test enforces both.
 - Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser). Ask the room votes come in team order, Team 1 first; Reveal pays a point to every team that chose the right answer; right-click takes the last vote back. Word hunt chips on the Every word explained card.
 - Every Java snippet audited against the SDK v12.0 javadoc (2026-11-07): all compile as shown.

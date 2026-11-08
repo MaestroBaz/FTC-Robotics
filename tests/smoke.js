@@ -25,7 +25,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
 
   // ---- cross-tab references name the right tab ----
   const src = fs.readFileSync(path.resolve(__dirname, "..", "lab", "index.html"), "utf8");
-  check(src.includes("runs PIDF on the hub (tab 6)") && src.includes("PID class from tab 7"), "launcher and PID references name tabs 6 and 7");
+  check(src.includes("runs PIDF on the hub: F = kF x target speed (tab 6)") && src.includes("PID class from tab 7"), "launcher and PID references name tabs 6 and 7");
 
   // ---- tab order: opens on Java, digits read 1 to 8 in the plan's order ----
   await pg.goto(URL); await pg.waitForTimeout(300);
@@ -33,7 +33,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const nav = await pg.$$eval("nav.tabs a", as => as.map(a => a.querySelector(".n").textContent + ":" + a.dataset.tab).join(" "));
   check(nav === "1:java 2:lifecycle 3:gitflow 4:mecanum 5:oneloop 6:feedback 7:pid 8:encoders", "tab bar reads 1 Java ... 8 Encoders in the teaching order: " + nav);
   const cards = await pg.$$eval("nav.jtopics .jt", bs => bs.map(b => b.dataset.jt).join(" "));
-  check(cards === "anatomy classes vars private inherit scope words imports errors modules", "ten Java cards in reading order, Lists off the nav: " + cards);
+  check(cards === "anatomy classes vars private inherit decide scope words imports errors modules", "eleven Java cards in reading order, Lists off the nav: " + cards);
   check(src.includes('"import com.qualcomm.robotcore.hardware.DcMotorEx;"') && !src.includes("imu.resetYaw();   // driver"), "words card Robot.java imports DcMotorEx and field-centric calls robot.resetHeading()");
 
   // ---- tab buttons work when the page opens as a data: URL (blocks hash navigation) ----
@@ -97,6 +97,40 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#jv-wfiles button[data-f="PIDController.java"]');
   check(!!(await pg.$('#jv-wcode .w[data-w="this"]')) && !!(await pg.$('#jv-wcode .w[data-w="ctor"]')), "PIDController shows this. and the constructor");
   await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-words.png") });
+
+  // ---- @Override tried three ways, and the Decisions card ----
+  await pg.click('.jt[data-jt="inherit"]');
+  await pg.click('#jv-ovbtns .b[data-ov="1"]');
+  check(/does not override or implement/.test(await pg.textContent("#jv-ovprob")), "@Override on a typo fails the build with the javac message");
+  await pg.click('#jv-ovbtns .b[data-ov="2"]');
+  check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-ovprob")) && /never resets|nobody calls/.test(await pg.textContent("#jv-ovmsg")), "Start() without @Override builds and never runs");
+  await pg.click('.jt[data-jt="decide"]');
+  const stick = async v => { await pg.$eval("#jv-dstick", (el, v) => { el.value = v; el.dispatchEvent(new Event("input")); }, v); return pg.textContent("#jv-dmsg"); };
+  check(/FAST forward/.test(await stick(0.8)) && /skips every/.test(await pg.textContent("#jv-dmsg")), "stick 0.8 runs the first if and skips the rest");
+  check(/backward/.test(await stick(-0.4)), "stick -0.4 runs the third branch");
+  check(/stopped/.test(await stick(0)) && /else: runs/.test(await pg.textContent("#jv-dcond")), "stick 0 falls to else");
+  await pg.click('#jv-swbtns .b[data-s="SPINNING_UP"]');
+  check((await pg.getAttribute("#jv-swmsg", "class")).includes("ok"), "switch with break stays in SPINNING_UP");
+  await pg.check("#jv-swbrk");
+  check(/falls into FEEDING/.test(await pg.textContent("#jv-swmsg")), "forgetting break falls through into FEEDING");
+  await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-decide.png") });
+
+  // ---- Ask the room: Hide folds the question, Show brings it back ----
+  await pg.click("#lab-java details.ask .ask-x");
+  check(!(await pg.isVisible("#lab-java details.ask")) && (await pg.isVisible("#lab-java .ask-show")), "Hide folds the question away");
+  await pg.click("#lab-java .ask-show");
+  check(await pg.isVisible("#lab-java details.ask"), "Show the question brings it back");
+
+  // ---- Auto-hide: H toggles, scrolling down hides the bar ----
+  const ahOn = () => pg.evaluate(() => document.body.classList.contains("autohide"));
+  const was = await ahOn();
+  await pg.keyboard.press("h"); check((await ahOn()) !== was, "key H toggles auto-hide");
+  if (!(await ahOn())) await pg.click("#ah-toggle");
+  await pg.mouse.move(600, 500); await pg.evaluate(() => document.activeElement && document.activeElement.blur());   // focus inside the bar keeps it shown
+  await pg.evaluate(() => window.scrollTo(0, 0)); await pg.waitForTimeout(100);
+  await pg.mouse.wheel(0, 900); await pg.waitForTimeout(400);
+  check(await pg.evaluate(() => document.querySelector(".topbar").classList.contains("away")), "scrolling down hides the top bar");
+  await pg.evaluate(() => window.scrollTo(0, 0)); await pg.waitForTimeout(200);
 
   // ---- GitHub tab: terminal commands next to the Android Studio steps ----
   await pg.goto(URL + "#gitflow"); await pg.waitForTimeout(300);
@@ -199,6 +233,26 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.$eval("#fb-v", el => { el.value = 11.8; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(2500);
   await pg.click("#fb-feed"); await pg.waitForTimeout(2000);
   await pg.locator("#lab-feedback").screenshot({ path: path.join(SHOTS, "feedback.png") });
+
+  // ---- one loop: Pause, Resume and Reset run ----
+  await pg.goto(URL + "#oneloop"); await pg.waitForTimeout(300);
+  await pg.click("#ol-launch"); await pg.waitForTimeout(600);
+  await pg.click("#ol-pause"); await pg.waitForTimeout(150);
+  check((await pg.textContent("#ol-pause")) === "Resume" && (await pg.textContent("#ts-chip")) === "PAUSED", "one loop Pause pauses and the button says Resume");
+  await pg.click("#ol-pause"); await pg.waitForTimeout(150);
+  check((await pg.textContent("#ol-pause")) === "Pause", "Resume runs the sim again");
+  await pg.click("#ol-reset"); await pg.waitForTimeout(100);
+  check(/ 0 in/.test(await pg.textContent("#ol-errA")) && / 0 in/.test(await pg.textContent("#ol-errB")), "Reset run clears the error chips");
+  await pg.locator("#lab-oneloop").screenshot({ path: path.join(SHOTS, "oneloop.png") });
+
+  // ---- encoders: perfect grip lands on the line, slip stops short while the encoder reads 24 in ----
+  await pg.goto(URL + "#encoders"); await pg.waitForTimeout(300);
+  const enRun = async () => { await pg.click("#en-run"); for (let i = 0; i < 30 && !/driveBusy\(\) went false|tape says/.test(await pg.textContent("#en-msg")); i++) await pg.waitForTimeout(250); return pg.textContent("#en-msg"); };
+  check(/stopped on the line/.test(await enRun()), "encoders: perfect grip stops on the line");
+  await pg.$eval("#en-slip", el => { el.value = 8; el.dispatchEvent(new Event("input")); });
+  await pg.click("#en-strafe");
+  check(/wheels slipped/.test(await enRun()) && /encodersays23\.9/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: slip stops short while the encoder still reads 24 in");
+  await pg.locator("#lab-encoders").screenshot({ path: path.join(SHOTS, "encoders.png") });
 
   // ---- cheat sheets: two double-sided letter sheets (4 pages), diagram-led, nothing clipped ----
   const cs = await b.newPage();

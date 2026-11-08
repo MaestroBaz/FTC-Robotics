@@ -40,5 +40,5 @@
 | Colors only through CSS tokens | Light and dark themes stay correct. |
 | Plain ASCII in all content | Baz's style rule. Also avoids encoding issues in code panels. |
 | GitHub Issues hold all open work, no backlog file | Baz's choice. One list stops drift, and the engineering skills read the tracker. |
-| F lives outside PIDController (2026-11-07) | The class stays PID and the OpMode adds F per job. The hub's F multiplies the target, while a lift's F is a constant, and one kF inside `update(error)` cannot be both. A lift F holds against gravity, an arm F is kG x cos(angle), a flywheel F is kF x target speed, a turn has no F. |
+| F lives outside PIDController (2026-11-07) | The class stays PID and the OpMode adds F per job. The hub's F multiplies the target, while a lift's F is a constant, and one kF inside `update(error)` cannot be both. One naming rule everywhere: F = kF x what you already know. Lift: kF, the hold power. Arm: kF x cos(angle). Flywheel: kF x target speed, on the hub. Turn and aim: no F. The lab dropped kG (2026-11-08) because two names for one idea confused students. |
 | Velocity instead of power rejected for the turn, lift and aim apps (2026-11-07) | Their output is power and their sensor measures a position. The launcher on tab 6 is the velocity example. |

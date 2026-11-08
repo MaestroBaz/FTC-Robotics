@@ -123,6 +123,18 @@ The RobotHardware sample is FIRST's own model for structure: one plain class, pr
 | REV Through Bore Encoder | Plugs into a motor encoder port. Incremental only. [Verify] read through the paired motor's `getCurrentPosition()` |
 | goBILDA Pinpoint | `hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint")`, set offsets and pod type, call `update()` each loop, then `getPosition()` |
 
+| SparkFun OTOS | Optical tracking sensor, driver since SDK 9.2, sample `SensorSparkFunOTOS`. Mounts about 10 mm above the tiles. Calibrate the linear and angular scalars, or expect 3 to 5% error. |
+
+Tracking in AUTO, cheapest fix first (lab tab 8 shows the ladder):
+1. Tape-check COUNTS_PER_INCH: command 48 in, measure, fix. Strafing slips more and needs its own constant.
+2. Ramp the drive power. A hard start spins the wheels and the encoders count turns the robot never made.
+3. Hold heading with the IMU and the team PIDController (SDK sample `RobotAutoDriveByGyro_Linear`).
+4. Odometry: goBILDA Pinpoint (driver since SDK 10.3, about $80 alone or $280 with two pods) or SparkFun OTOS (about $85, R702 allows it).
+
+AprilTag localization (`robotPose`, since SDK 10.0) does not fit BIOBUZZ: the SDK 12.0 notes say the tags move this season, so they are not an absolute field reference. Use them for aiming at the HIVE.
+
+Road Runner and Pedro Pathing: not this season. LEAVE + PARK needs two moves and a turn.
+
 REV sensor docs: https://docs.revrobotics.com/duo-control/sensors/i2c/imu
 
 ## 9. Vision

@@ -29,5 +29,5 @@ A condition that blocks the Crash Course when unmet. A failure with a workable f
 _Avoid_: blocker, requirement
 
 **PIDF**:
-The velocity loop the REV hub firmware runs for setVelocity(): P, I and D as in PID, plus F, a feedforward term sized for the target itself before any error exists. For a position job the F is a constant (a lift holding against gravity) or depends on the angle (an arm), and the team adds it in the OpMode, outside PIDController.
-_Avoid_: PID with F, feed-forward PID
+P, I and D plus F. F is power sent before any error shows, from something you already know: F = kF x what you know. setVelocity(): the hub firmware runs PIDF with F = kF x target speed. Lift: the team adds F = kF, the power that holds the lift still, in the OpMode outside PIDController. Arm: F = kF x cos(angle). Turn and aim: no F.
+_Avoid_: feed-forward PID, kG, PID with F

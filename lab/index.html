@@ -31,6 +31,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+/* no coding ligatures: students must see the two characters they type, >= not a single glyph */
+html{font-feature-settings:"calt" 0, "liga" 0;}   /* font-feature-settings survives the font shorthand; font-variant-ligatures does not */
 body{background:var(--bg); color:var(--ink); font:16px/1.5 var(--body);}
 .wrap{max-width:1400px; margin:0 auto; padding:0 20px 48px;}
 header.top{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 18px; padding:10px 0 4px;}
@@ -57,6 +59,7 @@ details.ask .reveal{font:600 13px var(--body); color:var(--accent); display:inli
 details.ask[open] .reveal{display:none;}
 details.ask .a{margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);}
 .grid2{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:18px; align-items:start;}
+.grid2.even{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
 .grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
 .stack{display:flex; flex-direction:column; gap:14px;}
 .panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px;}
@@ -81,7 +84,8 @@ input[type=range]{accent-color:var(--accent); width:100%;}
 .chip.warn{color:var(--pollen); border-color:color-mix(in srgb,var(--pollen) 55%,transparent);}
 .chip.run{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
 pre.code{margin:0; background:var(--codebg); border:1px solid var(--line); border-radius:10px; padding:10px 0; font:13px/1.55 var(--mono); overflow-x:auto;}
-pre.code .ln{display:block; padding:0 12px 0 0; white-space:pre; border-left:3px solid transparent;}
+/* Long lines wrap instead of hiding past the edge (nobody scrolls a projector). A wrapped part starts 4 columns in from the code, so it reads as a continuation. */
+pre.code .ln{display:block; padding:0 12px 0 calc(44px + 4ch); text-indent:calc(-44px - 4ch); white-space:pre-wrap; overflow-wrap:anywhere; border-left:3px solid transparent;}
 pre.code .ln::before{content:attr(data-n); display:inline-block; width:34px; padding-right:10px; text-align:right; color:var(--muted); opacity:.6;}
 pre.code .ln.hl{background:color-mix(in srgb,var(--pollen) 28%,transparent); border-left-color:var(--pollen);}
 pre.code .ln.hl2{background:color-mix(in srgb,var(--red) 20%,transparent); border-left-color:var(--red);}
@@ -145,8 +149,8 @@ table.math.left th, table.math.left td{text-align:left; white-space:normal; vert
 .ctlbar .chip{display:none;}   /* the speed value and the Pause button already say it; the chip costs the one-row layout */
 .teambar{display:inline-flex; flex-wrap:wrap; gap:3px 5px; align-items:center;}
 .teambar.hide{display:none;}
-.team{display:inline-flex; align-items:center; gap:3px; border:1px solid var(--line); border-radius:999px; padding:2px 4px 2px 8px; background:var(--surface);}
-.team input{font:600 13px var(--body); color:var(--ink); background:transparent; border:0; width:50px; padding:0; min-width:0;}
+.team{display:inline-flex; align-items:center; gap:2px; border:1px solid var(--line); border-radius:999px; padding:2px 3px 2px 7px; background:var(--surface);}
+.team input{font:600 13px var(--body); color:var(--ink); background:transparent; border:0; width:44px; padding:0; min-width:0;}
 .team b{font:700 14px var(--mono); min-width:18px; text-align:center;}
 .team button{font:700 14px var(--mono); border:1px solid var(--line); background:var(--codebg); color:var(--ink); border-radius:50%; width:20px; height:20px; cursor:pointer; padding:0; line-height:1;}
 .team button:hover{border-color:var(--accent);}
@@ -167,7 +171,7 @@ pre.code .w.on{background:color-mix(in srgb,var(--pollen) 35%,transparent); bord
 .wchips{display:flex; flex-wrap:wrap; gap:6px;}
 .wchips button{font:600 13px var(--mono); border:1px solid var(--line); background:var(--codebg); color:var(--ink); border-radius:999px; padding:4px 10px; cursor:pointer;}
 .wchips button.on{border-color:var(--pollen); background:color-mix(in srgb,var(--pollen) 30%,transparent);}
-.tsl{position:relative; display:inline-block; width:150px; padding-bottom:12px; margin:0 2px;}
+.tsl{position:relative; display:inline-block; width:112px; padding-bottom:12px; margin:0 2px;}
 .tsl input{width:100%; margin:0; accent-color:var(--accent);}
 .tsl-ticks{position:absolute; left:8px; right:8px; bottom:0; height:12px;}
 .tsl-ticks span{position:absolute; transform:translateX(-50%); font:500 10px var(--mono); color:var(--muted); cursor:pointer;}
@@ -271,11 +275,57 @@ ul.tree .ro{color:var(--muted);}
 .lb.hl{border-color:var(--pollen); background:color-mix(in srgb,var(--pollen) 25%,var(--surface));}
 @media (max-width: 960px){ .jlayout{grid-template-columns:1fr;} .jtopics{position:static; flex-direction:row; flex-wrap:wrap;} }
 @media (max-width: 960px){
-  .labhead, .grid2{grid-template-columns:1fr;}
+  .labhead, .grid2, .grid2.even{grid-template-columns:1fr !important;}   /* !important: many grids set their column ratio inline, which would otherwise stay two columns on a phone */
   .grid3{grid-template-columns:1fr;}
   .conf{grid-template-columns:1fr;}
 }
-@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important;} }
+/* ---- auto-hide: the top bar slides away while you scroll down and comes back when you scroll up or point at the top edge; the Java card list folds to a rail of numbers and opens on hover ---- */
+.topbar{transition:transform .2s ease;}
+body.autohide .topbar.away{transform:translateY(calc(-100% - 2px));}
+body.autohide .jlayout{grid-template-columns:44px minmax(0,1fr);}
+body.autohide .jtopics{width:44px; z-index:15; background:var(--bg); border-radius:10px; transition:width .15s ease, box-shadow .15s ease; overflow:hidden;}
+body.autohide .jtopics .jt{white-space:nowrap; overflow:hidden; padding:9px 8px;}
+body.autohide .jtopics:not(:hover):not(:focus-within) .jt, body.autohide .jtopics.shut .jt{color:transparent;}   /* the rail shows numbers only */
+body.autohide .jtopics.shut{width:44px; box-shadow:none; background:var(--bg); outline:0;}   /* a click on a card closes the drawer at once */
+body.autohide .jtopics:hover, body.autohide .jtopics:focus-within{width:250px; box-shadow:0 6px 24px rgba(0,0,0,.18); background:var(--surface); outline:1px solid var(--line);}
+@media (max-width: 960px){ body.autohide .jlayout{grid-template-columns:1fr;} body.autohide .jtopics{width:auto; overflow:visible; background:transparent;} body.autohide .jtopics .jt{white-space:normal;} }
+/* ---- Ask the room: Hide folds the question to one small button once the room has voted ---- */
+details.ask{position:relative;}
+details.ask .ask-x{position:absolute; top:6px; right:8px; font:600 12px var(--body); color:var(--muted); background:transparent; border:1px solid var(--line); border-radius:6px; padding:2px 8px; cursor:pointer;}
+details.ask .ask-x:hover{color:var(--ink); border-color:var(--accent);}
+details.ask summary{padding-right:52px;}
+details.ask summary .vote{margin-right:-52px;}
+.labhead.qgone{grid-template-columns:minmax(0,1fr) auto;}
+.labhead.qgone details.ask{display:none;}
+.ask-show{display:none; align-self:start; font:600 13px var(--body); color:var(--muted); background:var(--surface); border:1px dashed var(--pollen); border-radius:8px; padding:6px 10px; cursor:pointer; white-space:nowrap;}
+.labhead.qgone .ask-show{display:inline-block;}
+/* ---- Java: the types table reads as three plain columns that wrap, not one long right-aligned line ---- */
+table.types{font:14px/1.4 var(--body);}
+table.types th, table.types td{text-align:left; white-space:normal; vertical-align:top; padding:7px 8px 7px 0;}
+table.types td:first-child{font:700 14px var(--mono); color:var(--accent); white-space:nowrap; width:1%;}
+table.types td:nth-child(2){color:var(--ink);}
+table.types td:nth-child(2) code{font:13px/1.4 var(--mono); background:var(--codebg); border:1px solid var(--line); border-radius:5px; padding:2px 6px; display:inline-block; margin-top:4px; white-space:pre; max-width:100%; overflow-x:auto;}
+/* ---- Java: decisions card (if / else / switch) and the @Override demo ---- */
+table.ops{width:100%; border-collapse:collapse; font:14px/1.35 var(--body);}
+table.ops th, table.ops td{text-align:left; padding:6px 8px 6px 0; border-bottom:1px solid var(--line); vertical-align:top;}
+table.ops th{font:600 12px var(--body); color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+table.ops td:first-child{font:700 16px var(--mono); color:var(--accent); width:56px; white-space:nowrap;}
+table.ops td code{font:13px var(--mono);}
+.cond{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+.cond span{font:600 13px var(--mono); border:1px solid var(--line); border-radius:6px; padding:3px 8px; background:var(--codebg);}
+.cond span.t{border-color:var(--ok); background:color-mix(in srgb,var(--ok) 16%,var(--surface));}
+.cond span.f{border-color:var(--red); background:color-mix(in srgb,var(--red) 10%,var(--surface)); color:var(--muted);}
+.cond span.skip{opacity:.4;}
+.stickval{font:700 28px/1 var(--mono); font-variant-numeric:tabular-nums; min-width:80px; display:inline-block;}
+.jpane[data-jp="words"] .grid2 > .stack:last-child{position:sticky; top:12px;}
+pre.code .ln.run{background:color-mix(in srgb,var(--ok) 22%,transparent); border-left-color:var(--ok);}
+pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); border-left-color:var(--pollen);}
+.mistakes{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px;}
+.mistakes > div{border:1px solid var(--line); border-left:4px solid var(--red); border-radius:8px; padding:8px 10px; background:var(--surface); font-size:14px;}
+.mistakes code{font:13px var(--mono);}
+.mistakes .bad{color:var(--red); text-decoration:line-through; text-decoration-thickness:1px;}
+.mistakes .good{color:var(--ok); font-weight:600;}
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important;} .topbar, .jtopics{transition:none;} }
 </style>
 </head>
 <body>
@@ -302,7 +352,8 @@ ul.tree .ro{color:var(--muted);}
   <button class="b" id="ts-pause" aria-pressed="false">Pause</button>
   <button class="b" id="ts-step" title="Step 0.1 s of sim time">Step</button>
   <span class="chip" id="ts-chip">real time</span>
-  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right." aria-label="Keyboard shortcuts and voting rules">?</button>
+  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right." aria-label="Keyboard shortcuts and voting rules">?</button>
+  <button class="b" id="ah-toggle" aria-pressed="true" title="Auto-hide the top bar while you scroll down, and fold the Java card list to numbers. Key H.">Auto-hide</button>
   <button class="b" id="tm-toggle" aria-pressed="true" aria-controls="teambar">Teams</button>
   <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset</button></span>
 </div>
@@ -313,7 +364,7 @@ ul.tree .ro{color:var(--muted);}
   <div class="labhead">
     <div>
       <h2>Java basics, the robot way</h2>
-      <p class="lede">Ten cards cover almost every line in an FTC OpMode, in the order you meet the words reading a file top to bottom. Each card has something to click. Every example comes from real robot code, not from a textbook.</p>
+      <p class="lede">Eleven cards cover almost every line in an FTC OpMode, in the order you meet the words reading a file top to bottom. Each card has something to click. Every example comes from real robot code, not from a textbook.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Java guesses from the name</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns.</div>
@@ -321,17 +372,18 @@ ul.tree .ro{color:var(--muted);}
   </div>
   <div class="jlayout">
     <nav class="jtopics" aria-label="Java topics">
-      <!-- order: the words a student meets reading MainTeleOp top to bottom, then the read-through, then imports before the clinic, the map last. Lists is off the nav for the day (pane kept). -->
+      <!-- order: the words a student meets reading MainTeleOp top to bottom (if and switch live inside the loop, after runOpMode), then the read-through, then imports before the clinic, the map last. Lists is off the nav for the day (pane kept). -->
       <button class="jt" data-jt="anatomy"><span>0</span> Anatomy of a file</button>
       <button class="jt" data-jt="classes"><span>1</span> Classes and objects</button>
       <button class="jt" data-jt="vars"><span>2</span> Types, final and static</button>
       <button class="jt" data-jt="private"><span>3</span> Robot.java: public and private</button>
-      <button class="jt" data-jt="inherit"><span>4</span> extends LinearOpMode</button>
-      <button class="jt" data-jt="scope"><span>5</span> Scope</button>
-      <button class="jt" data-jt="words"><span>6</span> Every word explained</button>
-      <button class="jt" data-jt="imports"><span>7</span> Imports</button>
-      <button class="jt" data-jt="errors"><span>8</span> Error clinic: fix it</button>
-      <button class="jt" data-jt="modules"><span>9</span> The project map</button>
+      <button class="jt" data-jt="inherit"><span>4</span> extends and @Override</button>
+      <button class="jt" data-jt="decide"><span>5</span> Decisions: if, else, switch</button>
+      <button class="jt" data-jt="scope"><span>6</span> Scope</button>
+      <button class="jt" data-jt="words"><span>7</span> Every word explained</button>
+      <button class="jt" data-jt="imports"><span>8</span> Imports</button>
+      <button class="jt" data-jt="errors"><span>9</span> Error clinic: fix it</button>
+      <button class="jt" data-jt="modules"><span>10</span> The project map</button>
     </nav>
     <div>
       <!-- anatomy -->
@@ -478,7 +530,7 @@ ul.tree .ro{color:var(--muted);}
             <div class="panel">
               <h3>Types, final and static</h3>
               <p>A <b>variable</b> is a named box that holds one value of one <b>type</b>. A <b>constant</b> is a box you lock with <code>final</code>: set once, never changed. Constants hold tuned numbers, so you change them in one place.</p>
-              <div style="overflow-x:auto"><table class="math" id="jv-types"></table></div>
+              <table class="types" id="jv-types"></table>
             </div>
           </div>
           <div class="stack">
@@ -529,16 +581,85 @@ ul.tree .ro{color:var(--muted);}
         <div class="grid2">
           <div class="stack">
             <div class="panel">
-              <h3>extends LinearOpMode</h3>
-              <p><code>MainTeleOp extends LinearOpMode</code> means: MainTeleOp gets everything LinearOpMode has, and LinearOpMode gets everything OpMode has. That is why you write <code>telemetry</code> and <code>gamepad1</code> without creating them.</p>
-              <p><code>@Override</code> on <code>runOpMode()</code> means: the SDK has a blank spot named runOpMode, and you fill it in.</p>
-              <p><b>Team rule:</b> extend LinearOpMode, and stop there. Do not build chains like <code>BaseAuto extends LinearOpMode</code>, <code>RedAuto extends BaseAuto</code>. Share code with one Robot object instead: a TeleOp <i>has a</i> Robot.</p>
+              <h3>extends and @Override</h3>
+              <p><b><code>extends</code> means "is a kind of".</b> <code>MainTeleOp extends LinearOpMode</code> says: MainTeleOp is a kind of LinearOpMode. It gets everything LinearOpMode has, and LinearOpMode gets everything OpMode has. That is why <code>telemetry</code>, <code>gamepad1</code> and <code>waitForStart()</code> work without you creating them.</p>
+              <p><b><code>@Override</code> means "replace the parent's version with mine".</b> LinearOpMode has a method called <code>runOpMode()</code> with nothing inside. When the driver presses INIT, the SDK calls <code>runOpMode()</code>. You write your own <code>runOpMode()</code>, and the SDK runs yours.</p>
+              <p>The <code>@</code> line is a note to the compiler: "check that the parent really has a method with this exact name". A typo then fails the build on your laptop, not the robot on the field. Try it below.</p>
+              <p><b>Team rule:</b> extend LinearOpMode, and stop there. No chains like <code>RedAuto extends BaseAuto extends LinearOpMode</code>. Share code with one Robot object instead: a TeleOp <i>has a</i> Robot.</p>
             </div>
             <pre class="code" id="jv-icode"></pre>
           </div>
           <div class="stack">
             <div class="panel"><h3>Where each word comes from <small>click a highlighted word in the code</small></h3><div id="jv-ichain" class="chain"></div></div>
-            <div class="msg" id="jv-imsg">Click <code>telemetry</code>, <code>gamepad1</code>, <code>waitForStart</code>, <code>opModeIsActive</code> or <code>runOpMode</code> in the code.</div>
+            <div class="msg" id="jv-imsg">Click <code>hardwareMap</code>, <code>telemetry</code>, <code>gamepad1</code>, <code>waitForStart</code>, <code>opModeIsActive</code>, <code>runOpMode</code> or <code>@Override</code> in the code.</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <h3>@Override, tried three ways <small>pick one, then read what Android Studio says</small></h3>
+          <div class="row" id="jv-ovbtns" style="margin-bottom:10px">
+            <button class="b" data-ov="0">1. Right name, with @Override</button>
+            <button class="b" data-ov="1">2. Typo, with @Override</button>
+            <button class="b" data-ov="2">3. Typo, no @Override (OpMode style)</button>
+          </div>
+          <div class="grid2" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+            <div class="ide"><pre class="code" id="jv-ovcode"></pre><div class="ide-problems" id="jv-ovprob"></div></div>
+            <div class="msg" id="jv-ovmsg">Pick a version.</div>
+          </div>
+        </div>
+      </div>
+      <!-- decisions: if, else, switch -->
+      <div class="jpane" data-jp="decide">
+        <div class="grid2">
+          <div class="stack">
+            <div class="panel">
+              <h3>Decisions: if, else if, else</h3>
+              <p>A <b>condition</b> is a question with a true or false answer, such as <code>stick &gt; 0.5</code>. Java checks the conditions top to bottom and runs the <b>first</b> block whose answer is true. It skips the rest. <code>else</code> runs when every question above said false.</p>
+              <div class="row" style="align-items:center; gap:12px">
+                <label class="field" style="flex:1 1 220px"><span>Left stick, pushed: <b>-gamepad1.left_stick_y</b></span><input type="range" id="jv-dstick" min="-1" max="1" step="0.01" value="0.3"></label>
+                <span class="stickval" id="jv-dval">0.30</span>
+              </div>
+              <div class="cond" id="jv-dcond"></div>
+            </div>
+            <pre class="code" id="jv-dcode"></pre>
+            <div class="msg" id="jv-dmsg"></div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <h3>Comparing: the answer is true or false</h3>
+              <table class="ops" id="jv-ops"></table>
+            </div>
+            <div class="panel">
+              <h3>Combining questions</h3>
+              <table class="ops" id="jv-logic"></table>
+              <div class="row" style="margin-top:10px">
+                <button class="b" id="jv-da" aria-pressed="false">gamepad1.a</button>
+                <button class="b" id="jv-dready" aria-pressed="false">launcherReady</button>
+              </div>
+              <div class="cond" id="jv-dlogic"></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <div class="stack">
+            <div class="panel">
+              <h3>switch: one case per state</h3>
+              <p>When one variable picks between many paths, <code>switch</code> reads cleaner than a long <code>else if</code> chain. Each <code>case</code> ends with <code>break</code>. Forget the <code>break</code> and Java keeps running into the next case.</p>
+              <div class="row" id="jv-swbtns"></div>
+              <label class="tg" style="display:inline-flex; margin-top:8px"><input type="checkbox" id="jv-swbrk"> Forget the break after SPINNING_UP</label>
+            </div>
+            <pre class="code" id="jv-swcode"></pre>
+            <div class="msg" id="jv-swmsg"></div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <h3>Four mistakes that compile, or almost</h3>
+              <div class="mistakes">
+                <div><code class="bad">if (balls = 3)</code><br>One <code>=</code> stores a value. Two <code>==</code> compare. Build error: <i>incompatible types: int cannot be converted to boolean</i>. Fix: <code class="good">if (balls == 3)</code></div>
+                <div><code class="bad">if (alliance == "RED")</code><br>For text, <code>==</code> asks "same object?", not "same letters?". It compiles and gives wrong answers. Fix: <code class="good">alliance.equals("RED")</code></div>
+                <div><code class="bad">if (power == 0.3)</code><br>Decimal math rounds a tiny bit: 0.1 + 0.2 is 0.30000000000000004. Ask "close enough" instead. Fix: <code class="good">Math.abs(power - 0.3) &lt; 0.01</code></div>
+                <div><code class="bad">if (stick &gt; 0.05) ... else if (stick &gt; 0.5)</code><br>The order matters. 0.8 passes the first test, so the second never runs. Fix: put the strictest test first.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -609,7 +730,7 @@ ul.tree .ro{color:var(--muted);}
       <div class="msg" id="lc-msg">Press INIT on the Driver Hub.</div>
     </div>
   </div>
-  <div class="grid2" style="margin-top:16px; grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+  <div class="stack" style="margin-top:16px">
     <div class="panel"><h3>State diagram <small>lights up as the OpMode runs</small></h3><svg class="diag" id="lc-sd" role="img" aria-label="OpMode state diagram"></svg></div>
     <div class="panel"><h3>A BIOBUZZ match <small>158 seconds, to scale</small></h3><svg class="diag" id="lc-tl" role="img" aria-label="Match timeline"></svg></div>
   </div>
@@ -724,31 +845,30 @@ ul.tree .ro{color:var(--muted);}
       <div class="a">The loop stops reading the gamepad. The robot keeps driving at the old power for 1.3 seconds and the drivers cannot steer. The state machine checks the launcher once per loop and moves on, so driving never stops.</div>
     </details>
   </div>
-  <div class="row" style="margin-bottom:14px">
+  <div class="row tcbar" id="ol-bar" style="margin-bottom:12px">
     <button class="b primary" id="ol-launch">Launch (gamepad2 right bumper)</button>
+    <span class="tcgrp"><button class="b" id="ol-pause" aria-pressed="false">Pause</button><button class="b" id="ol-reset">Reset run</button></span>
     <span class="chip" id="ol-errA">sleep version max error 0 in</span>
     <span class="chip" id="ol-errB">state machine max error 0 in</span>
   </div>
-  <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
-    <div class="stack">
-      <div class="panel">
-        <h3>sleep() version <small id="ol-stA"></small></h3>
-        <canvas id="ol-cA" height="230"></canvas>
-        <canvas id="ol-tA" height="54" style="margin-top:8px"></canvas>
-      </div>
-      <pre class="code" id="ol-codeA"></pre>
+  <div class="grid2 even">
+    <div class="panel">
+      <h3>sleep() version <small id="ol-stA"></small></h3>
+      <canvas id="ol-cA" height="160"></canvas>
+      <canvas id="ol-tA" height="54" style="margin-top:8px"></canvas>
     </div>
-    <div class="stack">
-      <div class="panel">
-        <h3>State machine version <small id="ol-stB"></small></h3>
-        <canvas id="ol-cB" height="230"></canvas>
-        <canvas id="ol-tB" height="54" style="margin-top:8px"></canvas>
-      </div>
-      <pre class="code" id="ol-codeB"></pre>
+    <div class="panel">
+      <h3>State machine version <small id="ol-stB"></small></h3>
+      <canvas id="ol-cB" height="160"></canvas>
+      <canvas id="ol-tB" height="54" style="margin-top:8px"></canvas>
     </div>
   </div>
-  <div class="panel" style="margin-top:16px"><h3>The right robot's state machine <small>the yellow box is the state right now</small></h3><svg class="diag" id="ol-sm" role="img" aria-label="Launcher state machine"></svg></div>
-  <p class="note">Tick marks = one pass through <code>while (opModeIsActive())</code>. A gap means nobody reads the gamepad. gm0: every hardware call holds a lock on the hub, so extra threads add delay and hide crashes. They never speed up the robot.</p>
+  <div class="panel" style="margin-top:12px"><h3>The right robot's state machine <small>yellow = the state right now. Each loop pass checks the state once, maybe moves on, then keeps driving.</small></h3><svg class="diag" id="ol-sm" role="img" aria-label="Launcher state machine"></svg></div>
+  <div class="grid2 even" style="margin-top:12px">
+    <pre class="code" id="ol-codeA"></pre>
+    <pre class="code" id="ol-codeB"></pre>
+  </div>
+  <p class="note">Tick marks = one pass through <code>while (opModeIsActive())</code>. A gap means nobody reads the gamepad. In the sim, <code>launcherReady()</code> turns true after 1.0 s of spin-up. gm0: every hardware call holds a lock on the hub, so extra threads add delay and hide crashes. They never speed up the robot.</p>
 </section>
 
 <!-- ============ 4 FEEDBACK ============ -->
@@ -759,7 +879,7 @@ ul.tree .ro{color:var(--muted);}
       <p class="lede">Both launchers fire POLLEN at the HIVE. Orange uses <code>setPower(0.8)</code>. Blue uses <code>setVelocity(1160)</code>, which reads the encoder and corrects. Drag the battery voltage or run a whole match.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. The hub firmware runs a PIDF loop for it: P, I and D as on tab 7, plus F, a feedforward that sizes the power for the target before any error shows up. Your own <code>PIDController</code> runs P, I and D for positions. Its F, when the job needs one, is a constant like the power that holds a lift against gravity (tab 7), not kF x target.</div>
+      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. Inside the hub, <code>setVelocity()</code> runs PIDF. F comes first: the hub knows 1160 ticks/s needs about 0.8 power, so F sends that power before any error shows. A correction from the encoder error fixes the rest, like the dip after a shot or a low battery. Tab 7 names the correction: P, I and D.</div>
     </details>
   </div>
   <div class="grid2">
@@ -804,8 +924,8 @@ ul.tree .ro{color:var(--muted);}
 <section class="lab" id="lab-encoders">
   <div class="labhead">
     <div>
-      <h2>Encoders: drive exactly 24 inches in AUTO</h2>
-      <p class="lede">The code turns inches into encoder counts. The real robot below has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels. If the numbers in your code do not match the hardware, the robot misses the line.</p>
+      <h2>Encoders: drive 24 inches in AUTO, and why it misses</h2>
+      <p class="lede">The code turns inches into encoder counts. The real robot below has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels. It misses the line for two reasons: constants that do not match the hardware, and wheels that slip. An encoder counts wheel turns, not robot motion.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Someone typed the wheel diameter as 3 instead of 4.09. Does the robot stop short or drive too far?</span><span class="vote" data-right="1"><button class="opt" type="button">Stops short</button><button class="opt" type="button">Drives too far</button><button class="opt" type="button">Same distance, the encoder measures real inches</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">Too far. A smaller diameter in code means more counts per inch, so the code asks for more counts than 24 real inches need. Always test: command 48 in, measure with a tape, fix the constant.</div>
@@ -834,6 +954,13 @@ ul.tree .ro{color:var(--muted);}
           <button class="b danger" id="en-stop">Press STOP</button>
           <label class="tg"><input type="checkbox" id="en-bug"> Bug: loop without <code>opModeIsActive()</code></label>
         </div>
+        <div class="row" style="margin-top:10px; align-items:center">
+          <span class="note">Move:</span>
+          <button class="b" id="en-fwd" aria-pressed="true">Forward</button>
+          <button class="b" id="en-strafe" aria-pressed="false">Strafe right</button>
+          <label class="field" style="flex:1 1 180px"><span>Floor slip: <b id="en-slipv">0%</b> <small class="note">strafing slips 2.5x more</small></span><input type="range" id="en-slip" min="0" max="15" step="1" value="0"></label>
+          <label class="tg"><input type="checkbox" id="en-ramp"> Ramp the power up over 0.5 s</label>
+        </div>
         <div class="msg" id="en-msg" style="margin-top:10px">Press INIT + START.</div>
       </div>
       <pre class="code" id="en-code"></pre>
@@ -845,6 +972,16 @@ ul.tree .ro{color:var(--muted);}
         <dl class="kv" style="margin-top:10px" id="en-kv"></dl>
       </div>
       <div class="panel"><h3>Inside the encoder <small>counts turn into inches</small></h3><canvas id="en-wheel" height="200"></canvas></div>
+      <div class="panel">
+        <h3>When AUTO misses: fix it in this order <small>cheapest first</small></h3>
+        <ol class="tight">
+          <li><b>Check the constants with a tape.</b> Command 48 in, measure, fix COUNTS_PER_INCH. Strafing needs its own constant. Free.</li>
+          <li><b>Ramp the power.</b> A sudden start spins the wheels in place. One line in the loop. Free.</li>
+          <li><b>Hold the heading with the IMU.</b> The same PIDController from tab 7 steers while you drive: error = target heading - IMU heading. SDK sample: RobotAutoDriveByGyro_Linear. Free.</li>
+          <li><b>Odometry: goBILDA Pinpoint.</b> Two unpowered pods that do not slip, plus an IMU. The SDK has the driver (GoBildaPinpointDriver, sample SensorGoBildaPinpoint). It gives X, Y and heading. About $280 with pods.</li>
+        </ol>
+        <p class="note" style="margin-top:8px">Not this season: Road Runner and Pedro Pathing. LEAVE + PARK needs two moves and a turn. AprilTags cannot fix position this year: BIOBUZZ tags move (SDK 12.0 notes), so use them for aiming at the HIVE only.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -854,10 +991,10 @@ ul.tree .ro{color:var(--muted);}
   <div class="labhead">
     <div>
       <h2>PID control: one class, every sensor</h2>
-      <p class="lede">A PID controller turns an error (how far you are from the target) into motor power. P pushes toward the target, D brakes before you overshoot, I fixes what is left over. F, the fourth letter in PIDF, adds what you know before any error shows: the power a lift needs to hold against gravity. Pick a job below: the PID code stays the same. Only the sensor, the error, and the 3 numbers change, 4 on the lift.</p>
+      <p class="lede">A PID controller turns an error (how far you are from the target) into motor power. P pushes toward the target, D brakes before you overshoot, I fixes what is left over. Pick a job below: the PID code stays the same. Only the sensor, the error and the 3 numbers change. The lift adds a 4th number, kF: power you send before any error shows, because gravity always pulls.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift holds 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Gravity needs about 18% power just to hold the lift. With P only, the motor gets that power only when the error is big enough: error x kP = 0.18. So the lift settles where the error makes exactly enough power, below the target. The I term adds up the leftover error over time and supplies the missing power. The other fix is F, the feedforward in PIDF: add 0.18 power all the time, before any error exists. F acts at once, I has to wait for the error to add up. On the real lift, measure F first (the power that just holds the lift), then tune P and D, and keep I small or zero.</div>
+      <div class="a">Gravity needs about 0.18 power to hold the lift still. With P only, the motor gets that power only from an error: error x kP = 0.18. So the lift stops where the error makes exactly 0.18, below the target. I adds up the leftover error over time until the power reaches 0.18. I is the answer. Now pick the lift job and watch the shortcut: F adds the 0.18 from the first loop pass, before any error.</div>
     </details>
   </div>
   <div class="row" style="margin-bottom:14px" role="tablist" aria-label="PID application">
@@ -890,14 +1027,15 @@ ul.tree .ro{color:var(--muted);}
       <div class="panel">
         <h3>How to tune <small>trial and error, in this order</small></h3>
         <ol class="tight">
+          <li>Lift or arm only: find F first. Set kP, kI and kD to 0. Raise kF until the lift holds still wherever you leave it. That number cancels gravity.</li>
           <li>Set kI and kD to 0. Raise kP until the robot reaches the target fast and overshoots a little.</li>
           <li>Raise kD until the overshoot and wobble stop. Too much D makes the motion slow and jittery.</li>
-          <li>If it stops short against gravity, add F: the constant power that just holds the load (the lift job has the slider). If it stops short from friction, add a small kI and watch the I line grow on the chart. The class builds I only near the target, so I cannot pile up during a long move and push past the target (windup).</li>
+          <li>If it still stops short (friction, a heavier load), add a small kI and watch the I line grow on the chart. The class builds I only near the target, so I cannot pile up during a long move and push past the target (windup).</li>
           <li>Test 5 times in a row. Write the numbers in <code>Robot.java</code> and commit with what you tested.</li>
         </ol>
       </div>
       <div class="panel">
-        <h3>The class you reuse <small>PIDController.java: P, I and D. F is one line where you use it, because F depends on the job</small></h3>
+        <h3>The class you reuse <small>PIDController.java: P, I and D from the error. F needs no error, so you add F in the OpMode</small></h3>
         <pre class="code" id="pid-class"></pre>
       </div>
     </div>
@@ -917,9 +1055,9 @@ ul.tree .ro{color:var(--muted);}
         <p class="note" style="margin-top:6px">"Response time" is a loose word. Some people mean rise time, others mean settling time. Say which one you mean.</p>
       </div>
       <div class="panel">
-        <h3>What each term asks for <small>power, -1 to 1, P + I + D (+ F on the lift), same time window as above</small></h3>
+        <h3>What each term asks for <small>power, -1 to 1: P + I + D, plus F on the lift. Same time window as above</small></h3>
         <canvas id="pid-plot2" height="200"></canvas>
-        <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>P = kP x error</span><span><i style="background:var(--pollen)"></i>I = kI x sum of error</span><span><i style="background:var(--red)"></i>D = kD x error change</span><span><i style="background:var(--ok)"></i>F = kF (lift only)</span><span><i style="background:var(--ink)"></i>output</span></div>
+        <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>P = kP x error</span><span><i style="background:var(--pollen)"></i>I = kI x sum of error</span><span><i style="background:var(--red)"></i>D = kD x error change</span><span><i style="background:var(--ok)"></i>F = kF, the hold power (lift only)</span><span><i style="background:transparent; border-top:2px dashed var(--muted); height:0"></i>gravity needs (lift only)</span><span><i style="background:var(--ink)"></i>output</span></div>
       </div>
       <div class="panel">
         <h3>Using it for this job</h3>
@@ -972,7 +1110,7 @@ ul.tree .ro{color:var(--muted);}
   <div class="panel"><svg class="diag" id="gx-org" role="img" aria-label="Organization, repos, laptops, robot and Onshape"></svg></div>
 
   <h3 class="parthead"><span>C</span> One pull request, start to finish</h3>
-  <div class="grid2" style="grid-template-columns:minmax(0,1.5fr) minmax(0,0.8fr)">
+  <div class="grid2" style="grid-template-columns:minmax(0,1.9fr) minmax(0,0.8fr)">
     <div class="panel"><svg class="diag" id="gx-pr" role="img" aria-label="Pull request loop"></svg></div>
     <div class="stack">
       <div class="panel">
@@ -1523,7 +1661,8 @@ const MC = (function(){
 const OL = (function(){
   const codeA = [
     "while (opModeIsActive()) {",
-    "    robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);",
+    "    robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x,",
+    "                gamepad1.right_stick_x);",
     "    if (gamepad2.right_bumper) {",
     "        robot.launcherOn();",
     "        sleep(1000);          // wait for spin-up",
@@ -1536,18 +1675,27 @@ const OL = (function(){
   ];
   const codeB = [
     "while (opModeIsActive()) {",
-    "    robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);",
+    "    robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x,",
+    "                gamepad1.right_stick_x);",
     "    switch (launchState) {",
     "        case IDLE:",
-    "            if (gamepad2.rightBumperWasPressed()) launchState = LaunchState.SPINNING_UP;",
+    "            if (gamepad2.rightBumperWasPressed()) {",
+    "                launchState = LaunchState.SPINNING_UP;",
+    "            }",
     "            break;",
     "        case SPINNING_UP:",
     "            robot.launcherOn();",
-    "            if (robot.launcherReady()) { feedTimer.reset(); launchState = LaunchState.FEEDING; }",
+    "            if (robot.launcherReady()) {",
+    "                feedTimer.reset();",
+    "                launchState = LaunchState.FEEDING;",
+    "            }",
     "            break;",
     "        case FEEDING:",
     "            robot.feederOn();",
-    "            if (feedTimer.seconds() > 0.3) { robot.feederOff(); launchState = LaunchState.IDLE; }",
+    "            if (feedTimer.seconds() > 0.3) {",
+    "                robot.feederOff();",
+    "                launchState = LaunchState.IDLE;",
+    "            }",
     "            break;",
     "    }",
     "    telemetry.update();",
@@ -1555,14 +1703,18 @@ const OL = (function(){
   ];
   renderCode($("#ol-codeA"), codeA); renderCode($("#ol-codeB"), codeB);
   let T = 0;
-  function mk(){ return {x: 0, y: 0, vx: 0, vy: 0, cx: 0, cy: 0, loops: [], block: 0, blockLine: -1, state: "IDLE", st: 0, maxErr: 0, nextLoop: 0, launched: false}; }
-  let A = mk(), B = mk(), W = 300, H = 230, init = false;
+  function mk(){ return {x: 0, y: 0, vx: 0, vy: 0, cx: 0, cy: 0, loops: [], block: 0, blockLine: -1, state: "IDLE", st: 0, maxErr: 0, nextLoop: 0}; }
+  let A = mk(), B = mk(), W = 300, H = 160, init = false;
   function target(t){ return {x: W / 2 + (W * 0.36) * Math.sin(t * 0.7), y: H / 2 + (H * 0.3) * Math.sin(t * 1.4)}; }
   $("#ol-launch").addEventListener("click", () => {
-    if (A.block <= 0) { A.block = 1.3; A.blockStart = T; }
-    if (B.state === "IDLE"){ B.state = "SPINNING_UP"; B.st = 0; }
+    if (A.block > 0 || B.state !== "IDLE") return;   // a click mid-launch would zero the error chips while the sleep robot is still locked out
+    A.block = 1.3; B.state = "SPINNING_UP"; B.st = 0;
     A.maxErr = 0; B.maxErr = 0;
   });
+  // Reset run clears this tab only: robots, loop ticks, states, error chips. Sim time, speed and Pause stay as they are, like Reset run on tabs 6 and 7.
+  function reset(){ T = 0; A = mk(); B = mk(); init = false; tick(0); DG.stateMachine(true); }
+  $("#ol-reset").addEventListener("click", reset);
+  $("#ol-pause").addEventListener("click", () => window.__setPause(!TIME.paused));
   function loopPass(R, tg){
     // driver steers toward target: one pass reads the gamepad and sets motor power
     const dx = tg.x - R.x, dy = tg.y - R.y;
@@ -1575,7 +1727,7 @@ const OL = (function(){
     // A: sleep version
     if (A.block > 0){
       A.block -= dt;
-      A.blockLine = (1.3 - A.block) < 1.0 ? 4 : 6;
+      A.blockLine = (1.3 - A.block) < 1.0 ? 5 : 7;   // the two sleep() lines in codeA
       if (A.block <= 0){ A.block = 0; A.blockLine = -1; }
     } else if (T >= A.nextLoop){ loopPass(A, tg); A.nextLoop = T + 0.02; }
     // B: state machine, loop always runs
@@ -1595,7 +1747,7 @@ const OL = (function(){
     }
   }
   function tick(dt){
-    const c = $("#ol-cA"); W = c.clientWidth || 300; H = c.clientHeight || 230;
+    const c = $("#ol-cA"); W = c.clientWidth || 300; H = c.clientHeight || 160;
     if (!init){ const tg = target(0); A.x = B.x = tg.x; A.y = B.y = tg.y; init = true; }
     const n = Math.max(1, Math.round(dt / 0.005));
     for (let i = 0; i < n; i++) step(dt / n);
@@ -1608,7 +1760,7 @@ const OL = (function(){
     ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = P.pollen; ctx.beginPath(); ctx.arc(tg.x, tg.y, 9, 0, Math.PI * 2); ctx.fill();
     drawRobot(ctx, R.x, R.y, 0, 30, {body: blocked ? alpha(P.red, 0.25) : alpha(P.accent, 0.2), edge: blocked ? P.red : P.accent});
-    if (blocked){ const rightSide = R.x < w - 160; text(ctx, "drivers locked out", rightSide ? R.x + 20 : R.x - 20, R.y - 18, {color: P.red, weight: "600", align: rightSide ? "left" : "right"}); }
+    if (blocked){ const rightSide = R.x < w / 2; text(ctx, "drivers locked out", rightSide ? R.x + 20 : R.x - 20, R.y - 18, {color: P.red, weight: "600", align: rightSide ? "left" : "right"}); }
   }
   function drawTicks(cv, R, gapColor){
     const {ctx, w, h} = fit(cv);
@@ -1625,17 +1777,18 @@ const OL = (function(){
     const tg = target(T);
     drawLane($("#ol-cA"), A, tg, A.block > 0); drawLane($("#ol-cB"), B, tg, false);
     drawTicks($("#ol-tA"), A); drawTicks($("#ol-tB"), B);
-    markLines($("#ol-codeA"), A.block > 0 ? [A.blockLine] : [0, 1], A.block > 0 ? [A.blockLine] : []);
-    const lineB = {IDLE: [3, 4], SPINNING_UP: [6, 7, 8], FEEDING: [10, 11, 12]}[B.state];
-    markLines($("#ol-codeB"), [1].concat(lineB), []);
+    markLines($("#ol-codeA"), A.block > 0 ? [A.blockLine] : [0, 1, 2], A.block > 0 ? [A.blockLine] : []);
+    const lineB = {IDLE: [4, 5, 6, 7, 8], SPINNING_UP: [9, 10, 11, 12, 13, 14, 15], FEEDING: [16, 17, 18, 19, 20, 21, 22]}[B.state];   // case label through break
+    markLines($("#ol-codeB"), [1, 2].concat(lineB), []);
     $("#ol-stA").textContent = A.block > 0 ? "stuck in sleep()" : "looping";
     $("#ol-stB").textContent = "launchState = " + B.state;
     $("#ol-errA").textContent = "sleep version max error " + A.maxErr.toFixed(0) + " in";
     $("#ol-errA").className = "chip " + (A.maxErr > 12 ? "bad" : "");
     $("#ol-errB").textContent = "state machine max error " + B.maxErr.toFixed(0) + " in";
     $("#ol-errB").className = "chip " + (B.maxErr > 12 ? "bad" : "ok");
+    const pb = $("#ol-pause"); pb.textContent = TIME.paused ? "Resume" : "Pause"; pb.setAttribute("aria-pressed", TIME.paused ? "true" : "false");
   }
-  return {tick, show: () => {}, get: () => ({state: B.state, blocked: A.block > 0})};
+  return {tick, reset, show: () => {}, get: () => ({state: B.state, blocked: A.block > 0})};
 })();
 
 /* =====================================================================
@@ -1828,7 +1981,7 @@ function TimeChart(o){
 
 const FB = (function(){
   renderCode($("#fb-codeA"), ["// open loop", "launcher.setPower(0.8);", "// speed depends on battery"]);
-  renderCode($("#fb-codeB"), ["// closed loop (encoder)", "launcher.setVelocity(1160);", "// hub runs PIDF, F = feedforward"]);
+  renderCode($("#fb-codeB"), ["// closed loop (encoder)", "launcher.setVelocity(1160);", "// hub: F sends the usual power for 1160,", "// P, I and D fix the encoder error"]);
   const KV = 116, TAU = 0.35, TARGET = 1160, LO = 1120, HI = 1200;
   let T = 0, V = 12.5, match = null, queue = [];
   const o = {w: 0}, c = {w: 0, i: 0}; let lastU = 0;
@@ -1866,7 +2019,7 @@ const FB = (function(){
     while (queue.length && queue[0] <= T){ queue.shift(); feed(); }
     // open loop
     o.w += (KV * V * 0.8 - o.w) * (dt / TAU);
-    // closed loop: feedforward tuned at 12 V + P + I, with the same I-zone as the PID tab
+    // closed loop: F (the power for 1160 at 12 V) + P + I from the error, I-zone as on the PID tab
     const err = TARGET - c.w;
     if (Math.abs(0.004 * err) < 0.35) c.i = clamp(c.i + err * dt, -400, 400); else c.i = 0;
     const u = clamp(TARGET / (KV * 12) + 0.004 * err + 0.003 * c.i, 0, 1); lastU = u;
@@ -1960,7 +2113,7 @@ const FB = (function(){
       chip("launcherReady() = " + ready, ready ? "ok" : "warn") +
       chip("battery " + V.toFixed(1) + " V", "");
   }
-  return {tick, show: () => {}, get: () => ({V, o: o.w, c: c.w, u: lastU}), chart: CH};
+  return {tick, show: () => {}, get: () => ({V, o: o.w, c: c.w, u: lastU, ff: TARGET / (KV * 12)}), chart: CH};
 })();
 
 /* =====================================================================
@@ -1988,21 +2141,46 @@ const EN = (function(){
   renderFormula();
   const code = [
     "private void driveInches(double inches, double power) {",
-    "    robot.startDriveInches(inches, power);   // setTargetPosition + RUN_TO_POSITION",
+    "    robot.startDriveInches(inches, power);   // RUN_TO_POSITION",
     "    while (opModeIsActive() && robot.driveBusy()) {",
     "        telemetry.addData(\"Driving\", \"%.0f in\", inches);",
     "        telemetry.update();",
     "    }",
-    "    robot.finishDrive();                     // power 0, RUN_USING_ENCODER",
+    "    robot.finishDrive();   // power 0, RUN_USING_ENCODER",
     "}"
   ];
-  const codeBug = code.slice(); codeBug[2] = "    while (robot.driveBusy()) {             // no opModeIsActive()!";
-  function renderC(){ renderCode($("#en-code"), $("#en-bug").checked ? codeBug : code); }
-  $("#en-bug").addEventListener("change", renderC); renderC();
+  // the ramp version: start slow, then raise the power each loop pass until it reaches full power after 0.5 s
+  const codeRamp = [
+    "private void driveInches(double inches, double power) {",
+    "    robot.startDriveInches(inches, 0.1);   // start slow",
+    "    rampTimer.reset();",
+    "    while (opModeIsActive() && robot.driveBusy()) {",
+    "        double ramped = power * rampTimer.seconds() / 0.5;",
+    "        robot.setDrivePower(Range.clip(ramped, 0.1, power));",
+    "        telemetry.update();",
+    "    }",
+    "    robot.finishDrive();   // power 0, RUN_USING_ENCODER",
+    "}"
+  ];
+  let lines = code;
+  function renderC(){
+    lines = ($("#en-ramp").checked ? codeRamp : code).slice();
+    if ($("#en-bug").checked){ const w = lines.findIndex(l => l.includes("while (")); lines[w] = "    while (robot.driveBusy()) {             // no opModeIsActive()!"; }
+    renderCode($("#en-code"), lines);
+  }
+  const W_LINE = () => lines.findIndex(l => l.includes("while (")), F_LINE = () => lines.findIndex(l => l.includes("finishDrive"));
+  $("#en-bug").addEventListener("change", renderC); $("#en-ramp").addEventListener("change", renderC); renderC();
+  // floor slip and move direction: an encoder counts wheel turns, the tape measures the robot
+  let strafe = false;
+  const slipBase = () => (+$("#en-slip").value / 100) * (strafe ? 2.5 : 1);
+  const setDir = v => { strafe = v; $("#en-fwd").setAttribute("aria-pressed", v ? "false" : "true"); $("#en-strafe").setAttribute("aria-pressed", v ? "true" : "false"); };
+  $("#en-fwd").addEventListener("click", () => setDir(false));
+  $("#en-strafe").addEventListener("click", () => setDir(true));
+  $("#en-slip").addEventListener("input", () => { $("#en-slipv").textContent = $("#en-slip").value + "%"; });
   function setMsg(t, cls){ msg.textContent = t; msg.className = "msg " + (cls || ""); }
   $("#en-run").addEventListener("click", () => {
     const c = cfg();
-    st = {phase: "drive", ticks: 0, target: c.target, power: 0, stopAt: -1, t: 0, posIn: 0, want: c.dist};
+    st = {phase: "drive", ticks: 0, target: c.target, power: 0, stopAt: -1, t: 0, posIn: 0, want: c.dist, strafe, ramp: $("#en-ramp").checked};
     setMsg("Driving: RUN_TO_POSITION runs the motors until the encoder reaches " + c.target + " counts.", "");
   });
   $("#en-stop").addEventListener("click", () => {
@@ -2022,13 +2200,19 @@ const EN = (function(){
       const remaining = st.target - st.ticks;
       st.power = clamp(remaining / 300, -0.5, 0.5);
       if (Math.abs(st.power) < 0.06 && Math.abs(remaining) > 5) st.power = Math.sign(remaining) * 0.06;
-      st.ticks += st.power * 2400 * dt;
-      st.posIn = st.ticks / REAL_CPI;
+      if (st.ramp) st.power = Math.sign(st.power) * Math.min(Math.abs(st.power), Math.max(0.1, 0.5 * st.t / 0.5));
+      // Slip: the wheel turns (the encoder counts it) but the robot does not move as far. A sudden start adds slip
+      // for the first 0.3 s; teaching numbers, not measured ones.
+      const slip = clamp(slipBase() + (!st.ramp && st.t < 0.3 && slipBase() > 0 ? 0.35 : 0), 0, 0.8);
+      const dTicks = st.power * 2400 * dt;
+      st.ticks += dTicks;
+      st.posIn += (dTicks / REAL_CPI) * (1 - slip);
       if (Math.abs(st.target - st.ticks) <= 5){
         st.phase = "done"; st.power = 0;
-        const miss = st.posIn - st.want;
+        const encIn = st.ticks / REAL_CPI, constMiss = encIn - st.want, slipMiss = st.posIn - encIn, miss = st.posIn - st.want;
         if (Math.abs(miss) < 0.5) setMsg("driveBusy() went false at " + Math.round(st.ticks) + " counts. The robot stopped on the line.", "ok");
-        else setMsg("The encoder hit its target, but the robot is " + Math.abs(miss).toFixed(1) + " in " + (miss > 0 ? "past" : "short of") + " the line. The constants in code do not match the real robot.", "bad");
+        else if (Math.abs(slipMiss) >= 0.5 && Math.abs(constMiss) < 0.5) setMsg("The encoder reached " + Math.round(st.ticks) + " counts, so driveBusy() went false. The tape says " + st.posIn.toFixed(1) + " in, not " + st.want + ". The wheels slipped" + (st.strafe ? " (strafing slips more)" : "") + ". An odometry pod would read " + st.posIn.toFixed(1) + " in, because it rolls with the robot.", "bad");
+        else setMsg("The encoder hit its target, but the robot is " + Math.abs(miss).toFixed(1) + " in " + (miss > 0 ? "past" : "short of") + " the line. " + (Math.abs(constMiss) >= 0.5 ? "The constants in code do not match the real robot." : "") + (Math.abs(slipMiss) >= 0.5 ? " The wheels slipped too." : ""), "bad");
       }
     } else if (st.phase === "stuck"){
       st.power = 0; st.t2 += dt;
@@ -2045,7 +2229,7 @@ const EN = (function(){
     const want = st.phase === "idle" ? c.dist : st.want;
     ctx.strokeStyle = P.ok; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(L + want * sc, 24); ctx.lineTo(L + want * sc, h - 26); ctx.stroke();
     text(ctx, "target " + want + " in", L + want * sc + 6, 22, {color: P.ok, weight: "600"});
-    drawRobot(ctx, L + st.posIn * sc, y, -Math.PI / 2, clamp(18 * sc, 30, h * 0.42), {body: st.phase === "crashed" ? alpha(P.red, 0.3) : undefined});
+    drawRobot(ctx, L + st.posIn * sc, y, (st.phase === "idle" ? strafe : st.strafe) ? 0 : -Math.PI / 2, clamp(18 * sc, 30, h * 0.42), {body: st.phase === "crashed" ? alpha(P.red, 0.3) : undefined});   // strafe: front faces up, robot slides right
     const busy = st.phase === "drive";
     $("#en-kv").innerHTML =
       "<dt>currentPosition</dt><dd>" + Math.round(st.ticks) + " counts</dd>" +
@@ -2053,11 +2237,14 @@ const EN = (function(){
       "<dt>driveBusy()</dt><dd>" + busy + "</dd>" +
       "<dt>opModeIsActive()</dt><dd>" + !(st.phase === "stuck" || st.phase === "stopped" || st.phase === "crashed") + "</dd>" +
       "<dt>motor power</dt><dd>" + st.power.toFixed(2) + "</dd>" +
-      "<dt>real distance</dt><dd>" + st.posIn.toFixed(1) + " in</dd>";
+      "<dt>encoder says</dt><dd>" + (st.ticks / REAL_CPI).toFixed(1) + " in</dd>" +
+      "<dt>tape measure (real)</dt><dd>" + st.posIn.toFixed(1) + " in</dd>" +
+      "<dt>odometry pod says</dt><dd>" + st.posIn.toFixed(1) + " in</dd>";
     let hlL = [];
-    if (st.phase === "drive") hlL = [2, 3, 4];
-    else if (st.phase === "done" || st.phase === "stopped") hlL = [6];
-    markLines($("#en-code"), hlL, (st.phase === "stuck" || st.phase === "crashed") ? [2] : []);
+    const wl = W_LINE(), fl = F_LINE();
+    if (st.phase === "drive") hlL = lines.map((_, i) => i).filter(i => i > wl && i < fl - 1).concat([wl]);
+    else if (st.phase === "done" || st.phase === "stopped") hlL = [fl];
+    markLines($("#en-code"), hlL, (st.phase === "stuck" || st.phase === "crashed") ? [wl] : []);
   }
   return {tick, show: () => {}, get: () => ({ticks: st.ticks, posIn: st.posIn, realCpr: REAL_CPR, realDia: REAL_DIA})};
 })();
@@ -2089,11 +2276,11 @@ const PIDLAB = (function(){
       desc: "A linear slide moves to preset heights. Sensor: the lift motor's encoder, converted to inches. Error = target height - lift height. Gravity pulls down the whole time.",
       unit: "in", targets: [4, 14, 26], tol: 0.3, yr: [0, 30], clip: 1,
       range: {kp: [0, 0.5, 0.005], ki: [0, 0.5, 0.005], kd: [0, 0.05, 0.0005]},
-      presets: {"P only": [0.1, 0, 0], "P too high": [0.35, 0, 0], "PD": [0.1, 0, 0.012], "PID (tuned)": [0.12, 0.25, 0.015]},
+      presets: {"P only": [0.1, 0, 0, 0], "P too high": [0.35, 0, 0, 0], "PD": [0.1, 0, 0.012, 0], "PID (tuned)": [0.12, 0.25, 0.015, 0], "PD + F (tuned)": [0.12, 0, 0.015, 0.18]},
       start: "P only"
     }
   };
-  for (const k in APPS) APPS[k].gains = APPS[k].presets[APPS[k].start].slice();
+  for (const k in APPS) APPS[k].gains = APPS[k].presets[APPS[k].start].slice(0, 3);   // a 4th preset number is kF, lift only
   let app = "turn";
   const kp = $("#pid-kp"), ki = $("#pid-ki"), kd = $("#pid-kd");
   const pOn = $("#pid-pon"), iOn = $("#pid-ion"), dOn = $("#pid-don");
@@ -2153,13 +2340,15 @@ const PIDLAB = (function(){
     $$("#pid-targets [data-tg]").forEach(b => b.addEventListener("click", () => newTarget(+b.dataset.tg)));
     $("#pid-presets").innerHTML = '<span class="note">Presets:</span>' + Object.keys(A.presets).map(n => '<button class="b" data-ps="' + n + '">' + n + "</button>").join("");
     $$("#pid-presets [data-ps]").forEach(b => b.addEventListener("click", () => {
-      A.gains = A.presets[b.dataset.ps].slice(); pOn.checked = iOn.checked = dOn.checked = true; setSliders();
+      const pv = A.presets[b.dataset.ps];
+      A.gains = pv.slice(0, 3); pOn.checked = iOn.checked = dOn.checked = true; setSliders();
+      if (app === "lift" && pv[3] !== undefined){ S.lift.kf = pv[3]; $("#pid-kf").value = pv[3]; $("#pid-kfv").textContent = pv[3].toFixed(2); renderUse(); }
       if (app === "aim"){ resetAim(); } else newTarget(app === "turn" ? (S.target === 90 ? 0 : 90) : (S.target === 14 ? 26 : 14));
     }));
     let ex = "";
     if (app === "turn") ex = '<button class="b" id="pid-bump">Bump the robot</button>';
     if (app === "aim") ex = '<button class="b" id="pid-hold" aria-pressed="false">Hold aim button (gamepad1 right bumper)</button><label class="tg"><input type="checkbox" id="pid-strafe"> Driver strafes side to side</label><label class="tg"><input type="checkbox" id="pid-noise" checked> Camera noise and delay</label><button class="b" id="pid-move">Move the target</button>';
-    if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>F, the feedforward: kF = <b id="pid-kfv"></b> <small class="note">constant power against gravity, no error needed</small></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
+    if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>kF, the hold power: <b id="pid-kfv"></b> <small class="note">F = kF every pass. Find the power that holds the lift still.</small></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
     $("#pid-extras").innerHTML = ex;
     const bump = $("#pid-bump");
     if (bump) bump.addEventListener("click", () => { if (app === "turn"){ S.turn.w += 220; S.done = false; S.m.settledAt = -1; } else S.lift.v -= 30; });
@@ -2310,11 +2499,11 @@ const PIDLAB = (function(){
       "if (gamepad2.dpad_up && liftTarget != 26) { liftTarget = 26; liftPID.reset(); }",
       "if (gamepad2.dpad_down && liftTarget != 4) { liftTarget = 4; liftPID.reset(); }",
       "double error = liftTarget - robot.liftInches();   // encoder counts / COUNTS_PER_INCH",
-      "double power = liftPID.update(error);               // P + I + D",
-      "power = power + " + S.lift.kf.toFixed(2) + ";                             // F: holds the lift against gravity. The F in PIDF",
+      "double power = liftPID.update(error);   // P + I + D, from the error",
+      "power = power + " + S.lift.kf.toFixed(2) + ";                 // F: the power that holds the lift still. No error needed",
       "robot.setLiftPower(Range.clip(power, -1, 1));",
-      "// F is one line here, not inside the class: a lift F is a constant, an arm F is kG x cos(angle),",
-      "// a flywheel F is kF x target speed (the hub does that one), and a turn has no F at all."
+      "// F = kF x what you already know. Lift: kF. Arm: kF x cos(angle).",
+      "// Launcher: kF x target speed (the hub does it). Turn: no F."
     ];
     renderCode($("#pid-use"), L);
   }
@@ -2323,8 +2512,8 @@ const PIDLAB = (function(){
     ["Turn to a heading in AUTO", "IMU", "target - heading (deg)", "Normalize the angle, or 179 to -179 spins the long way"],
     ["Hold heading while strafing", "IMU", "same as above", "Keeps the launcher pointed at the HIVE during field-centric driving"],
     ["Auto-aim on a button", "Camera: AprilTag bearing or Limelight tx", "bearing (deg)", "Camera data is late and noisy: PD is enough, I adds overshoot"],
-    ["Lift, arm or pivot to a preset", "Motor encoder", "target - position", "Gravity: F = a constant (lift) or kG x cos(angle) (arm). Then a small kI if needed"],
-    ["Launcher speed", "Motor encoder velocity", "target - velocity", "setVelocity() already runs PIDF on the hub (tab 6)"],
+    ["Lift, arm or pivot to a preset", "Motor encoder", "target - position", "Gravity: F = kF (lift) or kF x cos(angle) (arm). Find kF first, then P and D"],
+    ["Launcher speed", "Motor encoder velocity", "target - velocity", "setVelocity() runs PIDF on the hub: F = kF x target speed (tab 6)"],
     ["Park at a distance from a wall", "REV 2m distance sensor", "distance - target", "Same class, different numbers"]
   ].map(r => "<tr><td>" + r.map(esc).join("</td><td>") + "</td></tr>").join("");
 
@@ -2472,8 +2661,10 @@ const PIDLAB = (function(){
       ctx.fillStyle = alpha(P.accent, 0.25); ctx.strokeStyle = P.accent; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.roundRect(railX - 30, cy - 22, 60, 22, 4); ctx.fill(); ctx.stroke();
       if (L.heavy){ for (let k = 0; k < 3; k++){ ctx.fillStyle = P.pollen; ctx.beginPath(); ctx.arc(railX - 16 + k * 16, cy - 30, 7, 0, Math.PI * 2); ctx.fill(); } }
+      const gv = L.heavy ? 0.3 : 0.18;   // same gravity as the physics step
       arrow(ctx, railX + 48, cy - 16, railX + 48, cy + 14, P.red, 3);
-      text(ctx, "gravity", railX + 56, cy + 4, {color: P.red, size: 11});
+      text(ctx, "gravity " + gv.toFixed(2), railX + 76, cy - 22, {color: P.red, size: 12, weight: "600"});
+      if (L.kf > 0){ arrow(ctx, railX + 64, cy + 14, railX + 64, cy + 14 - 30 * Math.min(2, L.kf / gv), P.ok, 3); text(ctx, "F " + L.kf.toFixed(2), railX + 76, cy + 22, {color: P.ok, size: 12, weight: "600"}); }
       text(ctx, "height " + L.p.toFixed(2) + " in", 10, h - 4, {color: P.muted, size: 12});
     }
     plot1(); plot2();
@@ -2525,7 +2716,7 @@ const PIDLAB = (function(){
     row(P.red, "Overshoot", r.os > 0 ? Math.round(r.os * 100) + "% (" + (r.os * Math.abs(r.e0)).toFixed(1) + " " + u + ")" : "none", "How far it went past the target, as a part of the whole move. Lower kP or raise kD to shrink it.");
     row(P.red, "Peak time", r.os > 0 ? f(r.tp - r.tS) : "--", "When the overshoot was biggest.");
     row(P.ok, "Settling time (band +/-" + r.band.toFixed(1) + " " + u + ")", r.ts !== null ? f(r.ts - r.tS) : "not settled", "From the start until it enters the green band and stays there. This number decides how fast you score.");
-    row(P.ink, "Steady-state error (offset)", r.off !== null ? r.off.toFixed(2) + " " + u : "wait 1.5 s", "Where it ends up compared to the target (mean of the last 0.5 s). Friction or gravity cause it. kI or feedforward fixes it.");
+    row(P.ink, "Steady-state error (offset)", r.off !== null ? r.off.toFixed(2) + " " + u : "wait 1.5 s", "Where it ends up compared to the target (mean of the last 0.5 s). Friction or gravity cause it. kI or F fixes it.");
     $("#pid-resp").innerHTML = "<tr><th>Marker</th><th>This move</th><th>What it means</th></tr>" + rows.join("");
   }
   const tRT = throttle(150);
@@ -2614,14 +2805,23 @@ const PIDLAB = (function(){
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("p"), P.accent, 2);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("i"), P.pollen, 2);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("d"), P.red, 1.5);
-    if (app === "lift") drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("f"), P.ok, 1.5);
+    if (app === "lift"){
+      const gv = S.lift.heavy ? 0.3 : 0.18;
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = P.muted; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(L, Y(gv)); ctx.lineTo(L + pw, Y(gv)); ctx.stroke(); ctx.setLineDash([]);
+      drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("f"), P.ok, 2);
+    }
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("o"), P.ink, 2.5);
     ctx.restore();
+    if (app === "lift"){
+      const gv = S.lift.heavy ? 0.3 : 0.18;
+      text(ctx, "gravity needs " + gv.toFixed(2), L + 6, Y(gv) - 5, {color: P.muted, size: 12, weight: "600"});
+      if (S.lift.kf > 0) text(ctx, "F " + S.lift.kf.toFixed(2), L + pw - 40, Y(S.lift.kf) - 6, {color: P.ok, size: 12, weight: "700", align: "right"});
+    }
     CH.overlay(ctx, cv, Tt, Tt + ph);
     CH.update();
   }
   buildApp();
-  return {tick, show: () => {}, get: () => ({app, target: app === "aim" ? 0 : S.target, meas: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), err: errorNow(), c: S.c, hist: S.hist, t: S.t, t0: S.m.t0, integral: S.c.integral, gains: gains(), kf: app === "lift" ? S.lift.kf : 0, on: [pOn.checked, iOn.checked, dOn.checked, true], aimMode: app === "aim" ? S.aim.mode : null, done: !!S.done}), chart: CH};
+  return {tick, show: () => {}, get: () => ({app, target: app === "aim" ? 0 : S.target, meas: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), err: errorNow(), c: S.c, hist: S.hist, t: S.t, t0: S.m.t0, integral: S.c.integral, gains: gains(), kf: app === "lift" ? S.lift.kf : 0, grav: app === "lift" ? (S.lift.heavy ? 0.3 : 0.18) : 0, on: [pOn.checked, iOn.checked, dOn.checked, true], aimMode: app === "aim" ? S.aim.mode : null, done: !!S.done}), chart: CH};
 })();
 
 /* =====================================================================
@@ -2735,7 +2935,11 @@ const JV = (function(){
     $$(".jpane").forEach(p => p.classList.toggle("on", p.dataset.jp === t));
     if (t === "private") drawPrivate();
   }
-  $$(".jt").forEach(b => b.addEventListener("click", () => showTopic(b.dataset.jt)));
+  $$(".jt").forEach(b => b.addEventListener("click", e => {
+    showTopic(b.dataset.jt);
+    if (e.detail > 0 && document.body.classList.contains("autohide")){ b.blur(); $(".jtopics").classList.add("shut"); }   // mouse click, not keyboard
+  }));
+  $(".jtopics").addEventListener("mouseleave", () => $(".jtopics").classList.toggle("shut", false));
 
   /* ---- 1 modules ---- */
   const TREE = [
@@ -2829,15 +3033,15 @@ const JV = (function(){
   renderObjs();
 
   /* ---- 4 vars ---- */
-  $("#jv-types").innerHTML = "<tr><th>Type</th><th>Holds</th><th>Robot example</th></tr>" + [
-    ["int", "whole numbers", "int ballsLoaded = 3;"],
-    ["double", "decimal numbers", "double power = 0.75;"],
-    ["boolean", "true or false", "boolean launcherReady = false;"],
-    ["String", "text, in quotes", "String alliance = \"RED\";"],
-    ["final", "locks a box: a constant. UPPER_CASE name", "static final double LAUNCH_VELOCITY = 1160;"],
-    ["static", "belongs to the class, not to one object: reach it as Robot.MAX_SPEED, no new needed", "public static final double MAX_SPEED = 0.8;"],
+  $("#jv-types").innerHTML = "<tr><th>Word</th><th>What it means, and a robot example</th></tr>" + [
+    ["int", "a whole number", "int ballsLoaded = 3;"],
+    ["double", "a number with a decimal point", "double power = 0.75;"],
+    ["boolean", "true or false, nothing else", "boolean launcherReady = false;"],
+    ["String", "text, always in quotes", "String alliance = \"RED\";"],
+    ["final", "locks the box: set once, never changed. Name it in CAPS", "final double LAUNCH_VELOCITY = 1160;"],
+    ["static", "one copy for the whole class. Reach it as Robot.MAX_SPEED, no new object needed", "public static final double MAX_SPEED = 0.8;"],
     ["enum", "one value from a short fixed list. A typo fails the build", "LaunchState state = LaunchState.IDLE;"]
-  ].map(r => "<tr><td><b>" + esc(r[0]) + "</b></td><td>" + esc(r[1]) + "</td><td>" + esc(r[2]) + "</td></tr>").join("");
+  ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "<br><code>" + esc(r[2]) + "</code></td></tr>").join("");
   const QUIZ = [
     ["int ballsLoaded = 3;", true, "OK. A whole number in an int box."],
     ["int power = 0.5;", false, "Error: incompatible types: possible lossy conversion from double to int. 0.5 has a decimal part. Fix: double power = 0.5;"],
@@ -2981,10 +3185,11 @@ const JV = (function(){
     gamepad1: ["OpMode", "gamepad1 is a field of OpMode. The SDK updates its sticks and buttons many times per second."],
     waitForStart: ["LinearOpMode", "waitForStart() is a method of LinearOpMode. It pauses your code until the driver presses START."],
     opModeIsActive: ["LinearOpMode", "opModeIsActive() is a method of LinearOpMode. It returns true until STOP is pressed or the match timer ends."],
-    runOpMode: ["MainTeleOp", "LinearOpMode declares runOpMode() with no body (abstract). @Override means: here is my version. The SDK calls it when INIT is pressed."]
+    runOpMode: ["MainTeleOp", "LinearOpMode has a runOpMode() with nothing inside. You write your own runOpMode(), and the SDK runs yours when INIT is pressed."],
+    Override: ["MainTeleOp", "@Override is a spelling check. It asks Java to confirm that LinearOpMode really has a runOpMode(). If you mistype the name, the build fails on this line. Try it in the panel below."]
   };
   $$(".ln", $("#jv-icode")).forEach(ln => {
-    ln.innerHTML = ln.innerHTML.replace(/\b(hardwareMap|telemetry|gamepad1|waitForStart|opModeIsActive|runOpMode)\b/g, '<span class="tok" data-k="$1" tabindex="0">$1</span>');
+    ln.innerHTML = ln.innerHTML.replace(/\b(hardwareMap|telemetry|gamepad1|waitForStart|opModeIsActive|runOpMode|Override)\b/g, '<span class="tok" data-k="$1" tabindex="0">$1</span>');
   });
   function renderChain(sel){
     if (window.__inhDraw) { window.__inhDraw(sel); return; }
@@ -3001,6 +3206,108 @@ const JV = (function(){
     const go = () => { $$("#jv-icode .tok").forEach(x => x.classList.toggle("sel", x.dataset.k === t.dataset.k)); renderChain(t.dataset.k); $("#jv-imsg").textContent = INH[t.dataset.k][1]; $("#jv-imsg").className = "msg ok"; };
     t.addEventListener("click", go); t.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); go(); } });
   });
+
+  /* ---- 7b @Override, tried three ways ---- */
+  const OV = [
+    {code: ["public class MainTeleOp extends LinearOpMode {", "", "    @Override", "    public void runOpMode() {", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
+     mark: [2, 3], cls: "run", prob: ["BUILD SUCCESSFUL. 0 errors."], ok: true,
+     msg: "The name matches LinearOpMode's runOpMode() exactly, so @Override is happy. Press INIT on the Driver Hub and the SDK runs your version."},
+    {code: ["public class MainTeleOp extends LinearOpMode {", "", "    @Override", "    public void runOpmode() {      // small m: a typo", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
+     mark: [2, 3], cls: "err", prob: ["MainTeleOp.java:1: error: MainTeleOp is not abstract and does not override abstract method runOpMode() in LinearOpMode", "MainTeleOp.java:3: error: method does not override or implement a method from a supertype"], ok: false,
+     msg: "Good news: the build fails on your laptop. @Override checked the name, found no runOpmode() in LinearOpMode, and pointed at the line. Fix the spelling: runOpMode, capital M."},
+    {code: ["public class MainTeleOp extends OpMode {     // the loop() style OpMode", "", "    public void init() { robot.init(hardwareMap); }", "", "    public void Start() {          // capital S, no @Override", "        matchTimer.reset();", "    }", "", "    public void loop() {", "        robot.drive(-gamepad1.left_stick_y, 0, 0);", "    }", "}"],
+     mark: [4, 5], cls: "err", prob: ["BUILD SUCCESSFUL. 0 errors."], ok: false,
+     msg: "The dangerous one. It builds and it runs. But the SDK calls start(), small s, and Start() is just a new method nobody calls. Your timer never resets and nothing tells you. Put @Override on it and the build fails at once, pointing at the typo. Rule: @Override on every method you replace."}
+  ];
+  function showOv(i){
+    const v = OV[i];
+    renderCode($("#jv-ovcode"), v.code);
+    $$(".ln", $("#jv-ovcode")).forEach((ln, k) => ln.classList.toggle(v.cls, v.mark.includes(k)));
+    const p = $("#jv-ovprob");
+    p.innerHTML = '<div class="ph2">Build output</div>' + v.prob.map(t => '<div style="color:' + (/error/.test(t) ? "#ff8a8a" : "#7ee2a8") + '">' + esc(t) + "</div>").join("");
+    const m = $("#jv-ovmsg"); m.textContent = v.msg; m.className = "msg " + (v.ok ? "ok" : "bad");
+    $$("#jv-ovbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.ov == i ? "true" : "false"));
+  }
+  $$("#jv-ovbtns .b").forEach(b => b.addEventListener("click", () => showOv(+b.dataset.ov)));
+  showOv(0);
+
+  /* ---- 3b decisions: if / else if / else, operators, switch ---- */
+  const DCODE = [
+    "double stick = -gamepad1.left_stick_y;   // pushed up = positive",
+    "if (stick > 0.5) {",
+    '    telemetry.addLine("FAST forward");',
+    "} else if (stick > 0.05) {",
+    '    telemetry.addLine("slow forward");',
+    "} else if (stick < -0.05) {",
+    '    telemetry.addLine("backward");',
+    "} else {",
+    '    telemetry.addLine("stopped: inside the dead zone");',
+    "}"
+  ];
+  renderCode($("#jv-dcode"), DCODE);
+  function decide(){
+    const s = +$("#jv-dstick").value;
+    $("#jv-dval").textContent = (s >= 0 ? " " : "") + s.toFixed(2);
+    const tests = [["stick > 0.5", s > 0.5, 1, 2], ["stick > 0.05", s > 0.05, 3, 4], ["stick < -0.05", s < -0.05, 5, 6]];
+    const first = tests.findIndex(t => t[1]);
+    const tested = first < 0 ? tests : tests.slice(0, first + 1);
+    const runLine = first < 0 ? 8 : tests[first][3];
+    $$(".ln", $("#jv-dcode")).forEach((ln, k) => {
+      ln.classList.toggle("test", tested.some(t => t[2] === k) || (first < 0 && k === 7));
+      ln.classList.toggle("run", k === runLine);
+    });
+    $("#jv-dcond").innerHTML = tests.map((t, i) => '<span class="' + (first >= 0 && i > first ? "skip" : t[1] ? "t" : "f") + '">' + esc(t[0]) + ": " + (first >= 0 && i > first ? "not checked" : String(t[1])) + "</span>").join("") + (first < 0 ? '<span class="t">else: runs</span>' : "");
+    const said = ["FAST forward", "slow forward", "backward"][first] || "stopped: inside the dead zone";
+    const m = $("#jv-dmsg");
+    m.innerHTML = "Driver Hub shows <b>" + esc(said) + "</b>. " + (first < 0 ? "Every question said false, so <code>else</code> runs." : first === 0 ? "The first question said true. Java runs that block and skips every <code>else</code> below it, even though <code>stick &gt; 0.05</code> is also true." : "Questions above said false. This is the first true one, so its block runs and the rest are skipped.");
+    m.className = "msg ok";
+  }
+  $("#jv-dstick").addEventListener("input", decide);
+  decide();
+  $("#jv-ops").innerHTML = "<tr><th>Sign</th><th>Asks</th><th>Robot example</th></tr>" + [
+    [">", "greater than", "stick > 0.5"], ["<", "less than", "heading < -90"], [">=", "greater than or equal to", "ballsLoaded >= 3"],
+    ["<=", "less than or equal to", "Math.abs(error) <= 2"], ["==", "equal to (two signs)", "state == LaunchState.IDLE"], ["!=", "not equal to", "ballsLoaded != 0"]
+  ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td><td><code>" + esc(r[2]) + "</code></td></tr>").join("");
+  $("#jv-logic").innerHTML = "<tr><th>Sign</th><th>Means</th><th>Robot example</th></tr>" + [
+    ["&&", "and: both must be true", "gamepad1.a && launcherReady"], ["||", "or: at least one is true", "gamepad1.b || timer.seconds() > 2"], ["!", "not: flips true and false", "!launcherReady"]
+  ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td><td><code>" + esc(r[2]) + "</code></td></tr>").join("");
+  const LG = {a: false, ready: false};
+  function logic(){
+    const a = LG.a, r = LG.ready;
+    $("#jv-da").setAttribute("aria-pressed", a ? "true" : "false"); $("#jv-da").textContent = "gamepad1.a = " + a;
+    $("#jv-dready").setAttribute("aria-pressed", r ? "true" : "false"); $("#jv-dready").textContent = "launcherReady = " + r;
+    $("#jv-dlogic").innerHTML = [["a && launcherReady", a && r], ["a || launcherReady", a || r], ["!launcherReady", !r]].map(t => '<span class="' + (t[1] ? "t" : "f") + '">' + esc(t[0]) + ": " + t[1] + "</span>").join("");
+  }
+  $("#jv-da").addEventListener("click", () => { LG.a = !LG.a; logic(); });
+  $("#jv-dready").addEventListener("click", () => { LG.ready = !LG.ready; logic(); });
+  logic();
+  const SW = ["switch (state) {", "    case IDLE:", "        if (gamepad1.rightBumperWasPressed()) {", "            state = LaunchState.SPINNING_UP;", "        }", "        break;", "    case SPINNING_UP:", "        robot.launcherOn();", "        if (robot.launcherReady()) {", "            state = LaunchState.FEEDING;", "        }", "        break;", "    case FEEDING:", "        robot.feedOnce();", "        state = LaunchState.IDLE;", "        break;", "}"];
+  const SW_BREAK = 11;   // the break after SPINNING_UP
+  let swState = "SPINNING_UP";
+  function sw(){
+    const noBrk = $("#jv-swbrk").checked;
+    const code = noBrk ? SW.filter((_, i) => i !== SW_BREAK) : SW;
+    renderCode($("#jv-swcode"), code);
+    const idx = t => code.indexOf(t);
+    const start = idx("    case " + swState + ":");
+    let run = [];
+    for (let k = start + 1; k < code.length - 1; k++){
+      if (/^    case /.test(code[k])) continue;   // a case label is not a stop sign: without break, Java falls through it
+      run.push(k);
+      if (/break;/.test(code[k])) break;
+    }
+    $$(".ln", $("#jv-swcode")).forEach((ln, k) => { ln.classList.toggle("test", k === start); ln.classList.toggle("run", run.includes(k)); ln.classList.toggle("err", noBrk && swState === "SPINNING_UP" && k >= idx("    case FEEDING:") && run.includes(k)); });
+    $$("#jv-swbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.s === swState ? "true" : "false"));
+    const m = $("#jv-swmsg");
+    const fell = noBrk && swState === "SPINNING_UP";
+    m.innerHTML = fell ? "No <code>break</code>: Java runs SPINNING_UP, then falls into FEEDING and feeds a ball before the wheel is at speed. The shot falls short. Every case ends with <code>break</code>."
+      : "state is <b>" + swState + "</b>. Java jumps to <code>case " + swState + ":</code>, runs down to <code>break</code>, and leaves the switch. Next loop pass, it checks again.";
+    m.className = "msg " + (fell ? "bad" : "ok");
+  }
+  $("#jv-swbtns").innerHTML = ["IDLE", "SPINNING_UP", "FEEDING"].map(s => '<button class="b" data-s="' + s + '">state = ' + s + "</button>").join("");
+  $$("#jv-swbtns .b").forEach(b => b.addEventListener("click", () => { swState = b.dataset.s; sw(); }));
+  $("#jv-swbrk").addEventListener("change", sw);
+  sw();
 
   /* ---- 8 lists ---- */
   const LCODE = [
@@ -3077,7 +3384,8 @@ const SV = {
   },
   tx(x, y, t, o){
     o = o || {};
-    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" font-family="' + (o.mono ? "JetBrains Mono, monospace" : "IBM Plex Sans, sans-serif") + '" font-size="' + (o.size || 12) + '" font-weight="' + (o.weight || "500") + '" fill="' + SV.col(o.col || "ink") + '">' + esc(String(t)) + "</text>";
+    const size = Math.max(SV.MIN, o.size || 12);   // one floor for every diagram label
+    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" font-family="' + (o.mono ? "JetBrains Mono, monospace" : "IBM Plex Sans, sans-serif") + '" font-size="' + size + '" font-weight="' + (o.weight || "500") + '" fill="' + SV.col(o.col || "ink") + '">' + esc(String(t)) + "</text>";
   },
   ar(pre, pts, o){
     o = o || {};
@@ -3087,7 +3395,10 @@ const SV = {
     return s;
   },
   circ(x, y, r, o){ o = o || {}; return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + (o.hot ? alpha(P.pollen, 0.3) : (o.fill || P.surface)) + '" stroke="' + SV.col(o.stroke || "ink") + '" stroke-width="' + (o.sw || 2) + '"/>'; },
-  set(el, w, h, body){ el.setAttribute("viewBox", "0 0 " + w + " " + h); el.innerHTML = body; }
+  // Cap the stretch: svg.diag is width 100%, so without a cap a 760-wide drawing in a 1292 px panel scales 1.7x and its labels
+  // render far bigger than the same labels on a narrower diagram. At most 1.25x keeps text between 15 and 20 px on every tab.
+  set(el, w, h, body){ el.setAttribute("viewBox", "0 0 " + w + " " + h); el.style.maxWidth = Math.round(w * SV.MAXSCALE) + "px"; el.style.marginInline = "auto"; el.innerHTML = body; },
+  MIN: 12, MAXSCALE: 1.25
 };
 function throttle(ms){ let last = 0; return () => { const n = performance.now(); if (n - last < ms) return false; last = n; return true; }; }
 
@@ -3161,17 +3472,17 @@ const GX = (function(){
     s += SV.box(600, 48, 270, 190, ["cad-and-design", "links to Onshape Documents", "STL / DXF / STEP exports", "design decisions (Think Award)"], {stroke: "acc", sw: 2, mono: true, size: 13});
     s += SV.tx(870, 30, "Students: Write   Mentors: Admin (2+)", {anchor: "end", size: 12, col: "mut", weight: "600"});
     s += SV.ar(pre, [[240, 52], [298, 70]], {col: "mut"});
-    s += SV.tx(252, 100, "Sync fork", {size: 11, col: "mut", weight: "600"});
-    s += SV.tx(252, 114, "(SDK update)", {size: 11, col: "mut"});
+    s += SV.tx(272, 100, "Sync fork", {size: 12, col: "mut", weight: "600", anchor: "end"});
+    s += SV.tx(272, 115, "(SDK update)", {size: 12, col: "mut", anchor: "end"});
     s += SV.box(640, 300, 230, 62, ["Onshape Documents", "real CAD history: versions, branches"], {fill: P.codebg});
     s += SV.ar(pre, [[735, 240], [755, 298]], {col: "mut"});
     s += SV.tx(812, 282, "links + exports", {size: 11, col: "mut", weight: "600"});
     ["Maya", "Leo", "Ava"].forEach((n, i) => {
       const x = 330 + i * 106;
       s += SV.box(x, 300, 96, 50, [n + "'s laptop", "Android Studio"], {size: 12});
-      s += SV.ar(pre, [[x + 48, 298], [345 + i * 95, 242]], {col: "acc", w: 1.8});
+      s += SV.ar(pre, [[x + 48, 298], [345 + i * 95, 239.6]], {col: "acc", w: 1.8});
     });
-    s += SV.tx(490, 288, "clone once, then pull / push", {col: "acc", weight: "600", size: 11});
+    s += SV.tx(326, 272, "clone once, then pull / push", {col: "acc", weight: "600", size: 12, anchor: "end"});
     s += SV.box(20, 300, 200, 62, ["Control Hub (robot)", "runs the built app"], {stroke: "ok", sw: 2});
     s += SV.ar(pre, [[328, 325], [222, 331]], {col: "ok"});
     s += SV.tx(275, 316, "deploy", {size: 11, col: "ok", weight: "600"});
@@ -3205,10 +3516,10 @@ const GX = (function(){
     s += SV.ar(pre, [[772, 80], [772, 138]], {});
     s += SV.ar(pre, [[772, 190], [772, 232]], {});
     s += SV.ar(pre, [[736, 270], [646, 275]], {col: "ok", label: "yes", at: [690, 264], lcol: "ok"});
-    s += SV.ar(pre, [[738, 262], [600, 192]], {col: "red", label: "changes requested", at: [640, 222], lcol: "red"});
+    s += SV.ar(pre, [[738, 262], [600, 192]], {col: "red", label: "changes requested", at: [662, 250], lcol: "red", anchor: "end", size: 13});
     s += SV.ar(pre, [[582, 140], [582, 116], [700, 116], [740, 140]], {col: "red", dash: true});
     s += SV.ar(pre, [[518, 275], [426, 275]], {});
-    s += SV.ar(pre, [[300, 275], [72, 275], [72, 82]], {col: "acc", dash: true, label: "next feature", at: [190, 268], lcol: "acc"});
+    s += SV.ar(pre, [[300, 275], [72, 275], [72, 82]], {col: "acc", dash: true, label: "next feature", at: [190, 293], lcol: "acc", size: 13});
     PR.forEach(p => {
       if (p.id === "ok"){
         const [x, y] = pos.ok, hot = p.id === cur;
@@ -3266,8 +3577,8 @@ const DG = (function(){
     const L = 20, W = 660, total = 20 + 30 + 8 + 120, sc = W / total;
     const segs = [["INIT", 20, P.muted], ["AUTO 0:30", 30, P.accent], ["8 s", 8, P.line], ["TELEOP 2:00", 120, P.ok]];
     let x = L;
-    segs.forEach(sg => { const w = sg[1] * sc; s += '<rect x="' + x + '" y="20" width="' + w + '" height="34" fill="' + alpha(sg[2], 0.35) + '" stroke="' + sg[2] + '"/>'; s += SV.tx(x + w / 2, 42, sg[0], {weight: "700", size: 12}); x += w; });
     const xt = L + (20 + 30 + 8 + 60) * sc;
+    segs.forEach(sg => { const w = sg[1] * sc; s += '<rect x="' + x + '" y="20" width="' + w + '" height="34" fill="' + alpha(sg[2], 0.35) + '" stroke="' + sg[2] + '"/>'; s += SV.tx(sg[0] === "TELEOP 2:00" ? (x + xt) / 2 : x + w / 2, 42, sg[0], {weight: "700", size: 12}); x += w; });
     s += '<line x1="' + xt + '" y1="14" x2="' + xt + '" y2="60" stroke="' + P.pollen + '" stroke-width="2" stroke-dasharray="4 3"/>';
     s += SV.tx(L, 74, "INIT: robot must stay still (G304.H)", {size: 12, col: "mut", anchor: "start"});
     s += SV.tx(L + 20 * sc, 92, "AUTO: no drivers, code only", {size: 12, col: "acc", anchor: "start"});
@@ -3309,13 +3620,21 @@ const DG = (function(){
     if (!force && !t10()) return;
     const g = OL.get(), pre = "sm";
     let s = SV.defs(pre);
-    const N = {IDLE: [110, 95], SPINNING_UP: [380, 95], FEEDING: [650, 95]};
-    s += SV.ar(pre, [[178, 85], [302, 85]], {col: "acc", label: "rightBumperWasPressed()", at: [240, 74], lcol: "acc", mono: true});
-    s += SV.ar(pre, [[458, 85], [572, 85]], {col: "ok", label: "launcherReady()", at: [515, 74], lcol: "ok", mono: true});
-    s += SV.ar(pre, [[650, 140], [650, 170], [110, 170], [110, 142]], {col: "red", label: "feedTimer.seconds() > 0.3", at: [380, 188], lcol: "red", mono: true});
-    Object.keys(N).forEach(k => { const [x, y] = N[k]; s += SV.box(x - 78, y - 32, 156, 64, [k, {IDLE: "launcher off", SPINNING_UP: "launcherOn()", FEEDING: "feederOn()"}[k]], {hot: g.state === k, mono: true, size: 13}); });
-    s += SV.tx(380, 22, "Every loop pass: check the current state once, maybe move to the next, then keep driving.", {size: 12, col: "mut"});
-    SV.set($("#ol-sm"), 760, 200, s);
+    // Boxes first, arrows and labels after, so no label hides under a box. Two layouts: a row on wide screens, a column on phones.
+    const ACT = {IDLE: "launcher off", SPINNING_UP: "launcherOn()", FEEDING: "feederOn()"};
+    const narrow = ($("#ol-sm").clientWidth || 1000) < 600;
+    const L = narrow
+      ? {vb: [360, 380], box: {IDLE: [40, 10], SPINNING_UP: [40, 140], FEEDING: [40, 270]}, bw: 160, bh: 56,
+         a1: [[120, 66], [120, 138]], l1: [128, 106, "start"], a2: [[120, 196], [120, 268]], l2: [128, 236, "start"],
+         a3: [[200, 298], [340, 298], [340, 38], [202, 38]], l3: [[190, 352, "feedTimer.seconds() > 0.3"], [190, 370, "then feederOff()"]]}
+      : {vb: [1000, 130], box: {IDLE: [20, 16], SPINNING_UP: [410, 16], FEEDING: [800, 16]}, bw: 180, bh: 60,
+         a1: [[200, 46], [408, 46]], l1: [305, 36, "middle"], a2: [[590, 46], [798, 46]], l2: [695, 36, "middle"],
+         a3: [[890, 76], [890, 100], [110, 100], [110, 78]], l3: [[500, 120, "feedTimer.seconds() > 0.3, then feederOff()"]]};
+    Object.keys(L.box).forEach(k => { const [x, y] = L.box[k]; s += SV.box(x, y, L.bw, L.bh, [k, ACT[k]], {hot: g.state === k, mono: true, size: 14}); });
+    s += SV.ar(pre, L.a1, {col: "acc"}) + SV.tx(L.l1[0], L.l1[1], "rightBumperWasPressed()", {size: 12, col: "acc", weight: "600", mono: true, anchor: L.l1[2]});
+    s += SV.ar(pre, L.a2, {col: "ok"}) + SV.tx(L.l2[0], L.l2[1], "launcherReady()", {size: 12, col: "ok", weight: "600", mono: true, anchor: L.l2[2]});
+    s += SV.ar(pre, L.a3, {col: "red"}) + L.l3.map(t => SV.tx(t[0], t[1], t[2], {size: 12, col: "red", weight: "600", mono: true})).join("");
+    SV.set($("#ol-sm"), L.vb[0], L.vb[1], s);
   }
   /* ---- feedback: open vs closed loop ---- */
   function loops(force){
@@ -3330,26 +3649,33 @@ const DG = (function(){
     s += SV.box(460, 34, 180, 50, ["Flywheel " + Math.round(g.o) + " t/s", "nobody checks it"], {mono: true, stroke: (g.o < 1120 || g.o > 1200) ? "red" : "ok", sw: 2});
     s += SV.box(250, 100, 110, 30, ["battery " + g.V.toFixed(1) + " V"], {size: 12, stroke: "red", tcol: "red"});
     s += SV.ar(pre, [[305, 100], [305, 86]], {col: "red"});
-    s += SV.tx(420, 112, "PIDF = P, I, D plus F, a feedforward term: power sized for the", {anchor: "start", size: 11, col: "mut"});
-    s += SV.tx(420, 126, "target speed itself, applied before any error exists. The hub", {anchor: "start", size: 11, col: "mut"});
-    s += SV.tx(420, 140, "firmware runs all four. SDK recipe: F = 32767 / max ticks per s.", {anchor: "start", size: 11, col: "mut"});
-    const y = 170;
-    s += SV.tx(10, y - 12, "Closed loop: setVelocity(1160)", {anchor: "start", weight: "700", size: 13, col: "acc"});
+    // Closed loop: the hub box opens up to show F (from the target, no error needed) beside P + I + D (from the error)
+    const y = 210, my = y + 25;
+    s += SV.tx(10, 160, "Closed loop: setVelocity(1160)", {anchor: "start", weight: "700", size: 13, col: "acc"});
+    s += '<rect x="262" y="160" width="214" height="112" rx="10" fill="none" stroke="' + P.accent + '" stroke-width="1.5" stroke-dasharray="6 4"/>';
+    s += SV.tx(470, 154, "inside the hub: PIDF", {anchor: "end", size: 12, col: "acc", weight: "600"});
     s += SV.box(10, y, 112, 50, ["target 1160", "ticks/s"], {mono: true});
-    s += SV.ar(pre, [[122, y + 25], [146, y + 25]], {});
-    s += SV.circ(165, y + 25, 17, {});
-    s += SV.tx(150, y + 12, "+", {size: 14, weight: "700", col: "ok"});
-    s += SV.tx(176, y + 56, "-", {size: 16, weight: "700", col: "red"});
-    s += SV.ar(pre, [[183, y + 25], [268, y + 25]], {label: "error " + Math.round(1160 - g.c), at: [225, y + 12], mono: true, lcol: "ink"});
-    s += SV.box(270, y, 130, 50, ["PIDF on the hub", "SDK does this"], {stroke: "acc", sw: 2});
-    s += SV.ar(pre, [[400, y + 25], [470, y + 25]], {label: "power " + g.u.toFixed(2), at: [435, y + 12], mono: true, lcol: "ink"});
-    s += SV.box(472, y, 100, 50, ["Motor"]);
-    s += SV.ar(pre, [[572, y + 25], [620, y + 25]], {});
-    s += SV.box(622, y, 160, 50, ["Flywheel " + Math.round(g.c) + " t/s"], {mono: true, stroke: Math.abs(g.c - 1160) < 40 ? "ok" : "pol", sw: 2});
-    s += SV.ar(pre, [[782, y + 25], [812, y + 25], [812, y + 90], [632, y + 90]], {col: "acc"});
-    s += SV.box(490, y + 70, 140, 40, ["Encoder", "measures speed"], {stroke: "acc", size: 12});
-    s += SV.ar(pre, [[490, y + 90], [165, y + 90], [165, y + 44]], {col: "acc", label: "measured " + Math.round(g.c), at: [320, y + 84], mono: true, lcol: "acc"});
-    SV.set($("#fb-blocks"), 830, 290, s);
+    s += SV.ar(pre, [[66, y], [66, 186], [298, 186]], {col: "ok"});
+    s += SV.tx(150, 180, "F needs only the target", {size: 12, col: "ok", weight: "600"});
+    s += SV.ar(pre, [[122, my], [146, my]], {});
+    s += SV.circ(165, my, 17, {});
+    s += SV.tx(150, my - 13, "+", {size: 14, weight: "700", col: "ok"});
+    s += SV.tx(176, my + 31, "-", {size: 16, weight: "700", col: "red"});
+    s += SV.ar(pre, [[183, my], [298, my]], {label: "error " + Math.round(1160 - g.c), at: [222, my - 8], mono: true, lcol: "ink", size: 12});
+    s += SV.box(300, 166, 120, 40, ["F = kF x target", g.ff.toFixed(2) + ", no error needed"], {stroke: "ok", sw: 2, size: 13});
+    s += SV.box(300, 214, 120, 44, ["P + I + D", "fixes error: " + (g.u - g.ff >= 0 ? "+" : "") + (g.u - g.ff).toFixed(2)], {stroke: "acc", sw: 2, size: 13});
+    s += SV.circ(448, my, 14, {});
+    s += SV.tx(448, my + 6, "+", {size: 16, weight: "700"});
+    s += SV.ar(pre, [[420, 186], [448, 186], [448, my - 16]], {col: "ok"});
+    s += SV.ar(pre, [[420, my], [432, my]], {col: "acc"});
+    s += SV.ar(pre, [[462, my], [498, my]], {});
+    s += SV.box(500, y, 100, 50, ["Motor", "power " + g.u.toFixed(2)], {mono: true});
+    s += SV.ar(pre, [[600, my], [622, my]], {});
+    s += SV.box(624, y, 150, 50, ["Flywheel " + Math.round(g.c) + " t/s"], {mono: true, stroke: Math.abs(g.c - 1160) < 40 ? "ok" : "pol", sw: 2});
+    s += SV.ar(pre, [[774, my], [805, my], [805, 300], [642, 300]], {col: "acc"});
+    s += SV.box(500, 280, 140, 40, ["Encoder", "measures speed"], {stroke: "acc", size: 13});
+    s += SV.ar(pre, [[500, 300], [165, 300], [165, my + 19]], {col: "acc", label: "measured " + Math.round(g.c), at: [330, 294], mono: true, lcol: "acc", size: 12});
+    SV.set($("#fb-blocks"), 830, 330, s);
   }
   /* ---- encoders: inside the encoder ---- */
   function encoder(){
@@ -3384,7 +3710,7 @@ const PIDVIZ = (function(){
   const NAMES = {
     turn: {target: "Target heading", plant: ["Drivetrain", "turns the robot"], sensor: ["IMU", "heading in deg"], meas: "heading", unit: "deg"},
     aim: {target: "Target: bearing 0", plant: ["Drivetrain", "turns toward HIVE"], sensor: ["Camera", "AprilTag bearing"], meas: "bearing", unit: "deg"},
-    lift: {target: "Target height", plant: ["Lift motor", "fights gravity"], sensor: ["Encoder", "height in inches"], meas: "height", unit: "in"}
+    lift: {target: "Target height", plant: ["Lift motor", "moves the lift"], sensor: ["Encoder", "height in inches"], meas: "height", unit: "in"}
   };
   function loop(force){
     if (!force && !t10()) return;
@@ -3399,7 +3725,7 @@ const PIDVIZ = (function(){
     s += SV.tx(172, 108, "+", {size: 14, weight: "700", col: "ok"});
     s += SV.tx(205, 152, "-", {size: 16, weight: "700", col: "red"});
     s += SV.ar(pre, [[212, 120], [262, 120]], {});
-    s += SV.tx(237, 162, "error", {size: 11, col: "mut", weight: "600"});
+    s += SV.tx(237, 162, "error", {size: 12, col: "mut", weight: "600"});
     s += SV.tx(237, 178, f2(g.err), {size: 12, mono: true, weight: "700"});
     s += '<line x1="262" y1="34" x2="262" y2="206" stroke="' + P.ink + '" stroke-width="2"/>';
     const gk = v => v >= 0.01 ? v.toFixed(3) : v.toFixed(4);
@@ -3410,15 +3736,20 @@ const PIDVIZ = (function(){
       ["P", "kP x error", g.c.p, "acc", 34, gk(g.gains[0]) + " x " + sn(g.err), g.on[0]],
       ["I", "kI x (sum of error x time)", g.c.i, "pol", 98, gk(g.gains[1]) + " x " + (g.integral || 0).toFixed(2), g.on[1]],
       ["D", "kD x (change of error / time)", g.c.d, "red", 162, gk(g.gains[2]) + " x " + sn(der), g.on[2]]];
-    if (lift) terms.push(["F", "kF, a constant: no error needed (PIDF)", g.c.f, "ok", 226, (g.kf || 0).toFixed(2) + " x 1", true]);
+    if (lift) terms.push(["F", "kF: the hold power, needs no error", g.c.f, "ok", 226, (g.kf || 0).toFixed(2) + " every pass", true]);
     terms.forEach(t => {
       if (t[0] !== "F") s += SV.ar(pre, [[262, t[4] + 22], [288, t[4] + 22]], {col: t[3]});
-      else s += SV.tx(276, t[4] + 26, "no error", {size: 10, col: "mut", anchor: "middle"});
+      else {   // F has its own source: always on, not fed by the error bus (the bus stops at y 206)
+        s += '<circle cx="210" cy="' + (t[4] + 22) + '" r="4" fill="' + P.ok + '"/>';
+        s += SV.ar(pre, [[214, t[4] + 22], [288, t[4] + 22]], {col: "ok"});
+        s += SV.tx(251, t[4] + 14, "always on", {size: 12, col: "ok", weight: "600"});
+      }
       s += '<rect x="290" y="' + t[4] + '" width="250" height="44" rx="8" fill="' + alpha(SV.col(t[3]), 0.08 + 0.35 * mag(t[2])) + '" stroke="' + SV.col(t[3]) + '" stroke-width="2"' + (t[6] ? "" : ' stroke-dasharray="5 4" opacity="0.6"') + "/>";
       s += SV.tx(304, t[4] + 19, t[0], {anchor: "start", weight: "700", size: 16, col: t[3]});
       s += SV.tx(326, t[4] + 19, t[1] + (t[6] ? "" : "  (switched off)"), {anchor: "start", size: 12});
       s += SV.tx(326, t[4] + 36, (idle ? "not running" : t[5] + " = " + f2(t[2])), {anchor: "start", size: 12, mono: true, weight: "600"});
-      s += SV.ar(pre, [[540, t[4] + 22], [580, t[4] + 22], [592, 112]], {col: t[3]});
+      const END = {P: [591, 105], I: [584, 120], D: [591, 135]};
+      s += t[0] === "F" ? SV.ar(pre, [[540, t[4] + 22], [606, t[4] + 22], [606, 142]], {col: t[3]}) : SV.ar(pre, [[540, t[4] + 22], [570, t[4] + 22], END[t[0]]], {col: t[3]});
     });
     s += SV.circ(606, 120, 20, {});
     s += SV.tx(606, 126, "+", {size: 18, weight: "700"});
@@ -3427,12 +3758,13 @@ const PIDVIZ = (function(){
     s += SV.ar(pre, [[766, 120], [846, 120]], {label: "power " + f2(g.c.out), at: [806, 108], mono: true, lcol: "ink"});
     s += SV.box(848, 92, 140, 56, N.plant);
     s += SV.ar(pre, [[988, 120], [1020, 120], [1020, 236 + dy], [988, 236 + dy]], {col: "acc"});
-    s += SV.tx(1013, 182 + dy, N.meas, {size: 11, col: "acc", weight: "600", anchor: "end"});
+    s += SV.tx(1013, 182 + dy, N.meas, {size: 12, col: "acc", weight: "600", anchor: "end"});
+    if (lift){ s += SV.ar(pre, [[918, 58], [918, 90]], {col: "red"}); s += SV.tx(918, 50, "gravity pulls down: needs " + g.grav.toFixed(2), {size: 12, col: "red", weight: "600"}); }
     s += SV.box(848, 212 + dy, 140, 48, N.sensor, {stroke: "acc", sw: 2});
     s += SV.ar(pre, [[848, 236 + dy], [192, 236 + dy], [192, 142]], {col: "acc", label: "sensor reading " + f2(g.meas) + " " + N.unit, at: [520, 228 + dy], mono: true, lcol: "acc"});
     s += SV.tx(520, 20, "Every loop pass, about 50 times per second: read the sensor, compute the error, add P + I + D" + (lift ? " + F" : "") + ", send the power.", {size: 12, col: "mut"});
-    if (g.app === "aim") s += SV.tx(520, 272, g.aimMode === "search" ? "SEARCHING: no target in view, so the PID is skipped and the robot spins at a fixed 0.3 toward the last side it saw." : g.aimMode === "off" ? "AIM OFF: the button is not held, so the PID is skipped and the driver turns the robot." : "For aim, the camera measures the error directly: bearing to the target. Target 0 = dead ahead.", {size: 11, col: g.aimMode === "search" ? "red" : "mut"});
-    if (lift) s += SV.tx(520, 272 + dy, "PIDF: F is set from what you know in advance (the power that holds the lift), so it acts at once. P, I and D wait for an error.", {size: 11, col: "mut"});
+    if (g.app === "aim") s += SV.tx(520, 272, g.aimMode === "search" ? "SEARCHING: no target in view, so the PID is skipped and the robot spins at a fixed 0.3 toward the last side it saw." : g.aimMode === "off" ? "AIM OFF: the button is not held, so the PID is skipped and the driver turns the robot." : "For aim, the camera measures the error directly: bearing to the target. Target 0 = dead ahead.", {size: 12, col: g.aimMode === "search" ? "red" : "mut"});
+    if (lift) s += SV.tx(520, 272 + dy, "F cancels gravity before any error shows. P, I and D fix only what F misses.", {size: 12, col: "ok", weight: "600"});
     SV.set($("#pid-loop"), 1040, 280 + dy, s);
   }
   function minis(){
@@ -3891,7 +4223,7 @@ const JV2 = (function(){
   /* ---------------- inheritance tree ---------------- */
   window.__inhDraw = function(selKey){
     const pre = "ji";
-    const hit = selKey ? {hardwareMap: "OpMode", telemetry: "OpMode", gamepad1: "OpMode", waitForStart: "LinearOpMode", opModeIsActive: "LinearOpMode", runOpMode: "MainTeleOp"}[selKey] : null;
+    const hit = selKey ? {hardwareMap: "OpMode", telemetry: "OpMode", gamepad1: "OpMode", waitForStart: "LinearOpMode", opModeIsActive: "LinearOpMode", runOpMode: "MainTeleOp", Override: "MainTeleOp"}[selKey] : null;
     let s = SV.defs(pre);
     const node = (x, y, w, name, sub, mem, col, isHit) => {
       let o = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + (40 + Math.ceil(mem.length / (w >= 300 ? 2 : 1)) * 24) + '" rx="10" fill="' + (isHit ? alpha(P.pollen, 0.18) : P.surface) + '" stroke="' + SV.col(col) + '" stroke-width="2"/>';
@@ -3915,12 +4247,13 @@ const JV2 = (function(){
     s += node(10, 272, 210, "MainTeleOp", "yours", ["runOpMode() filled", "robot"], "acc", hit === "MainTeleOp");
     s += node(230, 272, 190, "LeaveAndPark", "yours", ["runOpMode() filled", "robot"], "acc", false);
     s += SV.box(440, 280, 150, 56, ["Robot", "a plain class"], {stroke: "ok", sw: 2});
-    s += SV.ar(pre, [[220, 300], [436, 306]], {col: "ok", dash: true});
-    s += SV.ar(pre, [[420, 300], [436, 306]], {col: "ok", dash: true});
-    s += SV.tx(515, 360, "has a Robot (a field),", {size: 12, col: "ok", weight: "700"});
-    s += SV.tx(515, 376, "not extends", {size: 12, col: "ok", weight: "700"});
-    s += SV.box(430, 30, 164, 130, ["NOT THIS:", "RedAuto", "extends BaseAuto", "extends LinearOpMode", "(a chain nobody can follow)"], {stroke: "red", sw: 2, tcol: "red", dash: true, size: 14});
-    SV.set($("#jv-ichain"), 610, 392, s);
+    s += SV.ar(pre, [[115, 362], [115, 384], [515, 384], [515, 338.6]], {col: "ok", dash: true});   // under both OpMode boxes, so it crosses none
+    s += SV.ar(pre, [[420, 306], [438.6, 306]], {col: "ok", dash: true});
+    ["has a Robot", "(a field),", "not extends"].forEach((t, i) => { s += SV.tx(524, 352 + i * 15, t, {size: 13, col: "ok", weight: "700", anchor: "start"}); });   // right of the dashed line, clear of it
+    s += SV.box(430, 30, 164, 64, ["one level only", "the team rule"], {stroke: "mut", sw: 1.5, size: 14});
+    s += '<rect x="10" y="404" width="590" height="40" rx="8" fill="none" stroke="' + P.red + '" stroke-width="2" stroke-dasharray="5 4"/>';
+    s += SV.tx(305, 429, "NOT THIS: RedAuto extends BaseAuto extends LinearOpMode. Nobody can follow it.", {size: 13, col: "red", weight: "600"});
+    SV.set($("#jv-ichain"), 610, 452, s);
   };
   // the chain container becomes an svg
   (function(){ const d = $("#jv-ichain"); const sv = document.createElementNS("http://www.w3.org/2000/svg", "svg"); sv.setAttribute("id", "jv-ichain"); sv.setAttribute("class", "diag"); sv.setAttribute("role", "img"); sv.setAttribute("aria-label", "Inheritance tree"); d.replaceWith(sv); })();
@@ -4107,7 +4440,7 @@ const JVW = (function(){
   // [id, regex source, color class, label, explanation]. Longer patterns come first.
   const W = [
     ["annot", "@TeleOp\\(name = \"Main TeleOp\"\\)", "an", "@TeleOp(name = ...)", "Puts this OpMode on the Driver Hub list under the name in quotes. The hub shows this text, not the class name. AUTO OpModes use @Autonomous(name = ...) instead."],
-    ["override", "@Override", "an", "@Override", "The SDK has a blank spot named runOpMode. This word says: I am filling that spot in. Android Studio then checks the name and the shape for you."],
+    ["override", "@Override", "an", "@Override", "A check, not an action. It tells Java: this method replaces one with the same name in the parent class. A typo in the name then fails the build on this line, instead of the method silently never running."],
     ["params", "double axial, double lateral, double yaw", "kw", "parameters", "The inputs a method needs, each with a type and a name. The caller fills them in order: robot.drive(0.5, 0, 0) puts 0.5 in axial, 0 in lateral and 0 in yaw."],
     ["ctor", "PIDController\\(double kP, double kI, double kD\\)", "kw", "constructor", "A method with the class name and no return type: the constructor. It runs once, inside new PIDController(0.02, 0, 0.003), to fill in the boxes of the new object."],
     ["hwget", "hardwareMap\\.get\\(DcMotorE?x?\\.class, \"[a-z_]+\"\\)", "str", "hardwareMap.get(...)", "Finds one device in the robot configuration. DcMotor.class says which kind of device. The text in quotes is the name typed on the Driver Hub, and it must match letter for letter."],
@@ -4226,7 +4559,8 @@ const TS_LO = Math.log10(0.05), TS_HI = Math.log10(2), TS_TICKS = [0.05, 0.1, 0.
 const tsPos = v => (Math.log10(v) - TS_LO) / (TS_HI - TS_LO) * 1000;
 const tsVal = p => Math.pow(10, TS_LO + p / 1000 * (TS_HI - TS_LO));
 const tsFmt = v => (v >= 1 ? (+v.toFixed(2)).toString() : v >= 0.1 ? (+v.toFixed(2)).toString() : (+v.toFixed(3)).toString()) + "x";
-$("#ts-ticks").innerHTML = TS_TICKS.map(v => '<span data-v="' + v + '" style="left:' + (tsPos(v) / 10) + '%">' + v + "</span>").join("");
+// 0.1 and 0.5 get a tick mark, not a number: six numbers do not fit the compact slider without touching
+$("#ts-ticks").innerHTML = TS_TICKS.map(v => '<span data-v="' + v + '" title="' + v + 'x" style="left:' + (tsPos(v) / 10) + '%">' + (v === 0.1 || v === 0.5 ? "|" : v) + "</span>").join("");
 $$("#ts-ticks span").forEach(sp => sp.addEventListener("click", () => setScale(+sp.dataset.v)));
 function timeChip(){
   const c = $("#ts-chip");
@@ -4258,7 +4592,32 @@ document.addEventListener("keydown", e => {
   else if (e.key === "]"){ const up = TS_TICKS.find(t => t > TIME.scale + 1e-6); setScale(up || 2); }
   else if (e.key === "."){ if (!TIME.paused) setPause(true); TIME.step += 0.1; }
   else if (/^[1-6]$/.test(e.key)) TEAMS.add(+e.key - 1, 1);
+  else if (e.key === "h" || e.key === "H") AUTOHIDE.toggle();
 });
+/* ---------- auto-hide: top bar away while scrolling down, back on scroll up or at the top edge; Java card list folds to a rail ---------- */
+const AUTOHIDE = (function(){
+  const KEY = "ftc-lab-autohide", bar = $(".topbar"), btn = $("#ah-toggle");
+  let on = true, lastY = window.scrollY;
+  try { on = localStorage.getItem(KEY) !== "off"; } catch(e){ /* storage blocked: default on */ }
+  const away = gone => bar.classList.toggle("away", on && gone);
+  function set(v){
+    on = v; document.body.classList.toggle("autohide", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    if (!on) away(false);
+    try { localStorage.setItem(KEY, on ? "on" : "off"); } catch(e){ /* per-page only */ }
+  }
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY;
+    if (y < 90 || y < lastY - 4) away(false);
+    else if (y > lastY + 4 && !bar.matches(":hover, :focus-within")) away(true);
+    lastY = y;
+  }, {passive: true});
+  document.addEventListener("mousemove", e => { if (e.clientY < 16) away(false); }, {passive: true});
+  bar.addEventListener("focusin", () => away(false));
+  btn.addEventListener("click", () => set(!on));
+  set(on);
+  return {toggle: () => set(!on), get on(){ return on; }};
+})();
 /* ---------- team scoreboard: 6 teams, saved in this browser ---------- */
 const TEAMS = (function(){
   const KEY = "ftc-lab-teams", N = 6;
@@ -4328,6 +4687,14 @@ $$("details.ask").forEach(d => {
   d.addEventListener("toggle", () => { if (d.open) pay(); });
   TEAMS.onReset(() => { picks = []; paid = 0; tally(); show(); });
   show();
+  // Hide: once the room has voted, fold the question to one small button so the demo gets the space
+  const host = d.closest(".labhead");
+  $("summary", d).insertAdjacentHTML("afterbegin", '<button class="ask-x" type="button" title="Hide the question. Votes and points stay.">Hide</button>');   // inside the summary: a closed details shows only its summary
+  d.insertAdjacentHTML("afterend", '<button class="ask-show" type="button">Show the question</button>');
+  const showBtn = d.nextElementSibling;
+  const fold = gone => { if (host) host.classList.toggle("qgone", gone); else { d.hidden = gone; showBtn.style.display = gone ? "inline-block" : ""; } };
+  $(".ask-x", d).addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fold(true); showBtn.focus(); });
+  showBtn.addEventListener("click", () => { fold(false); $(".ask-x", d).focus(); });
 });
 LC.reset();
 route();

@@ -156,3 +156,19 @@ Output: one path per wheel, arrows inside the body beside each wheel, rollers re
 Request: the drive modes robot faced the left wall with its wheels still on its left and right edges as if it faced up. Add a compass with the yaw, a note on resetting the yaw and what it does to each drive mode, and PIDF information, which the sheet only mentioned in captions.
 
 Output: the robot's wheels moved to its top and bottom edges, so the drawn front matches the arrow. A compass in the field (0 away from the drivers, +90 left, -90 right, 180 toward the drivers) with the needle on +90 for the drawn robot. Four lines on yaw under the field: what it is, which mode reads it, what resetYaw() does, and the failure when you reset facing the left wall. The resetHeading() method and its gamepad binding in mono on the right. Page 4 gained a PIDF figure with two boxes: F on the hub for velocity (setVelocity, setVelocityPIDFCoefficients, the SDK recipe, RUN_USING_ENCODER) and F in the OpMode for a position job (liftPID.update(error) + kF, about 0.18 on the lift, kF x cos for an arm, none for turn and aim). Fill: page 3 850, page 4 899 of 979. One smoke check for the four new strings.
+
+## 23. Java control flow, @Override, auto-hide, Ask Hide, one-loop controls, diagram type scale, F in PIDF, encoder slip (2026-11-07)
+
+Request: Baz asked for an auto-hiding top bar and Java card list, a clearer extends and @Override card, a better Types table, a real Java lesson on if/else if/else, switch and the comparison signs, a way to hide each question after the vote, Pause/Resume/Reset on the one-loop tab and a state machine with no overlapping text, consistent diagram text, a clearer F in PIDF, and an answer on what tab 8 shows and how to track better.
+
+Finding: diagram text ranged from 9 to 31 px because each SVG stretched its viewBox to the panel width. The one-loop state machine drew labels before boxes. The lab had two meanings of F (the hub's PIDF and the lift's hold power) with no rule tying them. Tab 8's sim had perfect wheel grip, so it could not show why a real AUTO misses.
+
+Output:
+- Auto-hide (button and key H): the top bar slides away while scrolling down, and the Java card list folds to a numbered rail. Default on, saved in the browser.
+- Ask the room: a Hide button in every question, a Show the question button in its place. Votes and points stay.
+- Java: 11 cards, with "extends and @Override" (three versions: right name, typo with @Override that fails the build, Start() without @Override that builds and never runs) and a new "Decisions: if, else, switch" card (stick slider through if/else if/else, comparison and logic tables, a switch on the launcher state with a Forget the break toggle). Types table rebuilt in two columns.
+- One loop: Launch, Pause/Resume, Reset run in one bar. State machine redrawn wide and narrow, boxes before labels, 0 overlaps at 1366 and 390 px.
+- Diagram type scale: `SV.MIN` 12 and `SV.MAXSCALE` 1.25. All 16 diagrams measure 12 to 20 px text with 0 overlaps. Code lines wrap with a hanging indent instead of hiding. Coding ligatures off.
+- PIDF: one rule, F = kF x what you already know (lift: hold power, arm: kF x cos, launcher: kF x target speed on the hub). Tab 6 and tab 7 diagrams show F as its own branch with no error arrow, plus a gravity arrow on the lift. Lift preset "PD + F (tuned)". kG dropped. Cheat sheet wording matched.
+- Encoders: Floor slip slider, Forward or Strafe right, a ramp option with its code, kv rows for encoder inches, tape inches and an odometry pod, and a "When AUTO misses: fix it in this order" ladder. Reference doc gained the same ladder and the BIOBUZZ AprilTag caveat.
+- Smoke test: checks for @Override, if/else branches, switch fall-through, Ask Hide and Show, auto-hide, one-loop Pause/Resume/Reset, encoder slip.
