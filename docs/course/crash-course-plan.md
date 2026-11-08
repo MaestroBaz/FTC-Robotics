@@ -2,7 +2,7 @@
 
 Audience: about 30 students with basic Java (variables, if, loops), in 6 teams of about 5. No student laptops and no robot in the room. The mentor runs the lab on the projector from the local file `lab/index.html`. Students do not type code on this day. Goal: every team reads a full OpMode, names each part, and predicts what the robot does before the demo shows the answer. A hands-on Follow-up Session covers cloning, building and pull requests.
 
-Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, no sleep, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). On the day, open the same file from disk.
+Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, no sleep, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). The artifact still holds the 2026-11-07 lab (11 Java cards). On the day, open lab/index.html from disk only.
 
 Homework for the night before: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S (FTC Crash Course: Homework for Tonight, about 3 hours, GitHub first).
 
@@ -45,7 +45,7 @@ The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fal
 - [ ] Print `run-sheet.md`.
 - [ ] Print 6 sets of A, B and C cards, one set per team.
 - [ ] Test the projector with `lab/index.html` opened from disk, browser full screen (F11) at zoom 100%. Check that the vote options and code read from the back row, and that all 6 Compile answers on Java card 2 show without scrolling. Set zoom 125% only if the back row fails at 100%: card 2 and the error clinic then need a scroll. Press Hide after each vote so the demo gets the screen.
-- [ ] On the morning of the course, copy `lab/index.html` to a USB stick. The git tag `crash-course-day` holds the fallback copy. The tag and GitHub still hold the lab of 2026-11-07, with 11 Java cards: move the tag and push first (steps in `run-sheet.md`).
+- [ ] On the morning of the course, copy `lab/index.html` to a USB stick. The git tag `crash-course-day` holds the fallback copy. The local tag and GitHub main still hold the lab of 2026-11-07 (the tag is not on GitHub yet), with 11 Java cards: move the tag and push first (steps in `run-sheet.md`).
 - [ ] Send the homework link to the students.
 
 Laptops, GitHub org and invites, robot config and the archive branch moved to the hands-on Follow-up Session plan at the end of this doc.
@@ -108,7 +108,7 @@ The order follows the words a student meets reading MainTeleOp top to bottom: cl
 
 Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (A, inside the Robot class in Robot.java) sets up the "Robot.java: public and private" card, 8 minutes in.
 
-Word hunt routine ("Every word explained" card): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the word chips at the bottom for the final round.
+Word hunt routine ("Every word explained" card): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the chips in the Words in this file panel, right of the code, for the final round.
 
 Spot the bug routine ("Error clinic: fix it" card): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 5 and 9 stay for the final round if time allows.
 
@@ -312,7 +312,7 @@ Teach:
 
 Team rounds:
 - Prediction before INIT, START and STOP: which line runs next (1 point each). Right answers: INIT A (lines 6 to 8, then wait at line 9), START C (lines 10 to 14, over and over), STOP A (line 16, robot.stopDrive(), once). Score with keys 1 to 6.
-- Prediction on the AI version after STOP: press INIT again. Does the old thread stop? (1 point). Right answer: no. Two lines stay red, and only an app restart clears it. The Ask the room vote on this tab was the Module 0 practice, right answer C. Switching back to the team version stands for the app restart: the lab says so and the red arm goes away.
+- Prediction on the AI version (1 point): pick AI version with thread, press INIT, START and STOP. Before you press INIT again, teams predict: does the old thread stop? Right answer: no. Lines 8 and 9 stay red and the state diagram reads AI thread still running. Only an app restart clears it. The Ask the room vote on this tab was the Module 0 practice, right answer C. Switching back to the team version stands for the app restart: the lab says so and the red arm goes away.
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)
 
@@ -337,7 +337,7 @@ Lab tab 4, in this order:
 1. Robot-centric (6 min): press each preset and read the wheel powers out loud. After each one, press Center sticks and Reset robot, so the next preset starts mid-field. Last, press Forward + turn with Normalize on and let the robot draw a circle. Press Center sticks, then Reset robot: the old path stays as a dashed line. Turn Normalize off and press Forward + turn again. The new circle is wider: the left wheels asked for 1.60 and got cut to 1.00, so the turn shrank. Press Center sticks and Reset robot, tick Normalize, then tick "Bug: front_left not reversed". Teams predict what Forward does: A drives straight, B curves, C spins in place. Press Forward. Right answer B: frontLeft pushes backward, so the robot slides left and turns left at the same time. It drives a tight circle about 3 ft across, not a spin on the spot. Untick the bug. Scroll down to Wheel powers over time and press Show all: each preset you pressed shows as a step. Press Strafe right: the names at the right end of the lines read FL BR at +1 and FR BL at -1, the same pairs as the wheel view. Press Center sticks and Reset robot before step 2.
 2. Vote (3 min): field-centric, the robot faces the left wall, the driver pushes the stick up. Right answer C: slides away from the drivers, still facing the wall. Reveal, score. Pick Field-centric, press Reset robot, press "Rotate robot 90 deg left (by hand)", then Forward: the robot slides away from the drivers and keeps facing the wall. Read the wheel powers out loud: +1, -1, -1, +1. Press Center sticks, Reset robot, and Rotate robot 90 deg left again. Pick Robot-centric and press Forward: the robot drives from the middle into the left wall. The "rotation in one picture" panel shows the stick and the robot at its IMU heading on the left, and what the robot receives on the right.
 3. Field-centric with a wrong zero (5 min): pick Field-centric and press Reset robot. Press "Rotate robot 90 deg left (by hand)", then press "Reset heading" while the robot faces the left wall. The mistake: a driver pressed A with the robot facing the wall. Teams predict: where does Forward go now? Press Forward: the robot drives into the left wall, like robot-centric. The IMU reads 0 deg, so the code thinks the robot faces away from the drivers. Fix: press Center sticks, press Rotate 3 more times until the front points away from the drivers, then press "Reset heading". Forward works again. Rule: press A only with the front pointing away from the drivers.
-4. AUTO (5 min): click a few points on the field and watch the robot drive straight to each. Then click a point in the far corner and tick "Turn to 90 deg while driving" while the robot still moves: the robot turns 90 deg and the path stays nearly straight. To repeat the demo, untick the box, wait for the heading to read 0 deg, click a far point, and tick the box during the drive. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
+4. AUTO (5 min): pick AUTO: go to point, press Reset robot, then click a few points on the field and watch the robot drive straight to each. Then click a point in the far corner and tick "Turn to 90 deg while driving" while the robot still moves: the robot turns 90 deg and the path stays nearly straight. To repeat the demo, untick the box, wait for the heading to read 0 deg, click a far point, and tick the box during the drive. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
 5. Read the three use-case cards together (3 min).
 
 Correct a common belief: field-centric is a way to read the driver's sticks, so field-centric belongs in TeleOp. In the 30-second AUTO there are no sticks. What carries over to AUTO is the same rotation math, applied to field coordinates from odometry (Pinpoint or dead wheels). The BIOBUZZ AprilTags move, so they aim the robot at the HIVE and give no field position.
@@ -377,7 +377,7 @@ Part B, feedback across a match (lab tab 6, 10 min):
 - Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
 - Ask: why does drive still use setPower? The driver closes that loop with their eyes.
 - Markers: dip, recovery time, open-loop offset. Pause on the dip after a shot and name each one.
-- Set the battery to 12.5 V. The open loop now sits on target. Press Fire 3 fast: the open loop hits 1 of 3, the closed loop 3 of 3. Each ball slows the wheel. The open loop needs about 0.65 s to get back, and the next ball comes after 0.5 s. The closed loop pushes back and recovers in about 0.15 s: read the recovery time marker on the chart.
+- Set the battery to 12.5 V. The open loop now sits on target. Press Fire 3 fast: the open loop hits 1 of 3, the closed loop 3 of 3. Read the shot dots on the chart: the scoreboard adds these 3 shots to the match totals. Each ball slows the wheel. The open loop needs about 0.65 s to get back, and the next ball comes after 0.5 s. The closed loop pushes back and recovers in about 0.15 s: read the recovery time marker on the chart.
 
 Part C, the state machine, read aloud (10 min). This goes into `MainTeleOp`:
 
@@ -462,10 +462,10 @@ Team rounds:
 
 ## Final round, scores, what comes next (10 min)
 
-- Final word hunt (5 min): Java tab, "Every word explained" card, MainTeleOp. Use the word chips at the bottom. Five words, 2 points each. Pick words the room met during the day: the method the loop calls on the Robot object, the condition the loop checks, the call waiting for START, the annotation listing the OpMode on the Driver Hub, the keyword making a field private.
+- Final word hunt (5 min): Java tab, "Every word explained" card, MainTeleOp. Use the chips in the Words in this file panel. Five words, 2 points each. Pick words the room met during the day: the method the loop calls on the Robot object, the condition the loop checks, the call waiting for START, the annotation listing the OpMode on the Driver Hub, the keyword making a field private.
 - If time allows, two leftover Spot the bug errors from the "Error clinic: fix it" card, 2 points each.
 - Scores (2 min): read the scoreboard. Name the winner. Press the Teams button to hide the bar for the last slide.
-- What comes next (3 min): the hands-on Follow-up Session, where every student clones the repo, builds, and opens a pull request. Hand out the cheat sheets and `team-coding-standard.md` now. Ask each student to bring a GitHub username to the next meeting.
+- What comes next (3 min): the hands-on Follow-up Session, where every student clones the repo, builds, and opens a pull request. Hand out the cheat sheets and `team-coding-standard.md` now. Collect each student's GitHub username now (the first homework item). A student without an account brings one to the next meeting.
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 

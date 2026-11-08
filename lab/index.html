@@ -5599,7 +5599,7 @@ $$("details.ask").forEach(d => {
     });
   });
   d.addEventListener("toggle", () => { if (d.open) pay(); });
-  TEAMS.onReset(() => { picks = []; paid = 0; d.open = false; tally(); show(); });   // a reset game hides every answer again
+  TEAMS.onReset(() => { picks = []; paid = 0; d.open = false; fold(false); tally(); show(); });   // a reset game hides every answer again and shows every hidden question
   show();
   // Hide: once the room has voted, fold the question to one small button so the demo gets the space
   const host = d.closest(".labhead");

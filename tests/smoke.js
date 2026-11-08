@@ -241,6 +241,9 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(!(await pg.isVisible("#lab-java details.ask")) && (await pg.isVisible("#lab-java .ask-show")), "Hide folds the question away");
   await pg.click("#lab-java .ask-show");
   check(await pg.isVisible("#lab-java details.ask"), "Show the question brings it back");
+  await pg.click("#lab-java details.ask .ask-x");
+  await pg.click("#tm-reset"); await pg.click("#tm-reset");
+  check(await pg.isVisible("#lab-java details.ask"), "Reset scores shows a hidden question again");
 
   // ==== area java-a: Java card nav, card switching, cards 0 to 5 ====
   await pg.click('.jt[data-jt="inherit"]');

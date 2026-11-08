@@ -20,7 +20,7 @@ No internet and no robot do not block the day. See Fallbacks.
 2. [ ] Print `cheatsheet.html` double sided, 4 pages = 2 sheets per student (30 sets, color if you have it: the diagrams use blue, green and red fills), `team-coding-standard.md` (30), this sheet (2), and 6 copies of `vote-cards.html` (3 pages: A, B, C).
 3. [ ] Decide the 6 team names, or let teams name themselves in Module 0 (click a name in the scores to rename).
 4. [ ] Test the projector (gate 1) and the header, scores and votes (gate 2) on the laptop you bring.
-5. [ ] Tomorrow morning, not tonight: copy the final `lab/index.html` to the USB stick and to the projector laptop. Put a second copy on the stick from the git tag `crash-course-day`. The tag and GitHub (origin/main) still hold the lab of 2026-11-07: 11 Java cards, no Loops and arithmetic card, no Save PNG, Clear last run or PID only on new frames. Move both to the final lab first. In the repo, once `npm test` passes on the final commit, run `git tag -f crash-course-day HEAD`, `git push origin main` and `git push -f origin crash-course-day`. Then run `git show crash-course-day:lab/index.html > lab-fallback.html` and copy `lab-fallback.html` to the stick. Open it from disk once and check tab 1 shows 12 cards.
+5. [ ] Tomorrow morning, not tonight: copy the final `lab/index.html` to the USB stick and to the projector laptop. Put a second copy on the stick from the git tag `crash-course-day`. The local tag and GitHub main still hold the lab of 2026-11-07 (the tag is not on GitHub yet): 11 Java cards, no Loops and arithmetic card, no Save PNG, Clear last run or PID only on new frames. Move both to the final lab first. In the repo, once `npm test` passes on the final commit, run `git tag -f crash-course-day HEAD`, `git push origin main` and `git push -f origin crash-course-day`. Then run `git show crash-course-day:lab/index.html > lab-fallback.html` and copy `lab-fallback.html` to the stick. Open it from disk once and check tab 1 shows 12 cards.
 6. [ ] Put the old AI-written code on the projector laptop (a local folder or an editor tab) for the 2-minute show in Module 0. No internet needed.
 
 Laptops, GitHub org, invites, robot config and the archive branch moved to the hands-on Follow-up Session. Nothing on that list blocks tomorrow.
@@ -62,6 +62,6 @@ Controls to remember:
 
 ## Issues
 
-Closed before the Crash Course: #3 tab numbers, #4 and #5 PID plan text, #6 PR checklist, #7 launcher overshoot.
+Closed before the Crash Course: #3 tab numbers, #4 and #5 PID plan text, #6 PR checklist, #7 launcher overshoot, #44 state machine.
 
 Open, not needed for a go: #36 mentor checklist status, #43 fallback review, #8 where the lab lives after the Crash Course.
