@@ -269,6 +269,15 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-lift-f.png") });
   await pg.click('.appbtn[data-app="turn"]'); await pg.waitForTimeout(300);
   check(!(await pg.$eval("#pid-loop", s => s.innerHTML)).includes("no error"), "turn has no F box");
+  // ==== area pid: the turn sim matches turnToHeading(): stuck outside 1.5 deg, and a bump after the loop ended is not undone ====
+  check(!(await pg.$('[data-ps="P too high"]')) && (await pg.$$eval("#lab-pid .lift-only", els => els.every(e => e.hidden))), "turn has no P too high preset and hides the lift-only legend");
+  await pg.click('[data-ps="P only"]'); await pg.click("#pid-cbar .tc-reset"); await pg.waitForTimeout(3500);   // Reset run: from 0 to 90 deg with P only
+  const pOnlyChips = await chips(); check(/loop still running: stuck/.test(pOnlyChips), "P only on the turn shows the loop stuck outside the break window: " + pOnlyChips);
+  await pg.click('[data-ps="PID (tuned)"]'); await pg.waitForTimeout(3500);
+  check(/loop ended: on target/.test(await chips()), "tuned PID ends the turn loop");
+  await pg.click("#pid-bump"); await pg.waitForTimeout(1500);
+  check(/nothing holds the heading/.test(await chips()), "a bump after the loop ended stays: nothing holds the heading");
+  // ==== end area pid ====
 
   // ---- auto-aim: each preset, then search after dragging the HIVE out of view ----
   await pg.click('.appbtn[data-app="aim"]');

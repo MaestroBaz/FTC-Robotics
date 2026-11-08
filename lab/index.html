@@ -401,6 +401,10 @@ td.hit{color:var(--ok);}
 #lab-oneloop .ol-rule{margin:12px 0 0; font-size:15px; line-height:1.45; color:var(--ink);}
 @media (max-width: 600px){ #ol-bar .chip{white-space:normal; line-height:1.3; border-radius:10px;} }   /* the long worst-miss chips wrap on a phone */
 /* ==== end area oneloop ==== */
+/* ==== area pid: tab 7 goal line, loop diagram on a phone ==== */
+.labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
+@media (max-width:600px){ #pid-loop{min-width:900px;} }
+/* ==== end area pid ==== */
 </style>
 </head>
 <body>
@@ -1072,10 +1076,11 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>PID control: one class, every sensor</h2>
-      <p class="lede">A PID controller turns an error (how far you are from the target) into motor power. P pushes toward the target, D brakes before you overshoot, I fixes what is left over. Pick a job below: the PID code stays the same. Only the sensor, the error and the 3 numbers change. The lift adds a 4th number, kF: power you send before any error shows, because gravity always pulls.</p>
+      <p class="goal">Goal: point at P, I and D on the chart and say what each one does.</p>
+      <p class="lede">A PID controller turns an error, how far you are from the target, into motor power. P pushes toward the target. D brakes before you overshoot. Pick a job below. The PID code stays the same. Only the sensor, the error and the numbers change.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift holds 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Gravity needs about 0.18 power to hold the lift still. With P only, the motor gets that power only from an error: error x kP = 0.18. So the lift stops where the error makes exactly 0.18, below the target. I adds up the leftover error over time until the power reaches 0.18. I is the answer. Now pick the lift job and watch the shortcut: F adds the 0.18 from the first loop pass, before any error.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift stops about 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">I. Gravity needs 0.18 power to hold the lift. P gives power only from an error: kP x error = 0.18, so the lift stops 1.8 in short. D gives nothing here. The lift sits still, so the error does not change. A bigger kP shrinks the gap but never closes the gap, and the lift starts to bounce. I adds up the leftover error until the power reaches 0.18. Pick the lift job next: F sends the 0.18 from the first pass, before any error shows.</div>
     </details>
   </div>
   <div class="row" style="margin-bottom:14px" role="tablist" aria-label="PID application">
@@ -1085,7 +1090,7 @@ td.hit{color:var(--ok);}
   </div>
   <div class="panel" style="margin-bottom:16px">
     <h3>The control loop <small>numbers update live. The brighter a term box, the harder it pushes.</small></h3>
-    <svg class="diag" id="pid-loop" role="img" aria-label="PID control loop diagram"></svg>
+    <div style="overflow-x:auto"><svg class="diag" id="pid-loop" role="img" aria-label="PID control loop diagram"></svg></div>
     <div class="grid2" style="grid-template-columns:1fr 1fr; gap:12px; margin-top:12px">
       <div><h3 style="font-size:16px">I: the integral is the area under the error</h3><canvas id="pid-int" height="150"></canvas></div>
       <div><h3 style="font-size:16px">D: the derivative is the slope of the error</h3><canvas id="pid-der" height="150"></canvas></div>
@@ -1112,7 +1117,7 @@ td.hit{color:var(--ok);}
           <li>Set kI and kD to 0. Raise kP until the robot reaches the target fast and overshoots a little.</li>
           <li>Raise kD until the overshoot and wobble stop. Too much D makes the motion slow and jittery.</li>
           <li>If it still stops short (friction, a heavier load), add a small kI and watch the I line grow on the chart. The class builds I only near the target, so I cannot pile up during a long move and push past the target (windup).</li>
-          <li>Test 5 times in a row. Write the numbers in <code>Robot.java</code> and commit with what you tested.</li>
+          <li>Test 5 times in a row. Write the numbers in the <code>new PIDController(...)</code> line and commit with what you tested.</li>
         </ol>
       </div>
       <div class="panel">
@@ -1131,14 +1136,16 @@ td.hit{color:var(--ok);}
         <div id="pid-cbar"></div>
         <canvas id="pid-plot1" height="300"></canvas>
         <div class="legend" style="margin-top:6px"><span><i style="background:var(--ok)"></i>target</span><span><i style="background:var(--accent)"></i>sensor reading</span><span><i style="background:color-mix(in srgb,var(--ok) 30%,transparent); height:10px"></i>settling band</span></div>
-        <h3 style="margin-top:12px">Response markers <small>latest move on screen</small></h3>
-        <div style="overflow-x:auto"><table class="math resp" id="pid-resp"></table></div>
-        <p class="note" style="margin-top:6px">"Response time" is a loose word. Some people mean rise time, others mean settling time. Say which one you mean.</p>
       </div>
       <div class="panel">
         <h3>What each term asks for <small>power, -1 to 1: P + I + D, plus F on the lift. Same time window as above</small></h3>
         <canvas id="pid-plot2" height="200"></canvas>
-        <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>P = kP x error</span><span><i style="background:var(--pollen)"></i>I = kI x sum of error</span><span><i style="background:var(--red)"></i>D = kD x error change</span><span><i style="background:var(--ok)"></i>F = kF, the hold power (lift only)</span><span><i style="background:transparent; border-top:2px dashed var(--muted); height:0"></i>gravity needs (lift only)</span><span><i style="background:var(--ink)"></i>output</span></div>
+        <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>P = kP x error</span><span><i style="background:var(--pollen)"></i>I = kI x sum of error</span><span><i style="background:var(--red)"></i>D = kD x error change</span><span class="lift-only"><i style="background:var(--ok)"></i>F = kF, the hold power</span><span class="lift-only"><i style="background:transparent; border-top:2px dashed var(--muted); height:0"></i>gravity needs</span><span><i style="background:var(--ink)"></i>output</span></div>
+      </div>
+      <div class="panel">
+        <h3>Response markers <small>latest move on screen</small></h3>
+        <div style="overflow-x:auto"><table class="math resp" id="pid-resp"></table></div>
+        <p class="note" style="margin-top:6px">"Response time" is a loose word. Some people mean rise time, others mean settling time. Say which one you mean.</p>
       </div>
       <div class="panel">
         <h3>Using it for this job</h3>
@@ -2382,7 +2389,7 @@ const PIDLAB = (function(){
       desc: "AUTO turns the robot to an exact heading. Sensor: the Control Hub IMU. Error = target heading - IMU heading, in degrees.",
       unit: "deg", targets: [90, -90, 180, 0], tol: 1.5, yr: [-180, 180], clip: 0.6,
       range: {kp: [0, 0.1, 0.001], ki: [0, 0.1, 0.001], kd: [0, 0.01, 0.0001]},
-      presets: {"P only": [0.02, 0, 0], "P too high": [0.07, 0, 0], "PD": [0.02, 0, 0.002], "PID (tuned)": [0.02, 0.04, 0.002]},
+      presets: {"P only": [0.02, 0, 0], "PD": [0.02, 0, 0.002], "PID (tuned)": [0.02, 0.04, 0.002]},
       start: "P only"
     },
     aim: {
@@ -2412,7 +2419,7 @@ const PIDLAB = (function(){
     aim: {rx: 50, ry: 52, base: 50, h: 0, w: 0, tx: 74, ty: 10, held: true, strafe: false, noise: true, frames: [], meas: null, found: false, nextFrame: 0, lastB: 0, mode: "off", drag: false},
     steps: [],
     lift: {p: 0, v: 0, heavy: false, kf: 0},   // kf: the F in PIDF, a constant power that holds the lift against gravity
-    m: {t0: 0, start: 0, over: 0, settledAt: -1, inTol: 0}};
+    m: {t0: 0, start: 0, over: 0, settledAt: -1, inTol: 0, stuck: 0}};
   function fmt(v, step){ const d = step < 0.001 ? 4 : step < 0.01 ? 3 : 2; return (+v).toFixed(d); }
   function setSliders(){
     const A = APPS[app];
@@ -2434,8 +2441,8 @@ const PIDLAB = (function(){
   function gains(){ return [pOn.checked ? +kp.value : 0, iOn.checked ? +ki.value : 0, dOn.checked ? +kd.value : 0]; }
   function resetPID(){ S.c.integral = 0; S.c.first = true; }
   function newTarget(v){
-    S.target = v; resetPID(); S.done = false;
-    S.m = {t0: S.t, start: measure(), over: 0, settledAt: -1, inTol: 0};
+    S.target = v; resetPID(); S.done = false; S.bumped = false;
+    S.m = {t0: S.t, start: measure(), over: 0, settledAt: -1, inTol: 0, stuck: 0};
     S.steps.push({t0: S.t, sp: v, start: measure(), app});
     if (S.steps.length > 400) S.steps.shift();
   }
@@ -2456,11 +2463,12 @@ const PIDLAB = (function(){
     $("#pid-apptitle").textContent = A.title;
     $("#pid-appdesc").textContent = A.desc;
     $("#pid-viewtitle").textContent = A.view;
+    $$("#lab-pid .lift-only").forEach(el => el.hidden = app !== "lift");
     let t = "";
     if (A.targets.length){ t = '<span class="note">Target:</span>' + A.targets.map(v => '<button class="b" data-tg="' + v + '">' + v + " " + A.unit + "</button>").join(""); }
     $("#pid-targets").innerHTML = t;
     $$("#pid-targets [data-tg]").forEach(b => b.addEventListener("click", () => newTarget(+b.dataset.tg)));
-    $("#pid-presets").innerHTML = '<span class="note">Presets:</span>' + Object.keys(A.presets).map(n => '<button class="b" data-ps="' + n + '">' + n + "</button>").join("");
+    $("#pid-presets").innerHTML = '<span class="note">Presets (each one starts a new move):</span>' + Object.keys(A.presets).map(n => '<button class="b" data-ps="' + n + '">' + n + "</button>").join("");
     $$("#pid-presets [data-ps]").forEach(b => b.addEventListener("click", () => {
       const pv = A.presets[b.dataset.ps];
       A.gains = pv.slice(0, 3); pOn.checked = iOn.checked = dOn.checked = true; setSliders();
@@ -2470,10 +2478,11 @@ const PIDLAB = (function(){
     let ex = "";
     if (app === "turn") ex = '<button class="b" id="pid-bump">Bump the robot</button>';
     if (app === "aim") ex = '<button class="b" id="pid-hold" aria-pressed="false">Hold aim button (gamepad1 right bumper)</button><label class="tg"><input type="checkbox" id="pid-strafe"> Driver strafes side to side</label><label class="tg"><input type="checkbox" id="pid-noise" checked> Camera noise and delay</label><button class="b" id="pid-move">Move the target</button>';
-    if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>kF, the hold power: <b id="pid-kfv"></b> <small class="note">F = kF every pass. Find the power that holds the lift still.</small></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
+    if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>kF, the hold power: <b id="pid-kfv"></b></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"><small class="note" style="display:block">Slide until the lift holds still with P, I and D off.</small></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
     $("#pid-extras").innerHTML = ex;
     const bump = $("#pid-bump");
-    if (bump) bump.addEventListener("click", () => { if (app === "turn"){ S.turn.w += 220; S.done = false; S.m.settledAt = -1; } else S.lift.v -= 30; });
+    if (bump) bump.addEventListener("click", () => { const st = S.steps[S.steps.length - 1]; if (st && st.tEnd === undefined) st.tEnd = S.t;   // the markers measure the move up to the bump, not the bump
+      if (app === "turn"){ S.turn.w += 220; if (S.done) S.bumped = true; else S.m.settledAt = -1; } else S.lift.v -= 30; });   // a turn loop that ended stays ended: turnToHeading() already returned
     if (app === "aim"){
       const hold = $("#pid-hold");
       hold.addEventListener("click", () => { S.aim.held = !S.aim.held; setHoldLabel(); if (S.aim.held) newTarget(0); });
@@ -2580,6 +2589,7 @@ const PIDLAB = (function(){
     let L;
     if (app === "turn") L = [
       "private final PIDController turnPID = " + ctor,
+      "// Robot.java needs headingDegrees() and turnRateDegrees(): imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate",
       "",
       "private void turnToHeading(double target) {      // AUTO",
       "    turnPID.reset();",
@@ -2615,6 +2625,7 @@ const PIDLAB = (function(){
     ];
     if (app === "lift") L = [
       "private final PIDController liftPID = " + ctor,
+      "// Robot.java needs liftInches() and setLiftPower()",
       "private double liftTarget = 0;",
       "",
       "// Inside the TeleOp loop",
@@ -2632,7 +2643,7 @@ const PIDLAB = (function(){
   // uses table
   $("#pid-uses").innerHTML = "<tr><th>Job</th><th>Sensor</th><th>error =</th><th>Tip</th></tr>" + [
     ["Turn to a heading in AUTO", "IMU", "target - heading (deg)", "Normalize the angle, or 179 to -179 spins the long way"],
-    ["Hold heading while strafing", "IMU", "same as above", "Keeps the launcher pointed at the HIVE during field-centric driving"],
+    ["Hold heading while strafing", "IMU", "same as above", "Keeps the robot facing one way while you strafe. To follow the HIVE, use auto-aim (next row)."],
     ["Auto-aim on a button", "Camera: AprilTag bearing or Limelight tx", "bearing (deg)", "Camera data is late and noisy: PD is enough, I adds overshoot"],
     ["Lift, arm or pivot to a preset", "Motor encoder", "target - position", "Gravity: F = kF (lift) or kF x cos(angle) (arm). Find kF first, then P and D"],
     ["Launcher speed", "Motor encoder velocity", "target - velocity", "setVelocity() runs PIDF on the hub: F = kF x target speed (tab 6)"],
@@ -2706,6 +2717,7 @@ const PIDLAB = (function(){
       const dir = app === "aim" ? Math.sign(m.start || 1) : Math.sign((app === "turn" ? wrapD(S.target - m.start) : S.target - m.start) || 1);
       const past = -e * dir; if (past > m.over) m.over = past;
       if (Math.abs(e) < A.tol){ m.inTol += 1 / 50; if (m.inTol > 0.3 && m.settledAt < 0) m.settledAt = S.t - m.t0 - 0.3; } else { m.inTol = 0; if (m.settledAt >= 0) m.settledAt = -1; }
+      if (app === "turn" && !S.done && Math.abs(e) >= A.tol && Math.abs(S.turn.w) < 5) m.stuck += 1 / 50; else m.stuck = 0;   // outside the break window and not moving: AUTO waits here forever
     }
   }
   function tick(dt){
@@ -2729,7 +2741,8 @@ const PIDLAB = (function(){
       html += chip(md === "off" ? "AIM OFF: driver turns" : md === "search" ? "SEARCHING: target not in camera view" : md === "locked" ? "LOCKED ON" : "TRACKING", md === "off" ? "" : md === "search" ? "bad" : md === "locked" ? "ok" : "warn");
     }
     if (e !== null) html += chip("error " + e.toFixed(1) + " " + A.unit, Math.abs(e) < A.tol ? "ok" : "warn");
-    if (app === "turn" && S.done) html += chip("loop ended: on target and stopped", "ok");
+    if (app === "turn" && S.done) html += S.bumped ? chip("loop ended before the bump: nothing holds the heading", "bad") : Math.abs(e) < APPS.turn.tol ? chip("loop ended: on target and stopped", "ok") : chip("loop ended, then the robot coasted to " + e.toFixed(1) + " deg", "warn");
+    if (app === "turn" && !S.done && S.m.stuck > 1) html += chip("loop still running: stuck " + e.toFixed(1) + " deg away", "bad");
     if (app === "aim") html += chip("camera: " + (S.aim.found ? "target found" : "no target"), S.aim.found ? "ok" : "bad");
     html += chip("output " + S.c.out.toFixed(2), "run");
     $("#pid-chips").innerHTML = html;
@@ -2802,7 +2815,7 @@ const PIDLAB = (function(){
     for (let k = i; k < iE; k++) if (H[k].mv) return {moving: true};
     const e0 = H[i].e, tS = H[i].t - st.t0 < 0.15 ? st.t0 : H[i].t;
     if (Math.abs(e0) < 2 * A.tol) return {small: true, e0};
-    const band = Math.max(A.tol, 0.02 * Math.abs(e0));
+    const band = app === "turn" ? A.tol : Math.max(A.tol, 0.02 * Math.abs(e0));   // turn: the same 1.5 deg window as the Java break
     let td = null, t10 = null, t90 = null, pmax = -Infinity, tp = null, lastOut = tS;
     for (let k = i; k < iE; k++){
       const p = H[k];
@@ -2851,7 +2864,7 @@ const PIDLAB = (function(){
     // which move to mark: the last one that started before the right edge
     let si = -1; for (let k = S.steps.length - 1; k >= 0; k--){ if (S.steps[k].t0 <= m.t1){ si = k; break; } }
     const st = si >= 0 ? S.steps[si] : null;
-    const r = st ? response(st, si + 1 < S.steps.length ? S.steps[si + 1].t0 : Infinity) : null;
+    const r = st ? response(st, Math.min(si + 1 < S.steps.length ? S.steps[si + 1].t0 : Infinity, st.tEnd === undefined ? Infinity : st.tEnd)) : null;
     let [lo, hi] = A.yr;
     if (CH.fitY()){
       const ex = extentOf(S.hist, m.t0, m.t1, [p => p.me, p => p.sp]);
@@ -2879,8 +2892,8 @@ const PIDLAB = (function(){
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, p => p.me, P.accent, 2.5, null, 180);
     if (showM && okR){
       const lv = pr => Y(level(st, r.e0, pr));
-      if (r.t10 !== null){ dashed(ctx, X(r.tS), lv(0.1), X(r.t10), lv(0.1), P.pollen, 1.2); text(ctx, "10%", X(r.tS) + 4, lv(0.1) - 3, {color: P.pollen, size: 10, weight: "700"}); dashed(ctx, X(r.t10), lv(0.1), X(r.t10), Tt + ph, P.pollen, 1.2); }
-      if (r.t90 !== null){ dashed(ctx, X(r.tS), lv(0.9), X(r.t90), lv(0.9), P.pollen, 1.2); text(ctx, "90%", X(r.tS) + 4, lv(0.9) - 3, {color: P.pollen, size: 10, weight: "700"}); dashed(ctx, X(r.t90), lv(0.9), X(r.t90), Tt + ph, P.pollen, 1.2); }
+      if (r.t10 !== null){ dashed(ctx, X(r.tS), lv(0.1), X(r.t10), lv(0.1), P.pollen, 1.2); text(ctx, "10%", X(r.tS) + 4, lv(0.1) - 3, {color: P.pollen, size: 13, weight: "700"}); dashed(ctx, X(r.t10), lv(0.1), X(r.t10), Tt + ph, P.pollen, 1.2); }
+      if (r.t90 !== null){ dashed(ctx, X(r.tS), lv(0.9), X(r.t90), lv(0.9), P.pollen, 1.2); text(ctx, "90%", X(r.tS) + 4, lv(0.9) - 3, {color: P.pollen, size: 13, weight: "700"}); dashed(ctx, X(r.t90), lv(0.9), X(r.t90), Tt + ph, P.pollen, 1.2); }
       if (r.td !== null) dashed(ctx, X(r.td), Tt, X(r.td), Tt + ph, P.muted, 1, [2, 3]);
       dashed(ctx, X(r.tS), Tt, X(r.tS), Tt + ph, P.muted, 1, [2, 3]);
       if (r.os > 0){
@@ -2889,7 +2902,7 @@ const PIDLAB = (function(){
         dashed(ctx, xp, yp, xp, lv(1), P.red, 1.2);
         ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(xp, yp, 4, 0, Math.PI * 2); ctx.fill();
         const up = level(st, r.e0, r.pmax) > level(st, r.e0, 1);
-        text(ctx, "overshoot " + Math.round(r.os * 100) + "% = " + (r.os * Math.abs(r.e0)).toFixed(1) + " " + A.unit, Math.min(R - 4, xp + 8), yp + (up ? -6 : 14), {color: P.red, size: 11, weight: "700", align: xp + 200 > R ? "right" : "left"});
+        text(ctx, "overshoot " + Math.round(r.os * 100) + "% = " + (r.os * Math.abs(r.e0)).toFixed(1) + " " + A.unit, Math.min(R - 4, xp + 8), yp + (up ? -6 : 14), {color: P.red, size: 13, weight: "700", align: xp + 240 > R ? "right" : "left"});
       }
       if (r.ts !== null) dashed(ctx, X(r.ts), Tt, X(r.ts), Tt + ph, P.ok, 1.4);
       const cOff = app === "aim" ? 0 : (st ? st.sp : 0);
@@ -2897,7 +2910,7 @@ const PIDLAB = (function(){
         const xr = Math.min(R - 24, X(r.tLast) - 24), c = cOff, yv = Y(app === "aim" ? r.off : st.sp - r.off);
         ctx.save(); ctx.strokeStyle = P.ink; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(xr - 5, Y(c)); ctx.lineTo(xr + 5, Y(c)); ctx.moveTo(xr - 5, yv); ctx.lineTo(xr + 5, yv); ctx.moveTo(xr, Y(c)); ctx.lineTo(xr, yv); ctx.stroke(); ctx.restore();
-        text(ctx, "offset " + r.off.toFixed(1) + " " + A.unit, xr - 8, (Y(c) + yv) / 2 + 4, {color: P.ink, size: 11, weight: "700", align: "right"});
+        text(ctx, "offset " + r.off.toFixed(1) + " " + A.unit, xr - 8, (Y(c) + yv) / 2 + 4, {color: P.ink, size: 13, weight: "700", align: "right"});
       }
     }
     ctx.restore();
@@ -2907,10 +2920,10 @@ const PIDLAB = (function(){
       if (okR){
         if (r.td !== null) bracketH(ctx, X(r.tS), X(r.td), y0, P.muted, "delay " + (r.td - r.tS).toFixed(2) + " s", L, R);
         if (r.t10 !== null && r.t90 !== null) bracketH(ctx, X(r.t10), X(r.t90), y0 + 14, P.pollen, "rise " + (r.t90 - r.t10).toFixed(2) + " s", L, R);
-        else text(ctx, "rise: never reached 90%", L + 4, y0 + 18, {color: P.pollen, size: 11, weight: "600"});
+        else text(ctx, "rise: never reached 90%", L + 4, y0 + 18, {color: P.pollen, size: 13, weight: "600"});
         if (r.ts !== null) bracketH(ctx, X(r.tS), X(r.ts), y0 + 28, P.ok, "settle " + (r.ts - r.tS).toFixed(2) + " s", L, R);
-        else text(ctx, "settle: not yet inside the band", L + 4, y0 + 32, {color: P.ok, size: 11, weight: "600"});
-      } else text(ctx, r && r.moving ? "target moving: no markers" : "markers appear after a move", L + 4, y0 + 4, {color: P.muted, size: 11});
+        else text(ctx, "settle: not yet inside the band", L + 4, y0 + 32, {color: P.ok, size: 13, weight: "600"});
+      } else text(ctx, r && r.moving ? "target moving: no markers" : "markers appear after a move", L + 4, y0 + 4, {color: P.muted, size: 13});
     }
     CH.overlay(ctx, cv, Tt, Tt + ph);
     if (tRT()) respTable(r);
@@ -3840,7 +3853,7 @@ const PIDVIZ = (function(){
   const t10 = throttle(90);
   const NAMES = {
     turn: {target: "Target heading", plant: ["Drivetrain", "turns the robot"], sensor: ["IMU", "heading in deg"], meas: "heading", unit: "deg"},
-    aim: {target: "Target: bearing 0", plant: ["Drivetrain", "turns toward HIVE"], sensor: ["Camera", "AprilTag bearing"], meas: "bearing", unit: "deg"},
+    aim: {target: "Target: face the HIVE", plant: ["Drivetrain", "turns toward HIVE"], sensor: ["Camera", "bearing = the error"], meas: "bearing", unit: "deg"},
     lift: {target: "Target height", plant: ["Lift motor", "moves the lift"], sensor: ["Encoder", "height in inches"], meas: "height", unit: "in"}
   };
   function loop(force){
@@ -3849,12 +3862,14 @@ const PIDVIZ = (function(){
     const f2 = v => (v === null || v === undefined) ? "--" : (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2));
     const mag = v => Math.min(1, Math.abs(v || 0) / 0.6);
     let s = SV.defs(pre);
-    s += SV.box(10, 92, 130, 56, [N.target, f2(g.target) + " " + N.unit], {mono: false});
+    s += SV.box(10, 92, 130, 56, g.app === "aim" ? ["Target:", "face the HIVE"] : [N.target, f2(g.target) + " " + N.unit], {mono: false});
     s += SV.ar(pre, [[140, 120], [172, 120]], {});
     s += SV.circ(192, 120, 20, {hot: true});
 
-    s += SV.tx(172, 108, "+", {size: 14, weight: "700", col: "ok"});
-    s += SV.tx(205, 152, "-", {size: 16, weight: "700", col: "red"});
+    if (g.app !== "aim"){   // aim: the camera bearing already is the error, so the junction subtracts nothing
+      s += SV.tx(172, 108, "+", {size: 14, weight: "700", col: "ok"});
+      s += SV.tx(205, 152, "-", {size: 16, weight: "700", col: "red"});
+    }
     s += SV.ar(pre, [[212, 120], [262, 120]], {});
     s += SV.tx(237, 162, "error", {size: 12, col: "mut", weight: "600"});
     s += SV.tx(237, 178, f2(g.err), {size: 12, mono: true, weight: "700"});
@@ -3892,7 +3907,7 @@ const PIDVIZ = (function(){
     s += SV.tx(1013, 182 + dy, N.meas, {size: 12, col: "acc", weight: "600", anchor: "end"});
     if (lift){ s += SV.ar(pre, [[918, 58], [918, 90]], {col: "red"}); s += SV.tx(918, 50, "gravity pulls down: needs " + g.grav.toFixed(2), {size: 12, col: "red", weight: "600"}); }
     s += SV.box(848, 212 + dy, 140, 48, N.sensor, {stroke: "acc", sw: 2});
-    s += SV.ar(pre, [[848, 236 + dy], [192, 236 + dy], [192, 142]], {col: "acc", label: "sensor reading " + f2(g.meas) + " " + N.unit, at: [520, 228 + dy], mono: true, lcol: "acc"});
+    s += SV.ar(pre, [[848, 236 + dy], [192, 236 + dy], [192, 142]], {col: "acc", label: g.app === "aim" ? "bearing " + f2(g.meas) + " deg: the camera does the subtraction" : "sensor reading " + f2(g.meas) + " " + N.unit, at: [520, 228 + dy], mono: true, lcol: "acc"});
     s += SV.tx(520, 20, "Every loop pass, about 50 times per second: read the sensor, compute the error, add P + I + D" + (lift ? " + F" : "") + ", send the power.", {size: 12, col: "mut"});
     if (g.app === "aim") s += SV.tx(520, 272, g.aimMode === "search" ? "SEARCHING: no target in view, so the PID is skipped and the robot spins at a fixed 0.3 toward the last side it saw." : g.aimMode === "off" ? "AIM OFF: the button is not held, so the PID is skipped and the driver turns the robot." : "For aim, the camera measures the error directly: bearing to the target. Target 0 = dead ahead.", {size: 12, col: g.aimMode === "search" ? "red" : "mut"});
     if (lift) s += SV.tx(520, 272 + dy, "F cancels gravity before any error shows. P, I and D fix only what F misses.", {size: 12, col: "ok", weight: "600"});
@@ -3908,18 +3923,16 @@ const PIDVIZ = (function(){
     let emax = 1; pts.forEach(p => { emax = Math.max(emax, Math.abs(p.e)); });
     const t0 = Math.max(g.t0, g.t - 6), X = t => L + (t - t0) / Math.max(0.5, g.t - t0) * pw, Y = v => T + ph / 2 - v / emax * ph * 0.46;
     ctx.strokeStyle = P.line; ctx.beginPath(); ctx.moveTo(L, Y(0)); ctx.lineTo(L + pw, Y(0)); ctx.stroke();
-    let area = 0;
     for (let i = 1; i < pts.length; i++){
       const a = pts[i - 1], b = pts[i];
       if (a.t < t0) continue;
-      area += (a.e + b.e) / 2 * (b.t - a.t);
-      ctx.fillStyle = alpha((a.e + b.e) >= 0 ? P.pollen : P.red, 0.45);
+      ctx.fillStyle = Math.abs(a.p) < 0.35 ? alpha((a.e + b.e) >= 0 ? P.pollen : P.red, 0.45) : alpha(P.muted, 0.18);   // same 0.35 rule as the class: far away, I stays at 0
       ctx.beginPath(); ctx.moveTo(X(a.t), Y(0)); ctx.lineTo(X(a.t), Y(a.e)); ctx.lineTo(X(b.t), Y(b.e)); ctx.lineTo(X(b.t), Y(0)); ctx.closePath(); ctx.fill();
     }
     ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); pts.forEach((p, i) => { if (p.t < t0) return; const x = X(p.t), y = Y(p.e); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }); ctx.stroke();
-    text(ctx, "shaded area = sum of error x time", 8, 14, {size: 11, color: P.muted, mono: false});
+    text(ctx, "shaded = error x time the class adds up", 8, 14, {size: 12, color: P.muted, mono: false});
     text(ctx, "area " + (g.integral).toFixed(2), w - 8, 14, {size: 12, weight: "700", align: "right", color: P.pollen});
-    text(ctx, "above the line adds, below subtracts", 8, h - 4, {size: 11, color: P.muted, mono: false});
+    text(ctx, "grey: far from the target, I stays at 0 (no windup)", 8, h - 4, {size: 12, color: P.muted, mono: false});
     // ---- derivative: slope of error now ----
     cv = $("#pid-der");
     ({ctx, w, h} = fit(cv));
@@ -3937,13 +3950,13 @@ const PIDVIZ = (function(){
       ctx.strokeStyle = P.red; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(xb, yb); ctx.stroke();
       ctx.setLineDash([4, 3]); ctx.strokeStyle = alpha(P.red, 0.8); ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(xb, ya); ctx.lineTo(xb, yb); ctx.stroke(); ctx.setLineDash([]);
-      text(ctx, "run 0.5 s", (xa + xb) / 2, ya + (ya > h - 30 ? -6 : 14), {size: 11, color: P.red, align: "center"});
-      text(ctx, "rise", xb - 4, (ya + yb) / 2, {size: 11, color: P.red, align: "right"});
+      text(ctx, "run 0.5 s", (xa + xb) / 2, ya + (ya > h - 30 ? -6 : 14), {size: 12, color: P.red, align: "center"});
+      text(ctx, "rise", xb - 4, (ya + yb) / 2, {size: 12, color: P.red, align: "right"});
       ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(xb, yb, 4, 0, Math.PI * 2); ctx.fill();
     }
-    text(ctx, "red line = slope of the error right now", 8, 14, {size: 11, color: P.muted, mono: false});
-    text(ctx, "slope " + slope.toFixed(1) + " /s", w - 8, 14, {size: 12, weight: "700", align: "right", color: P.red});
-    text(ctx, slope < -0.5 ? "error shrinking: D pushes back, a brake" : slope > 0.5 ? "error growing: D pushes harder" : "error steady: D is near 0", 8, h - 4, {size: 11, color: P.muted, mono: false});
+    text(ctx, "red line = slope of the error right now", 8, 14, {size: 12, color: P.muted, mono: false});
+    text(ctx, "slope " + slope.toFixed(1) + " " + NAMES[g.app].unit + "/s", w - 8, 14, {size: 12, weight: "700", align: "right", color: P.red});
+    text(ctx, slope < -0.5 ? "error shrinking: D pushes back, a brake" : slope > 0.5 ? "error growing: D pushes harder" : "error steady: D is near 0", 8, h - 4, {size: 12, color: P.muted, mono: false});
   }
   return {loop, minis};
 })();
