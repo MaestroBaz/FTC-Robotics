@@ -19,7 +19,7 @@ The course format (changed 2026-11-07 for 30 students, 3 hours, no laptops and n
 ```
 CLAUDE.md                   this file
 README.md                   human-facing overview
-lab/index.html              the lab (about 4000 lines: CSS, HTML for 8 tabs, one <script>)
+lab/index.html              the lab (about 5600 lines: CSS, HTML for 8 tabs, one <script>)
 docs/architecture.md        how the lab code is built: modules, time loop, charts, PID sim
 docs/decisions.md           teaching and technical decisions, with the reason for each
 docs/history.md             what was built, request by request
@@ -33,6 +33,7 @@ docs/course/cheatsheet.html           student cheat sheets: 2 double-sided sheet
 docs/course/team-coding-standard.md   printed handout: the Java the team uses and avoids
 docs/course/github-team-workflow.md   org, repos, branch rules, PR template, drills
 docs/course/ftc-reference-2026-27.md  season rules, hardware, SDK, sensors, vision, links
+docs/course/follow-up/                plans for the sessions after the Crash Course: vision, odometry, path following, Control Award
 tests/smoke.js              Playwright end-to-end checks plus screenshots in tests/shots/
 tests/syntax-check.js       parses the inline script, flags non-ASCII characters
 ```
@@ -43,7 +44,7 @@ tests/syntax-check.js       parses the inline script, flags non-ASCII characters
 npm install                 # installs Playwright
 npx playwright install chromium
 npm run check               # syntax + ASCII check of lab/index.html (fast, run after every edit)
-npm test                    # full smoke test, about 60 s, screenshots in tests/shots/
+npm test                    # full smoke test, about 90 s, screenshots in tests/shots/
 npm run serve               # serves lab/ at http://localhost:8080
 ```
 
@@ -75,8 +76,10 @@ Until these issues close:
 
 ## Current state (2026-11-08)
 
+The `crash-course-day` git tag (local) marks the lab reviewed on 2026-11-07. Run-sheet prep step 5 moves the tag to the final commit and pushes it.
+
 Done and tested:
-- 8 tabs in the plan's teaching order: 1 Java basics (11 cards in reading order: anatomy, classes, types, public/private, extends and @Override, Decisions (if, else, switch), scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Closed loop: launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders (later) (wheel slip, ramp, and a tracking fix ladder). The lab opens on Java.
+- 8 tabs in the plan's teaching order: 1 Java basics (12 cards in reading order: anatomy, classes, types, public/private, extends and @Override, Decisions (if, else, switch), Loops (for the hands-on session), scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Closed loop: launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders (later) (wheel slip, ramp, a tracking fix ladder, and the turnToHeading exercise). The lab opens on Java.
 - Auto-hide (pin at the right end of the tab row, or key H, default on): the header folds into one 34 px line with the tab, the sim state and the scores. Hover, focus or a tap opens the full menu over the page. The Java card list folds to a rail. Every Ask the room has a Hide button, and its answer opens only from Reveal.
 - Every tab has a one-line goal under its title. Ask the room right answers are spread over A, B and C. A teaching review (2026-11-07) passed all 10 areas at 1366x768, dark and 390 px.
 - Diagram text: `SV.MIN` 12 and `SV.MAXSCALE` 1.25 keep every SVG label between 12 and 20 px.
@@ -84,9 +87,13 @@ Done and tested:
 - Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser). Ask the room votes come in team order, Team 1 first; Reveal pays a point to every team that chose the right answer; right-click takes the last vote back. Reset scores takes two clicks. Word hunt chips on the Every word explained card.
 - Every Java snippet audited against the SDK v12.0 javadoc (2026-11-07): all compile as shown.
 - Sim speed slider, log scale 0.05x to 2x, plus Pause, Step 0.1 s, keys P [ ] .
-- Tabs 6 and 7 charts keep the full history: live window 5-60 s, Show all, drag to zoom, scroll back, zoom buttons, Pause / Play / Reset run.
+- Charts on tabs 4 (wheel powers), 6 and 7 keep the full history: live window 5-60 s, Show all, drag to zoom, scroll back, zoom buttons, Pause / Play / Reset run, Save PNG (falls back to an in-page picture inside the artifact).
 - PID response markers (dead time, rise time, overshoot, peak time, settling band and time, steady-state error) with a kid-friendly table. Launcher markers: dip, recovery time, open-loop offset.
-- Auto-aim fixed: search turn when the HIVE leaves the camera view, draggable HIVE, state banner, gains shown live in the control loop diagram.
+- Auto-aim fixed: search turn when the HIVE leaves the camera view, draggable HIVE, state banner, gains shown live in the control loop diagram. A D note explains the camera-frame spike, and "PID only on new frames" (off by default) shows the fix, the same code as `docs/course/follow-up/vision.md`.
+- PID: a last-run ghost line and a Last run column compare two runs, and a move cut by a new target or stuck says so.
+- Tab 4 AUTO reads the Pinpoint heading: once Pinpoint is fitted, the team has one heading source.
+- Engineering rules hold: no setTimeout for sim behavior, no hex in drawing code (static scan in `tests/syntax-check.js`), and the layout passes with Google Fonts blocked.
+- Final review (2026-11-08): five rounds of fresh reviewers. The 8 tabs, the whole lab and the day-of docs meet their goals. The follow-up docs got their last fixes in round 5 without a sixth review, and they keep [Verify] marks for checks on the robot.
 
 ## Open work
 

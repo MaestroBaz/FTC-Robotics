@@ -186,3 +186,15 @@ Output:
 - Per tab: the Java tab opens with the three places every word comes from (Robot, the SDK parent, Java), the error decoder brackets sit under the right words, @Override versions build honestly. Lifecycle shows each phase's text only after its vote. GitHub predicts before it shows. Mecanum starts the run clear of the walls. One loop counts the seconds the sticks were ignored. Launcher explains launcherReady(). PID folds How to tune until after the votes, reports "still swinging" instead of a fake offset, and keeps the D chart labels apart. Encoders shows what your code thinks against the tape.
 - Code ligatures off everywhere.
 - Process: an audit and a critic per tab, fixes in 10 branches, then three rounds of fresh reviewers at 1366x768, dark and 390 px. All 10 areas pass. Smoke test gained a check per fix.
+
+## 25. Close the open issues and match every day-of document to the final lab (2026-11-08)
+
+Request: Baz asked to complete every open item and every "still not perfect" item, and to update the cheat sheet and every other document he needs to run the Crash Course.
+
+Finding: 30 open issues. About 20 the repo could fix, and the rest need Baz, the projector laptop or the robot. The lab broke some of its own rules: one setTimeout, a few hex colors in drawing code, banner comments with old tab numbers. The follow-up docs disagreed on the heading source, R704.D and Robot.java names. Reviewers kept finding plan steps that fail when followed literally: presets run back to back without Reset robot, AUTO steps that never pick AUTO, a missing-break story that told the wrong consequence.
+
+Output:
+- Lab: a 12th Java card (Loops, for the hands-on session), Save PNG on every chart, a wheel power chart on tab 4, a PID last-run ghost and Last run column, labels for cut and stuck moves, "PID only on new frames" for aim, a turnToHeading exercise on tab 8, chart labels off the curves on tab 6, the Pinpoint heading in tab 4 AUTO, Reset scores shows hidden questions again, a revealed tab 1 question folds when a card opens.
+- Engineering: banner comments match the tabs, no setTimeout, no hex in drawing code (static scan), layout checked with Google Fonts blocked, smoke assertions for launcher behavior, PID canvas markers and aim states. window.__lab not added: the DOM checks cover it.
+- Docs: cheat sheet, run sheet, plan, vote cards, coding standard, homework and GitHub workflow match the lab word for word. Four follow-up plans under `docs/course/follow-up/` (vision, odometry, path following, Control Award), checked against the SDK 12.0 source.
+- Process: 9 builders in worktrees, 4 integrate agents, then 5 rounds of fresh reviewers and fixers. 304 smoke checks pass.
