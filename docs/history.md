@@ -142,3 +142,11 @@ Request: after the header shrink, the first sim on every tab still sat below the
 Finding: the block set the labhead height on all 8 tabs, 277 to 323 px, while the title and lede column took 110 to 158 px.
 
 Output: tag inline with the question, 13 px option buttons, the voting rules hidden behind the ? button, Reveal moved to the end of the vote row by the vote enhancer, h2 26 px, lede 14 px. The block is now 140 to 177 px and the first block of every tab starts at 283 to 320 px instead of 424 to 470 px. The pid control loop diagram is on screen without scrolling. One smoke check per tab for pid, feedback and one loop, plus a check that Reveal sits in every vote row.
+
+## 21. Mecanum mini robots on the cheat sheet (2026-11-07)
+
+Request: Baz saw one blue arrow per robot instead of four, and the captions "fl + fr - bl - br +" read as noise.
+
+Finding: each robot's four spin arrows sat in one SVG path with four subpaths, and marker-end draws one arrowhead per path, at its last vertex. The rollers were drawn in the O layout. Real mecanum rollers form an X seen from above, as the lab's drive tab already says.
+
+Output: one path per wheel, arrows inside the body beside each wheel, rollers redrawn as an X, captions in words (all four forward; fl and br forward, fr and bl back; left forward, right back), the turn arc shrunk clear of the arrows. Page 3 fill unchanged at 786 of 979.

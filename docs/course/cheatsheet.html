@@ -462,26 +462,26 @@
         <text x="10" y="248" class="c" style="font-size:8.5px">Reset the heading with the robot facing away from you.</text>
         <text x="10" y="260" class="c" style="font-size:8.5px">AUTO reuses the same rotation math on odometry coordinates.</text>
         <text x="360" y="22" class="b">Mecanum: three mini robots, top view</text>
-        <g transform="translate(362 36)">
+        <g transform="translate(362 32)">
           <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
           <g class="gy"><rect x="6" y="6" width="12" height="24"/><rect x="82" y="6" width="12" height="24"/><rect x="6" y="50" width="12" height="24"/><rect x="82" y="50" width="12" height="24"/></g>
-          <g class="ln"><path d="M8 28 L16 8 M84 8 L92 28 M8 52 L16 72 M84 72 L92 52"/></g>
-          <g class="ac"><path d="M12 30 L12 10 M88 30 L88 10 M12 74 L12 54 M88 74 L88 54"/></g>
-          <path d="M50 44 L50 14" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">forward</text><text x="50" y="108" text-anchor="middle" class="c">all four +</text>
+          <g class="ln"><path d="M8 8 L16 28 M84 28 L92 8 M8 72 L16 52 M84 52 L92 72"/></g>
+          <g class="ac"><path d="M25 30 L25 10"/><path d="M75 30 L75 10"/><path d="M25 74 L25 54"/><path d="M75 74 L75 54"/></g>
+          <path d="M50 44 L50 14" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">forward</text><text x="50" y="108" text-anchor="middle" class="c">all four forward</text>
         </g>
-        <g transform="translate(486 36)">
+        <g transform="translate(486 32)">
           <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
           <g class="gy"><rect x="6" y="6" width="12" height="24"/><rect x="82" y="6" width="12" height="24"/><rect x="6" y="50" width="12" height="24"/><rect x="82" y="50" width="12" height="24"/></g>
-          <g class="ln"><path d="M8 28 L16 8 M84 8 L92 28 M8 52 L16 72 M84 72 L92 52"/></g>
-          <g class="ac"><path d="M12 30 L12 10 M88 10 L88 30 M12 54 L12 74 M88 74 L88 54"/></g>
-          <path d="M40 40 L70 40" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">strafe right</text><text x="50" y="108" text-anchor="middle" class="c">fl + fr - bl - br +</text>
+          <g class="ln"><path d="M8 8 L16 28 M84 28 L92 8 M8 72 L16 52 M84 52 L92 72"/></g>
+          <g class="ac"><path d="M25 30 L25 10"/><path d="M75 10 L75 30"/><path d="M25 54 L25 74"/><path d="M75 74 L75 54"/></g>
+          <path d="M40 40 L70 40" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">strafe right</text><text x="50" y="107" text-anchor="middle" class="c" style="font-size:8.5px">fl and br forward,</text><text x="50" y="117" text-anchor="middle" class="c" style="font-size:8.5px">fr and bl back</text>
         </g>
-        <g transform="translate(610 36)">
+        <g transform="translate(610 32)">
           <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
           <g class="gy"><rect x="6" y="6" width="12" height="24"/><rect x="82" y="6" width="12" height="24"/><rect x="6" y="50" width="12" height="24"/><rect x="82" y="50" width="12" height="24"/></g>
-          <g class="ln"><path d="M8 28 L16 8 M84 8 L92 28 M8 52 L16 72 M84 72 L92 52"/></g>
-          <g class="ac"><path d="M12 30 L12 10 M88 10 L88 30 M12 74 L12 54 M88 30 L88 54"/></g>
-          <path d="M36 28 A18 18 0 1 1 64 28" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">turn right</text><text x="50" y="108" text-anchor="middle" class="c">left side + right side -</text>
+          <g class="ln"><path d="M8 8 L16 28 M84 28 L92 8 M8 72 L16 52 M84 52 L92 72"/></g>
+          <g class="ac"><path d="M25 30 L25 10"/><path d="M75 10 L75 30"/><path d="M25 74 L25 54"/><path d="M75 54 L75 74"/></g>
+          <path d="M38 30 A14 14 0 1 1 62 30" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">turn right</text><text x="50" y="108" text-anchor="middle" class="c">left forward, right back</text>
         </g>
         <rect x="360" y="156" width="364" height="84" rx="6" class="gy"/>
         <g class="m" style="font-size:9px" xml:space="preserve" style="white-space:pre">
@@ -492,7 +492,7 @@
         <text x="370" y="213" class="c">If any wheel passes 1.0, divide all four by the biggest.</text>
         <text x="370" y="224" class="c">One wheel wired backwards: the robot drives in circles.</text>
         <text x="370" y="235" class="c">Fix its direction in Robot.java, not in the math.</text>
-        <text x="542" y="258" text-anchor="middle" class="c">Blue arrows: which way each wheel spins. The rollers turn that into motion.</text>
+        <text x="542" y="258" text-anchor="middle" class="c">Blue arrows: which way each wheel spins. Rollers form an X seen from above.</text>
       </g>
     </svg>
   </div>
