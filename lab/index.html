@@ -253,9 +253,9 @@ ul.tree .ro{color:var(--muted);}
 .objcard{border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:14px; display:flex; flex-direction:column; gap:8px;}
 .objcard .nm{font:600 14px var(--mono);}
 .objcard .big{font:700 36px/1 var(--display); font-variant-numeric:tabular-nums;}
-.cmp{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:var(--codebg);}
+.cmp{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 8px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:var(--codebg);}
 .cmp code{font:13px var(--mono); white-space:pre-wrap;}
-.cmp .res{grid-column:1 / -1; font-size:13px;}
+.cmp .res{grid-column:1 / -1; font-size:13px;} .cmp .res:empty{display:none;}
 .cmp .res.ok{color:var(--ok);} .cmp .res.bad{color:var(--red);}
 .scopes{display:flex; flex-direction:column; gap:10px;}
 .scope{border:2px dashed var(--line); border-radius:10px; padding:8px 10px;}
@@ -462,7 +462,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
     <div>
       <h2>Java basics, the robot way</h2>
       <p class="goal">Goal: read MainTeleOp top to bottom and say what each word does. Team rule 2: Robot.java holds the hardware, OpModes hold the behavior.</p>
-      <p class="lede">Every word in MainTeleOp comes from one of three places: your Robot class, the SDK class you extend, or Java itself. Twelve cards, in the order you meet the words. Each card has something to click.</p>
+      <p class="lede">Every word in MainTeleOp comes from this file, your Robot class, the SDK (the class you extend or an import), or Java itself. Twelve cards, in the order you meet the words. Each card has something to click.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="0"><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">In an import line at the top of MainTeleOp</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns. No import needed: Robot.java sits in the same package as MainTeleOp.</div>
@@ -3631,11 +3631,11 @@ const JV = (function(){
   ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "<br><code>" + esc(r[2]) + "</code></td></tr>").join("");
   const QUIZ = [
     ["int ballsLoaded = 3;", true, "OK. A whole number in an int box."],
-    ["int power = 0.5;", false, "Error: incompatible types: possible lossy conversion from double to int. 0.5 has a decimal part. Fix: double power = 0.5;"],
+    ["int power = 0.5;", false, "Error: possible lossy conversion from double to int. Fix: double power = 0.5;"],
     ["double speed = 1;", true, "OK. A whole number fits in a double box. Java stores it as 1.0."],
-    ["boolean ready = \"true\";", false, "Error: incompatible types: String cannot be converted to boolean. Quotes make it text. Fix: boolean ready = true;"],
+    ["boolean ready = \"true\";", false, "Error: String cannot be converted to boolean. Fix: boolean ready = true;"],
     ["String alliance = RED;", false, "Error: cannot find symbol: variable RED. Text needs quotes. Fix: String alliance = \"RED\";"],
-    ["// in Robot.java\npublic static final double MAX_SPEED = 0.8;\n// later, in an OpMode\nRobot.MAX_SPEED = 1.0;", false, "Error: cannot assign a value to final variable MAX_SPEED. That is the point of a constant: tuned numbers change in one place, on purpose, in Robot.java."]
+    ["Robot.MAX_SPEED = 1.0;   // in an OpMode. MAX_SPEED is final", false, "Error: cannot assign a value to final variable MAX_SPEED. Tune it in Robot.java."]
   ];
   $("#jv-compile").innerHTML = QUIZ.map((q, i) => '<div class="cmp"><code>' + esc(q[0]) + '</code><button class="b" data-q="' + i + '">Compile</button><div class="res" id="jv-q' + i + '"></div></div>').join("");
   $$("#jv-compile [data-q]").forEach(b => b.addEventListener("click", () => {
@@ -4917,7 +4917,11 @@ const JV2 = (function(){
   const done = new Set();
   function renderErrList(){
     $("#jv-errlist").innerHTML = E.map((e, i) => '<button class="b" data-e="' + i + '" aria-pressed="' + (i === ei) + '">' + (done.has(i) ? (i + 1) + ". " + esc(e.k) + " (fixed)" : "Error " + (i + 1)) + "</button>").join("");
-    $$("#jv-errlist [data-e]").forEach(b => b.addEventListener("click", () => { ei = +b.dataset.e; showErr(); }));
+    $$("#jv-errlist [data-e]").forEach(b => b.addEventListener("click", () => {
+      ei = +b.dataset.e; showErr();
+      const y = $("#jv-errlist").getBoundingClientRect().top - $(".topbar").offsetHeight - 8;   // the red Build text and the verdict show without a scroll
+      if (y > 0) window.scrollBy(0, y);
+    }));
   }
   function setProb(lines, kind){
     const icon = kind === "ok" ? '<b class="iok">OK</b>' : kind === "warn" ? '<b class="iwarn">!</b>' : '<b class="ix">X</b>';
@@ -5195,7 +5199,7 @@ const JVW = (function(){
       "}"
     ]
   };
-  // [id, regex source, color class, label, explanation]. Longer patterns come first.
+  // [id, regex source, color class, label, explanation]. Longer patterns come first. FROM names where each word comes from, Java itself unless listed.
   const W = [
     ["annot", "@TeleOp\\(name = \"Main TeleOp\"\\)", "an", "@TeleOp(name = ...)", "Puts this OpMode on the Driver Hub list under the name in quotes. The hub shows this text, not the class name. AUTO OpModes use @Autonomous(name = ...) instead."],
     ["override", "@Override", "an", "@Override", "A check, not an action. It tells Java: this method replaces one with the same name in the parent class. A typo in the name then fails the build on this line, instead of the method silently never running."],
@@ -5205,6 +5209,8 @@ const JVW = (function(){
     ["robotcall", "\\brobot\\.(?:init|drive|launcherOn|launcherOff|launcherReady|feederOn|feederOff|headingDegrees|stopDrive)\\b", "kw", "robot.method()", "A call on your Robot object. Java follows the dot: robot is the object, and the word after the dot is a public method inside Robot.java. Click Robot.java above to find drive()."],
     ["hwmap", "\\bhardwareMap\\b", "kw", "hardwareMap", "The list of every device in the robot configuration. The SDK fills in hardwareMap before runOpMode() starts. MainTeleOp hands hardwareMap to robot.init(), so Robot.java finds the motors."],
     ["runop", "\\brunOpMode\\(\\)", "kw", "runOpMode()", "The method the SDK runs when the driver presses INIT. Your whole OpMode lives inside runOpMode(), from INIT to STOP."],
+    ["sticksx", "gamepad1\\.(?:left_stick_x|right_stick_x)", "kw", "gamepad1 x sticks", "Left stick x slides sideways, right stick x turns. Right reads positive, so the x axes need no minus sign."],
+    ["gp2", "\\bgamepad2\\b", "kw", "gamepad2", "The second driver's controller. A field, like gamepad1: the SDK fills both in."],
     ["stick", "-gamepad1\\.left_stick_y", "kw", "-gamepad1.left_stick_y", "Pushing the stick up reads negative in the SDK. The minus sign flips it, so up means forward. The x axes need no flip. Both y axes do."],
     ["bumper", "gamepad1\\.left_bumper", "kw", "gamepad1.left_bumper", "A field: true on every loop pass while the bumper is held down. Good for a slow mode you hold."],
     ["waspressed", "rightBumperWasPressed\\(\\)", "kw", "rightBumperWasPressed()", "A method: true once per press, on the pass where the bumper went down. Use it for a button that starts something once, like the launcher."],
@@ -5213,11 +5219,18 @@ const JVW = (function(){
     ["waitforstart", "waitForStart\\(\\)", "kw", "waitForStart()", "Waits until the driver presses START. Rule G304.H: once init finishes, the robot stays fully motionless until START. Our team rule is stricter: nothing moves before this line, INIT included."],
     ["active", "opModeIsActive\\(\\)", "kw", "opModeIsActive()", "true from START until STOP. As the loop condition, it ends the loop the moment the driver presses STOP."],
     ["mathabs", "Math\\.abs", "kw", "Math.abs", "Distance from zero: Math.abs(-3) is 3. Math is a Java class you use through its name, with no object and no import."],
-    ["enumval", "LaunchState\\.(?:IDLE|SPINNING_UP|FEEDING)", "num", "LaunchState.IDLE", "One value of the enum, reached through the enum name. The launcher is always in exactly one of the three states."],
+    ["enumval", "\\b(?:LaunchState\\.)?(?:IDLE|SPINNING_UP|FEEDING)\\b", "num", "LaunchState.IDLE", "One value of the enum. Outside a switch you write LaunchState.IDLE. After case, the plain name is enough: case IDLE:. The launcher is always in exactly one of the three states."],
+    ["lstate", "\\b[Ll]aunchState\\b", "kw", "LaunchState / launchState", "LaunchState, capital L, is the enum type declared in this file. launchState, small l, is the field holding the state the launcher is in right now."],
     ["upper", "\\b(?:MAX_SPEED|LAUNCH_VELOCITY|VELOCITY_TOLERANCE)\\b", "num", "UPPER_CASE names", "Constants get UPPER_CASE names with underscores, so a tuned number stands out at a glance. Change it in one place and every use follows."],
     ["extends", "\\bextends LinearOpMode\\b", "kw", "extends LinearOpMode", "MainTeleOp gets everything LinearOpMode has: telemetry, gamepad1, hardwareMap, waitForStart(). Team rule: extend LinearOpMode, and stop there."],
     ["package", "\\bpackage\\b", "kw", "package", "Line 1 of every file: the folder this file lives in. Every file in TeamCode carries this exact line."],
     ["import", "\\bimport\\b", "kw", "import", "An address. Tells Java where a class from another package lives. In Android Studio, click the red word and press Alt+Enter to write the import for you."],
+    ["robotcls", "\\bRobot\\b", "kw", "Robot", "Your class, in Robot.java. new Robot() builds one Robot object. Robot.java sits in the same package as MainTeleOp, so no import."],
+    ["robotvar", "\\brobot\\b(?!\\.)", "kw", "robot", "The name of your one Robot object. Small r: the object. Capital R: the class, the blueprint."],
+    ["mainteleop", "\\bMainTeleOp\\b", "kw", "MainTeleOp", "The name of this class. It must match the file name, MainTeleOp.java, capitals included."],
+    ["etime", "\\bElapsedTime\\b", "kw", "ElapsedTime", "An SDK class: a stopwatch. new ElapsedTime() builds one, and it starts counting at once. It needs its import line at the top."],
+    ["timer", "\\b(?:feedTimer|timer)\\b(?:\\.(?:reset|seconds)\\(\\))?", "kw", "timer.reset() / seconds()", "An ElapsedTime object built in this file. reset() sets it back to 0. seconds() reads the time since the last reset."],
+    ["speed", "\\bspeed\\b", "kw", "speed", "A local variable, made inside the loop. Every pass starts it at 1.0, and holding the left bumper sets 0.4. It ends at the loop's closing brace."],
     ["public", "\\bpublic\\b", "kw", "public", "Any file can use it. Actions like drive() and launcherOn() are public, so an OpMode can call them."],
     ["private", "\\bprivate\\b", "kw", "private", "Only code inside this class can use it. Motors and sensors stay private inside Robot.java, so every wheel power goes through the same math."],
     ["static", "\\bstatic\\b", "kw", "static", "Belongs to the class, not to one object. You reach it through the class name, with no new: Robot.MAX_SPEED, Math.abs(x), Range.clip(...)."],
@@ -5241,6 +5254,18 @@ const JVW = (function(){
     ["semi", ";", "ink", ";", "Ends a statement. Every line that does something ends with one. A missing one is the most common build error."],
     ["brace", "[{}]", "ink", "{ }", "A block: lines that belong together. A block ends at its closing brace, and so do the variables made inside it."]
   ];
+  const PARENT = "the SDK: a field of OpMode, the parent of LinearOpMode";
+  const FROM = {
+    annot: "the SDK: the TeleOp class, imported at the top", params: "this file: you pick the names", ctor: "this file: PIDController.java",
+    hwget: "the SDK: get() belongs to HardwareMap, and DcMotor is an imported class", robotcall: "Robot.java, your class",
+    hwmap: PARENT + ". In Robot.java, the init() parameter brings it in", runop: "the SDK: LinearOpMode, the class you extend. You write the body",
+    stick: PARENT, sticksx: PARENT, bumper: PARENT, gp2: PARENT, adddata: PARENT + " (telemetry)", update: PARENT + " (telemetry)",
+    waspressed: "the SDK: a method of the Gamepad class", waitforstart: "the SDK: LinearOpMode, the class you extend", active: "the SDK: LinearOpMode, the class you extend",
+    mathabs: "Java itself: the Math class, no import needed", enumval: "this file: the LaunchState enum", lstate: "this file",
+    upper: "Robot.java: you name and tune them", extends: "Java (extends) and the SDK (LinearOpMode, imported at the top)",
+    robotcls: "Robot.java, your class", robotvar: "this file: the field holding your Robot object", mainteleop: "this file",
+    etime: "the SDK: an imported class", timer: "this file builds it from the SDK class ElapsedTime", speed: "this file"
+  };
   const RE = new RegExp(W.map(w => "(" + w[1] + ")").join("|"), "g");
   const BYID = Object.fromEntries(W.map(w => [w[0], w]));
   let file = "MainTeleOp.java", cur = null;
@@ -5270,7 +5295,7 @@ const JVW = (function(){
     if (!cur) return;
     const w = BYID[cur], n = $$('#jv-wcode .w[data-w="' + cur + '"]').length;
     $("#jv-wname").textContent = w[3];
-    $("#jv-wmsg").textContent = w[4] + (n > 1 ? " (" + n + " places in this file)" : "");
+    $("#jv-wmsg").innerHTML = "<b>Comes from: " + esc(FROM[cur] || "Java itself") + ".</b><br>" + esc(w[4] + (n > 1 ? " (" + n + " places in this file)" : ""));
   }
   function pick(id){ cur = id; paint(); }
   $("#jv-wcode").addEventListener("click", e => { const s = e.target.closest(".w"); if (s) pick(s.dataset.w); });

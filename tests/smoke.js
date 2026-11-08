@@ -207,7 +207,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#jv-ovbtns .b[data-ov="2"]');
   check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-ovprob")) && /never resets|nobody calls/.test(await pg.textContent("#jv-ovmsg")), "Start() without @Override builds and never runs");
   check(/private final Robot robot = new Robot\(\);/.test(await pg.textContent("#jv-ovcode")) && !/matchTimer/.test(await pg.textContent("#jv-ovcode")), "the @Override versions declare robot, so BUILD SUCCESSFUL is true");
-  check(/three places/.test(await pg.textContent("#lab-java .lede")), "the Java lede names the three places a word comes from");
+  check(/comes from this file, your Robot class, the SDK \(the class you extend or an import\), or Java itself/.test(await pg.textContent("#lab-java .lede")), "the Java lede names the four places a word comes from: this file, Robot, the SDK, Java");
   await pg.click('.jt[data-jt="decide"]');
   const stick = async v => { await pg.$eval("#jv-dstick", (el, v) => { el.value = v; el.dispatchEvent(new Event("input")); }, v); return pg.textContent("#jv-dmsg"); };
   check(/FAST forward/.test(await stick(0.8)) && /skips every/.test(await pg.textContent("#jv-dmsg")), "stick 0.8 runs the first if and skips the rest");
@@ -734,6 +734,34 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="vars"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
     const qb = await jp.$$eval("#jv-compile .cmp", cs => cs.map(c => Math.round(c.getBoundingClientRect().bottom)));
     check(qb.length === 6 && qb.every(y => y > 0 && y <= 768), "java card 2: all 6 quiz items show without scrolling at 1366x768: " + qb.join(", "));
+    for (let i = 0; i < 6; i++) await jp.click('#jv-compile [data-q="' + i + '"]');
+    const qa = await jp.$$eval("#jv-compile .cmp", cs => cs.map(c => Math.round(c.getBoundingClientRect().bottom)));
+    check(qa.every(y => y > 0 && y <= 768) && /^Error: cannot assign a value to final variable MAX_SPEED/.test(await jp.textContent("#jv-q5")), "#46 java card 2: after all 6 Compile presses, every item and its answer still end above 768 px: " + qa.join(", "));
+    // error clinic: after an error button, the red Build text, the choices and every verdict show without scrolling
+    await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="errors"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
+    const clinic = [];
+    for (let i = 0; i < 9; i++) {
+      await jp.click("#jv-errlist [data-e='" + i + "']"); await jp.waitForTimeout(50);
+      const low = ["#jv-eprob", "#jv-echoices", "#jv-emsg"];
+      const n = (await jp.$$("#jv-echoices .choice")).length;
+      let worst = 0;
+      for (let c = 0; c < n; c++) {   // a right fix drops a line, so the page gets shorter: measure after every choice
+        await jp.click("#jv-echoices .choice[data-c='" + c + "']");
+        worst = Math.max(worst, ...(await jp.evaluate(s => s.map(q => document.querySelector(q).getBoundingClientRect().bottom), low)));
+      }
+      clinic.push(Math.round(worst));
+    }
+    check(clinic.every(y => y <= 768) && (await jp.$eval("#jv-errlist", e => e.getBoundingClientRect().top)) >= 0, "java error clinic at 1366x768: for all 9 errors the Build text, choices and verdict end above the fold: " + clinic.join(", "));
+    // Every word explained: the lede names four places, every MainTeleOp word outside package and import lines is clickable, and each says where it comes from
+    await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="words"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
+    const bare = await jp.$eval("#jv-wcode", c => [...c.querySelectorAll(".ln")].filter(l => !/^(package|import) /.test(l.textContent)).flatMap(l => {
+      const x = l.cloneNode(true); x.querySelectorAll(".w").forEach(w => w.remove());
+      return x.textContent.replace(/"[^"]*"/g, "").match(/[A-Za-z_]\w*/g) || [];
+    }));
+    check(bare.length === 0, "words card: every MainTeleOp word is clickable: " + (bare.join(" ") || "none left"));
+    const from = {};
+    for (const id of ["robotcls", "lstate", "gp2", "waitforstart", "timer", "public"]) { await jp.click('#jv-wlist button[data-w="' + id + '"]'); from[id] = await jp.textContent("#jv-wmsg b"); }
+    check(/Robot\.java/.test(from.robotcls) && /this file/.test(from.lstate) && /OpMode/.test(from.gp2) && /LinearOpMode/.test(from.waitforstart) && /ElapsedTime|this file/.test(from.timer) && /Java itself/.test(from.public), "words card: each word says where it comes from: " + JSON.stringify(from));
     // #23: the ElapsedTime objects on card 1 count sim time, so Pause stops them
     await jp.click('.jt[data-jt="classes"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(400);
     const objT = () => jp.$$eval("#jv-objs [data-oi]", es => es.map(e => +e.textContent));
