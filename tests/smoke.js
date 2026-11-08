@@ -254,6 +254,24 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/wheels slipped/.test(await enRun()) && /encodersays23\.9/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: slip stops short while the encoder still reads 24 in");
   await pg.locator("#lab-encoders").screenshot({ path: path.join(SHOTS, "encoders.png") });
 
+  // ==== area mecanum: Drive modes tab 4 ====
+  // MC sits inside the page IIFE, so these checks read the DOM, not MC.get()
+  await pg.goto(URL + "#mecanum"); await pg.waitForTimeout(300);
+  await pg.check('#lab-mecanum input[value="field"]');
+  await pg.click("#mc-turn90");
+  await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(1000);
+  const mcRow = name => pg.$$eval("#mc-table tr", (rs, n) => { const r = rs.find(x => x.children[0].textContent === n); return r ? r.lastElementChild.textContent.trim() : ""; }, name);
+  const sent = [];
+  for (const n of ["frontLeft", "frontRight", "backLeft", "backRight"]) sent.push(await mcRow(n));
+  check(sent.join(" ") === "1.00 -1.00 -1.00 1.00" && (await mcRow("IMU heading")) === "90 deg", "field-centric, facing the left wall, stick up sends the strafe-right pattern: " + sent.join(" "));
+  await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset"); await pg.click("#mc-turn90"); await pg.click("#mc-yaw"); await pg.waitForTimeout(300);
+  const zeroNote = () => pg.textContent("#mc-note");
+  check(!/IMU zero is off/.test(await zeroNote()), "the wrong-zero warning stays hidden until the robot moves");
+  await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(800);
+  check(/IMU zero is off/.test(await zeroNote()) && (await mcRow("IMU heading")) === "0 deg", "after a reset facing the wall, Forward shows the wrong-zero warning");
+  await pg.locator("#lab-mecanum").screenshot({ path: path.join(SHOTS, "mecanum.png") });
+  // ==== end area mecanum ====
+
   // ---- cheat sheets: two double-sided letter sheets (4 pages), diagram-led, nothing clipped ----
   const cs = await b.newPage();
   await cs.emulateMedia({ media: "print" });

@@ -326,6 +326,10 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 .mistakes .bad{color:var(--red); text-decoration:line-through; text-decoration-thickness:1px;}
 .mistakes .good{color:var(--ok); font-weight:600;}
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important;} .topbar, .jtopics{transition:none;} }
+/* ==== area mecanum: Drive modes tab 4 ==== */
+/* goal line: same values as the whole-lab .labhead .goal rule, scoped so the tab renders before that rule merges */
+#lab-mecanum .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
+/* ==== end area mecanum ==== */
 </style>
 </head>
 <body>
@@ -741,10 +745,11 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <div class="labhead">
     <div>
       <h2>Drive modes: robot-centric, field-centric, and AUTO</h2>
-      <p class="lede">Same 4 wheels, same mecanum math. The only difference is which way "forward" points. Drag the sticks, rotate the robot by hand, and watch the compass. Then switch to AUTO and click the field to send the robot to a point.</p>
+      <p class="goal">Goal: predict where the robot goes when you push the stick, in each drive mode.</p>
+      <p class="lede">Same 4 wheels, same mecanum math, two drive modes. Field-centric needs the IMU heading. AUTO needs the robot's position too.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The robot faces the left wall. The driver pushes the left stick straight up. Where does the robot go in robot-centric mode? In field-centric mode?</span><span class="vote" data-right="0"><button class="opt" type="button">Robot-centric: toward the left wall. Field-centric: away from the drivers</button><button class="opt" type="button">Both modes: toward the left wall</button><button class="opt" type="button">Both modes: away from the drivers</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Robot-centric: toward the left wall, because "up" means "the robot's front". Field-centric: away from the drivers, because "up" means "away from the driver wall" no matter where the robot faces. The IMU heading makes the difference.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Field-centric mode. The robot faces the left wall. The driver pushes the left stick straight up. What does the robot do?</span><span class="vote" data-right="1"><button class="opt" type="button">Drives forward into the left wall</button><button class="opt" type="button">Slides away from the drivers, still facing the wall</button><button class="opt" type="button">Turns to face away from the drivers, then drives</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">B. Field-centric never turns the robot for you. The code turns the stick by the IMU heading (90 deg), so stick up becomes strafe right for the robot. Look at the wheel powers: +1, -1, -1, +1 is the strafe-right pattern. In robot-centric mode the same stick drives into the left wall (A). Same wheels, same math. The only difference is which way forward points.</div>
     </details>
   </div>
   <div class="row" style="margin-bottom:14px; gap:18px" role="radiogroup" aria-label="Drive mode">
@@ -769,23 +774,20 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
           <button class="b" data-p="0,0,0">Center sticks</button>
         </div>
         <div class="row" style="margin-top:12px; gap:10px">
-          <button class="b" id="mc-turn90">Rotate robot 90 deg by hand</button>
-          <button class="b" id="mc-yaw">Reset IMU yaw (gamepad1 A)</button>
+          <button class="b" id="mc-turn90">Rotate robot 90 deg left (by hand)</button>
+          <button class="b" id="mc-yaw">Reset heading (gamepad1 A)</button>
           <button class="b" id="mc-reset">Reset robot</button>
         </div>
         <div class="row" style="margin-top:12px; gap:16px">
           <label class="tg"><input type="checkbox" id="mc-norm" checked> Normalize (divide by max)</label>
           <label class="tg"><input type="checkbox" id="mc-bug"> Bug: front_left not reversed</label>
-          <label class="tg" id="mc-spinwrap"><input type="checkbox" id="mc-spin"> AUTO: turn to 90 deg while driving</label>
         </div>
       </div>
       <div class="panel">
-        <h3>The math, live</h3>
-        <div style="overflow-x:auto"><table class="math" id="mc-table"></table></div>
-        <p class="note" id="mc-note" style="margin:8px 0 0"></p>
+        <h3>Wheel powers <small>rollers form an X seen from above</small></h3>
+        <canvas id="mc-wheels" height="190"></canvas>
       </div>
       <div class="panel"><h3>The rotation, in one picture <small>left: what the driver asks, right: what the robot gets</small></h3><canvas id="mc-vec" height="230"></canvas></div>
-      <pre class="code" id="mc-code"></pre>
     </div>
     <div class="stack">
       <div class="panel">
@@ -796,19 +798,22 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
           <span><i style="background:var(--accent)"></i>where the robot drives</span>
           <span><i style="background:var(--red)"></i>IMU heading needle</span>
         </div>
+        <label class="tg" id="mc-spinwrap" style="margin-top:8px"><input type="checkbox" id="mc-spin"> Turn to 90 deg while driving</label>
       </div>
       <div class="panel">
-        <h3>Wheel powers <small>rollers form an X seen from above</small></h3>
-        <canvas id="mc-wheels" height="250"></canvas>
+        <h3>The math, live</h3>
+        <div style="overflow-x:auto"><table class="math" id="mc-table"></table></div>
+        <p class="note" id="mc-note" style="margin:8px 0 0"></p>
       </div>
     </div>
   </div>
+  <pre class="code" id="mc-code" style="margin-top:16px"></pre>
   <div class="grid3" style="margin-top:16px" id="mc-uses">
     <div class="panel usecard" data-m="robot">
       <h3>Robot-centric</h3>
       <p class="note" style="margin:0 0 6px">Stick up = the robot's front.</p>
       <ul class="tight">
-        <li>Lining up the intake on POLLEN: the driver thinks "front of the robot", not "north".</li>
+        <li>Lining up the intake on POLLEN: the driver thinks "front of the robot", not "away from the drivers".</li>
         <li>Driving from the robot's point of view, or when the IMU heading is not trusted.</li>
         <li>Simplest code. No IMU needed. A good first TeleOp.</li>
       </ul>
@@ -819,7 +824,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
       <ul class="tight">
         <li>Strafing across the field while the launcher keeps facing the HIVE.</li>
         <li>Fast cycles and defense: no mental rotation when the robot faces the side wall.</li>
-        <li>Needs a correct IMU heading. Keep a reset button (A) and reset with the robot square to the field.</li>
+        <li>Needs a correct IMU heading. Press A (Reset heading) only with the robot's front pointing away from the drivers.</li>
       </ul>
     </div>
     <div class="panel usecard" data-m="auto">
@@ -827,7 +832,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
       <p class="note" style="margin:0 0 6px">No driver, no sticks. The code picks a point on the field.</p>
       <ul class="tight">
         <li>The same rotation math turns "go toward field point (x, y)" into robot forward and strafe.</li>
-        <li>The robot drives a straight line to the point even while it turns to aim.</li>
+        <li>The robot drives a nearly straight line to the point, even while turning to aim.</li>
         <li>Needs position, not only heading: odometry pods, goBILDA Pinpoint, or AprilTag localization.</li>
       </ul>
     </div>
@@ -1457,42 +1462,50 @@ function makeStick(el, onlyX, onChange){
 const MC = (function(){
   const ls = makeStick($("#mc-ls"), false), rs = makeStick($("#mc-rs"), true);
   const norm = $("#mc-norm"), bug = $("#mc-bug"), spinBox = $("#mc-spin");
-  const START = {x: 72, y: 110, h: 0, vf: 0, vr: 0, w: 0};
+  const START = {x: 72, y: 110, h: 0, vx: 0, vy: 0, w: 0};
   const robot = Object.assign({}, START);
-  let yawOffset = 0, mode = "robot", goal = {x: 110, y: 34};
+  let yawOffset = 0, mode = "robot", goal = {x: 110, y: 72};
   const trail = [];
+  let ghost = [];   // the last path, kept as a dashed line after Reset robot
   const wrapR = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; };
   const deg = r => r * 180 / Math.PI;
   function heading(){ return wrapR(robot.h - yawOffset); }
   const CODE = {
     robot: [
       "// Robot-centric: stick up = the robot's front",
-      "double axial   = -gamepad1.left_stick_y;",
-      "double lateral =  gamepad1.left_stick_x;",
-      "double yaw     =  gamepad1.right_stick_x;",
+      "double axial   = -gamepad1.left_stick_y;   // forward. Stick up reads -1, so flip the sign",
+      "double lateral =  gamepad1.left_stick_x;   // strafe right",
+      "double yaw     =  gamepad1.right_stick_x;  // turn power, not the IMU angle",
       "robot.drive(axial, lateral, yaw);"
     ],
     field: [
-      "// Field-centric: stick up = away from the drivers",
-      "// Same math as the SDK sample RobotTeleopMecanumFieldRelativeDrive (that sample uses the loop() style OpMode)",
-      "public void driveFieldCentric(double forward, double right, double yaw) {",
-      "    double theta = Math.atan2(forward, right);      // stick direction",
-      "    double r = Math.hypot(right, forward);          // stick distance",
-      "    double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);",
-      "    theta = AngleUnit.normalizeRadians(theta - heading);  // rotate by heading",
-      "    drive(r * Math.sin(theta), r * Math.cos(theta), yaw); // robot-centric drive",
-      "}",
+      "// MainTeleOp: same 3 stick lines as robot-centric, then:",
+      "robot.driveFieldCentric(axial, lateral, yaw);   // the one changed line",
+      "if (gamepad1.a) robot.resetHeading();          // front away from the drivers, then press A",
       "",
-      "if (gamepad1.a) robot.resetHeading();   // Robot.java: public void resetHeading() { imu.resetYaw(); }"
+      "// Robot.java (same math as the SDK sample RobotTeleopMecanumFieldRelativeDrive)",
+      "public void driveFieldCentric(double forward, double right, double yaw) {",
+      "    double theta = Math.atan2(forward, right);      // stick angle",
+      "    double r = Math.hypot(right, forward);          // how far the stick is pushed",
+      "    double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);",
+      "    theta = AngleUnit.normalizeRadians(theta - heading);  // turn the stick by the heading",
+      "    drive(r * Math.sin(theta), r * Math.cos(theta), yaw); // same wheel math",
+      "}"
     ],
     auto: [
-      "// AUTO: drive toward a field point. Needs position (odometry or Pinpoint).",
-      "double errX = targetX - pose.x;            // inches, field right",
-      "double errY = targetY - pose.y;            // inches, field forward",
-      "double forward = Range.clip(errY * 0.05, -0.7, 0.7);",
-      "double right   = Range.clip(errX * 0.05, -0.7, 0.7);",
-      "double turn    = headingPID.update(AngleUnit.normalizeDegrees(targetHeading - pose.heading));",
-      "robot.driveFieldCentric(forward, right, -turn);   // same rotation math"
+      "// AUTO: drive toward a field point. Needs position from odometry (Pinpoint).",
+      "// pose = where odometry says the robot is, a Pose2D in field inches",
+      "double errX = targetX - pose.getX(DistanceUnit.INCH);  // toward the right wall",
+      "double errY = targetY - pose.getY(DistanceUnit.INCH);  // away from the drivers",
+      "double forward = errY * 0.05;                          // far away = more power",
+      "double right   = errX * 0.05;",
+      "double speed = Math.hypot(forward, right);",
+      "if (speed > 0.7) {                                     // cap the speed, keep the direction",
+      "    forward = forward * 0.7 / speed;",
+      "    right   = right * 0.7 / speed;",
+      "}",
+      "double turn = headingPID.update(AngleUnit.normalizeDegrees(targetHeading - robot.headingDegrees()));",
+      "robot.driveFieldCentric(forward, right, -turn);        // + turn power turns left, so flip the sign"
     ]
   };
   function renderModeCode(){ renderCode($("#mc-code"), CODE[mode]); }
@@ -1504,11 +1517,11 @@ const MC = (function(){
     $("#mc-fieldnote").textContent = mode === "auto" ? "Click the field to place the target point." : "144 in x 144 in, top view. Drivers stand at the bottom.";
     renderModeCode();
   }
-  $$('input[name="mcmode"]').forEach(r => r.addEventListener("change", () => { mode = r.value; trail.length = 0; robot.vf = robot.vr = robot.w = 0; if (mode !== "auto"){ ls.set(0, 0); rs.set(0, 0); } updateMode(); }));
+  $$('input[name="mcmode"]').forEach(r => r.addEventListener("change", () => { mode = r.value; trail.length = 0; ghost = []; robot.vx = robot.vy = robot.w = 0; if (mode !== "auto"){ ls.set(0, 0); rs.set(0, 0); } updateMode(); }));
   $$("#lab-mecanum [data-p]").forEach(b => b.addEventListener("click", () => {
     const p = b.dataset.p.split(",").map(Number); ls.set(p[0], p[1]); rs.set(p[2], 0);
   }));
-  $("#mc-reset").addEventListener("click", () => { Object.assign(robot, START); yawOffset = 0; trail.length = 0; });
+  $("#mc-reset").addEventListener("click", () => { ghost = trail.slice(); Object.assign(robot, START); yawOffset = 0; trail.length = 0; });
   $("#mc-yaw").addEventListener("click", () => { yawOffset = robot.h; });
   $("#mc-turn90").addEventListener("click", () => { robot.h = wrapR(robot.h + Math.PI / 2); });
   let fieldGeom = {ox: 0, oy: 0, sc: 1};
@@ -1555,13 +1568,14 @@ const MC = (function(){
     const a = m.actual;
     const f = (a.fl + a.fr + a.bl + a.br) / 4, r = (a.fl - a.fr - a.bl + a.br) / 4, w = (a.fl - a.fr + a.bl - a.br) / 4;
     const k = 1 - Math.exp(-dt / 0.12);
-    robot.vf += (f * 45 - robot.vf) * k; robot.vr += (r * 40 - robot.vr) * k; robot.w += (w * 3.2 - robot.w) * k;
-    robot.h = wrapR(robot.h - robot.w * dt);
+    // inertia acts in the field frame, so a turning robot still drives a nearly straight line
     const th = -robot.h;
-    robot.x += (Math.sin(th) * robot.vf + Math.cos(th) * robot.vr) * dt;
-    robot.y += (-Math.cos(th) * robot.vf + Math.sin(th) * robot.vr) * dt;
+    const tvx = Math.sin(th) * f * 45 + Math.cos(th) * r * 40, tvy = -Math.cos(th) * f * 45 + Math.sin(th) * r * 40;
+    robot.vx += (tvx - robot.vx) * k; robot.vy += (tvy - robot.vy) * k; robot.w += (w * 3.2 - robot.w) * k;
+    robot.h = wrapR(robot.h - robot.w * dt);
+    robot.x += robot.vx * dt; robot.y += robot.vy * dt;
     robot.x = clamp(robot.x, 9, 135); robot.y = clamp(robot.y, 9, 135);
-    if (Math.abs(robot.vf) + Math.abs(robot.vr) > 0.5){ trail.push([robot.x, robot.y]); if (trail.length > 500) trail.shift(); }
+    if (Math.hypot(robot.vx, robot.vy) > 0.5){ trail.push([robot.x, robot.y]); if (trail.length > 500) trail.shift(); }
     $("#mc-lsv").textContent = "x " + f2(ls.x) + "  y " + f2(ls.y);
     $("#mc-rsv").textContent = "x " + f2(rs.x);
     table(m);
@@ -1574,9 +1588,9 @@ const MC = (function(){
       html += "<tr><th>Step</th><th>Math</th><th colspan=2>Value</th></tr>";
       if (mode === "auto") html += "<tr><td>error to point</td><td>errX, errY (in)</td><td colspan=2>" + m.rot.ex.toFixed(1) + ", " + m.rot.ey.toFixed(1) + "</td></tr>";
       else html += "<tr><td>stick</td><td>forward, right</td><td colspan=2>" + f2(m.sF) + ", " + f2(m.sR) + "</td></tr>";
-      html += "<tr><td>direction</td><td>theta = atan2(forward, right)</td><td colspan=2>" + deg(m.rot.th).toFixed(0) + " deg</td></tr>";
+      html += "<tr><td>stick angle</td><td>theta = atan2(forward, right)</td><td colspan=2>" + deg(m.rot.th).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>IMU heading</td><td>getYaw()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>";
-      html += "<tr><td>rotate</td><td>theta - heading</td><td colspan=2>" + deg(m.rot.t2).toFixed(0) + " deg</td></tr>";
+      html += "<tr><td>turn by heading</td><td>theta - heading</td><td colspan=2>" + deg(m.rot.t2).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>robot-centric</td><td>axial, lateral</td><td colspan=2>" + f2(m.axial) + ", " + f2(m.lateral) + "</td></tr>";
     }
     html += "<tr><th>Wheel</th><th>Formula</th><th>Raw</th><th>Sent</th></tr>";
@@ -1588,11 +1602,13 @@ const MC = (function(){
     $("#mc-table").innerHTML = html;
     let note = "";
     if (mode === "robot") note = "Robot-centric: the stick values go straight into the wheel formulas. ";
-    if (mode === "field") note = "Field-centric: the stick direction is rotated by the IMU heading first, then the same wheel formulas run. Press \"Rotate robot 90 deg by hand\", then Forward: the robot still drives away from the drivers. ";
-    if (mode === "auto") note = "AUTO: the code computes the direction to the target point in field coordinates, rotates it by the heading, and drives. The path stays straight even while the robot turns. ";
-    if (Math.abs(deg(heading()) - deg(robot.h)) > 1) note += "The IMU zero is off from the field: field-centric \"forward\" now points the wrong way. Square the robot and press Reset IMU yaw. ";
-    if (m.max > 1) note += norm.checked ? "Max |raw| = " + m.max.toFixed(2) + ", so every wheel is divided by it to keep the ratio." : "Not normalized: values above 1.0 get clipped and the robot drifts off course.";
-    if (bug.checked) note += " BUG ON: frontLeft spins the wrong way.";
+    if (mode === "field") note = "Field-centric: the code turns the stick direction by the IMU heading, then runs the same wheel formulas. ";
+    if (mode === "auto") note = "AUTO: the code computes the direction to the target point in field coordinates, turns the direction by the heading, and drives. The robot drives a nearly straight line to the point, even while turning to aim. ";
+    // shown only after the robot moves, so the warning does not give away the wrong-zero prediction
+    if (mode !== "robot" && Math.abs(wrapR(heading() - robot.h)) > 0.02 && Math.hypot(robot.vx, robot.vy) > 2)
+      note += "The IMU zero is off: the heading reads " + deg(heading()).toFixed(0) + " deg, but the robot faces " + deg(robot.h).toFixed(0) + " deg. Field-centric forward points the wrong way. Turn the robot's front away from the drivers and press Reset heading. ";
+    if (m.max > 1) note += norm.checked ? "The biggest raw value is " + m.max.toFixed(2) + ". Every wheel gets divided by " + m.max.toFixed(2) + ", so the mix stays the same and no wheel goes past 1.00." : "Not normalized: a motor stops at 1.00, so any value above 1.00 gets cut. The other wheels keep their power, the mix changes, and the robot turns or strafes less than the stick asks.";
+    if (bug.checked) note += " BUG ON: frontLeft spins backward. The code is right, the motor direction is wrong. Fix the direction in Robot.java: frontLeft.setDirection(DcMotor.Direction.REVERSE). Never flip a sign in the wheel math.";
     $("#mc-note").textContent = note;
   }
   function draw(m){
@@ -1605,16 +1621,27 @@ const MC = (function(){
     for (let i = 0; i <= 6; i++){ ctx.beginPath(); ctx.moveTo(ox + i * side / 6, oy); ctx.lineTo(ox + i * side / 6, oy + side); ctx.stroke(); ctx.beginPath(); ctx.moveTo(ox, oy + i * side / 6); ctx.lineTo(ox + side, oy + i * side / 6); ctx.stroke(); }
     ctx.fillStyle = P.ink; ctx.fillRect(ox, oy + side, side, 6);
     text(ctx, "DRIVERS", ox + side / 2, oy + side + 24, {align: "center", weight: "700", color: P.muted, size: 12});
+    [["LEFT WALL", ox + 14, -Math.PI / 2], ["RIGHT WALL", ox + side - 14, Math.PI / 2]].forEach(([s, x, a]) => {
+      ctx.save(); ctx.translate(x, oy + side * 0.6); ctx.rotate(a);   // a bit below the middle, clear of the heading label on phones
+      text(ctx, s, 0, 0, {align: "center", base: "middle", weight: "700", color: P.muted, size: 12});
+      ctx.restore();
+    });
     // compass
-    const cx = ox + side - 40, cy = oy + 42, R = 28;
+    const cx = ox + side - 52, cy = oy + 54, R = 40;
     ctx.fillStyle = alpha(P.surface, 0.9); ctx.strokeStyle = P.muted; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    text(ctx, "F", cx, cy - R + 11, {align: "center", weight: "700", size: 11, color: P.muted});
-    arrow(ctx, cx, cy + 6, cx, cy - R + 14, P.muted, 2);
+    text(ctx, "F", cx, cy - R + 13, {align: "center", weight: "700", size: 13, color: P.muted});
+    arrow(ctx, cx, cy + 8, cx, cy - R + 16, P.muted, 2);
     const hd = heading();
-    ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.sin(hd) * (R - 4), cy - Math.cos(hd) * (R - 4)); ctx.stroke();
-    text(ctx, "IMU yaw " + deg(hd).toFixed(0) + " deg", cx, cy + R + 14, {align: "center", size: 11, weight: "600", color: P.red});
-    text(ctx, "F = field forward", ox + 8, oy + 16, {size: 11, color: P.muted});
+    ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.sin(hd) * (R - 5), cy - Math.cos(hd) * (R - 5)); ctx.stroke();
+    text(ctx, "heading " + deg(hd).toFixed(0) + " deg", ox + side - 6, cy + R + 16, {align: "right", size: 14, weight: "600", color: P.red});
+    text(ctx, "F = field forward", ox + 8, oy + 18, {size: 14, color: P.muted});
+    // last path before Reset robot, dashed, so two runs compare side by side
+    if (ghost.length > 1){
+      ctx.setLineDash([6, 5]); ctx.strokeStyle = P.muted; ctx.lineWidth = 2; ctx.beginPath();
+      ghost.forEach((t, i) => { const X = ox + t[0] * sc, Y = oy + t[1] * sc; if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
+      ctx.setLineDash([]);
+    }
     // trail
     ctx.strokeStyle = alpha(P.accent, 0.55); ctx.lineWidth = 2; ctx.beginPath();
     trail.forEach((t, i) => { const X = ox + t[0] * sc, Y = oy + t[1] * sc; if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
@@ -1623,33 +1650,35 @@ const MC = (function(){
       const gx = ox + goal.x * sc, gy = oy + goal.y * sc;
       ctx.setLineDash([5, 5]); ctx.strokeStyle = P.ok; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ox + robot.x * sc, oy + robot.y * sc); ctx.lineTo(gx, gy); ctx.stroke(); ctx.setLineDash([]);
       ctx.strokeStyle = P.ok; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(gx, gy, 10, 0, Math.PI * 2); ctx.moveTo(gx - 15, gy); ctx.lineTo(gx + 15, gy); ctx.moveTo(gx, gy - 15); ctx.lineTo(gx, gy + 15); ctx.stroke();
-      text(ctx, "target (" + goal.x.toFixed(0) + ", " + (144 - goal.y).toFixed(0) + ")", gx + 14, gy - 12, {color: P.ok, weight: "600", size: 11, align: gx > ox + side - 120 ? "right" : "left"});
+      const lr = gx > ox + side - 160;   // near the right wall: put the label left of the target
+      text(ctx, "target (" + goal.x.toFixed(0) + ", " + (144 - goal.y).toFixed(0) + ")", lr ? gx - 16 : gx + 14, gy - 14, {color: P.ok, weight: "600", size: 14, align: lr ? "right" : "left"});
     }
     const rx = ox + robot.x * sc, ry = oy + robot.y * sc;
-    drawRobot(ctx, rx, ry, robot.h, 18 * sc, {});
-    // stick request arrow (in field frame)
+    // a thick bar on the front edge: which way the robot faces reads from the back row
+    drawRobot(ctx, rx, ry, robot.h, 18 * sc, {extra: (c, s) => { c.strokeStyle = P.pollen; c.lineWidth = 5; c.beginPath(); c.moveTo(-s / 2, -s / 2); c.lineTo(s / 2, -s / 2); c.stroke(); }});
+    // actual motion first and wide, the stick request on top and thin, so both stay visible
     const L = 30 * sc;
+    if (Math.hypot(robot.vx, robot.vy) > 2) arrow(ctx, rx, ry, rx + robot.vx / 45 * L, ry + robot.vy / 45 * L, P.accent, 5);
     if (mode !== "auto" && Math.hypot(m.sF, m.sR) > 0.05){
       let dx, dy;
       if (mode === "field"){ dx = m.sR; dy = -m.sF; }
       else { const t = -robot.h; dx = Math.sin(t) * m.sF + Math.cos(t) * m.sR; dy = -Math.cos(t) * m.sF + Math.sin(t) * m.sR; }
-      arrow(ctx, rx, ry, rx + dx * L, ry + dy * L, P.pollen, 4);
+      arrow(ctx, rx, ry, rx + dx * L, ry + dy * L, P.pollen, 2);
     }
-    const t = -robot.h, vx = Math.sin(t) * robot.vf + Math.cos(t) * robot.vr, vy = -Math.cos(t) * robot.vf + Math.sin(t) * robot.vr;
-    if (Math.hypot(vx, vy) > 2) arrow(ctx, rx, ry, rx + vx / 45 * L, ry + vy / 45 * L, P.accent, 3);
     // wheel view
     ({ctx, w, h} = fit($("#mc-wheels")));
     const S = Math.min(w, h) * 0.55, wx = w / 2, wy = h / 2 + 4;
     drawRobot(ctx, wx, wy, 0, S, {});
     for (const k of ["fl", "fr", "bl", "br"]){
       const p = m.actual[k], sd = k[1] === "l" ? -1 : 1;
-      const x = wx + sd * (S / 2 + S * 0.2), y = wy + (k[0] === "f" ? -S * 0.19 : S * 0.19);
-      arrow(ctx, x, y, x, y - p * S * 0.38, p >= 0 ? P.accent : P.red, 4);
-      text(ctx, (p >= 0 ? "+" : "") + p.toFixed(2), x + sd * 10, y + 4, {align: sd < 0 ? "right" : "left", weight: "600", color: (bug.checked && k === "fl") ? P.red : P.ink});
+      // arrows start at the wheel centers, short enough that a front and a back arrow never touch
+      const x = wx + sd * (S / 2 + S * 0.2), y = wy + (k[0] === "f" ? -S * 0.29 : S * 0.29);
+      arrow(ctx, x, y, x, y - p * S * 0.26, p >= 0 ? P.accent : P.red, 4);
+      text(ctx, k.toUpperCase() + " " + (p >= 0 ? "+" : "") + p.toFixed(2), x + sd * 10, y + 4, {align: sd < 0 ? "right" : "left", weight: "600", color: (bug.checked && k === "fl") ? P.red : P.ink});
     }
     const a = m.actual;
     const fv = (a.fl + a.fr + a.bl + a.br) / 4, rv = (a.fl - a.fr - a.bl + a.br) / 4;
-    arrow(ctx, wx, wy, wx + rv * S * 0.45, wy - fv * S * 0.45, P.pollen, 5);
+    arrow(ctx, wx, wy, wx + rv * S * 0.45, wy - fv * S * 0.45, P.ink, 5);
     text(ctx, "robot's own view: front is up", 10, h - 10, {color: P.muted, size: 11});
   }
   return {tick, show: () => {}, get: () => ({mode, heading: heading(), m: lastM})};
@@ -3596,24 +3625,27 @@ const DG = (function(){
       ctx.strokeStyle = P.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, h / 2 + 8, R, 0, Math.PI * 2); ctx.stroke();
       text(ctx, label, cx, 16, {align: "center", weight: "700", size: 12, mono: false});
     };
-    const cxL = half / 2, cxR = half + half / 2, cy = h / 2 + 8;
-    panel(cxL, "Driver's view (field)"); panel(cxR, g.mode === "robot" ? "Robot gets (no rotation)" : "Robot gets (rotated by heading)");
+    const cxL = half / 2, cxR = half + half / 2, cy = h / 2 + 8, narrow = w < 500, rot = g.mode !== "robot";
+    panel(cxL, !rot ? "Driver's view (field)" : narrow ? "Stick, robot at heading" : "Stick on the field, robot at IMU heading");
+    panel(cxR, !rot ? "Robot gets (no rotation)" : narrow ? "Robot gets: front up" : "Robot gets: picture turned so the front is up");
     // field axes
     arrow(ctx, cxL, cy, cxL, cy - R - 6, P.muted, 1.5); text(ctx, "F", cxL + 6, cy - R, {color: P.muted, size: 11});
     arrow(ctx, cxL, cy, cxL + R + 6, cy, P.muted, 1.5); text(ctx, "R", cxL + R + 6, cy + 14, {color: P.muted, size: 11});
     const m = g.m, sF = g.mode === "auto" ? (m.rot ? m.rot.r * Math.sin(m.rot.th) : 0) : m.sF, sR = g.mode === "auto" ? (m.rot ? m.rot.r * Math.cos(m.rot.th) : 0) : m.sR;
+    const hd = g.heading;
+    // the left robot faces where the IMU says, not where the field robot faces: in the wrong-zero demo the two differ
+    if (rot) drawRobot(ctx, cxL, cy, hd, R * 0.55, {body: alpha(P.accent, 0.12)});
     arrow(ctx, cxL, cy, cxL + sR * R, cy - sF * R, P.pollen, 4);
-    text(ctx, "stick: fwd " + sF.toFixed(2) + ", right " + sR.toFixed(2), cxL, h - 6, {align: "center", size: 11, color: P.pollen, weight: "600"});
+    const bs = narrow ? 10 : 11;
+    text(ctx, (narrow ? "fwd " : "stick: fwd ") + sF.toFixed(2) + ", right " + sR.toFixed(2), cxL, h - 6, {align: "center", size: bs, color: P.pollen, weight: "600"});
     // robot view: robot drawn facing up, vector in robot frame
     drawRobot(ctx, cxR, cy, 0, R * 0.55, {body: alpha(P.accent, 0.12)});
     arrow(ctx, cxR, cy, cxR + m.lateral * R, cy - m.axial * R, P.accent, 4);
-    const hd = g.heading;
-    if (g.mode !== "robot"){
+    if (rot){
       ctx.strokeStyle = P.red; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cxL, cy, R * 0.35, -Math.PI / 2, -Math.PI / 2 - hd, hd > 0); ctx.stroke();
-      ctx.strokeStyle = P.red; ctx.beginPath(); ctx.moveTo(cxL, cy); ctx.lineTo(cxL - Math.sin(hd) * R * 0.9, cy - Math.cos(hd) * R * 0.9); ctx.stroke();
       text(ctx, "heading " + (hd * 180 / Math.PI).toFixed(0) + " deg", cxL - R, cy + R + 2, {size: 11, color: P.red, weight: "600"});
     }
-    text(ctx, "axial " + m.axial.toFixed(2) + ", lateral " + m.lateral.toFixed(2), cxR, h - 6, {align: "center", size: 11, color: P.accent, weight: "600"});
+    text(ctx, "axial " + m.axial.toFixed(2) + (narrow ? ", lat " : ", lateral ") + m.lateral.toFixed(2), cxR, h - 6, {align: "center", size: bs, color: P.accent, weight: "600"});
   }
   /* ---- one loop: state machine ---- */
   function stateMachine(force){
