@@ -80,7 +80,7 @@ Talking points (5 min):
 
 Teams and the game (5 min):
 - Press Reset scores twice. Click each team name in the top bar and type the name the team picks. Hand out one set of A, B and C cards per team.
-- Practice vote: the tab 2 Ask the room question about the AI version (right answer C: the arm moves right after INIT, and the thread keeps running after STOP). Walk through the moves once: teams hold up a card, you click each team's answer, then Reveal answer. The lab pays the points. Press Reset scores twice after the practice, so the game starts at 0 and the tab 2 vote is fresh for Module 2. Explain the four games in one sentence each.
+- Practice vote: the tab 2 Ask the room question about the AI version (right answer C: the arm moves right after INIT, and the thread keeps running after STOP). Walk through the moves once: teams hold up a card, you click each team's answer, then Reveal answer. The lab pays the points. Press Reset scores twice after the practice, so the game starts at 0. Press Hide on the tab 2 question: Module 2 scores the INIT, START and STOP predictions, not this vote again. Explain the four games in one sentence each.
 
 Team rounds:
 - Practice vote on tab 2 (right answer C, then Reset scores twice, shows the moves).
@@ -311,7 +311,7 @@ Teach:
 - Ask without points: a driver pushes the left stick forward. Why does `left_stick_y` read negative? (Gamepad Y points down.) This explains the minus sign in every drive sample.
 
 Team rounds:
-- Prediction before INIT, START and STOP: which line runs next (1 point each).
+- Prediction before INIT, START and STOP: which line runs next (1 point each). Right answers: INIT A (lines 6 to 8, then wait at line 9), START C (lines 10 to 14, over and over), STOP A (line 16, robot.stopDrive(), once). Score with keys 1 to 6.
 - Prediction on the AI version after STOP: press INIT again. Does the old thread stop? (1 point). Right answer: no. Two lines stay red, and only an app restart clears it. The Ask the room vote on this tab was the Module 0 practice, right answer C. Switching back to the team version stands for the app restart: the lab says so and the red arm goes away.
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)

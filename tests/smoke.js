@@ -133,6 +133,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/Team rule: nothing moves during INIT\. Rule G304\.H is looser/.test(await fold.textContent("#lc-msg")), "lifecycle: the INIT message names the team rule next to G304.H");
   await fold.waitForTimeout(2400);
   check(/Vote before START/.test(await fold.textContent("#lc-msg")), "lifecycle: the wait message asks the vote before START");
+  check(/^Rule G304\.H: fully motionless until START\. Team rule: nothing moved during INIT either\.\nLines 6 to 8 ran once/.test(await fold.textContent("#lc-msg")), "lifecycle: the wait message keeps G304.H and the team rule side by side while the room votes");
   const lcSdWait = await fold.textContent("#lc-sd");
   check(lcSdWait.includes("waitForStart()") && !/while loop|stopDrive|50 times/.test(lcSdWait), "lifecycle: in WAIT the state diagram hides the RUN and STOP text, so it does not answer the votes");
   const lcB = [await lcBottom("#lc-code"), await lcBottom("#lc-msg"), await lcBottom("#lc-sd")];
@@ -148,7 +149,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(["START", "STOP: 30 s timer", "STOP: drivers press it", "8 s: pick TeleOp, press INIT"].every(t => tlText.includes(t)) && (tlText.match(/START/g) || []).length === 2, "lifecycle: the match timeline marks a START and a STOP for each OpMode");
   await fold.check('input[name="lcv"][value="bad"]');
   check((await fold.textContent("#lc-file")) === "MainTeleOpAI.java", "lifecycle: the file name follows the class name");
-  await fold.click("#lc-init"); await fold.waitForTimeout(2600); await fold.click("#lc-start"); await fold.waitForTimeout(500);
+  await fold.click("#lc-init"); await fold.waitForTimeout(200);
+  check(/^INIT pressed: lines 7 to 11 start the thread/.test(await fold.textContent("#lc-msg")), "lifecycle: the AI INIT message says lines 7 to 11 start the thread, not line 7 alone");
+  await fold.waitForTimeout(2400);
+  const lcAiWait = await fold.textContent("#lc-msg");
+  check(/^Rule G304\.H broken: init finished and the arm still moves/.test(lcAiWait) && /DISABLED/.test(lcAiWait) && !/Referees call/.test(lcAiWait), "lifecycle: the AI wait message names the G304 penalty (held match or DISABLED), not a referee call");
+  check(/<div class="a">C\. The thread starts the arm during INIT\. That already breaks the team rule/.test(src), "lifecycle: the Ask the room answer names the team rule for INIT and G304.H for after init");
+  await fold.click("#lc-start"); await fold.waitForTimeout(500);
   await fold.click("#lc-stop"); await fold.waitForTimeout(2400);
   check(/nobody told the thread to stop/.test(await fold.textContent("#lc-msg")) && !(await fold.$eval("#lc-init", e => e.disabled)), "lifecycle: after STOP the thread runs on and INIT is free again");
   await fold.click("#lc-init"); await fold.waitForTimeout(200);
@@ -692,6 +699,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/TU08/.test(ref) && !/TU07 dated|new in TU07|Practice-only|\[Verify wording\]|\[Verify R704\]/.test(ref) && /FTControl Panels/.test(ref) && /PARK 5, in AUTO and again in TELEOP/.test(ref), "docs: reference cites TU08, R704.D off at the venue, PARK in TELEOP");
   check(ref.split("\n").filter(l => /\[Verify\]/.test(l) && !/still marked/.test(l)).length === 1 && /\[Verify\] FTC robot code/.test(ref) &&/2026-award-deadlines-approaching/.test(ref), "docs: reference keeps one [Verify], on AI robot code, and cites the 2026 FIRST post");
   check(/fully motionless following completion of OpMode initialization/.test(ref + plan + gw + std) && !/no movement: rule G304\.H/.test(plan), "docs: plan, reference, workflow and standard quote G304.H and call no movement in INIT a team rule");
+  check(/Right answers: INIT A \(lines 6 to 8, then wait at line 9\), START C \(lines 10 to 14, over and over\), STOP A \(line 16/.test(plan) && !/tab 2 vote is fresh for Module 2/.test(plan) && /manual-11 \(G304, G305, G401-G404\)/.test(ref), "docs: plan gives the Module 2 prediction letters, does not re-run the tab 2 vote, and the reference cites manual-11 for G304");
   check(/loses LEAVE/.test(plan) && !/from Module 6 for turns/.test(plan) && /from lab tab 7 \(the PID turn job\)/.test(plan), "docs: plan says a wall park loses LEAVE and points turnToHeading at lab tab 7");
   check(/On the Crash Course day \(Module 3, lab tab 3, 20 min\)/.test(gw) && /Maya sets the slow-mode value to 0\.4, Leo sets the same line to 0\.3/.test(gw) && /team-roster\.md/.test(gw) && /team-roster\.md/.test(plan), "docs: GitHub drills split the projector day from the hands-on session and match the plan's roster drill");
   check(/`\? :` to pick one of two values/.test(std) && src.includes("turn = lastBearing > 0 ? -0.3 : 0.3;") && !/\| Interfaces, abstract classes, generics \|/.test(std) && src.includes("List<Double> shots = new ArrayList<>();"), "docs: standard allows List<Type> and one-level ternary, and the lab Java matches");

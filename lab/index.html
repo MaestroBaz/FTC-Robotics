@@ -826,7 +826,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
       <p class="lede">Step through a LinearOpMode with the Driver Hub buttons. The highlighted line is running now. Switch to the AI-written version to see why a background thread breaks the rules.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init: a second piece of code running alongside yours. What does the robot do after INIT? After STOP?</span><span class="vote" data-right="2"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">The thread starts moving the arm right after INIT, before the match starts. This breaks rule G304.H: the robot stays fully motionless once init finishes. STOP ends <code>runOpMode()</code>, but nobody tells the thread to stop. Its <code>while (true)</code> loop keeps running until the app restarts.</div>
+      <div class="a">C. The thread starts the arm during INIT. That already breaks the team rule: nothing moves before START. Once init finishes the arm still moves, and that breaks rule G304.H: the robot stays fully motionless once init finishes. STOP ends <code>runOpMode()</code>, but nobody tells the thread to stop. Its <code>while (true)</code> loop keeps running until the app restarts.</div>
     </details>
   </div>
   <div class="grid2">
@@ -1542,7 +1542,7 @@ const LC = (function(){
     st = fresh(); st.thread = keep; st.armT = armT;
     st.phase = "init"; st.idx = 0; st.t = 0; st.pc = v.initSeq[0]; bI.disabled = true; bX.disabled = false;
     setMsg(team() ? "INIT pressed: the code before waitForStart() runs once. Set up hardware here.\nTeam rule: nothing moves during INIT. Rule G304.H is looser: it starts once init finishes."
-      : "INIT pressed: line 7 starts the thread, and the arm moves during INIT. This already breaks the team rule. Rule G304.H breaks next, once init finishes and the arm keeps moving.", team() ? "" : "bad");
+      : "INIT pressed: lines 7 to 11 start the thread, and the arm moves during INIT. This already breaks the team rule. Rule G304.H breaks next, once init finishes and the arm keeps moving.", team() ? "" : "bad");
   });
   bS.addEventListener("click", () => {
     st.phase = "run"; st.idx = 0; st.t = 0; bS.disabled = true;
@@ -1567,8 +1567,8 @@ const LC = (function(){
       if (st.idx < v.initSeq.length){
         st.pc = v.initSeq[st.idx];
       } else { st.phase = "wait"; st.pc = v.wait; bS.disabled = false;
-        if (v.threadAt >= 0){ st.violation = true; setMsg("Rule G304.H broken: the robot moves after INIT, before the match starts. Referees call this.", "bad"); }
-        else setMsg("Lines 6 to 8 ran once. The code waits at line 9. The robot sits still (rule G304.H).\nVote before START: what runs next?\nA: lines 6 to 8 again\nB: line 16, then the OpMode ends\nC: lines 10 to 14, over and over", "ok");
+        if (v.threadAt >= 0){ st.violation = true; setMsg("Rule G304.H broken: init finished and the arm still moves. The team rule broke earlier, during INIT. The match does not start until the robot holds still. If the fix takes long, the robot is DISABLED.", "bad"); }
+        else setMsg("Rule G304.H: fully motionless until START. Team rule: nothing moved during INIT either.\nLines 6 to 8 ran once. The code waits at line 9. Vote before START: what runs next?\nA: lines 6 to 8 again\nB: line 16, then the OpMode ends\nC: lines 10 to 14, over and over", "ok");
       }
       if (st.pc === v.threadAt) st.thread = true;
     } else if (st.phase === "run"){

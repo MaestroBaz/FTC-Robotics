@@ -31,7 +31,7 @@ Sources:
 - G304.H, the rule text: the robot is "fully motionless following completion of OpMode initialization". The rule covers the time after init finishes: from then on, nothing moves until START. Background threads started in init break this rule easily. Team policy is stricter: no movement during INIT at all, so the robot never moves before START.
 - G401: No driver interaction from countdown to end of AUTO except pressing start. G403: no powered movement during the transition. G404: no powered movement after TELEOP ends.
 
-Source: https://ftc-resources.firstinspires.org/ftc/game/manual-12
+Sources: https://ftc-resources.firstinspires.org/ftc/game/manual-11 (G304, G305, G401-G404), https://ftc-resources.firstinspires.org/ftc/game/manual-12 (R rules)
 
 ## 3. Awards that reward software
 
