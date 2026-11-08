@@ -612,7 +612,55 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   }));
   check(!/battery/i.test(fbMore.codeA) && /no sensor/.test(fbMore.codeA), "feedback: open-loop code comment does not answer the battery vote");
   check(/launcherOn\(\)/.test(fbMore.note) && /launcherReady\(\)/.test(fbMore.note) && /40 ticks\/s of 1160/.test(fbMore.note) && /tab 5/.test(fbMore.note), "feedback: note under the chips ties launcherReady() to Robot.java and the tab 5 state machine");
-  check(src.includes("const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width)") && src.includes("ctx.strokeText(lab, lx, ly)"), "feedback: open-loop offset label has a halo and never clips at the y axis");
+  // marker labels never sit on a curve: draw with markers off, then count curve and shot-dot pixels inside each label box
+  {
+    const fbBoxes = () => pg.evaluate(() => window.__fbLabels || []);
+    const underLabels = async () => {
+      const bx = await fbBoxes();
+      await pg.click("#fb-cbar .tc-marks"); await pg.waitForTimeout(120);
+      const hits = await pg.evaluate(bx => {
+        const cv = document.querySelector("#fb-plot"), d = window.devicePixelRatio || 1, ctx = cv.getContext("2d"), css = getComputedStyle(document.documentElement);
+        const cols = ["--pollen", "--accent", "--red"].map(v => { const n = parseInt(css.getPropertyValue(v).trim().slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; });
+        return bx.map(b => { const px = ctx.getImageData(Math.round(b.x0 * d), Math.round(b.y0 * d), Math.max(1, Math.round((b.x1 - b.x0) * d)), Math.max(1, Math.round((b.y1 - b.y0) * d))).data; let c = 0;
+          for (let i = 0; i < px.length; i += 4) if (px[i + 3] > 200 && cols.some(w => Math.abs(px[i] - w[0]) < 30 && Math.abs(px[i + 1] - w[1]) < 30 && Math.abs(px[i + 2] - w[2]) < 30)) c++;
+          return { s: b.s, c, tag: b.y0 < 26 && b.x1 > cv.clientWidth - 56 }; });
+      }, bx);
+      await pg.click("#fb-cbar .tc-marks"); await pg.waitForTimeout(120);
+      return hits;
+    };
+    const run = async (sec) => { await pg.evaluate(() => window.__setPause(false)); await pg.waitForTimeout(sec * 500); await pg.evaluate(() => window.__setPause(true)); await pg.waitForTimeout(120); };   // 2x sim speed
+    const both = async name => {   // the same paused moment on the projector and on a phone
+      const out = [];
+      for (const vp of [{ width: 1366, height: 768 }, { width: 390, height: 844 }]) {
+        await pg.setViewportSize(vp); await pg.waitForTimeout(150);
+        const h = await underLabels();
+        out.push(vp.width + ": " + h.map(x => x.s + "=" + x.c + (x.tag ? " ON TAG" : "")).join(", "));
+        check(h.length >= 3 && h.some(x => x.s === "HIVE window") && h.every(x => x.c === 0 && !x.tag), "feedback: marker and HIVE labels sit clear of the curves, dots and the LIVE tag, " + name + " at " + vp.width + " px: " + out[out.length - 1]);
+      }
+      await pg.setViewportSize({ width: 1366, height: 900 });
+    };
+    await pg.$eval("#ts-slider", el => { el.value = 1000; el.dispatchEvent(new Event("input")); });
+    for (const v of [11.8, 13.6]) {
+      await pg.$eval("#fb-v", (el, v) => { el.value = v; el.dispatchEvent(new Event("input")); }, v);
+      await pg.click("#fb-cbar .tc-reset"); await run(3.5);
+      await pg.click("#fb-feed"); await run(1.5);
+      await both("pause on the dip at " + v + " V");
+    }
+    await pg.click("#fb-cbar .tc-reset"); await run(0.5);
+    await pg.click("#fb-match"); await run(33);
+    await both("after the match");
+    await pg.click("#fb-cbar .tc-all"); await pg.waitForTimeout(100);
+    await both("after the match, Show all");
+    // P + I + D box: F and the fix add up to the motor power on screen
+    const sum = (await pg.textContent("#fb-blocks")).match(/F = kF x target([\d.]+) power.*fixes error: ([+-][\d.]+).*?power ([\d.]+)/);
+    check(sum && Math.abs(+sum[1] + +sum[2] - +sum[3]) < 1e-9, "feedback: block diagram F + fix = motor power: " + (sum ? sum.slice(1).join(" ") : "no match"));
+    // phone: block diagrams keep full-size labels and scroll in their panel, the score table shows Hit rate
+    await pg.setViewportSize({ width: 390, height: 844 }); await pg.waitForTimeout(200);
+    const fbPhone = await pg.evaluate(() => ({ blocks: document.querySelector("#fb-blocks").getBoundingClientRect().width, score: document.querySelector("#fb-score").scrollWidth, box: document.querySelector("#fb-score").parentElement.clientWidth, page: document.documentElement.scrollWidth }));
+    check(fbPhone.blocks >= 830 && fbPhone.score <= fbPhone.box && fbPhone.page <= 390, "feedback: at 390 px the block diagrams keep 830 px, the score table fits, no page scroll: " + JSON.stringify(fbPhone));
+    await pg.setViewportSize({ width: 1366, height: 900 });
+    await pg.evaluate(() => window.__setPause(false)); await pg.click('#ts-ticks span[data-v="1"]');
+  }
   // ==== end area feedback ====
 
   // ==== area docs: G304.H rule text vs team rule, course docs agree with the manual and the plan ====
@@ -653,8 +701,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     await pg.selectOption("#fb-cbar .tc-win", "5");
     await pg.$eval("#ts-slider", el => { el.value = 1000; el.dispatchEvent(new Event("input")); });
     await pg.click("#fb-cbar .tc-reset"); await pg.waitForTimeout(4500);   // 9 s of sim: the 5 s window shows only the steady part
-    const hiveY = 12 + 322 - (1200 - 700) / 700 * 322 - 4;   // draw(): Tp 12, plot 322 px tall, 700 to 1400, label 4 px above 1200
-    const onLabel = await near("#fb-plot", "--pollen", [60, hiveY - 8, 126, hiveY + 1]);
+    const hive = (await pg.evaluate(() => window.__fbLabels || [])).find(x => x.s === "HIVE window");   // the label moves off the curve, so read where it went
+    const onLabel = hive ? await near("#fb-plot", "--pollen", [hive.x0 + 3, hive.y0 + 2, hive.x1 - 3, hive.y1 - 2]) : -1;
     check(onLabel === 0, "charts #9: no yellow curve pixels inside the HIVE window label (" + onLabel + ")");
     await pg.click("#fb-burst"); await pg.waitForTimeout(1200);
     await shot(pg.locator("#lab-feedback"), "feedback-fire3.png");

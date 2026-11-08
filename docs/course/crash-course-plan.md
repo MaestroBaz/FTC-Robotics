@@ -377,7 +377,7 @@ Part B, feedback across a match (lab tab 6, 10 min):
 - Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
 - Ask: why does drive still use setPower? The driver closes that loop with their eyes.
 - Markers: dip, recovery time, open-loop offset. Pause on the dip after a shot and name each one.
-- Set the battery to 12.5 V. The open loop now sits on target. Press Fire 3 fast: the open loop hits 1 of 3, the closed loop 3 of 3. Each ball slows the wheel. The open loop needs about 0.65 s to get back, and the next ball comes after 0.5 s. The closed loop pushes back and recovers in about 0.2 s.
+- Set the battery to 12.5 V. The open loop now sits on target. Press Fire 3 fast: the open loop hits 1 of 3, the closed loop 3 of 3. Each ball slows the wheel. The open loop needs about 0.65 s to get back, and the next ball comes after 0.5 s. The closed loop pushes back and recovers in about 0.15 s: read the recovery time marker on the chart.
 
 Part C, the state machine, read aloud (10 min). This goes into `MainTeleOp`:
 

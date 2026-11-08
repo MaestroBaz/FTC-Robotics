@@ -103,6 +103,7 @@ Interaction: drag on any chart canvas zooms to the selection. Double-click retur
 - "Run a 2-minute match" drains the battery from 13.6 V to 11.7 V over 30 sim seconds and feeds every 2 s.
 - `hist` samples every 0.03 s: `{t, o, c}`.
 - `shotMarks()` draws, for the last closed-loop shot in view: dip, the time until the speed is back in the window to stay (0.3 s), and the open-loop offset from 1160 at the right edge.
+- Chart labels never sit on a curve: `chartLabels()` runs `shotMarks()` when markers are on, then places the HIVE window label (above the band, else under it, further right). `place()` tries each label's spots in order (beside the mark, the other side, then rows under the time bracket) and takes the first box clear of both curves, the shot dots, the target line, the LIVE tag and the labels already placed. `paint()` draws the labels last. `window.__fbLabels` holds the boxes for the smoke test, which redraws with markers off and counts curve pixels inside each box at 1366 and 390 px.
 
 ## PIDLAB (tab 7)
 

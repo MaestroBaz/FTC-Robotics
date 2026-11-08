@@ -349,6 +349,8 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 /* ==== area feedback: CSS for the feedback teaching fixes goes below this line ==== */
 #lab-feedback .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}   /* same rule as the whole area's .labhead .goal */
 td.hit{color:var(--ok);}
+@media (max-width:860px){ #fb-blocks{min-width:830px;} }   /* block diagrams at full size, 12 px labels: scroll sideways inside the panel */
+@media (max-width:480px){ #fb-score th{white-space:normal;} #fb-score th, #fb-score td{padding:5px 4px;} }   /* the Hit rate column fits on a phone */
 /* ==== end area feedback ==== */
 /* ==== area whole: cross-tab goal line ==== */
 .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
@@ -1059,7 +1061,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
       <p class="note" id="fb-ready-note" style="margin-top:8px">In Robot.java, <code>launcherOn()</code> calls <code>setVelocity(LAUNCH_VELOCITY)</code>. <code>launcherReady()</code> is true when the encoder reads within 40 ticks/s of 1160. The state machine from tab 5 feeds a ball only then.</p>
     </div>
   </div>
-  <div class="panel" style="margin-top:16px"><h3>The two launchers as block diagrams <small>live numbers</small></h3><svg class="diag" id="fb-blocks" role="img" aria-label="Open and closed loop diagrams"></svg></div>
+  <div class="panel" style="margin-top:16px"><h3>The two launchers as block diagrams <small>live numbers</small></h3><div style="overflow-x:auto"><svg class="diag" id="fb-blocks" role="img" aria-label="Open and closed loop diagrams"></svg></div></div>
 </section>
 
 <!-- ============ 5 ENCODERS ============ -->
@@ -2104,6 +2106,7 @@ function bracketH(ctx, x1, x2, y, col, label, L, R){
   ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(x1, y - 5); ctx.lineTo(x1, y + 5); ctx.moveTo(x2, y - 5); ctx.lineTo(x2, y + 5); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
   ctx.restore();
+  if (!label) return;   // the caller places the label
   ctx.save(); ctx.font = "600 11px JetBrains Mono, monospace"; const tw = ctx.measureText(label).width; ctx.restore();
   let tx = (x1 + x2) / 2, al = "center";
   if (x2 - x1 < tw + 10){ tx = x2 + 6; al = "left"; if (tx + tw > R){ tx = x1 - 6; al = "right"; } }
@@ -2392,50 +2395,95 @@ const FB = (function(){
     while (shots.length > 4000) shots.shift();
     draw();
   }
-  function shotMarks(ctx, X, Y, t0, t1, L, R, Tp){
-    // closed loop: last shot on screen, its dip, and the time to get back in the window
-    let s = null;
-    for (let i = shots.length - 1; i >= 0; i--){ if (shots[i].k === "c" && shots[i].t <= t1){ s = shots[i]; break; } }
-    if (s && s.t >= t0 - 1){
-      const nxt = shots.find(x => x.k === "c" && x.t > s.t + 1e-9);
-      const a = bsearch(hist, s.t), b = Math.min(bsearch(hist, s.t + 6), nxt ? bsearch(hist, nxt.t) : hist.length);
-      let mn = Infinity, tm = s.t, lastOut = s.t;
-      for (let i = a; i < b; i++){ const p = hist[i]; if (p.c < mn){ mn = p.c; tm = p.t; } if (Math.abs(p.c - TARGET) >= 40) lastOut = p.t; }
-      const tEnd = b > a ? hist[b - 1].t : s.t;
-      const tr = tEnd - lastOut >= 0.3 ? lastOut : null;
-      if (mn < Infinity){
-        dashed(ctx, X(s.t), Tp, X(s.t), Y(mn), P.accent, 1.2);
-        const right = X(tm) + 160 < R;
-        dashed(ctx, X(tm), Y(mn), right ? X(tm) + 60 : X(tm) - 60, Y(mn), P.accent, 1.2);
-        const dl = "dip to " + Math.round(mn);   // on a narrow chart, slide right instead of clipping at the y axis
-        ctx.font = "600 11px JetBrains Mono, monospace";
-        plateText(ctx, dl, right ? X(tm) + 64 : Math.max(X(tm) - 64, L + 4 + ctx.measureText(dl).width), Y(mn) + 4, {color: P.accent, size: 11, weight: "600", align: right ? "left" : "right"});
+  // Chart labels never sit on a curve: each label tries its spots in order and takes the first clear one.
+  // window.__fbLabels keeps the label boxes drawn on the last frame, for the smoke test.
+  function chartLabels(ctx, X, Y, t0, t1, L, R, Tp, Bt, marks){
+    const boxes = [{x0: R - 44, x1: R, y0: Tp, y1: Tp + 14}];   // the LIVE / ALL / ZOOMED tag at the top right
+    const tOf = x => t0 + (x - L) / (R - L) * (t1 - t0);
+    const yAt = (p, q, x, k) => { const xa = X(p.t), xb = X(q.t); return Y(xb === xa ? q[k] : p[k] + (q[k] - p[k]) * (x - xa) / (xb - xa)); };
+    const onCurve = b => {   // a curve, a shot dot, the target line or a label already drawn passes through the box
+      if (Y(TARGET) >= b.y0 && Y(TARGET) <= b.y1) return true;
+      if (boxes.some(o => o.x0 < b.x1 && o.x1 > b.x0 && o.y0 < b.y1 && o.y1 > b.y0)) return true;
+      const a = Math.max(1, bsearch(hist, tOf(b.x0)) - 1), z = Math.min(hist.length, bsearch(hist, tOf(b.x1)) + 1);
+      for (let i = a; i < z; i++){
+        const p = hist[i - 1], q = hist[i], xa = Math.max(b.x0, X(p.t)), xb = Math.min(b.x1, X(q.t));
+        if (xa > xb) continue;
+        for (const k of ["o", "c"]){ const ya = yAt(p, q, xa, k), yb = yAt(p, q, xb, k); if (Math.max(ya, yb) >= b.y0 - 2 && Math.min(ya, yb) <= b.y1 + 2) return true; }
       }
-      if (tr !== null){
-        dashed(ctx, X(tr), Tp, X(tr), Y(TARGET), P.accent, 1.2);
-        bracketH(ctx, X(s.t), X(tr), Tp + 10, P.accent, "recovery time " + (tr - s.t).toFixed(2) + " s", L, R);
-      } else plateText(ctx, nxt ? "next shot came before it recovered" : "recovering...", Math.min(R - 4, X(s.t) + 6), Tp + 14, {color: P.accent, size: 11, weight: "600", align: X(s.t) + 220 > R ? "right" : "left"});
-    }
-    // open loop: how far its steady speed sits from the target
-    const last = hist[Math.max(0, Math.min(hist.length, bsearch(hist, t1)) - 1)];
-    if (last && last.t > t0){
-      // steady speed for this battery, not the newest sample: after a shot the newest sample is still recovering
-      const steady = KV * last.v * 0.8, off = steady - TARGET, xr = Math.min(R - 30, X(last.t) - 30);
-      if (Math.abs(off) > 15){
-        ctx.save(); ctx.strokeStyle = P.pollen; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(xr - 5, Y(TARGET)); ctx.lineTo(xr + 5, Y(TARGET)); ctx.moveTo(xr - 5, Y(steady)); ctx.lineTo(xr + 5, Y(steady)); ctx.moveTo(xr, Y(TARGET)); ctx.lineTo(xr, Y(steady)); ctx.stroke(); ctx.restore();
-        // label on the far side of the steady line, outside the HIVE band. The halo in the chart color
-        // keeps the letters readable where the earlier, faster yellow curve or a shot dot runs behind them.
-        const lab = "open loop off by " + (off > 0 ? "+" : "") + Math.round(off), ly = Y(steady) + (off < 0 ? 15 : -7);
-        ctx.save(); ctx.font = "700 11px JetBrains Mono, monospace"; ctx.textAlign = "right";
-        const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width); // on a narrow chart, slide right instead of clipping at the y axis
-        plate(ctx, lab, lx, ly, {size: 11, weight: "700", align: "right"});
-        ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = P.field; ctx.strokeText(lab, lx, ly); ctx.restore();
-        text(ctx, lab, lx, ly, {color: P.pollen, size: 11, weight: "700", align: "right"});
-        return off;
+      return shots.some(x => x.t >= t0 && x.t <= t1 && X(x.t) + 7 >= b.x0 && X(x.t) - 7 <= b.x1 && Y(x.w) + 7 >= b.y0 && Y(x.w) - 7 <= b.y1);
+    };
+    // spots: [x, baseline y, align]. First the spots as given, then each one slid inside the plot. No clear spot: the first one, slid in.
+    // paint() draws the labels last, so no marker line crosses one.
+    const place = (lab, weight, color, spots) => {
+      ctx.save(); ctx.font = weight + " 11px JetBrains Mono, monospace"; const tw = ctx.measureText(lab).width; ctx.restore();
+      const boxOf = ([x, y, al], slide) => { let x0 = al === "right" ? x - tw : al === "center" ? x - tw / 2 : x;
+        if (slide) x0 = Math.min(Math.max(x0, L + 4), R - 4 - tw);
+        return {x0: x0 - 3, x1: x0 + tw + 3, y0: y - 12, y1: y + 4, x: x0, y, s: lab, weight, color}; };
+      const inside = b => b.x0 >= L && b.x1 <= R && b.y0 >= Tp && b.y1 <= Bt;
+      const all = spots.map(sp => boxOf(sp, false)).concat(spots.map(sp => boxOf(sp, true))).filter(inside);
+      const b = all.find(b => !onCurve(b)) || boxOf(spots[0], true);
+      boxes.push(b);
+      return b;
+    };
+    const paint = () => {
+      const labs = boxes.slice(1);
+      labs.forEach(b => plateText(ctx, b.s, b.x, b.y, {color: b.color, size: 11, weight: b.weight}));
+      window.__fbLabels = labs.map(b => ({s: b.s, x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1}));
+    };
+    // label rows under the time bracket: the curves rarely reach them on the 700-1400 axis (open loop peaks at 116 x 13.6 x 0.8 = 1262)
+    const top1 = Tp + 32, top2 = Tp + 50, top3 = Tp + 68;
+    if (marks) shotMarks();
+    // the HIVE label: above the window, else under it, further right if a curve runs there
+    place("HIVE window", "600", P.ok, [0, 0.3, 0.6].flatMap(f => [[L + 6 + f * (R - L), Y(HI) - 4, "left"], [L + 6 + f * (R - L), Y(LO) + 14, "left"]]));
+    paint();
+    function shotMarks(){
+      // closed loop: last shot on screen, its dip, and the time to get back in the window
+      let s = null;
+      for (let i = shots.length - 1; i >= 0; i--){ if (shots[i].k === "c" && shots[i].t <= t1){ s = shots[i]; break; } }
+      if (s && s.t >= t0 - 1){
+        const nxt = shots.find(x => x.k === "c" && x.t > s.t + 1e-9);
+        const a = bsearch(hist, s.t), b = Math.min(bsearch(hist, s.t + 6), nxt ? bsearch(hist, nxt.t) : hist.length);
+        let mn = Infinity, tm = s.t, lastOut = s.t;
+        for (let i = a; i < b; i++){ const p = hist[i]; if (p.c < mn){ mn = p.c; tm = p.t; } if (Math.abs(p.c - TARGET) >= 40) lastOut = p.t; }
+        const tEnd = b > a ? hist[b - 1].t : s.t;
+        const tr = tEnd - lastOut >= 0.3 ? lastOut : null;
+        const xs = X(s.t);
+        if (tr !== null){
+          dashed(ctx, X(tr), Tp, X(tr), Y(TARGET), P.accent, 1.2);
+          bracketH(ctx, xs, X(tr), Tp + 10, P.accent, "", L, R);
+          const rl = "recovery time " + (tr - s.t).toFixed(2) + " s", xe = X(tr);
+          place(rl, "600", P.accent, [[xe + 6, Tp + 14, "left"], [xs - 6, Tp + 14, "right"], [(xs + xe) / 2, top1, "center"], [(xs + xe) / 2, top2, "center"]]);
+        } else {
+          const rl = nxt ? "next shot came before it recovered" : "recovering...";
+          place(rl, "600", P.accent, [[xs + 6, Tp + 14, "left"], [xs - 6, Tp + 14, "right"], [xs, top1, "center"]]);
+        }
+        if (mn < Infinity){
+          dashed(ctx, xs, Tp, xs, Y(mn), P.accent, 1.2);
+          const xd = X(tm), yd = Y(mn), dl = "dip to " + Math.round(mn);
+          const d = place(dl, "600", P.accent, [[xd + 64, yd + 4, "left"], [xd - 64, yd + 4, "right"], [xd, yd + 18, "center"],
+            [xs + 6, top1, "left"], [xs - 6, top1, "right"], [xs + 6, top2, "left"], [xs - 6, top2, "right"], [xs + 6, top3, "left"], [xs - 6, top3, "right"]]);
+          const side = d.y === yd + 4;   // beside the dip: a level leader. Elsewhere the dashed line from the shot points at it.
+          if (side) dashed(ctx, xd, yd, d.x > xd ? d.x - 4 : d.x + d.x1 - d.x0 - 2, yd, P.accent, 1.2);
+        }
+      }
+      // open loop: how far its steady speed sits from the target
+      const last = hist[Math.max(0, Math.min(hist.length, bsearch(hist, t1)) - 1)];
+      if (last && last.t > t0){
+        // steady speed for this battery, not the newest sample: after a shot the newest sample is still recovering
+        const steady = KV * last.v * 0.8, off = steady - TARGET, xr = Math.min(R - 30, X(last.t) - 30);
+        if (Math.abs(off) > 15){
+          ctx.save(); ctx.strokeStyle = P.pollen; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.moveTo(xr - 5, Y(TARGET)); ctx.lineTo(xr + 5, Y(TARGET)); ctx.moveTo(xr - 5, Y(steady)); ctx.lineTo(xr + 5, Y(steady)); ctx.moveTo(xr, Y(TARGET)); ctx.lineTo(xr, Y(steady)); ctx.stroke(); ctx.restore();
+          // first choice: the far side of the steady line, outside the HIVE band
+          const lab = "open loop off by " + (off > 0 ? "+" : "") + Math.round(off), yf = Y(steady) + (off < 0 ? 15 : -7), yn = Y(steady) + (off < 0 ? -7 : 15);
+          const o = place(lab, "700", P.pollen, [[xr - 8, yf, "right"], [xr - 8, yn, "right"], [xr + 8, yf, "left"], [xr, top1, "center"], [xr, top2, "center"], [xr, top3, "center"]]);
+          if (o.y === top1 || o.y === top2 || o.y === top3){   // up in a top row: a leader from the bracket
+            const xe = Math.min(Math.max(xr, o.x0 + 4), o.x1 - 4);
+            dashed(ctx, xr, Math.min(Y(TARGET), Y(steady)) - 2, xe, o.y1, P.pollen, 1.2);
+          }
+        }
       }
     }
-    return 0;
   }
   function draw(){
     const cv = $("#fb-plot"), {ctx, w, h} = fit(cv);
@@ -2463,11 +2511,8 @@ const FB = (function(){
       ctx.strokeStyle = s.k === "o" ? P.pollen : P.accent; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(X(s.t), Y(s.w), 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
-    const off = CH.marks() ? shotMarks(ctx, X, Y, m.t0, m.t1, L, L + pw, Tp) : 0;
+    chartLabels(ctx, X, Y, m.t0, m.t1, L, L + pw, Tp, Tp + ph, CH.marks());   // after the curves, so they pass behind the plates
     ctx.restore();
-    // after the curves, so they pass behind it. On a narrow chart the open-loop label above the window
-    // reaches the left edge, so the HIVE label moves under the window.
-    plateText(ctx, "HIVE window", L + 6, pw < 400 && off > 15 ? Y(LO) + 14 : Y(HI) - 4, {color: P.ok, size: 11, weight: "600"});
     CH.overlay(ctx, cv, Tp, Tp + ph);
     CH.update();
     const ready = Math.abs(c.w - TARGET) < 40;
@@ -4396,7 +4441,8 @@ const DG = (function(){
     s += SV.tx(176, my + 31, "-", {size: 16, weight: "700", col: "red"});
     s += SV.ar(pre, [[183, my], [298, my]], {label: "error " + Math.round(1160 - g.c), at: [222, my - 8], mono: true, lcol: "ink", size: 12});
     s += SV.box(300, 166, 120, 40, ["F = kF x target", g.ff.toFixed(2) + " power"], {stroke: "ok", sw: 2, size: 13});
-    s += SV.box(300, 214, 120, 44, ["P + I + D", "fixes error: " + (g.u - g.ff >= 0 ? "+" : "") + (g.u - g.ff).toFixed(2)], {stroke: "acc", sw: 2, size: 13});
+    const fix = Math.round((+g.u.toFixed(2) - +g.ff.toFixed(2)) * 100) / 100;   // from the rounded parts, so F + fix = motor power on screen
+    s += SV.box(300, 214, 120, 44, ["P + I + D", "fixes error: " + (fix >= 0 ? "+" : "") + fix.toFixed(2)], {stroke: "acc", sw: 2, size: 13});
     s += SV.circ(448, my, 14, {});
     s += SV.tx(448, my + 6, "+", {size: 16, weight: "700"});
     s += SV.ar(pre, [[420, 186], [448, 186], [448, my - 16]], {col: "ok"});
