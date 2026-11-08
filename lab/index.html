@@ -929,7 +929,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
     </div>
   </div>
   <div class="panel" style="margin-top:16px">
-    <h3>Wheel powers over time <small>-1 to 1, what each motor gets. Lines on top of each other = same power</small></h3>
+    <h3>Wheel powers over time <small>-1 to 1, what each motor gets. The names on the lines show which wheels share a power</small></h3>
     <div id="mc-cbar"></div>
     <canvas id="mc-plot" height="220"></canvas>
     <div class="legend" style="margin-top:8px">
@@ -1649,7 +1649,7 @@ const MC = (function(){
   let yawOffset = 0, mode = "robot", goal = {x: 110, y: 72};
   const trail = [];
   let ghost = [];   // the last path, kept as a dashed line after Reset robot
-  // wheel power history for the chart. Fixed colors, the same dots sit next to the wheel labels.
+  // wheel power history for the chart. Line colors name the wheels here only: in the wheel view blue = +, red = -.
   const WCOL = () => ({fl: P.accent, fr: P.red, bl: P.pollen, br: P.ok});
   const WK = ["fl", "fr", "bl", "br"], hist = [];
   let T = 0, acc = 0;
@@ -1780,7 +1780,7 @@ const MC = (function(){
   function plot(){
     const cv = $("#mc-plot"), {ctx, w, h} = fit(cv);
     const L = 44, Tp = 12, B = 26, pw = w - L - 12, ph = h - Tp - B;
-    const mp = CH.map(cv, L, pw), Y = v => Tp + ph * (1 - (v + 1.1) / 2.2);
+    const mp = CH.map(cv, L, pw), Y = v => Tp + ph * (1 - (v + 1.25) / 2.5);   // +1 sits below the LIVE tag
     ctx.strokeStyle = P.line; ctx.lineWidth = 1;
     for (const v of [-1, -0.5, 0, 0.5, 1]){ ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); text(ctx, tickLabel(v), L - 6, Y(v) + 4, {align: "right", color: P.muted, size: 11}); }
     CH.xaxis(ctx, mp, L, pw, Tp, Tp + ph, h - 8);
@@ -1788,6 +1788,17 @@ const MC = (function(){
     // wide first, thin on top: four equal powers read as one striped band, every color still shows
     const col = WCOL(), wid = {fl: 7, fr: 5, bl: 3, br: 1.5};
     for (const k of WK) drawSeries(ctx, hist, mp.t0, mp.t1, mp.X, Y, p => p[k], col[k], wid[k]);
+    // name the wheels at each current power, so +1 -1 -1 +1 reads as FL BR over FR BL, like the wheel view
+    if (hist.length && mp.t1 >= T - 0.05){
+      const last = hist[hist.length - 1], g = {};
+      for (const k of WK){ const v = Math.round(last[k] * 50) / 50; (g[v] = g[v] || []).push(k.toUpperCase()); }
+      const lx = Math.min(mp.X(last.t), L + pw - 44);   // above the line end, clear of the LIVE tag
+      let prev = -1e9;
+      Object.keys(g).map(Number).sort((a, b) => b - a).forEach(v => {
+        const y = Math.max(Y(v) - 8, prev + 15); prev = y;   // close powers: stack the names, never overlap
+        text(ctx, g[v].join(" "), lx, y, {align: "right", weight: "700", size: 13, color: P.ink});
+      });
+    }
     ctx.restore();
     CH.overlay(ctx, cv, Tp, Tp + ph);
     CH.update();
@@ -1838,15 +1849,15 @@ const MC = (function(){
       text(ctx, s, 0, 0, {align: "center", base: "middle", weight: "700", color: P.muted, size: 12});
       ctx.restore();
     });
-    // compass
-    const cx = ox + side - 52, cy = oy + 54, R = 40;
+    // compass: in the right margin when it fits, so a target in the top-right corner never sits on it
+    const outside = ox >= 110, cx = outside ? ox + side + ox / 2 : ox + side - 52, cy = oy + 54, R = 40;
     ctx.fillStyle = alpha(P.surface, 0.9); ctx.strokeStyle = P.muted; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     text(ctx, "F", cx, cy - R + 13, {align: "center", weight: "700", size: 13, color: P.muted});
     arrow(ctx, cx, cy + 8, cx, cy - R + 16, P.muted, 2);
     const hd = heading();
     ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.sin(hd) * (R - 5), cy - Math.cos(hd) * (R - 5)); ctx.stroke();
-    text(ctx, "heading " + deg(hd).toFixed(0) + " deg", ox + side - 6, cy + R + 16, {align: "right", size: 14, weight: "600", color: P.red});
+    text(ctx, "heading " + deg(hd).toFixed(0) + " deg", outside ? cx : ox + side - 6, cy + R + 16, {align: outside ? "center" : "right", size: 14, weight: "600", color: P.red});
     text(ctx, "F = field forward", ox + 8, oy + 18, {size: 14, color: P.muted});
     // last path before Reset robot, dashed, so two runs compare side by side
     if (ghost.length > 1){
@@ -1888,7 +1899,6 @@ const MC = (function(){
       arrow(ctx, x, y, x, y - p * S * 0.26, p >= 0 ? P.accent : P.red, 4);
       const lab = k.toUpperCase() + " " + (p >= 0 ? "+" : "") + p.toFixed(2);
       text(ctx, lab, x + sd * 10, y + 4, {align: sd < 0 ? "right" : "left", weight: "600", color: (bug.checked && k === "fl") ? P.red : P.ink});
-      ctx.fillStyle = WCOL()[k]; ctx.beginPath(); ctx.arc(x + sd * (18 + ctx.measureText(lab).width), y, 5, 0, Math.PI * 2); ctx.fill();   // the wheel's color in the chart below
     }
     const a = m.actual;
     const fv = (a.fl + a.fr + a.bl + a.br) / 4, rv = (a.fl - a.fr - a.bl + a.br) / 4;
@@ -4315,7 +4325,7 @@ const DG = (function(){
     };
     const cxL = half / 2, cxR = half + half / 2, cy = h / 2 + 8, narrow = w < 500, rot = g.mode !== "robot";
     const auto = g.mode === "auto";
-    panel(cxL, !rot ? (narrow ? "Stick: up = front" : "Stick: up = robot front") : auto ? (narrow ? "Target, robot at heading" : "To the target, robot at IMU heading") : narrow ? "Stick, robot at heading" : "Stick on the field, robot at IMU heading");
+    panel(cxL, !rot ? (narrow ? "Stick: up = front" : "Stick: up = robot front") : auto ? (narrow ? "Target, robot at heading" : "To the target, robot at Pinpoint heading") : narrow ? "Stick, robot at heading" : "Stick on the field, robot at IMU heading");
     panel(cxR, !rot ? (narrow ? "Robot gets the same" : "Robot gets the same (no rotation)") : narrow ? "Robot gets: front up" : "Robot gets: picture turned so the front is up");
     // field axes
     arrow(ctx, cxL, cy, cxL, cy - R - 6, P.muted, 1.5); text(ctx, "F", cxL + 6, cy - R, {color: P.muted, size: 11});

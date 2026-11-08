@@ -334,7 +334,7 @@ Team rounds:
 ## Module 4: Drive modes, robot-centric and field-centric (25 min)
 
 Lab tab 4, in this order:
-1. Robot-centric (6 min): press each preset. Read the wheel powers out loud. Press Forward + turn with Normalize on and let the robot draw a circle. Press Center sticks, then Reset robot: the old path stays as a dashed line. Turn Normalize off and press Forward + turn again. The new circle is wider: the left wheels asked for 1.60 and got cut to 1.00, so the turn shrank. Turn on the front_left bug and ask what the drivers would see. Before you turn the bug on, teams predict: A drives straight, B curves, C spins in place.
+1. Robot-centric (6 min): press each preset. Read the wheel powers out loud. Press Forward + turn with Normalize on and let the robot draw a circle. Press Center sticks, then Reset robot: the old path stays as a dashed line. Turn Normalize off and press Forward + turn again. The new circle is wider: the left wheels asked for 1.60 and got cut to 1.00, so the turn shrank. Press Center sticks and Reset robot, tick Normalize, then tick "Bug: front_left not reversed". Teams predict what Forward does: A drives straight, B curves, C spins in place. Press Forward. Right answer B: frontLeft pushes backward, so the robot slides left and turns left at the same time. It drives a tight circle about 3 ft across, not a spin on the spot. Untick the bug before step 2.
 2. Vote (3 min): field-centric, the robot faces the left wall, the driver pushes the stick up. Right answer C: slides away from the drivers, still facing the wall. Reveal, score. Pick Field-centric, press "Rotate robot 90 deg left (by hand)", then Forward: the robot slides away from the drivers and keeps facing the wall. Read the wheel powers out loud: +1, -1, -1, +1. Switch to Robot-centric and press Forward: the robot drives into the left wall. The "rotation in one picture" panel shows the stick and the robot at its IMU heading on the left, and what the robot receives on the right.
 3. Field-centric with a wrong zero (5 min): pick Field-centric and press Reset robot. Press "Rotate robot 90 deg left (by hand)", then press "Reset heading" while the robot faces the left wall. The mistake: a driver pressed A with the robot facing the wall. Teams predict: where does Forward go now? Press Forward: the robot drives into the left wall, like robot-centric. The IMU reads 0 deg, so the code thinks the robot faces away from the drivers. Fix: press Center sticks, press Rotate 3 more times until the front points away from the drivers, then press "Reset heading". Forward works again. Rule: press A only with the front pointing away from the drivers.
 4. AUTO (5 min): click points on the field, then tick "Turn to 90 deg while driving". The path stays nearly straight while the robot turns. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
@@ -358,7 +358,7 @@ double backRightPower  = axial + lateral - yaw;
 Wrong wheel direction on a real robot means fix `setDirection` in Robot.java, never flip signs in the math. The front_left bug toggle showed why.
 
 Team rounds:
-- Prediction before the front_left bug (1 point).
+- Prediction before the front_left bug, right answer B (1 point).
 - Vote: field-centric, left wall, stick up: slides, no turn. Right answer C (1 point per right team).
 - Prediction before the wrong-zero demo (1 point).
 

@@ -514,6 +514,20 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // one heading source: the AUTO code, card and math table name the Pinpoint heading, the same one the pose uses
   const mcAuto = (await pg.textContent("#mc-code")) + (await pg.textContent('#mc-uses [data-m="auto"]'));
   check(/One heading source/.test(mcAuto) && /robot\.getPose\(\)/.test(mcAuto) && /deg$/.test(await mcRow("Pinpoint heading")) && (await mcRow("IMU heading")) === "", "AUTO: code, card and math table use one heading source, the Pinpoint heading");
+  // fix-mecanum: the rotation panel names Pinpoint in AUTO, the compass leaves the field on a 1366 px projector
+  await hookDrawn(); await pg.waitForTimeout(150);
+  check((await drawnOn("mc-vec", 20)).includes("To the target, robot at Pinpoint heading"), "AUTO: the rotation panel reads robot at Pinpoint heading");
+  const fg = await pg.evaluate(() => { const c = document.querySelector("#mc-field"), w = c.getBoundingClientRect().width, h = c.getBoundingClientRect().height, side = Math.min(w - 16, h - 40); return { w, side, ox: (w - side) / 2 }; });
+  const compassX = await pg.evaluate(() => { let x = null; const f = CanvasRenderingContext2D.prototype.fillText; CanvasRenderingContext2D.prototype.fillText = function (s, X) { if (this.canvas.id === "mc-field" && /^heading /.test(s)) x = X; return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.fillText = f; r(x); }, 150)); });
+  check(compassX > fg.ox + fg.side, "the compass heading sits right of the field, clear of targets in the top-right corner: x " + Math.round(compassX) + " > field edge " + Math.round(fg.ox + fg.side));
+  // fix-mecanum: blue = + and red = - in the wheel view, no wheel-color dots; the chart names the wheels at their power
+  await pg.check('#lab-mecanum input[value="robot"]'); await pg.click('#lab-mecanum [data-p="1,0,0"]');
+  const arcs = await pg.evaluate(() => { let n = 0; const f = CanvasRenderingContext2D.prototype.arc; CanvasRenderingContext2D.prototype.arc = function () { if (this.canvas.id === "mc-wheels") n++; return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.arc = f; r(n); }, 300)); });
+  check(arcs === 0, "the wheel view draws no wheel-color dots, so red only means a negative power: " + arcs + " arcs");
+  await pg.waitForTimeout(600);
+  const mcNames = await drawnOn("mc-plot", 30);
+  check(mcNames.includes("FL BR") && mcNames.includes("FR BL"), "strafe right: the wheel chart names FL BR at +1 and FR BL at -1: " + mcNames.filter(s => /^[FB][LR]/.test(s)).slice(-2).join(" / "));
+  await pg.click('#lab-mecanum [data-p="0,0,0"]');
   // ==== end area mecanum ====
 
   // ==== area encoders: STOP demo booleans, layout on a 1366x768 projector, Robot.java ====
