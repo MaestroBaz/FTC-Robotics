@@ -520,17 +520,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(800);
   check(/IMU zero is off/.test(await zeroNote()) && (await mcRow("IMU heading")) === "0 deg", "after a reset facing the wall, Forward shows the wrong-zero warning");
   await shot(pg.locator("#lab-mecanum"), "mecanum.png");
-  // fix-daydocs: the plan's step 1 ends on the front_left bug run, step 2 resets before Rotate, so the reveal reads +1 -1 -1 +1
+  // fix-daydocs: the plan's step 1 ends on the bug run and a Strafe right on the chart, step 2 resets before Rotate, so the reveal reads +1 -1 -1 +1
   await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
   await pg.check('#lab-mecanum input[value="robot"]'); await pg.check("#mc-bug");
   await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(1500);
-  await pg.uncheck("#mc-bug"); await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
+  await pg.uncheck("#mc-bug"); await pg.click('#lab-mecanum [data-p="1,0,0"]'); await pg.waitForTimeout(500);   // step 1 ends on Strafe right for the chart
+  await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
   await pg.check('#lab-mecanum input[value="field"]'); await pg.click("#mc-reset"); await pg.click("#mc-turn90");
   await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(1000);
   const sent2 = [];
   for (const n of ["frontLeft", "frontRight", "backLeft", "backRight"]) sent2.push(await mcRow(n));
   const planMc = fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8");
-  check(sent2.join(" ") === "1.00 -1.00 -1.00 1.00" && (await mcRow("IMU heading")) === "90 deg" && planMc.includes("Untick the bug, then press Center sticks and Reset robot before step 2.") && planMc.includes('Pick Field-centric, press Reset robot, press "Rotate robot 90 deg left (by hand)", then Forward'), "docs: plan Module 4 step 2 after the bug run, as written, reads " + sent2.join(" ") + " at 90 deg");
+  check(sent2.join(" ") === "1.00 -1.00 -1.00 1.00" && (await mcRow("IMU heading")) === "90 deg" && planMc.includes("Untick the bug. Scroll down to Wheel powers over time and press Show all") && planMc.includes("Press Strafe right: the names at the right end of the lines read FL BR at +1 and FR BL at -1, the same pairs as the wheel view. Press Center sticks and Reset robot before step 2.") && planMc.includes("After each one, press Center sticks and Reset robot, so the next preset starts mid-field.") && planMc.includes('Pick Field-centric, press Reset robot, press "Rotate robot 90 deg left (by hand)", then Forward'), "docs: plan Module 4 step 2 after the bug run, as written, reads " + sent2.join(" ") + " at 90 deg");
   // AUTO uses Pinpoint axes: +X away from the drivers, +Y toward the left wall
   await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
   await pg.check('#lab-mecanum input[value="auto"]'); await pg.waitForTimeout(200);
@@ -566,6 +567,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.waitForTimeout(600);
   const mcNames = await drawnOn("mc-plot", 30);
   check(mcNames.includes("FL BR") && mcNames.includes("FR BL"), "strafe right: the wheel chart names FL BR at +1 and FR BL at -1: " + mcNames.filter(s => /^[FB][LR]/.test(s)).slice(-2).join(" / "));
+  // fix-mecanum: plan Module 4 step 1 reads the chart in Show all, so the names stay at the live end there too
+  await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-cbar .tc-all"); await pg.waitForTimeout(300);
+  await pg.click('#lab-mecanum [data-p="1,0,0"]'); await pg.waitForTimeout(600);
+  const mcAllNames = (await drawnOn("mc-plot", 12)).filter(s => /^[FB][LR]/.test(s));
+  check(mcAllNames.includes("FL BR") && mcAllNames.includes("FR BL"), "Show all, strafe right: the wheel chart still names FL BR and FR BL at the live end: " + mcAllNames.slice(-2).join(" / "));
+  check(/how each wheel spins, same as the wheel view/.test(await pg.textContent("#lab-mecanum h3:has(+ #mc-cbar) small")), "the wheel chart subtitle says it draws how each wheel spins, like the wheel view");
+  await pg.click("#mc-cbar .tc-live");
   await pg.click('#lab-mecanum [data-p="0,0,0"]');
   // ==== end area mecanum ====
 
