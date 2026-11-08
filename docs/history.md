@@ -150,3 +150,9 @@ Request: Baz saw one blue arrow per robot instead of four, and the captions "fl 
 Finding: each robot's four spin arrows sat in one SVG path with four subpaths, and marker-end draws one arrowhead per path, at its last vertex. The rollers were drawn in the O layout. Real mecanum rollers form an X seen from above, as the lab's drive tab already says.
 
 Output: one path per wheel, arrows inside the body beside each wheel, rollers redrawn as an X, captions in words (all four forward; fl and br forward, fr and bl back; left forward, right back), the turn arc shrunk clear of the arrows. Page 3 fill unchanged at 786 of 979.
+
+## 22. Yaw compass, reset yaw, and a PIDF box on the cheat sheet (2026-11-07)
+
+Request: the drive modes robot faced the left wall with its wheels still on its left and right edges as if it faced up. Add a compass with the yaw, a note on resetting the yaw and what it does to each drive mode, and PIDF information, which the sheet only mentioned in captions.
+
+Output: the robot's wheels moved to its top and bottom edges, so the drawn front matches the arrow. A compass in the field (0 away from the drivers, +90 left, -90 right, 180 toward the drivers) with the needle on +90 for the drawn robot. Four lines on yaw under the field: what it is, which mode reads it, what resetYaw() does, and the failure when you reset facing the left wall. The resetHeading() method and its gamepad binding in mono on the right. Page 4 gained a PIDF figure with two boxes: F on the hub for velocity (setVelocity, setVelocityPIDFCoefficients, the SDK recipe, RUN_USING_ENCODER) and F in the OpMode for a position job (liftPID.update(error) + kF, about 0.18 on the lift, kF x cos for an arm, none for turn and aim). Fill: page 3 850, page 4 899 of 979. One smoke check for the four new strings.

@@ -445,22 +445,37 @@
 
   <div class="fig">
     <h2>Drive modes <small>the same four wheels, two meanings of "stick up"</small></h2>
-    <svg viewBox="0 0 730 268" role="img" aria-label="Robot-centric versus field-centric, and mecanum wheel math">
+    <svg viewBox="0 0 730 332" role="img" aria-label="Robot-centric versus field-centric, a yaw compass, and mecanum wheel math">
       <g style="font-size:9.5px">
-        <rect x="10" y="10" width="330" height="210" rx="6" class="gy"/>
-        <rect x="10" y="206" width="330" height="14" fill="#dfe7fa"/><text x="175" y="216" text-anchor="middle" class="c">DRIVER WALL: you stand here</text>
+        <rect x="10" y="10" width="330" height="260" rx="6" class="gy"/>
+        <rect x="10" y="256" width="330" height="14" fill="#dfe7fa"/><text x="175" y="266" text-anchor="middle" class="c">DRIVER WALL: you stand here</text>
         <text x="20" y="26" class="c">left wall</text>
         <g transform="translate(175 118)">
           <rect x="-26" y="-26" width="52" height="52" rx="6" class="bx"/>
-          <rect x="-30" y="-24" width="8" height="14" class="gy"/><rect x="-30" y="10" width="8" height="14" class="gy"/><rect x="22" y="-24" width="8" height="14" class="gy"/><rect x="22" y="10" width="8" height="14" class="gy"/>
-          <path d="M8 0 L-16 0" class="ar"/><text x="0" y="42" text-anchor="middle" class="c">the robot's front faces the left wall</text>
+          <rect x="-24" y="-30" width="14" height="8" class="gy"/><rect x="10" y="-30" width="14" height="8" class="gy"/><rect x="-24" y="22" width="14" height="8" class="gy"/><rect x="10" y="22" width="14" height="8" class="gy"/>
+          <path d="M8 0 L-16 0" class="ar"/><text x="0" y="46" text-anchor="middle" class="c">the robot's front faces the left wall: yaw +90</text>
         </g>
         <path d="M145 118 L60 118" class="ac"/><text x="100" y="106" text-anchor="middle" class="b" fill="#1d5fd0">robot-centric</text><text x="100" y="136" text-anchor="middle" class="c">"up" = the robot's front</text>
         <path d="M175 86 L175 42" class="ag"/><text x="240" y="52" text-anchor="middle" class="b" fill="#1d8650">field-centric</text><text x="240" y="64" text-anchor="middle" class="c">"up" = away from the drivers,</text><text x="240" y="75" text-anchor="middle" class="c">whatever the robot faces</text>
-        <circle cx="300" cy="166" r="20" class="bx"/><circle cx="300" cy="155" r="6" fill="#18202c"/><text x="300" y="200" text-anchor="middle" class="c">left stick up</text>
-        <text x="10" y="236" class="c" style="font-size:8.5px">Field-centric rotates the stick by the IMU heading before the wheel math.</text>
-        <text x="10" y="248" class="c" style="font-size:8.5px">Reset the heading with the robot facing away from you.</text>
-        <text x="10" y="260" class="c" style="font-size:8.5px">AUTO reuses the same rotation math on odometry coordinates.</text>
+        <g transform="translate(66 200)">
+          <circle r="22" class="bx"/>
+          <path d="M0 -22 L0 -17 M22 0 L17 0 M0 22 L0 17 M-22 0 L-17 0" class="ln"/>
+          <text x="0" y="-26" text-anchor="middle" class="c" style="font-size:8px">0</text>
+          <text x="-26" y="3" text-anchor="end" class="c" style="font-size:8px">+90</text>
+          <text x="26" y="3" class="c" style="font-size:8px">-90</text>
+          <text x="0" y="34" text-anchor="middle" class="c" style="font-size:8px">180</text>
+          <path d="M0 0 L-14 0" class="ac"/><circle r="2" fill="#18202c"/>
+          <text x="0" y="46" text-anchor="middle" class="b" style="font-size:8.5px">IMU yaw: +90</text>
+        </g>
+        <circle cx="300" cy="200" r="20" class="bx"/><circle cx="300" cy="189" r="6" fill="#18202c"/><text x="300" y="236" text-anchor="middle" class="c">left stick up</text>
+        <text x="10" y="290" class="c" style="font-size:8.5px">Yaw = the IMU heading. 0 where you last reset it, counterclockwise counts +. Here: +90.</text>
+        <text x="10" y="302" class="c" style="font-size:8.5px">Field-centric rotates the stick by the yaw. Robot-centric never reads it.</text>
+        <text x="10" y="314" class="c" style="font-size:8.5px">resetYaw() makes 0 = the way the robot faces now. Do it facing away from you.</text>
+        <text x="10" y="326" class="c" style="font-size:8.5px">Reset it facing the left wall and field-centric "up" drives into that wall.</text>
+        <text x="370" y="290" class="m" style="font-size:8.5px">Robot.java:  public void resetHeading() { imu.resetYaw(); }</text>
+        <text x="370" y="302" class="m" style="font-size:8.5px">MainTeleOp:  if (gamepad1.a) robot.resetHeading();</text>
+        <text x="370" y="314" class="c" style="font-size:8.5px">Reset before the match with the robot facing away from the driver wall.</text>
+        <text x="370" y="326" class="c" style="font-size:8.5px">AUTO reuses the same rotation math on odometry coordinates.</text>
         <text x="360" y="22" class="b">Mecanum: three mini robots, top view</text>
         <g transform="translate(362 32)">
           <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
@@ -602,6 +617,28 @@
         <g transform="translate(460 80)"><rect x="0" y="0" width="128" height="64" fill="#fff" stroke="#c9cdc6"/><line x1="0" y1="17.6" x2="128" y2="17.6" class="dash"/><svg x="0" y="0" width="128" height="64" viewBox="0 0 160 80"><polyline points="11.4,69.8 12.8,69.3 14.2,68.5 15.6,67.5 17.0,66.3 18.4,64.9 19.8,63.3 21.2,61.7 22.6,59.9 24.0,58.1 25.4,56.3 26.8,54.4 28.2,52.6 29.6,50.7 31.0,48.9 32.4,47.2 33.8,45.4 35.2,43.7 36.6,42.1 38.0,40.6 39.4,39.1 40.8,37.7 42.2,36.3 43.6,35.1 45.0,33.9 46.4,32.7 47.8,31.7 49.2,30.7 50.6,29.8 52.0,28.9 53.4,28.2 54.8,27.5 56.2,27.0 57.6,26.5 59.0,26.0 60.4,25.6 61.8,25.2 63.2,24.9 64.6,24.7 66.0,24.4 67.4,24.2 68.8,24.0 70.2,23.8 71.6,23.7 73.0,23.5 74.4,23.4 75.8,23.3 77.2,23.2 78.6,23.1 80.0,23.1 81.4,23.0 82.8,22.9 84.2,22.9 85.6,22.8 87.0,22.8 88.4,22.8 89.8,22.7 91.2,22.7 92.6,22.7 94.0,22.7 95.4,22.6 96.8,22.6 98.2,22.6 99.6,22.6 101.0,22.6 102.4,22.6 103.8,22.6 105.2,22.5 106.6,22.5 108.0,22.5 109.4,22.5 110.8,22.5 112.2,22.5 113.6,22.5 115.0,22.5 116.4,22.5 117.8,22.5 119.2,22.5 120.6,22.5 122.0,22.5 123.4,22.5 124.8,22.5 126.2,22.5 127.6,22.5 129.0,22.5 130.4,22.5 131.8,22.5 133.2,22.5 134.6,22.5 136.0,22.5 137.4,22.5 138.8,22.5 140.2,22.5 141.6,22.5 143.0,22.5 144.4,22.5 145.8,22.5 147.2,22.5 148.6,22.5 150.0,22.5" class="cur"/></svg><text x="124" y="58" text-anchor="end" class="c b">PD: clean, a bit short</text></g>
         <g transform="translate(598 80)"><rect x="0" y="0" width="128" height="64" fill="#fff" stroke="#c9cdc6"/><line x1="0" y1="17.6" x2="128" y2="17.6" class="dash"/><svg x="0" y="0" width="128" height="64" viewBox="0 0 160 80"><polyline points="11.4,69.8 12.8,69.3 14.2,68.5 15.6,67.5 17.0,66.3 18.4,64.9 19.8,63.3 21.2,61.7 22.6,59.9 24.0,58.1 25.4,56.3 26.8,54.4 28.2,52.6 29.6,50.7 31.0,48.9 32.4,47.2 33.8,45.4 35.2,43.7 36.6,42.1 38.0,40.5 39.4,38.9 40.8,37.4 42.2,35.9 43.6,34.4 45.0,33.0 46.4,31.7 47.8,30.4 49.2,29.1 50.6,27.8 52.0,26.6 53.4,25.5 54.8,24.4 56.2,23.3 57.6,22.3 59.0,21.3 60.4,20.4 61.8,19.5 63.2,18.7 64.6,17.9 66.0,17.1 67.4,16.4 68.8,15.8 70.2,15.3 71.6,14.8 73.0,14.3 74.4,14.0 75.8,13.6 77.2,13.3 78.6,13.1 80.0,12.8 81.4,12.6 82.8,12.4 84.2,12.3 85.6,12.1 87.0,12.0 88.4,11.9 89.8,11.8 91.2,11.7 92.6,11.6 94.0,11.6 95.4,11.5 96.8,11.4 98.2,11.4 99.6,11.4 101.0,11.3 102.4,11.3 103.8,11.3 105.2,11.4 106.6,11.5 108.0,11.6 109.4,11.8 110.8,12.0 112.2,12.2 113.6,12.5 115.0,12.7 116.4,13.1 117.8,13.4 119.2,13.7 120.6,14.1 122.0,14.4 123.4,14.8 124.8,15.2 126.2,15.6 127.6,16.0 129.0,16.4 130.4,16.8 131.8,17.2 133.2,17.6 134.6,18.0 136.0,18.4 137.4,18.8 138.8,19.2 140.2,19.5 141.6,19.8 143.0,20.1 144.4,20.3 145.8,20.5 147.2,20.7 148.6,20.8 150.0,21.0" class="cur"/></svg><text x="124" y="58" text-anchor="end" class="c b">PID: reaches the target</text></g>
         <text x="593" y="162" text-anchor="middle" class="c">Not every job needs all three. Camera data is late and</text><text x="593" y="174" text-anchor="middle" class="c">noisy, so for auto-aim PD beats PID.</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="fig">
+    <h2>PIDF: where the F lives <small>P, I and D react to the error. F adds what you know before any error exists</small></h2>
+    <svg viewBox="0 0 730 96" role="img" aria-label="F on the hub for velocity, F in your code for a lift">
+      <g style="font-size:9.5px">
+        <rect x="4" y="4" width="354" height="88" rx="6" class="sf"/>
+        <text x="14" y="20" class="b">On the hub: velocity, the launcher (tab 6)</text>
+        <text x="14" y="34" class="m" style="font-size:8.6px">motor.setVelocity(ticksPerSec);   // hub firmware runs PIDF</text>
+        <text x="14" y="47" class="m" style="font-size:8.6px">motor.setVelocityPIDFCoefficients(p, i, d, f);</text>
+        <text x="14" y="62" class="c">SDK recipe: F = 32767 / maxTicksPerSec, P = 0.1 x F, I = 0.1 x P, D = 0.</text>
+        <text x="14" y="73" class="c">F = power sized for the target itself. Needs RUN_USING_ENCODER.</text>
+        <text x="14" y="86" class="c">Keep the defaults until the shots fall short late in a match.</text>
+        <rect x="372" y="4" width="354" height="88" rx="6" class="gy"/>
+        <text x="382" y="20" class="b">In your code: position, the lift (tab 7)</text>
+        <text x="382" y="34" class="m" style="font-size:8.6px">double power = liftPID.update(error) + kF;</text>
+        <text x="382" y="47" class="m" style="font-size:8.6px">// kF = the power that just holds the lift, about 0.18</text>
+        <text x="382" y="62" class="c">PIDController gives P + I + D. F is one line in the OpMode,</text>
+        <text x="382" y="73" class="c">because F depends on the job. Arm: kF x cos(angle). Turn, aim: none.</text>
+        <text x="382" y="86" class="c">F acts at once. I waits for the error to add up. Measure F first.</text>
       </g>
     </svg>
   </div>

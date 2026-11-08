@@ -217,6 +217,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(fit.length === 4 && fit.every(f => f.fits), "cheat sheets: 4 pages, content fits above the footers");
   check(fit.every(f => !f.clippedCode), "no cheat sheet code line is clipped");
   check(fit.every(f => f.figures >= 3), "every cheat sheet page carries at least 3 diagrams");
+  const csSrc = fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "cheatsheet.html"), "utf8");
+  check(csSrc.includes("setVelocityPIDFCoefficients") && csSrc.includes("liftPID.update(error) + kF") && csSrc.includes("IMU yaw: +90") && csSrc.includes("imu.resetYaw()"), "cheat sheet names PIDF on the hub, kF in the OpMode, the yaw compass and resetYaw");
   check(fit.every(f => f.overflow.length === 0), "no diagram label runs past its figure: " + fit.flatMap(f => f.overflow).join(" | "));
   await cs.close();
 
