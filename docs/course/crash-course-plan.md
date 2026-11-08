@@ -72,7 +72,7 @@ Talking points (5 min):
 - Judges interview students, not code. A robot the team cannot explain loses Control and Inspire contention.
 - FIRST allows AI and asks for credit. The team rule: you merge only code you explain line by line to a reviewer. "The AI wrote it" does not pass review.
 - Show the old code for 2 minutes. Ask: "Who tells me what this thread does at STOP?" Silence makes the point. Do not shame anyone.
-- Then open lab tab 2, pick "AI version with thread", press INIT. The robot breaks rule G304.H before the match starts, and after STOP the app restarts. Two minutes, no lecture needed.
+- Then open lab tab 2, pick "AI version with thread", press INIT. The arm moves during INIT, and once init finishes the robot breaks rule G304.H before the match starts. Press START, then STOP: the thread keeps running until the Robot Controller app restarts. Two minutes, no lecture needed.
 - Show the 3 rules on the wall:
   1. One loop. No threads. No `sleep()` inside TeleOp.
   2. Two kinds of files: `Robot.java` (hardware) and OpModes (behavior).
@@ -307,12 +307,12 @@ Say the rule and the team rule apart. G304.H asks for a robot "fully motionless 
 Teach:
 - Project layout. The team only touches `TeamCode/src/main/java/org/firstinspires/ftc/teamcode`. The `FtcRobotController` folder holds the SDK and samples. Read, never edit.
 - Robot configuration on the Driver Hub: names in the config must match the strings in `hardwareMap.get(...)`. Most "my code crashes at INIT" bugs come from a name mismatch. Point at `"front_left"` in Robot.java.
-- Explain each line of the file once: `package`, `import`, `@TeleOp`, `public class ... extends LinearOpMode`, `@Override`. Keep the explanation of `extends` to one sentence: "This makes our class an OpMode the Driver Hub lists and runs."
+- On tab 2, explain each line once: `@TeleOp`, `public class ... extends LinearOpMode`, `@Override`. `package` and `import` live on the tab 1 anatomy card. Keep the explanation of `extends` to one sentence: "This makes our class an OpMode the Driver Hub lists and runs."
 - Ask without points: a driver pushes the left stick forward. Why does `left_stick_y` read negative? (Gamepad Y points down.) This explains the minus sign in every drive sample.
 
 Team rounds:
 - Prediction before INIT, START and STOP: which line runs next (1 point each).
-- Prediction at STOP on the AI version, replayed from Module 0: does the thread stop? (1 point). The Ask the room vote on this tab was the Module 0 practice, right answer C. It does not: STOP ends `runOpMode()`, and the thread keeps running until the Robot Controller app restarts. A second INIT does not stop it either.
+- Prediction on the AI version after STOP: press INIT again. Does the old thread stop? (1 point). Right answer: no. Two lines stay red, and only an app restart clears it. The Ask the room vote on this tab was the Module 0 practice, right answer C. Switching back to the team version stands for the app restart: the lab says so and the red arm goes away.
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)
 

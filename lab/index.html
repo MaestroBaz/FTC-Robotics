@@ -1528,17 +1528,23 @@ const LC = (function(){
     update();
   }
   function setMsg(t, cls){ msg.textContent = t; msg.className = "msg " + (cls || ""); }
-  $$('input[name="lcv"]').forEach(r => r.addEventListener("change", () => { v = VERS[r.value]; reset(); }));
+  // A version switch stands for a restart of the Robot Controller app: only that kills an old thread. Say so, so the lab does not contradict itself.
+  $$('input[name="lcv"]').forEach(r => r.addEventListener("change", () => {
+    const hadThread = st.thread;
+    v = VERS[r.value]; reset();
+    if (hadThread) setMsg("Robot Controller app restarted: the AI thread is gone. On a real robot, picking another OpMode does not stop it.\n" + msg.textContent, "");
+  }));
   bI.addEventListener("click", () => {
-    // A thread from the last run lives on in the Robot Controller app: a new INIT does not stop it. Only a version switch (reset) clears it.
+    // A thread from the last run lives on in the Robot Controller app: a new INIT does not stop it. Only a version switch (an app restart) clears it.
     const keep = st.thread, armT = st.armT;
     st = fresh(); st.thread = keep; st.armT = armT;
     st.phase = "init"; st.idx = 0; st.t = 0; st.pc = v.initSeq[0]; bI.disabled = true; bX.disabled = false;
-    setMsg("INIT pressed: the code before waitForStart() runs once. Set up hardware here. No driving.", "");
+    setMsg(team() ? "INIT pressed: the code before waitForStart() runs once. Set up hardware here.\nTeam rule: nothing moves during INIT. Rule G304.H is looser: it starts once init finishes."
+      : "INIT pressed: line 7 starts the thread, and the arm moves during INIT. This already breaks the team rule. Rule G304.H breaks next, once init finishes and the arm keeps moving.", team() ? "" : "bad");
   });
   bS.addEventListener("click", () => {
     st.phase = "run"; st.idx = 0; st.t = 0; bS.disabled = true;
-    setMsg(team() ? "START pressed. Lines 10 to 14 repeat about 50 times per second.\nVote before STOP: what runs next?\nA: line 16, robot.stopDrive(), once\nB: nothing, the program freezes\nC: lines 6 to 8 again"
+    setMsg(team() ? "START pressed. Lines 10 to 14 repeat about 50 times per second (slowed down here).\nVote before STOP: what runs next?\nA: line 16, robot.stopDrive(), once\nB: nothing, the program freezes\nC: lines 6 to 8 again"
       : "START pressed: waitForStart() returns and the loop runs about 50 times per second (slowed down here).", st.violation ? "bad" : "");
   });
   bX.addEventListener("click", () => {
@@ -1564,7 +1570,7 @@ const LC = (function(){
       }
       if (st.pc === v.threadAt) st.thread = true;
     } else if (st.phase === "run"){
-      st.loops += dt * 60;
+      st.loops += dt * 50;
       if (st.t > 0.35){ st.t = 0; st.idx = (st.idx + 1) % v.loop.length; }
       st.pc = v.loop[st.idx];
     } else if (st.phase === "after" && st.t > 2){   // 2 s of sim time: the line 16 highlight stays long enough to read

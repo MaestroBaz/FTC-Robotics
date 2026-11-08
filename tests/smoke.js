@@ -129,13 +129,16 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // ==== area lifecycle: code, message and lit state diagram all above the fold while you press the buttons; votes per press; threads outlive STOP ====
   await fold.goto(URL + "#lifecycle"); await fold.waitForTimeout(300);
   const lcBottom = sel => fold.$eval(sel, e => Math.round(e.getBoundingClientRect().bottom));
-  await fold.click("#lc-init"); await fold.waitForTimeout(2600);
+  await fold.click("#lc-init"); await fold.waitForTimeout(200);
+  check(/Team rule: nothing moves during INIT\. Rule G304\.H is looser/.test(await fold.textContent("#lc-msg")), "lifecycle: the INIT message names the team rule next to G304.H");
+  await fold.waitForTimeout(2400);
   check(/Vote before START/.test(await fold.textContent("#lc-msg")), "lifecycle: the wait message asks the vote before START");
   const lcSdWait = await fold.textContent("#lc-sd");
   check(lcSdWait.includes("waitForStart()") && !/while loop|stopDrive|50 times/.test(lcSdWait), "lifecycle: in WAIT the state diagram hides the RUN and STOP text, so it does not answer the votes");
   const lcB = [await lcBottom("#lc-code"), await lcBottom("#lc-msg"), await lcBottom("#lc-sd")];
   check(lcB.every(y => y <= 768), "lifecycle at 1366x768: code, message and state diagram end above the fold: " + lcB.join(", "));
   await fold.click("#lc-start"); await fold.waitForTimeout(1200);
+  check(/50 times per second \(slowed down here\)/.test(await fold.textContent("#lc-msg")), "lifecycle: the team START message says the highlight is slowed down");
   await fold.click("#lc-stop"); await fold.waitForTimeout(200);
   check((await fold.$eval("#lc-code .ln.hl", e => e.dataset.n)) === "16", "lifecycle: STOP highlights line 16, robot.stopDrive()");
   await fold.waitForTimeout(2400);
@@ -150,6 +153,12 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/nobody told the thread to stop/.test(await fold.textContent("#lc-msg")) && !(await fold.$eval("#lc-init", e => e.disabled)), "lifecycle: after STOP the thread runs on and INIT is free again");
   await fold.click("#lc-init"); await fold.waitForTimeout(200);
   check((await fold.$$("#lc-code .ln.hl2")).length === 2, "lifecycle: a new INIT does not stop the old thread");
+  check(await fold.$eval("#lc-msg", e => /arm moves during INIT\. This already breaks the team rule/.test(e.textContent) && e.classList.contains("bad")), "lifecycle: the AI INIT message names the team rule the arm breaks");
+  await fold.check('input[name="lcv"][value="good"]');
+  const lcSwitch = await fold.textContent("#lc-msg");
+  check(/^Robot Controller app restarted: the AI thread is gone/.test(lcSwitch) && /Vote before INIT/.test(lcSwitch) && (await fold.$$("#lc-code .ln.hl2")).length === 0, "lifecycle: switching back names the app restart that kills the thread, and keeps the INIT vote");
+  await fold.screenshot({ path: path.join(SHOTS, "lifecycle-switch.png") });
+  check((await lcBottom("#lc-msg")) <= 768, "lifecycle: the restart message ends above the fold at 1366x768");
   const lcPhone = await b.newPage({ viewport: { width: 390, height: 844 } });
   await lcPhone.goto(URL + "#lifecycle"); await lcPhone.waitForTimeout(400);
   const lcN = await lcPhone.evaluate(() => [document.querySelector("#lc-sd").getAttribute("viewBox"), Math.round(document.querySelector("#lc-tl").getBoundingClientRect().width),
