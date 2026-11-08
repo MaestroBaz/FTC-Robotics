@@ -344,8 +344,8 @@ Team rounds:
 ## Module 5: One loop, no sleep, and the launcher across a match (30 min)
 
 Part A, why no sleep (lab tab 5, 10 min):
-- Open with the vote: during `sleep(1000)` the motors keep the last power. What happens while the driver steers? Reveal, score.
-- Set the speed to 0.25x and press Launch. The sleep() robot drives blind for 1.3 seconds and leaves the target. The state machine robot keeps following. Point at the gap in the loop ticks, and at the yellow box moving through the state machine diagram.
+- Open with the vote: the driver is steering when the code reaches `sleep(1000)`. What does the robot do? Reveal, score.
+- Set the speed to 0.25x and press Launch. The sleep() robot drives blind for 1.3 seconds and leaves the target. The state machine robot keeps following. Point at the gap in the loop passes, and at the yellow box moving through the state machine diagram.
 - Ask the room how to fire the launcher, wait for speed, then feed, without freezing the drive. Answer: a state machine.
 - Cite gm0: hardware calls share one lock per hub, so threads do not speed anything up and they hide crashes.
 - Key idea: each loop pass must finish fast. Anything waiting (sleep, a while loop inside the loop) freezes the drivers' sticks.

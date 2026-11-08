@@ -244,6 +244,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#ol-reset"); await pg.waitForTimeout(100);
   check(/ 0 in/.test(await pg.textContent("#ol-errA")) && / 0 in/.test(await pg.textContent("#ol-errB")), "Reset run clears the error chips");
   await pg.locator("#lab-oneloop").screenshot({ path: path.join(SHOTS, "oneloop.png") });
+  // ==== area oneloop: stuck line in the header, diagram and code B agree ====
+  await pg.click("#ol-launch"); await pg.waitForTimeout(400);
+  check(/^stuck on line 6: sleep\(1000\)$/.test(await pg.textContent("#ol-stA")), "one loop: the sleep panel names the stuck line during Launch");
+  await pg.click("#ol-reset"); await pg.waitForTimeout(100);
+  const olIdle = await pg.evaluate(() => document.querySelector("#ol-codeB").textContent.split("case IDLE:")[1].split("break;")[0]);
+  check(/robot\.launcherOff\(\)/.test(olIdle) && /launcherOff\(\)/.test(await pg.textContent("#ol-sm")), "one loop: code B IDLE and the diagram both call launcherOff()");
+  // ==== end area oneloop ====
 
   // ---- encoders: perfect grip lands on the line, slip stops short while the encoder reads 24 in ----
   await pg.goto(URL + "#encoders"); await pg.waitForTimeout(300);
