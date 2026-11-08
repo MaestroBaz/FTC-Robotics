@@ -520,6 +520,25 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(src.includes("const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width)") && src.includes("ctx.strokeText(lab, lx, ly)"), "feedback: open-loop offset label has a halo and never clips at the y axis");
   // ==== end area feedback ====
 
+  // ==== area docs: G304.H rule text vs team rule, course docs agree with the manual and the plan ====
+  await pg.goto(URL + "#java"); await pg.waitForTimeout(300);
+  await pg.mouse.move(900, 20);
+  await pg.click('.jt[data-jt="words"]');
+  await pg.click('#jv-wfiles button[data-f="MainTeleOp.java"]');
+  await pg.click('#jv-wcode .w[data-w="waitforstart"]');
+  const wfsMsg = await pg.textContent("#jv-wmsg");
+  check(/once init finishes, the robot stays fully motionless/.test(wfsMsg) && /team rule is stricter/.test(wfsMsg), "docs: waitForStart() word quotes G304.H and labels no movement in INIT as the team rule");
+  check(!/the robot sits still after INIT/.test(src), "docs: AI version answer no longer says G304.H covers INIT");
+  const doc = f => fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", f), "utf8");
+  const ref = doc("ftc-reference-2026-27.md"), plan = doc("crash-course-plan.md"), gw = doc("github-team-workflow.md"), std = doc("team-coding-standard.md");
+  check(/TU08/.test(ref) && !/TU07 dated|new in TU07|Practice-only|\[Verify wording\]|\[Verify R704\]/.test(ref) && /FTControl Panels/.test(ref) && /PARK 5, in AUTO and again in TELEOP/.test(ref), "docs: reference cites TU08, R704.D off at the venue, PARK in TELEOP");
+  check(ref.split("\n").filter(l => /\[Verify\]/.test(l) && !/still marked/.test(l)).length === 1 && /\[Verify\] FTC robot code/.test(ref) &&/2026-award-deadlines-approaching/.test(ref), "docs: reference keeps one [Verify], on AI robot code, and cites the 2026 FIRST post");
+  check(/fully motionless following completion of OpMode initialization/.test(ref + plan + gw + std) && !/no movement: rule G304\.H/.test(plan), "docs: plan, reference, workflow and standard quote G304.H and call no movement in INIT a team rule");
+  check(/loses LEAVE/.test(plan) && !/from Module 6 for turns/.test(plan) && /from lab tab 7 \(the PID turn job\)/.test(plan), "docs: plan says a wall park loses LEAVE and points turnToHeading at lab tab 7");
+  check(/On the Crash Course day \(Module 3, lab tab 3, 20 min\)/.test(gw) && /Maya sets the slow-mode value to 0\.4, Leo sets the same line to 0\.3/.test(gw) && /team-roster\.md/.test(gw) && /team-roster\.md/.test(plan), "docs: GitHub drills split the projector day from the hands-on session and match the plan's roster drill");
+  check(/`\? :` to pick one of two values/.test(std) && src.includes("turn = lastBearing > 0 ? -0.3 : 0.3;") && !/\| Interfaces, abstract classes, generics \|/.test(std) && src.includes("List<Double> shots = new ArrayList<>();"), "docs: standard allows List<Type> and one-level ternary, and the lab Java matches");
+  // ==== end area docs ====
+
   // ---- phone width ----
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   m.on("pageerror", e => errs.push("mobile: " + e.message));

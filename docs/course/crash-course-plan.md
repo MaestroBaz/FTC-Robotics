@@ -278,11 +278,14 @@ Lab tab 2: press INIT, START, STOP with the team version. Before each press, the
 Teach on the whiteboard:
 
 ```
-INIT pressed  -> code before waitForStart() runs (set up hardware, no movement: rule G304.H)
+INIT pressed  -> code before waitForStart() runs (set up hardware, no movement: team rule)
+waiting       -> robot fully motionless until START (rule G304.H)
 START pressed -> waitForStart() returns
 loop          -> while (opModeIsActive()) runs about 50 times per second
 STOP pressed  -> opModeIsActive() becomes false, loop ends, code after the loop runs
 ```
+
+Say the rule and the team rule apart. G304.H asks for a robot "fully motionless following completion of OpMode initialization": once init finishes, nothing moves until START. The team rule is stricter: nothing moves during INIT either, so nobody argues with a referee about when init finished.
 
 Teach:
 - Project layout. The team only touches `TeamCode/src/main/java/org/firstinspires/ftc/teamcode`. The `FtcRobotController` folder holds the SDK and samples. Read, never edit.
@@ -303,7 +306,7 @@ Lab tab 3, parts 1 to 4:
 - 3, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
 - 4, two people, one line (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and try both on the robot. C scores: git does not pick, people do. Click the side the room picks.
 
-Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words.
+Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words. The laptop drills for that session sit in `github-team-workflow.md` section 7.
 
 Team rounds:
 - Vote: laptop dies before push (1 point per right team).
@@ -428,7 +431,7 @@ Part C, the class in words (3 min): open the Java tab, "Every word explained" ca
 
 Tuning on the real robot: on a lift or arm, find F first (set kP, kI and kD to 0, raise kF until the lift holds still). Then kP until the robot overshoots a little, then kD until the overshoot stops, then a small kI if it stops short from friction. Test 5 times. Commit the numbers with a message saying what you tested.
 
-[Verify] where the HIVE AprilTags sit this season (CM 9.9: clusters under each CELL, facing down) and whether the team's camera sees them from the mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
+The HIVE AprilTags sit in clusters of 4 under each CELL, facing down (CM 9.9). [Verify] on the robot whether the team's camera sees them from the mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
 
 Team rounds:
 - Vote: which term fixes the lift gap (1 point per right team).
@@ -447,9 +450,9 @@ Team rounds:
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
 Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug. Set the sim speed to 0.25x first, then press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: your code thinks 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. With Ramp still ticked, type 3.27 for the diameter: the robot stops on the line. A measured constant soaks up steady slip. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
-Then use `turnToHeading()` from Module 6 for turns.
+Then use `turnToHeading()` from lab tab 7 (the PID turn job) for turns.
 
-BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a fancy auto failing 1 match in 3.
+BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. LEAVE is judged at the end of AUTO, so a robot parked touching the wall loses LEAVE (Q&A 21): 8 points needs a park off the wall. PARK scores 5 again in TELEOP. A reliable 8-point auto beats a fancy auto failing 1 match in 3.
 
 Counts per inch:
 
