@@ -282,13 +282,15 @@ ul.tree .ro{color:var(--muted);}
 /* ---- auto-hide: the top bar slides away while you scroll down and comes back when you scroll up or point at the top edge; the Java card list folds to a rail of numbers and opens on hover ---- */
 .topbar{transition:transform .2s ease;}
 body.autohide .topbar.away{transform:translateY(calc(-100% - 2px));}
-body.autohide .jlayout{grid-template-columns:44px minmax(0,1fr);}
-body.autohide .jtopics{width:44px; z-index:15; background:var(--bg); border-radius:10px; transition:width .15s ease, box-shadow .15s ease; overflow:hidden;}
-body.autohide .jtopics .jt{white-space:nowrap; overflow:hidden; padding:9px 8px;}
-body.autohide .jtopics:not(:hover):not(:focus-within) .jt, body.autohide .jtopics.shut .jt{color:transparent;}   /* the rail shows numbers only */
-body.autohide .jtopics.shut{width:44px; box-shadow:none; background:var(--bg); outline:0;}   /* a click on a card closes the drawer at once */
-body.autohide .jtopics:hover, body.autohide .jtopics:focus-within{width:250px; box-shadow:0 6px 24px rgba(0,0,0,.18); background:var(--surface); outline:1px solid var(--line);}
-@media (max-width: 960px){ body.autohide .jlayout{grid-template-columns:1fr;} body.autohide .jtopics{width:auto; overflow:visible; background:transparent;} body.autohide .jtopics .jt{white-space:normal;} }
+/* the rail is desktop only: under 961 px the card list stays the plain wrapped buttons from the rule above, with readable titles */
+@media (min-width: 961px){
+  body.autohide .jlayout{grid-template-columns:44px minmax(0,1fr);}
+  body.autohide .jtopics{width:44px; z-index:15; background:var(--bg); border-radius:10px; transition:width .15s ease, box-shadow .15s ease; overflow:hidden;}
+  body.autohide .jtopics .jt{white-space:nowrap; overflow:hidden; padding:9px 8px;}
+  body.autohide .jtopics:not(:hover):not(:focus-within) .jt, body.autohide .jtopics.shut .jt{color:transparent;}   /* the rail shows numbers only */
+  body.autohide .jtopics:hover, body.autohide .jtopics:focus-within{width:250px; box-shadow:0 6px 24px rgba(0,0,0,.18); background:var(--surface); outline:1px solid var(--line);}
+  body.autohide .jtopics.shut, body.autohide .jtopics.shut:hover, body.autohide .jtopics.shut:focus-within{width:44px; box-shadow:none; background:var(--bg); outline:0;}   /* a click on a card closes the drawer at once, even under the pointer */
+}
 /* ---- Ask the room: Hide folds the question to one small button once the room has voted ---- */
 details.ask{position:relative;}
 details.ask .ask-x{position:absolute; top:6px; right:8px; font:600 12px var(--body); color:var(--muted); background:transparent; border:1px solid var(--line); border-radius:6px; padding:2px 8px; cursor:pointer;}
@@ -304,7 +306,7 @@ table.types{font:14px/1.4 var(--body);}
 table.types th, table.types td{text-align:left; white-space:normal; vertical-align:top; padding:7px 8px 7px 0;}
 table.types td:first-child{font:700 14px var(--mono); color:var(--accent); white-space:nowrap; width:1%;}
 table.types td:nth-child(2){color:var(--ink);}
-table.types td:nth-child(2) code{font:13px/1.4 var(--mono); background:var(--codebg); border:1px solid var(--line); border-radius:5px; padding:2px 6px; display:inline-block; margin-top:4px; white-space:pre; max-width:100%; overflow-x:auto;}
+table.types td:nth-child(2) code{font:13px/1.4 var(--mono); background:var(--codebg); border:1px solid var(--line); border-radius:5px; padding:2px 6px; display:inline-block; margin-top:4px; white-space:pre-wrap; max-width:100%; overflow-x:auto;}   /* pre-wrap: a long example wraps on a phone instead of pushing the page sideways */
 /* ---- Java: decisions card (if / else / switch) and the @Override demo ---- */
 table.ops{width:100%; border-collapse:collapse; font:14px/1.35 var(--body);}
 table.ops th, table.ops td{text-align:left; padding:6px 8px 6px 0; border-bottom:1px solid var(--line); vertical-align:top;}
@@ -323,9 +325,14 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 .mistakes{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px;}
 .mistakes > div{border:1px solid var(--line); border-left:4px solid var(--red); border-radius:8px; padding:8px 10px; background:var(--surface); font-size:14px;}
 .mistakes code{font:13px var(--mono);}
-.mistakes .bad{color:var(--red); text-decoration:line-through; text-decoration-thickness:1px;}
+.mistakes .bad{color:var(--red);}
 .mistakes .good{color:var(--ok); font-weight:600;}
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important;} .topbar, .jtopics{transition:none;} }
+/* ==== area java-a: Java tab labhead, cards 0 to 5, card nav ==== */
+.labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
+#jv-ovprob{font-size:14px; line-height:1.5;}   /* the javac lines are the lesson: readable from the back row */
+#jv-ovprob .ph2{font-size:12px;}
+/* ==== end area java-a ==== */
 </style>
 </head>
 <body>
@@ -364,10 +371,11 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <div class="labhead">
     <div>
       <h2>Java basics, the robot way</h2>
-      <p class="lede">Eleven cards cover almost every line in an FTC OpMode, in the order you meet the words reading a file top to bottom. Each card has something to click. Every example comes from real robot code, not from a textbook.</p>
+      <p class="goal">Goal: read MainTeleOp top to bottom and say what each word does.</p>
+      <p class="lede">Eleven cards, in the order you meet the words in the file. Each card has something to click.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Java guesses from the name</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">In an import line at the top of MainTeleOp</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns. No import needed: Robot.java sits in the same package as MainTeleOp.</div>
     </details>
   </div>
   <div class="jlayout">
@@ -514,11 +522,11 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
               <p>Here, <code>ElapsedTime</code> is an SDK class. The code builds two timer objects. Reset one: the other keeps counting. Same blueprint, separate objects.</p>
             </div>
             <pre class="code" id="jv-clscode"></pre>
+            <div class="msg">Your TeleOp does the same with your own class: <code>private final Robot robot = new Robot();</code> builds one Robot object. <code>robot.drive(...)</code> asks that object to drive. Card 3 opens it up.</div>
           </div>
           <div class="stack">
             <div class="panel"><h3>One blueprint, many objects</h3><svg class="diag" id="jv-blueprint" role="img" aria-label="Class blueprint and two objects"></svg></div>
             <div class="grid2" style="grid-template-columns:1fr 1fr; gap:12px" id="jv-objs"></div>
-            <div class="msg">In your robot code: <code>Robot robot = new Robot();</code> builds one object from your Robot class. <code>robot.drive(...)</code> asks that object to do something.</div>
           </div>
         </div>
       </div>
@@ -566,7 +574,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
               <h3>Robot.java: public and private</h3>
               <p><b>private</b>: only code inside the same class can use it. <b>public</b>: any class can use it. Our rule: motors and sensors are private inside Robot.java. Actions like <code>drive()</code> are public.</p>
               <p>Why: if only Robot.java touches the motors, every wheel power goes through the same math. Nobody in an OpMode can set one wheel to full power by mistake.</p>
-              <p class="note">Press a line of code from MainTeleOp.</p>
+              <p class="note">Which two lines build? Teams guess, then press each line.</p>
             </div>
             <div class="stack" id="jv-pcalls" style="gap:8px"></div>
           </div>
@@ -582,10 +590,9 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
           <div class="stack">
             <div class="panel">
               <h3>extends and @Override</h3>
-              <p><b><code>extends</code> means "is a kind of".</b> <code>MainTeleOp extends LinearOpMode</code> says: MainTeleOp is a kind of LinearOpMode. It gets everything LinearOpMode has, and LinearOpMode gets everything OpMode has. That is why <code>telemetry</code>, <code>gamepad1</code> and <code>waitForStart()</code> work without you creating them.</p>
-              <p><b><code>@Override</code> means "replace the parent's version with mine".</b> LinearOpMode has a method called <code>runOpMode()</code> with nothing inside. When the driver presses INIT, the SDK calls <code>runOpMode()</code>. You write your own <code>runOpMode()</code>, and the SDK runs yours.</p>
-              <p>The <code>@</code> line is a note to the compiler: "check that the parent really has a method with this exact name". A typo then fails the build on your laptop, not the robot on the field. Try it below.</p>
-              <p><b>Team rule:</b> extend LinearOpMode, and stop there. No chains like <code>RedAuto extends BaseAuto extends LinearOpMode</code>. Share code with one Robot object instead: a TeleOp <i>has a</i> Robot.</p>
+              <p><b><code>extends</code> means "is a kind of".</b> MainTeleOp extends LinearOpMode, so it gets everything LinearOpMode and OpMode have. That is why <code>telemetry</code>, <code>gamepad1</code> and <code>waitForStart()</code> work without you creating them.</p>
+              <p><b><code>@Override</code> means "my version replaces the parent's".</b> LinearOpMode leaves <code>runOpMode()</code> empty for you to fill. When the driver presses INIT, the SDK calls <code>runOpMode()</code> and runs yours.</p>
+              <p><code>@Override</code> also checks your spelling against the parent. A typo fails the build on your laptop, not on the field. Try the three versions below.</p>
             </div>
             <pre class="code" id="jv-icode"></pre>
           </div>
@@ -633,7 +640,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
               <table class="ops" id="jv-logic"></table>
               <div class="row" style="margin-top:10px">
                 <button class="b" id="jv-da" aria-pressed="false">gamepad1.a</button>
-                <button class="b" id="jv-dready" aria-pressed="false">launcherReady</button>
+                <button class="b" id="jv-dready" aria-pressed="false">robot.launcherReady()</button>
               </div>
               <div class="cond" id="jv-dlogic"></div>
             </div>
@@ -652,10 +659,10 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
           </div>
           <div class="stack">
             <div class="panel">
-              <h3>Four mistakes that compile, or almost</h3>
+              <h3>Four if mistakes: one fails the build, three run wrong</h3>
               <div class="mistakes">
                 <div><code class="bad">if (balls = 3)</code><br>One <code>=</code> stores a value. Two <code>==</code> compare. Build error: <i>incompatible types: int cannot be converted to boolean</i>. Fix: <code class="good">if (balls == 3)</code></div>
-                <div><code class="bad">if (alliance == "RED")</code><br>For text, <code>==</code> asks "same object?", not "same letters?". It compiles and gives wrong answers. Fix: <code class="good">alliance.equals("RED")</code></div>
+                <div><code class="bad">if (alliance == "RED")</code><br>For text, <code>==</code> asks "same object?", not "same letters?". It compiles, and it can say false even when the letters match. Fix: <code class="good">alliance.equals("RED")</code></div>
                 <div><code class="bad">if (power == 0.3)</code><br>Decimal math rounds a tiny bit: 0.1 + 0.2 is 0.30000000000000004. Ask "close enough" instead. Fix: <code class="good">Math.abs(power - 0.3) &lt; 0.01</code></div>
                 <div><code class="bad">if (stick &gt; 0.05) ... else if (stick &gt; 0.5)</code><br>The order matters. 0.8 passes the first test, so the second never runs. Fix: put the strictest test first.</div>
               </div>
@@ -2933,10 +2940,14 @@ const JV = (function(){
     topic = t;
     $$(".jt").forEach(b => b.classList.toggle("on", b.dataset.jt === t));
     $$(".jpane").forEach(p => p.classList.toggle("on", p.dataset.jp === t));
+    const h = $(".jpane.on h3"), n = $(".jt.on span");   // the rail number shows in the card heading too
+    if (h && n && !h.dataset.num){ h.dataset.num = 1; h.prepend(n.textContent + ". "); }
     if (t === "private") drawPrivate();
   }
   $$(".jt").forEach(b => b.addEventListener("click", e => {
     showTopic(b.dataset.jt);
+    const top = $(".jpane.on").getBoundingClientRect().top, pad = $(".topbar").offsetHeight + 12;   // open the card on its heading, not mid-card
+    if (top < pad) window.scrollBy(0, top - pad);
     if (e.detail > 0 && document.body.classList.contains("autohide")){ b.blur(); $(".jtopics").classList.add("shut"); }   // mouse click, not keyboard
   }));
   $(".jtopics").addEventListener("mouseleave", () => $(".jtopics").classList.toggle("shut", false));
@@ -3015,32 +3026,33 @@ const JV = (function(){
   renderImports();
 
   /* ---- 3 classes ---- */
-  renderCode($("#jv-clscode"), [
-    "ElapsedTime matchTimer = new ElapsedTime();   // object 1",
-    "ElapsedTime shotTimer  = new ElapsedTime();   // object 2",
-    "",
-    "shotTimer.reset();               // only shotTimer goes back to 0",
-    "double t = matchTimer.seconds(); // matchTimer keeps counting"
-  ]);
-  const objs = [{n: "matchTimer", t0: performance.now()}, {n: "shotTimer", t0: performance.now()}];
+  const objs = [{n: "matchTimer", t0: TIME.sim}, {n: "shotTimer", t0: TIME.sim}];   // sim time, so Pause and the speed slider work here too
+  function renderClsCode(){
+    const extra = objs.slice(2).map((o, i) => "ElapsedTime " + o.n + " = new ElapsedTime();   // object " + (i + 3));
+    renderCode($("#jv-clscode"), [
+      "ElapsedTime matchTimer = new ElapsedTime();   // object 1",
+      "ElapsedTime shotTimer  = new ElapsedTime();   // object 2"
+    ].concat(extra, [
+      "",
+      "shotTimer.reset();               // only shotTimer goes back to 0",
+      "double t = matchTimer.seconds(); // matchTimer keeps counting"
+    ]));
+  }
   function renderObjs(){
+    renderClsCode();
     let html = objs.map((o, i) => '<div class="objcard"><span class="nm">' + esc(o.n) + '</span><span class="note">an ElapsedTime object</span><span class="big" data-oi="' + i + '">0.0</span><span class="note">seconds()</span><button class="b" data-r="' + i + '">' + esc(o.n) + ".reset()</button></div>").join("");
     if (objs.length < 4) html += '<div class="objcard" style="justify-content:center"><span class="note">The blueprint makes as many as you need.</span><button class="b primary" id="jv-newobj">new ElapsedTime()</button></div>';
     $("#jv-objs").innerHTML = html;
-    $$("#jv-objs [data-r]").forEach(b => b.addEventListener("click", () => { objs[+b.dataset.r].t0 = performance.now(); }));
-    const nb = $("#jv-newobj"); if (nb) nb.addEventListener("click", () => { objs.push({n: "timer" + (objs.length + 1), t0: performance.now()}); renderObjs(); });
+    $$("#jv-objs [data-r]").forEach(b => b.addEventListener("click", () => { objs[+b.dataset.r].t0 = TIME.sim; }));
+    const nb = $("#jv-newobj"); if (nb) nb.addEventListener("click", () => { objs.push({n: "timer" + (objs.length + 1), t0: TIME.sim}); renderObjs(); });
   }
   renderObjs();
 
   /* ---- 4 vars ---- */
   $("#jv-types").innerHTML = "<tr><th>Word</th><th>What it means, and a robot example</th></tr>" + [
-    ["int", "a whole number", "int ballsLoaded = 3;"],
-    ["double", "a number with a decimal point", "double power = 0.75;"],
-    ["boolean", "true or false, nothing else", "boolean launcherReady = false;"],
-    ["String", "text, always in quotes", "String alliance = \"RED\";"],
     ["final", "locks the box: set once, never changed. Name it in CAPS", "final double LAUNCH_VELOCITY = 1160;"],
-    ["static", "one copy for the whole class. Reach it as Robot.MAX_SPEED, no new object needed", "public static final double MAX_SPEED = 0.8;"],
-    ["enum", "one value from a short fixed list. A typo fails the build", "LaunchState state = LaunchState.IDLE;"]
+    ["static", "belongs to the class, not to one object. Any file reads it as Robot.MAX_SPEED, no new needed", "public static final double MAX_SPEED = 0.8;"],
+    ["enum", "one value from a short fixed list. A typo fails the build", "LaunchState launchState = LaunchState.IDLE;"]
   ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "<br><code>" + esc(r[2]) + "</code></td></tr>").join("");
   const QUIZ = [
     ["int ballsLoaded = 3;", true, "OK. A whole number in an int box."],
@@ -3113,7 +3125,7 @@ const JV = (function(){
     {c: "robot.drive(0.5, 0, 0);", ok: true, tgt: "drive()", msg: "Works. drive() is public. Inside Robot, drive() does the wheel math and sets all 4 private motors."},
     {c: "double h = robot.headingDegrees();", ok: true, tgt: "headingDegrees()", msg: "Works. A public method hands back a value from the private IMU, without exposing the IMU."},
     {c: "robot.frontLeft.setPower(1.0);", ok: false, tgt: "frontLeft", msg: "Error: frontLeft has private access in Robot. Good: one wheel at full power would spin the robot. Use robot.drive() instead."},
-    {c: "robot.imu.resetYaw();", ok: false, tgt: "imu", msg: "Error: imu has private access in Robot. Fix: add a public method to Robot.java: public void resetHeading() { imu.resetYaw(); }"}
+    {c: "robot.imu.resetYaw();", ok: false, tgt: "imu", msg: "Error: imu has private access in Robot. Robot.java already has a public action for it: call robot.resetHeading()."}
   ];
   let pSel = -1;
   $("#jv-pcalls").innerHTML = CALLS.map((c, i) => '<button class="b" style="text-align:left; font-family:var(--mono)" data-c="' + i + '">' + esc(c.c) + "</button>").join("");
@@ -3125,37 +3137,37 @@ const JV = (function(){
   function drawPrivate(){
     const cv = $("#jv-pcanvas"); if (!cv.clientWidth) return;
     const {ctx, w, h} = fit(cv);
-    const lx = 10, lw = w * 0.3, rx = w * 0.45, rw = w * 0.53;
+    const nar = w < 500, lx = 10, lw = w * (nar ? 0.24 : 0.3), rx = w * (nar ? 0.3 : 0.45), rw = w * (nar ? 0.68 : 0.53);   // a phone gives Robot more room
+    const fz = n => Math.max(9, Math.round(n * Math.min(1, w / 600)));   // full size on the projector, smaller labels on a phone
     ctx.fillStyle = P.surface; ctx.strokeStyle = P.line; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.roundRect(lx, 30, lw, h - 60, 10); ctx.fill(); ctx.stroke();
-    text(ctx, "MainTeleOp", lx + 10, 52, {weight: "700", size: 14, mono: false});
-    text(ctx, "has a Robot", lx + 10, 72, {color: P.muted, size: 12, mono: false});
+    text(ctx, "MainTeleOp", lx + 10, 52, {weight: "700", size: fz(16), mono: false});
+    text(ctx, "has a Robot", lx + 10, 72, {color: P.muted, size: fz(13), mono: false});
     ctx.fillStyle = P.surface; ctx.beginPath(); ctx.roundRect(rx, 30, rw, h - 60, 10); ctx.fill(); ctx.strokeStyle = P.accent; ctx.stroke();
-    text(ctx, "Robot", rx + 10, 52, {weight: "700", size: 14, mono: false});
+    text(ctx, "Robot", rx + 10, 52, {weight: "700", size: fz(16), mono: false});
     const pub = ["drive()", "headingDegrees()", "launcherOn()"], prv = ["frontLeft", "frontRight", "backLeft", "backRight", "imu"];
     const pos = {};
-    text(ctx, "public", rx + 10, 88, {color: P.ok, weight: "700", size: 12});
-    pub.forEach((n, i) => { const y = 98 + i * 38; pos[n] = [rx, y + 14];
-      ctx.fillStyle = alpha(P.ok, 0.15); ctx.strokeStyle = P.ok; ctx.beginPath(); ctx.roundRect(rx - 6, y, rw * 0.52, 28, 6); ctx.fill(); ctx.stroke();
-      text(ctx, n, rx + 2, y + 18, {size: 11, weight: "600"}); });
+    text(ctx, "public", rx + 10, 88, {color: P.ok, weight: "700", size: fz(14)});
+    pub.forEach((n, i) => { const y = 98 + i * 38; pos[n] = [rx + 6, y + 14];
+      ctx.fillStyle = alpha(P.ok, 0.15); ctx.strokeStyle = P.ok; ctx.beginPath(); ctx.roundRect(rx + 6, y, rw * 0.5, 28, 6); ctx.fill(); ctx.stroke();
+      text(ctx, n, rx + 14, y + 18, {size: fz(13), weight: "600"}); });
     // private vault
     const vx = rx + rw * 0.55, vw = rw * 0.4;
     ctx.fillStyle = alpha(P.red, 0.08); ctx.strokeStyle = P.red; ctx.setLineDash([5, 4]);
     ctx.beginPath(); ctx.roundRect(vx, 70, vw, h - 110, 8); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
-    text(ctx, "private", vx + 8, 88, {color: P.red, weight: "700", size: 12});
-    prv.forEach((n, i) => { const y = 100 + i * 30; pos[n] = [vx, y + 10]; text(ctx, n, vx + 10, y + 16, {size: 12}); });
+    text(ctx, "private", vx + 8, 88, {color: P.red, weight: "700", size: fz(14)});
+    prv.forEach((n, i) => { const y = 100 + i * 30; pos[n] = [vx, y + 10]; text(ctx, n, vx + 10, y + 16, {size: fz(14)}); });
     if (pSel >= 0){
       const c = CALLS[pSel], start = [lx + lw, 110];
       const end = pos[c.tgt];
       if (c.ok){
         arrow(ctx, start[0], start[1], end[0] - 10, end[1], P.ok, 3);
-        if (c.tgt === "drive()") ["frontLeft", "frontRight", "backLeft", "backRight"].forEach(n => { ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + rw * 0.52 - 6, end[1]); ctx.lineTo(pos[n][0], pos[n][1]); ctx.stroke(); });
-        if (c.tgt === "headingDegrees()"){ ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + rw * 0.52 - 6, end[1]); ctx.lineTo(pos.imu[0], pos.imu[1]); ctx.stroke(); }
+        if (c.tgt === "drive()") ["frontLeft", "frontRight", "backLeft", "backRight"].forEach(n => { ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + 6 + rw * 0.5, end[1]); ctx.lineTo(pos[n][0], pos[n][1]); ctx.stroke(); });
+        if (c.tgt === "headingDegrees()"){ ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + 6 + rw * 0.5, end[1]); ctx.lineTo(pos.imu[0], pos.imu[1]); ctx.stroke(); }
       } else {
-        const mx = (start[0] + end[0]) / 2;
-        arrow(ctx, start[0], start[1], mx - 4, (start[1] + end[1]) / 2, P.red, 3);
-        ctx.strokeStyle = P.red; ctx.lineWidth = 4; const cx = mx + 6, cy = (start[1] + end[1]) / 2;
-        ctx.beginPath(); ctx.moveTo(cx - 9, cy - 9); ctx.lineTo(cx + 9, cy + 9); ctx.moveTo(cx + 9, cy - 9); ctx.lineTo(cx - 9, cy + 9); ctx.stroke();
+        const ey = end[1];   // the X sits on the private wall, not on the public boxes
+        arrow(ctx, start[0], start[1], vx - 12, ey, P.red, 3);
+        ctx.strokeStyle = P.red; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(vx - 9, ey - 9); ctx.lineTo(vx + 9, ey + 9); ctx.moveTo(vx + 9, ey - 9); ctx.lineTo(vx - 9, ey + 9); ctx.stroke();
       }
     }
   }
@@ -3214,17 +3226,17 @@ const JV = (function(){
      msg: "The name matches LinearOpMode's runOpMode() exactly, so @Override is happy. Press INIT on the Driver Hub and the SDK runs your version."},
     {code: ["public class MainTeleOp extends LinearOpMode {", "", "    @Override", "    public void runOpmode() {      // small m: a typo", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
      mark: [2, 3], cls: "err", prob: ["MainTeleOp.java:1: error: MainTeleOp is not abstract and does not override abstract method runOpMode() in LinearOpMode", "MainTeleOp.java:3: error: method does not override or implement a method from a supertype"], ok: false,
-     msg: "Good news: the build fails on your laptop. @Override checked the name, found no runOpmode() in LinearOpMode, and pointed at the line. Fix the spelling: runOpMode, capital M."},
+     msg: "Two errors, both on your laptop. Line 1: LinearOpMode needs a runOpMode() and your file has none (abstract means: the parent left it for you to write). Line 3: @Override found no runOpmode() in the parent. Fix the spelling: runOpMode, capital M."},
     {code: ["public class MainTeleOp extends OpMode {     // the loop() style OpMode", "", "    public void init() { robot.init(hardwareMap); }", "", "    public void Start() {          // capital S, no @Override", "        matchTimer.reset();", "    }", "", "    public void loop() {", "        robot.drive(-gamepad1.left_stick_y, 0, 0);", "    }", "}"],
      mark: [4, 5], cls: "err", prob: ["BUILD SUCCESSFUL. 0 errors."], ok: false,
-     msg: "The dangerous one. It builds and it runs. But the SDK calls start(), small s, and Start() is just a new method nobody calls. Your timer never resets and nothing tells you. Put @Override on it and the build fails at once, pointing at the typo. Rule: @Override on every method you replace."}
+     msg: "Here only @Override would save you, because start() is optional. The dangerous one. It builds and it runs. But the SDK calls start(), small s, and Start() is just a new method nobody calls. Your timer never resets and nothing tells you. Put @Override on it and the build fails at once, pointing at the typo. Rule: @Override on every method you replace."}
   ];
   function showOv(i){
     const v = OV[i];
     renderCode($("#jv-ovcode"), v.code);
     $$(".ln", $("#jv-ovcode")).forEach((ln, k) => ln.classList.toggle(v.cls, v.mark.includes(k)));
     const p = $("#jv-ovprob");
-    p.innerHTML = '<div class="ph2">Build output</div>' + v.prob.map(t => '<div style="color:' + (/error/.test(t) ? "#ff8a8a" : "#7ee2a8") + '">' + esc(t) + "</div>").join("");
+    p.innerHTML = '<div class="ph2">Build output</div>' + v.prob.map(t => '<div style="color:' + (/error:/.test(t) ? "#ff8a8a" : "#7ee2a8") + '">' + esc(t) + "</div>").join("");
     const m = $("#jv-ovmsg"); m.textContent = v.msg; m.className = "msg " + (v.ok ? "ok" : "bad");
     $$("#jv-ovbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.ov == i ? "true" : "false"));
   }
@@ -3233,7 +3245,7 @@ const JV = (function(){
 
   /* ---- 3b decisions: if / else if / else, operators, switch ---- */
   const DCODE = [
-    "double stick = -gamepad1.left_stick_y;   // pushed up = positive",
+    "double stick = -gamepad1.left_stick_y;   // pushed up = positive. A stick at rest reads close to 0, not exactly 0",
     "if (stick > 0.5) {",
     '    telemetry.addLine("FAST forward");',
     "} else if (stick > 0.05) {",
@@ -3259,29 +3271,29 @@ const JV = (function(){
     $("#jv-dcond").innerHTML = tests.map((t, i) => '<span class="' + (first >= 0 && i > first ? "skip" : t[1] ? "t" : "f") + '">' + esc(t[0]) + ": " + (first >= 0 && i > first ? "not checked" : String(t[1])) + "</span>").join("") + (first < 0 ? '<span class="t">else: runs</span>' : "");
     const said = ["FAST forward", "slow forward", "backward"][first] || "stopped: inside the dead zone";
     const m = $("#jv-dmsg");
-    m.innerHTML = "Driver Hub shows <b>" + esc(said) + "</b>. " + (first < 0 ? "Every question said false, so <code>else</code> runs." : first === 0 ? "The first question said true. Java runs that block and skips every <code>else</code> below it, even though <code>stick &gt; 0.05</code> is also true." : "Questions above said false. This is the first true one, so its block runs and the rest are skipped.");
+    m.innerHTML = "Driver Hub shows <b>" + esc(said) + "</b>. " + (first < 0 ? "Every question said false, so <code>else</code> runs. Dead zone: a tiny push near 0 counts as no push." : first === 0 ? "The first question said true. Java runs that block and skips every <code>else</code> below it, even though <code>stick &gt; 0.05</code> is also true." : "Questions above said false. This is the first true one, so its block runs and the rest are skipped.");
     m.className = "msg ok";
   }
   $("#jv-dstick").addEventListener("input", decide);
   decide();
   $("#jv-ops").innerHTML = "<tr><th>Sign</th><th>Asks</th><th>Robot example</th></tr>" + [
     [">", "greater than", "stick > 0.5"], ["<", "less than", "heading < -90"], [">=", "greater than or equal to", "ballsLoaded >= 3"],
-    ["<=", "less than or equal to", "Math.abs(error) <= 2"], ["==", "equal to (two signs)", "state == LaunchState.IDLE"], ["!=", "not equal to", "ballsLoaded != 0"]
+    ["<=", "less than or equal to", "Math.abs(error) <= 2"], ["==", "equal to (two signs)", "launchState == LaunchState.IDLE"], ["!=", "not equal to", "ballsLoaded != 0"]
   ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td><td><code>" + esc(r[2]) + "</code></td></tr>").join("");
   $("#jv-logic").innerHTML = "<tr><th>Sign</th><th>Means</th><th>Robot example</th></tr>" + [
-    ["&&", "and: both must be true", "gamepad1.a && launcherReady"], ["||", "or: at least one is true", "gamepad1.b || timer.seconds() > 2"], ["!", "not: flips true and false", "!launcherReady"]
+    ["&&", "and: both must be true", "gamepad1.a && robot.launcherReady()"], ["||", "or: at least one is true", "gamepad1.b || timer.seconds() > 2"], ["!", "not: flips true and false", "!robot.launcherReady()"]
   ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td><td><code>" + esc(r[2]) + "</code></td></tr>").join("");
   const LG = {a: false, ready: false};
   function logic(){
     const a = LG.a, r = LG.ready;
     $("#jv-da").setAttribute("aria-pressed", a ? "true" : "false"); $("#jv-da").textContent = "gamepad1.a = " + a;
-    $("#jv-dready").setAttribute("aria-pressed", r ? "true" : "false"); $("#jv-dready").textContent = "launcherReady = " + r;
-    $("#jv-dlogic").innerHTML = [["a && launcherReady", a && r], ["a || launcherReady", a || r], ["!launcherReady", !r]].map(t => '<span class="' + (t[1] ? "t" : "f") + '">' + esc(t[0]) + ": " + t[1] + "</span>").join("");
+    $("#jv-dready").setAttribute("aria-pressed", r ? "true" : "false"); $("#jv-dready").textContent = "robot.launcherReady() = " + r;
+    $("#jv-dlogic").innerHTML = [["a && robot.launcherReady()", a && r], ["a || robot.launcherReady()", a || r], ["!robot.launcherReady()", !r]].map(t => '<span class="' + (t[1] ? "t" : "f") + '">' + esc(t[0]) + ": " + t[1] + "</span>").join("");
   }
   $("#jv-da").addEventListener("click", () => { LG.a = !LG.a; logic(); });
   $("#jv-dready").addEventListener("click", () => { LG.ready = !LG.ready; logic(); });
   logic();
-  const SW = ["switch (state) {", "    case IDLE:", "        if (gamepad1.rightBumperWasPressed()) {", "            state = LaunchState.SPINNING_UP;", "        }", "        break;", "    case SPINNING_UP:", "        robot.launcherOn();", "        if (robot.launcherReady()) {", "            state = LaunchState.FEEDING;", "        }", "        break;", "    case FEEDING:", "        robot.feedOnce();", "        state = LaunchState.IDLE;", "        break;", "}"];
+  const SW = ["switch (launchState) {", "    case IDLE:", "        if (gamepad2.rightBumperWasPressed()) {   // true once per press", "            launchState = LaunchState.SPINNING_UP;", "        }", "        break;", "    case SPINNING_UP:", "        robot.launcherOn();", "        if (robot.launcherReady()) {", "            launchState = LaunchState.FEEDING;", "        }", "        break;", "    case FEEDING:", "        robot.feedOnce();", "        launchState = LaunchState.IDLE;", "        break;", "}"];
   const SW_BREAK = 11;   // the break after SPINNING_UP
   let swState = "SPINNING_UP";
   function sw(){
@@ -3301,10 +3313,10 @@ const JV = (function(){
     const m = $("#jv-swmsg");
     const fell = noBrk && swState === "SPINNING_UP";
     m.innerHTML = fell ? "No <code>break</code>: Java runs SPINNING_UP, then falls into FEEDING and feeds a ball before the wheel is at speed. The shot falls short. Every case ends with <code>break</code>."
-      : "state is <b>" + swState + "</b>. Java jumps to <code>case " + swState + ":</code>, runs down to <code>break</code>, and leaves the switch. Next loop pass, it checks again.";
+      : "launchState is <b>" + swState + "</b>. Java jumps to <code>case " + swState + ":</code>, runs down to <code>break</code>, and leaves the switch. Next loop pass, it checks again.";
     m.className = "msg " + (fell ? "bad" : "ok");
   }
-  $("#jv-swbtns").innerHTML = ["IDLE", "SPINNING_UP", "FEEDING"].map(s => '<button class="b" data-s="' + s + '">state = ' + s + "</button>").join("");
+  $("#jv-swbtns").innerHTML = ["IDLE", "SPINNING_UP", "FEEDING"].map(s => '<button class="b" data-s="' + s + '">launchState = ' + s + "</button>").join("");
   $$("#jv-swbtns .b").forEach(b => b.addEventListener("click", () => { swState = b.dataset.s; sw(); }));
   $("#jv-swbrk").addEventListener("change", sw);
   sw();
@@ -3357,7 +3369,7 @@ const JV = (function(){
 
   showTopic("anatomy");
   function tick(){
-    if (topic === "classes"){ const now = performance.now(); $$("#jv-objs [data-oi]").forEach(e => { e.textContent = ((now - objs[+e.dataset.oi].t0) / 1000).toFixed(1); }); }
+    if (topic === "classes") $$("#jv-objs [data-oi]").forEach(e => { e.textContent = (TIME.sim - objs[+e.dataset.oi].t0).toFixed(1); });
     if (topic === "private") drawPrivate();
   }
   return {tick, show: () => { if (topic === "private") drawPrivate(); }};
@@ -3838,7 +3850,9 @@ const PIDVIZ = (function(){
     "        waitForStart();",
     "        while (opModeIsActive()) {",
     "            double speed = 1.0;",
-    "            if (gamepad1.left_bumper) speed = SLOW;",
+    "            if (gamepad1.left_bumper) {",
+    "                speed = SLOW;",
+    "            }",
     "            robot.drive(-gamepad1.left_stick_y * speed, 0, 0);",
     "        }",
     "    }",
@@ -3848,11 +3862,11 @@ const PIDVIZ = (function(){
     {k: "package", c: "--muted", l: [0], t: "Package: the folder this file lives in. See The project map."},
     {k: "imports", c: "--accent", l: [2, 3], t: "Imports: classes from other packages. See the Imports card."},
     {k: "annotation", c: "--pollen", l: [5], t: "Annotation: @TeleOp puts this OpMode on the Driver Hub list."},
-    {k: "class", c: "--ok", l: [6, 20], t: "Class: the blueprint, from { to }. See Classes and objects, and extends LinearOpMode."},
+    {k: "class", c: "--ok", l: [6, 22], t: "Class: the blueprint, from { to }. See Classes and objects, and extends LinearOpMode."},
     {k: "fields", c: "--red", l: [7, 8], t: "Fields: belong to the object for its whole life. SLOW is a constant (final). See Types, final and static, and public and private."},
-    {k: "method", c: "--accent", l: [10, 11, 19], t: "Method: runOpMode() is a named block of code. The SDK calls it when you press INIT."},
-    {k: "locals", c: "--pollen", l: [15, 16], t: "Local variable: speed lives only inside the while block. See the Scope card."},
-    {k: "calls", c: "--ok", l: [12, 13, 14, 17], t: "Method calls: ask an object to do something, with the dot: robot.drive(...)."}
+    {k: "method", c: "--accent", l: [10, 11, 21], t: "Method: runOpMode() is a named block of code. The SDK calls it when you press INIT."},
+    {k: "locals", c: "--pollen", l: [15, 17], t: "Local variable: speed lives only inside the while block. See the Scope card."},
+    {k: "calls", c: "--ok", l: [12, 13, 14, 19], t: "Method calls: ask an object to do something, with the dot: robot.drive(...)."}
   ];
   const code = $("#jv-acode");
   renderCode(code, LINES);
@@ -3866,7 +3880,7 @@ const PIDVIZ = (function(){
       n.style.background = r ? (sel === null || sel === r.k ? alpha(c, sel === r.k ? 0.3 : 0.1) : "transparent") : "";
       n.style.opacity = (sel === null || (r && sel === r.k)) ? 1 : 0.4;
     });
-    $("#jv-alegend").innerHTML = REG.map(r => '<button class="lg' + (sel === r.k ? " on" : "") + '" data-k="' + r.k + '"><i style="background:var(' + r.c + ')"></i>' + esc(r.k) + "</button>").join("");
+    $("#jv-alegend").innerHTML = REG.map((r, i) => '<button class="lg' + (sel === r.k ? " on" : "") + '" data-k="' + r.k + '"><i style="background:var(' + r.c + ')"></i>' + (i + 1) + " " + esc(r.k) + "</button>").join("");
     $$("#jv-alegend .lg").forEach(b => b.addEventListener("click", () => { sel = sel === b.dataset.k ? null : b.dataset.k; paint(); const r = REG.find(x => x.k === sel); $("#jv-amsg").textContent = r ? r.t : "Click a part to highlight it in the code."; }));
   }
   paint();
@@ -4260,7 +4274,7 @@ const JV2 = (function(){
 
   /* ---------------- variable boxes ---------------- */
   function drawVars(){
-    const V = [["int", "ballsLoaded", "3", "acc"], ["double", "power", "0.75", "ok"], ["boolean", "launcherReady", "false", "pol"], ["String", "alliance", '"RED"', "red"], ["final double", "LAUNCH_VELOCITY", "1160", "ink"]];
+    const V = [["int", "ballsLoaded", "3", "acc", "whole number"], ["double", "power", "0.75", "ok", "decimal number"], ["boolean", "launcherReady", "false", "pol", "true or false"], ["String", "alliance", '"RED"', "red", "text, in quotes"], ["final double", "LAUNCH_VELOCITY", "1160", "ink", "locked: never changes"]];
     let s = "";
     V.forEach((v, i) => {
       const x = 12 + i * 196, y = 30, col = SV.col(v[3]);
@@ -4269,13 +4283,14 @@ const JV2 = (function(){
       s += '<rect x="' + x + '" y="' + (y + 26) + '" width="180" height="84" rx="6" fill="' + alpha(col, 0.1) + '" stroke="' + col + '" stroke-width="2"/>';
       s += SV.tx(x + 90, y + 62, v[2], {mono: true, weight: "700", size: 22});
       s += SV.tx(x + 90, y + 98, v[1], {mono: true, size: 12, col: "mut"});
+      s += SV.tx(x + 90, y + 130, v[4], {size: 13, col: "mut"});
       if (i === 4){
         const lx = x + 150, ly = y + 34;
         s += '<rect x="' + lx + '" y="' + (ly + 8) + '" width="18" height="14" rx="2" fill="' + P.ink + '"/><path d="M' + (lx + 4) + " " + (ly + 8) + " v-4 a5 5 0 0 1 10 0 v4" + '" fill="none" stroke="' + P.ink + '" stroke-width="2.5"/>';
       }
     });
-    s += SV.tx(12, 18, "TYPE on top, VALUE inside, NAME underneath. The lock: final means set once, never changed.", {anchor: "start", size: 12, col: "mut"});
-    SV.set($("#jv-vbox"), 1000, 150, s);
+    s += SV.tx(12, 18, "TYPE on top, VALUE inside, NAME underneath, MEANING below. The lock: final means set once, never changed.", {anchor: "start", size: 12, col: "mut"});
+    SV.set($("#jv-vbox"), 1000, 172, s);
   }
 
   /* ---------------- class blueprint ---------------- */

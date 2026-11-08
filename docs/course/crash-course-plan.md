@@ -91,7 +91,7 @@ Lab tab 1 has 11 cards. 35 minutes does not cover all of them in depth, so spend
 | 0 Anatomy of a file | 1 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
 | 1 Classes and objects | 2 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
 | 2 Types, final and static | 3 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
-| 3 Robot.java: public and private | 3 min | Press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
+| 3 Robot.java: public and private | 3 min | Teams guess which two calls build, then press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
 | 4 extends and @Override | 4 min | Click telemetry and @Override, then the three @Override versions | `extends LinearOpMode` is why telemetry and gamepad1 exist. `@Override` is a spelling check: a typo fails the build instead of never running. |
 | 5 Decisions: if, else, switch | 6 min | Move the stick slider to 0.8, 0.3, -0.4 and 0. Then the switch states, then tick Forget the break | Java asks the questions top to bottom and runs only the first true one. Every `case` ends with `break`. `==` compares, `=` stores. |
 | 6 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
