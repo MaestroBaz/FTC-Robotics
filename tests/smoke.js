@@ -281,6 +281,36 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(fit.every(f => f.overflow.length === 0), "no diagram label runs past its figure: " + fit.flatMap(f => f.overflow).join(" | "));
   await cs.close();
 
+  // ==== area whole: smoke checks for the whole teaching fixes go below this line ====
+  // ==== end area whole ====
+
+  // ==== area java-a: smoke checks for the java-a teaching fixes go below this line ====
+  // ==== end area java-a ====
+
+  // ==== area java-b: smoke checks for the java-b teaching fixes go below this line ====
+  // ==== end area java-b ====
+
+  // ==== area lifecycle: smoke checks for the lifecycle teaching fixes go below this line ====
+  // ==== end area lifecycle ====
+
+  // ==== area gitflow: smoke checks for the gitflow teaching fixes go below this line ====
+  // ==== end area gitflow ====
+
+  // ==== area mecanum: smoke checks for the mecanum teaching fixes go below this line ====
+  // ==== end area mecanum ====
+
+  // ==== area oneloop: smoke checks for the oneloop teaching fixes go below this line ====
+  // ==== end area oneloop ====
+
+  // ==== area feedback: smoke checks for the feedback teaching fixes go below this line ====
+  // ==== end area feedback ====
+
+  // ==== area pid: smoke checks for the pid teaching fixes go below this line ====
+  // ==== end area pid ====
+
+  // ==== area encoders: smoke checks for the encoders teaching fixes go below this line ====
+  // ==== end area encoders ====
+
   // ---- phone width ----
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   m.on("pageerror", e => errs.push("mobile: " + e.message));
