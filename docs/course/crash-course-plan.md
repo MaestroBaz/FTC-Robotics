@@ -2,7 +2,7 @@
 
 Audience: about 30 students with basic Java (variables, if, loops), in 6 teams of about 5. No student laptops and no robot in the room. The mentor runs the lab on the projector from the local file `lab/index.html`. Students do not type code on this day. Goal: every team reads a full OpMode, names each part, and predicts what the robot does before the demo shows the answer. A hands-on Follow-up Session covers cloning, building and pull requests.
 
-Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, no sleep, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). The artifact still holds the 2026-11-07 lab (11 Java cards). On the day, open lab/index.html from disk only.
+Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, no sleep, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). The artifact holds the same lab as lab/index.html (version of 2026-11-08, 12 Java cards). On the day, open lab/index.html from disk: the artifact needs the network.
 
 Homework for the night before: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S (FTC Crash Course: Homework for Tonight, about 3 hours, GitHub first).
 
