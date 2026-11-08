@@ -656,6 +656,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(fit.every(f => f.figures >= 3), "every cheat sheet page carries at least 3 diagrams");
   const csSrc = fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "cheatsheet.html"), "utf8");
   check(csSrc.includes("setVelocityPIDFCoefficients") && csSrc.includes("liftPID.update(error) + kF") && csSrc.includes("IMU yaw: +90") && csSrc.includes("imu.resetYaw()"), "cheat sheet names PIDF on the hub, kF in the OpMode, the yaw compass and resetYaw");
+  check(csSrc.includes(">kF x what you know</text>") && csSrc.includes('<path d="M428 177 L464 177 L464 90" class="ag"/>') && csSrc.includes("power = P + I + D + F"), "cheat sheet: the PID loop diagram draws F as a 4th block into the sum, as tab 7 does");
   check(/>feeder<\/text>/.test(csSrc) && csSrc.includes(">feederOn()</text>") && csSrc.includes(">feederOff()</text>"), "cheat sheet: Robot.java box lists the feeder and feederOn()/feederOff()");
   check(csSrc.includes(">rightBumperWasPressed()</text>") && csSrc.includes(">then feedTimer.reset()</text>") && csSrc.includes(">then feederOff()</text>") && csSrc.includes(">launcherOff()</text>") && !/cancel, back to IDLE/.test(csSrc), "cheat sheet: launcher state machine matches tab 5 code B, no cancel arc");
   check(/fully motionless: rule G304\.H/.test(csSrc) && /team rule, stricter: nothing moves in INIT/.test(csSrc), "cheat sheet: G304.H and the stricter team rule labeled apart");

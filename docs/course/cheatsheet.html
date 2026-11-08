@@ -55,6 +55,7 @@
   svg .gy{fill:#f1f3ef; stroke:var(--line); stroke-width:1;}
   svg .ok{fill:#e6f3ea; stroke:var(--ok); stroke-width:1.3;}
   svg .rd{fill:#fbe8e8; stroke:var(--red); stroke-width:1.3;}
+  svg .pl{fill:#fcf3d6; stroke:var(--pollen); stroke-width:1.3;}
   svg .ar{fill:none; stroke:var(--ink); stroke-width:1.4; marker-end:url(#mk);}
   svg .ac{fill:none; stroke:var(--accent); stroke-width:1.6; marker-end:url(#mka);}
   svg .ag{fill:none; stroke:var(--ok); stroke-width:1.6; marker-end:url(#mkg);}
@@ -586,7 +587,7 @@
 
   <div class="fig">
     <h2>PID: one loop, three pushes <small>plus F for what you know in advance. Same class for a turn (IMU), a lift (encoder), auto-aim (camera)</small></h2>
-    <svg viewBox="0 0 730 176" role="img" aria-label="PID control loop block diagram">
+    <svg viewBox="0 0 730 228" role="img" aria-label="PIDF control loop block diagram: P, I and D take the error, F needs no error, all four add up before the clip">
       <g style="font-size:9.5px">
         <rect x="6" y="58" width="70" height="34" rx="5" class="bx"/><text x="41" y="72" text-anchor="middle" class="c">target</text><text x="41" y="85" text-anchor="middle" class="b">90 deg</text>
         <path d="M76 75 L104 75" class="ar"/>
@@ -594,9 +595,10 @@
         <path d="M131 75 L166 75" class="ar"/><text x="148" y="66" text-anchor="middle" class="c">error</text>
         <path d="M166 75 L166 24 L196 24" class="ar"/><path d="M166 75 L196 75" class="ar"/><path d="M166 75 L166 126 L196 126" class="ar"/>
         <rect x="198" y="8" width="230" height="32" rx="5" class="sf"/><text x="208" y="22" class="b">P</text><text x="222" y="22" class="m" style="font-size:9px">kP x error</text><text x="208" y="35" class="c">the push: big error, big power. Stops short alone.</text>
-        <rect x="198" y="59" width="230" height="32" rx="5" class="ok"/><text x="208" y="73" class="b">I</text><text x="222" y="73" class="m" style="font-size:9px">kI x (error added up)</text><text x="208" y="86" class="c">the catch-up: beats friction and gravity.</text>
+        <rect x="198" y="59" width="230" height="32" rx="5" class="pl"/><text x="208" y="73" class="b">I</text><text x="222" y="73" class="m" style="font-size:9px">kI x (error added up)</text><text x="208" y="86" class="c">the catch-up: beats friction and leftover gravity.</text>
         <rect x="198" y="110" width="230" height="32" rx="5" class="rd"/><text x="208" y="124" class="b">D</text><text x="222" y="124" class="m" style="font-size:9px">kD x (how fast error changes)</text><text x="208" y="137" class="c">the brake: pushes back near the target.</text>
-        <path d="M428 24 L452 24 L452 62" class="ar"/><path d="M428 75 L452 75" class="ar"/><path d="M428 126 L452 126 L452 88" class="ar"/>
+        <circle cx="140" cy="177" r="4" fill="#1d8650"/><path d="M144 177 L196 177" class="ag"/><text x="170" y="170" text-anchor="middle" class="c b" fill="#1d8650">always on</text>        <rect x="198" y="161" width="230" height="32" rx="5" class="ok"/><text x="208" y="175" class="b">F</text><text x="222" y="175" class="m" style="font-size:9px">kF x what you know</text><text x="208" y="188" class="c">the head start: lift kF, arm kF x cos(angle).</text>
+        <path d="M428 24 L452 24 L452 62" class="ar"/><path d="M428 75 L452 75" class="ar"/><path d="M428 126 L452 126 L452 88" class="ar"/><path d="M428 177 L464 177 L464 90" class="ag"/>
         <circle cx="464" cy="75" r="13" class="bx"/><text x="464" y="79" text-anchor="middle" class="b">+</text>
         <path d="M477 75 L500 75" class="ar"/>
         <rect x="502" y="58" width="56" height="34" rx="5" class="bx"/><text x="530" y="72" text-anchor="middle" class="c">clip to</text><text x="530" y="85" text-anchor="middle" class="b">-1 .. 1</text>
@@ -604,10 +606,11 @@
         <rect x="580" y="58" width="78" height="34" rx="5" class="bx"/><text x="619" y="72" text-anchor="middle" class="c">power to</text><text x="619" y="85" text-anchor="middle" class="b">the motors</text>
         <path d="M658 75 L680 75" class="ar"/>
         <rect x="682" y="58" width="44" height="34" rx="5" class="gy"/><text x="704" y="79" text-anchor="middle" class="c">robot</text>
-        <path d="M704 92 L704 160 L118 160 L118 90" class="ag"/>
-        <rect x="340" y="150" width="150" height="20" rx="5" class="ok"/><text x="415" y="164" text-anchor="middle" class="c">sensor: IMU, encoder or camera</text>
-        <text x="578" y="105" text-anchor="middle" class="c">I-zone: I adds up only when |kP x error| &lt; 0.35,</text><text x="578" y="116" text-anchor="middle" class="c">so a long move cannot wind it up.</text>
-        <text x="578" y="129" text-anchor="middle" class="c" fill="#1d8650">F = kF x what you know, no error needed.</text><text x="578" y="140" text-anchor="middle" class="c" fill="#1d8650">Lift: kF, the hold power.</text><text x="578" y="151" text-anchor="middle" class="c" fill="#1d8650">Flywheel: kF x target speed (hub).</text>
+        <path d="M704 92 L704 214 L118 214 L118 90" class="ac"/>
+        <rect x="340" y="204" width="150" height="20" rx="5" class="sf"/><text x="415" y="218" text-anchor="middle" class="c">sensor: IMU, encoder or camera</text>
+        <text x="590" y="112" text-anchor="middle" class="c">power = P + I + D + F</text>
+        <text x="590" y="128" text-anchor="middle" class="c">I-zone: I adds up only when |kP x error| &lt; 0.35,</text><text x="590" y="139" text-anchor="middle" class="c">so a long move cannot wind it up.</text>
+        <text x="590" y="160" text-anchor="middle" class="c" fill="#1d8650">F cancels gravity before any error shows.</text><text x="590" y="171" text-anchor="middle" class="c" fill="#1d8650">P, I and D fix only what F misses.</text><text x="590" y="182" text-anchor="middle" class="c" fill="#1d8650">Turn and aim: kF = 0. Flywheel: F on the hub.</text>
       </g>
     </svg>
   </div>
