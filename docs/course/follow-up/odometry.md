@@ -80,7 +80,7 @@ Sample offsets in the SDK sample: `setOffsets(-84.0, -168.0, DistanceUnit.MM)`, 
 
 ## Module 0: Opener, where is the robot? (10 min)
 
-Demo first (4 min). Lab tab 4, pick "AUTO: go to point". Click a point near the top right. The robot drives a nearly straight line to the point. Tick "Turn to 90 deg while driving" and click a new point: the path stays straight while the robot turns. Read the code panel under the field out loud: error to the point, times a gain, capped, then field-centric drive. Say: "Today the pose in line 2 comes from a real sensor."
+Demo first (4 min). Lab tab 4, pick "AUTO: go to point". Click a point near the top right. The robot drives a nearly straight line to the point. Click a point in the far corner and tick "Turn to 90 deg while driving" while the robot still moves: the path stays straight while the robot turns. Read the code panel under the field out loud: error to the point, times a gain, capped, then field-centric drive. Say: "Today the pose in line 2 comes from a real sensor."
 
 Then the real robot (2 min). The mentor runs `PracticePinpoint` and pushes the robot 24 in along the tape, away from the drivers. A student reads X out loud from the Driver Hub.
 

@@ -528,11 +528,23 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // fix-mecanum: the rotation panel names Pinpoint in AUTO, the compass leaves the field on a 1366 px projector
   await hookDrawn(); await pg.waitForTimeout(150);
   check((await drawnOn("mc-vec", 20)).includes("To the target, robot at Pinpoint heading"), "AUTO: the rotation panel reads robot at Pinpoint heading");
+  check((await pg.textContent("#mc-hdleg")) === "Pinpoint heading needle", "AUTO: the field legend names the Pinpoint heading needle");
+  // fix-mecanum: tick "Turn to 90 deg" during a long drive, the robot turns on the way, before it reaches the point
+  await pg.click("#mc-reset"); await pg.mouse.click(fb.x + fb.width * 0.9, fb.y + fb.height * 0.1); await pg.waitForTimeout(300);
+  await pg.check("#mc-spin"); await pg.waitForTimeout(900);
+  const midHd = parseFloat(await mcRow("Pinpoint heading")), midErr = Math.hypot(...(await mcRow("error to point")).split(",").map(Number));
+  check(midHd > 20 && midErr > 5, "AUTO: ticked during the drive, the robot turns on the way: heading " + midHd + " deg, " + midErr.toFixed(1) + " in from the point");
+  await pg.uncheck("#mc-spin");
   const fg = await pg.evaluate(() => { const c = document.querySelector("#mc-field"), w = c.getBoundingClientRect().width, h = c.getBoundingClientRect().height, side = Math.min(w - 16, h - 40); return { w, side, ox: (w - side) / 2 }; });
   const compassX = await pg.evaluate(() => { let x = null; const f = CanvasRenderingContext2D.prototype.fillText; CanvasRenderingContext2D.prototype.fillText = function (s, X) { if (this.canvas.id === "mc-field" && /^heading /.test(s)) x = X; return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.fillText = f; r(x); }, 150)); });
   check(compassX > fg.ox + fg.side, "the compass heading sits right of the field, clear of targets in the top-right corner: x " + Math.round(compassX) + " > field edge " + Math.round(fg.ox + fg.side));
-  // fix-mecanum: blue = + and red = - in the wheel view, no wheel-color dots; the chart names the wheels at their power
+  // fix-mecanum: the wheel view draws every arrow in ink, red only for the bug wheel, no wheel-color dots; the chart names the wheels at their power
   await pg.check('#lab-mecanum input[value="robot"]'); await pg.click('#lab-mecanum [data-p="1,0,0"]');
+  const wheelCols = () => pg.evaluate(() => { const s = new Set(); const f = CanvasRenderingContext2D.prototype.stroke; CanvasRenderingContext2D.prototype.stroke = function () { if (this.canvas.id === "mc-wheels" && this.lineWidth === 4) s.add(String(this.strokeStyle).toLowerCase()); return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.stroke = f; const c = document.createElement("canvas").getContext("2d"); const n = v => { c.strokeStyle = v; return String(c.strokeStyle).toLowerCase(); }; const cs = getComputedStyle(document.documentElement); r({got: [...s], ink: n(cs.getPropertyValue("--ink").trim()), red: n(cs.getPropertyValue("--red").trim())}); }, 300)); });
+  const wc = await wheelCols();
+  check(wc.got.length === 1 && wc.got[0] === wc.ink, "strafe right: every wheel-view arrow is ink, so no color stands for a sign: " + wc.got.join(" "));
+  await pg.check("#mc-bug"); const wcBug = await wheelCols(); await pg.uncheck("#mc-bug");
+  check(wcBug.got.length === 2 && wcBug.got.includes(wcBug.red) && wcBug.got.includes(wcBug.ink), "bug on: only the frontLeft arrow turns red: " + wcBug.got.join(" "));
   const arcs = await pg.evaluate(() => { let n = 0; const f = CanvasRenderingContext2D.prototype.arc; CanvasRenderingContext2D.prototype.arc = function () { if (this.canvas.id === "mc-wheels") n++; return f.apply(this, arguments); }; return new Promise(r => setTimeout(() => { CanvasRenderingContext2D.prototype.arc = f; r(n); }, 300)); });
   check(arcs === 0, "the wheel view draws no wheel-color dots, so red only means a negative power: " + arcs + " arcs");
   await pg.waitForTimeout(600);

@@ -922,7 +922,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
         <div class="legend" style="margin-top:8px">
           <span><i style="background:var(--pollen)"></i>what the stick asks for</span>
           <span><i style="background:var(--accent)"></i>where the robot drives</span>
-          <span><i style="background:var(--red)"></i>IMU heading needle</span>
+          <span><i style="background:var(--red)"></i><span id="mc-hdleg">IMU heading needle</span></span>
         </div>
         <label class="tg" id="mc-spinwrap" style="margin-top:8px"><input type="checkbox" id="mc-spin"> Turn to 90 deg while driving</label>
       </div>
@@ -1654,7 +1654,7 @@ const MC = (function(){
   let yawOffset = 0, mode = "robot", goal = {x: 110, y: 72};
   const trail = [];
   let ghost = [];   // the last path, kept as a dashed line after Reset robot
-  // wheel power history for the chart. Line colors name the wheels here only: in the wheel view blue = +, red = -.
+  // wheel power history for the chart. Line colors name the wheels. The wheel view draws every arrow in ink (red only for the bug wheel), so no color stands for a sign.
   const WCOL = () => ({fl: P.accent, fr: P.red, bl: P.pollen, br: P.ok});
   const WK = ["fl", "fr", "bl", "br"], hist = [];
   let T = 0, acc = 0;
@@ -1708,6 +1708,7 @@ const MC = (function(){
     $("#mc-padnote").textContent = mode === "auto" ? "ignored in AUTO: the code drives" : "";
     $("#mc-padpanel").style.opacity = mode === "auto" ? 0.55 : 1;
     $("#mc-spinwrap").style.display = mode === "auto" ? "flex" : "none";
+    $("#mc-hdleg").textContent = mode === "auto" ? "Pinpoint heading needle" : "IMU heading needle";
     $("#mc-fieldnote").textContent = mode === "auto" ? "Click the field to place the target point." : "144 in x 144 in, top view. Drivers stand at the bottom.";
     renderModeCode();
   }
@@ -1901,7 +1902,7 @@ const MC = (function(){
       const p = m.actual[k], sd = k[1] === "l" ? -1 : 1;
       // arrows start at the wheel centers, short enough that a front and a back arrow never touch
       const x = wx + sd * (S / 2 + S * 0.2), y = wy + (k[0] === "f" ? -S * 0.29 : S * 0.29);
-      arrow(ctx, x, y, x, y - p * S * 0.26, p >= 0 ? P.accent : P.red, 4);
+      arrow(ctx, x, y, x, y - p * S * 0.26, (bug.checked && k === "fl") ? P.red : P.ink, 4);
       const lab = k.toUpperCase() + " " + (p >= 0 ? "+" : "") + p.toFixed(2);
       text(ctx, lab, x + sd * 10, y + 4, {align: sd < 0 ? "right" : "left", weight: "600", color: (bug.checked && k === "fl") ? P.red : P.ink});
     }
