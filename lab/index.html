@@ -31,8 +31,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-/* no coding ligatures: students must see the two characters they type, >= not a single glyph */
-html{font-feature-settings:"calt" 0, "liga" 0;}   /* font-feature-settings survives the font shorthand; font-variant-ligatures does not */
+/* no coding ligatures: students must see the two characters they type. The font shorthand resets both properties, so !important on every element */
+*{font-variant-ligatures:none !important; font-feature-settings:"calt" 0, "liga" 0 !important;}
 body{background:var(--bg); color:var(--ink); font:16px/1.5 var(--body);}
 .wrap{max-width:1400px; margin:0 auto; padding:0 20px 48px;}
 header.top{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 18px; padding:10px 0 4px;}
@@ -361,13 +361,16 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 /* ==== end area pid ==== */
 /* ==== area encoders: CSS for the encoders teaching fixes goes below this line ==== */
 /* ==== end area encoders ==== */
+/* ==== area whole: cross-tab goal line ==== */
+.labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
+/* ==== end area whole ==== */
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="top">
   <h1>FTC Java Crash Course Lab</h1>
-  <p>BIOBUZZ 2026-27 | FTC SDK v12.0 | Ask the room first, then run the demo.</p>
+  <p>Team rules: 1 One loop, no threads, no sleep() in TeleOp. 2 Robot.java for hardware, OpModes for behavior. 3 Every change gets a reviewed pull request.</p>
 </header>
 <div class="topbar">
 <div class="peek" id="peek" title="Point here, or press Tab, to open the menu">
@@ -381,9 +384,9 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <a href="#gitflow" data-tab="gitflow"><span class="n">3</span> GitHub teamwork</a>
   <a href="#mecanum" data-tab="mecanum"><span class="n">4</span> Drive modes</a>
   <a href="#oneloop" data-tab="oneloop"><span class="n">5</span> One loop, no sleep</a>
-  <a href="#feedback" data-tab="feedback"><span class="n">6</span> Feedback: launcher</a>
+  <a href="#feedback" data-tab="feedback"><span class="n">6</span> Closed loop: launcher</a>
   <a href="#pid" data-tab="pid"><span class="n">7</span> PID control</a>
-  <a href="#encoders" data-tab="encoders"><span class="n">8</span> Encoders in auto</a>
+  <a href="#encoders" data-tab="encoders"><span class="n">8</span> Encoders (later)</a>
   <button class="b pin" id="ah-toggle" type="button" aria-pressed="true" title="Auto-hide: the menu folds to one thin line until you point at it, and the Java card list folds to numbers. Key H."><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 1.5h6M6 1.5v5L3.5 9.5h9L10 6.5v-5M8 9.5V15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Auto-hide</span></button>
 </nav>
 <div class="ctlbar" role="group" aria-label="Simulation speed and team scores">
@@ -395,7 +398,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <span class="chip" id="ts-chip">real time</span>
   <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right." aria-label="Keyboard shortcuts and voting rules">?</button>
   <button class="b" id="tm-toggle" aria-pressed="true" aria-controls="teambar">Teams</button>
-  <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset</button></span>
+  <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset scores</button></span>
 </div>
 </div>
 </div>
@@ -4700,7 +4703,16 @@ const TEAMS = (function(){
     teams = teams.map((t, k) => k === i ? {name, pts: t.pts} : t); save(); render();
   });
   const resetFns = [];
-  $("#tm-reset").addEventListener("click", () => { teams = teams.map(t => ({name: t.name, pts: 0})); save(); render(); resetFns.forEach(f => f()); });
+  // Reset scores takes two clicks, so one stray click does not wipe the game. No confirm(): an artifact iframe can block modals.
+  const rb = $("#tm-reset");
+  let armed = false;
+  const disarm = () => { armed = false; rb.textContent = "Reset scores"; };
+  rb.addEventListener("click", () => {
+    if (!armed){ armed = true; rb.textContent = "Click again to clear"; return; }
+    disarm(); teams = teams.map(t => ({name: t.name, pts: 0})); save(); render(); resetFns.forEach(f => f());
+  });
+  rb.addEventListener("mouseleave", disarm);
+  rb.addEventListener("blur", disarm);
   $("#tm-toggle").addEventListener("click", () => {
     const on = $("#teambar").classList.toggle("hide");
     $("#tm-toggle").setAttribute("aria-pressed", String(!on));
@@ -4713,6 +4725,8 @@ const TEAMS = (function(){
 $$("details.ask").forEach(d => {
   const v = $(".vote", d); if (!v) return;
   const right = +v.dataset.right, N = TEAMS.get().length;
+  // only Reveal answer opens the block, so a stray click on the question does not spoil the vote. A click on an open block still closes it. Keyboard (detail 0) still opens it.
+  $("summary", d).addEventListener("click", e => { if (!d.open && e.detail && !e.target.closest(".reveal")) e.preventDefault(); });
   let picks = [], paid = 0;   // picks[k] = option chosen by team k; the first `paid` picks are already scored
   v.insertAdjacentHTML("beforeend", '<span class="vnext"></span>');
   const next = $(".vnext", v);
@@ -4739,7 +4753,7 @@ $$("details.ask").forEach(d => {
     });
   });
   d.addEventListener("toggle", () => { if (d.open) pay(); });
-  TEAMS.onReset(() => { picks = []; paid = 0; tally(); show(); });
+  TEAMS.onReset(() => { picks = []; paid = 0; d.open = false; tally(); show(); });   // a reset game hides every answer again
   show();
   // Hide: once the room has voted, fold the question to one small button so the demo gets the space
   const host = d.closest(".labhead");
