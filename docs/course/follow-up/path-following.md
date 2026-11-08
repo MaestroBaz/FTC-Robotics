@@ -14,7 +14,7 @@ Do not schedule this session until all three gates pass on the real robot. Path 
 
 | # | Gate | Test | Pass |
 |---|---|---|---|
-| 1 | Clean encoder AUTO (lab tab 8 session) | Run `LeaveAndPark` 5 times in a row: drive 24 in, then `turnToHeading(90)`. Press STOP mid-drive once. Watch the robot between INIT and START. | Every run stops within 1 in of the tape mark and within 2 deg of 90 deg. STOP halts the robot at once. No motion between INIT and START (G304.H). |
+| 1 | Clean encoder AUTO (lab tab 8 session) | Run `LeaveAndPark` 5 times in a row: drive 24 in, then `turnToHeading(90)`. After the odometry merge, `turnToHeading()` calls `robot.updatePose()` first (`odometry.md`, Module 1). Press STOP mid-drive once. Watch the robot between INIT and START. | Every run stops within 1 in of the tape mark and within 2 deg of 90 deg. STOP halts the robot at once. No motion between INIT and START (G304.H). |
 | 2 | Odometry within a stated error (issue 31 session) | Push the robot by hand along a tape line, 96 in forward and back. Then 48 in strafe left and back. Then 5 full turns by hand, back onto the start mark. Read X, Y and heading on telemetry. | Forward: X reads 96 in within 1 in, Y stays within 1 in. Strafe: Y reads 48 in within 1 in. Back on the start mark: X and Y within 1 in, heading within 2 deg. |
 | 3 | Go-to-point lands (issue 31 session) | Drive to one point 36 in forward and 24 in left, heading 90 deg, 5 runs from the same start mark. | Every run ends within 1 in and 2 deg of the target, with no timeout. |
 
@@ -30,7 +30,7 @@ How the approach works, in four sentences for the room:
 1. A waypoint is a field point (X, Y in inches) plus a heading and one yes or no: stop here, or pass through.
 2. The robot drives to the first waypoint with the go-to-point loop.
 3. At a pass-through waypoint the robot moves on as soon as the robot gets within a pass radius (4 in), at full speed, toward the next point.
-4. At the last waypoint the robot slows down with P, stops within 1 in, and holds the heading.
+4. At the last waypoint the robot slows down with the tuned drive PID, stops within 1 in, and holds the heading.
 
 Why this approach and not a library:
 - [Certain] The new code is one 15-line class (`Waypoint.java`) and one method of about 40 lines. Everything else exists already: the Pinpoint pose, `PIDController`, `driveFieldCentric()`. Every student explains every line, so rule 3 (merge only code you explain) holds.
@@ -41,8 +41,8 @@ Why this approach and not a library:
 What the approach does not do (the honest ceiling):
 - Straight segments only. No curves. A gap between field elements needs an extra waypoint.
 - The robot cuts each pass-through corner by about the pass radius, and swings wide at speed. The path shape changes with speed and battery voltage.
-- No velocity planning. The robot runs at MAX_POWER between points and brakes with P on the last one. A library plans speed along the whole path and runs faster for the same accuracy.
-- Position and heading each use their own P or PID, tuned by hand.
+- No velocity planning. The robot runs at MAX_POWER between points and brakes with the tuned drive PID on the last one. A library plans speed along the whole path and runs faster for the same accuracy.
+- Position and heading each use their own PID, tuned by hand.
 
 When those limits cost points, read Module 6.
 
@@ -86,7 +86,7 @@ Coordinates match lab tab 4 AUTO: the robot starts on the start mark facing away
 ## Module 0: Gate replay and the plan (10 min)
 
 - Run the gate 3 go-to-point once. Read the end error off telemetry. Say: "Today we chain this loop."
-- Ask the room: "The robot drives to 4 points in a square and stops at each one. What takes the most time?" A the driving, B the slowing down and stopping, C reading the Pinpoint. Reveal after Module 2 with the stopwatch. Answer B [Likely]: P slows the robot near every point, and the heading has to settle too.
+- Ask the room: "The robot drives to 4 points in a square and stops at each one. What takes the most time?" A the driving, B the slowing down and stopping, C reading the Pinpoint. Reveal after Module 2 with the stopwatch. Answer B [Likely]: the drive PID slows the robot near every point, and the heading has to settle too.
 - Write the 3 rules on the board again. Rule 3 matters most today: the path code is new, and every line goes through review.
 
 ## Module 1: From one point to a list (15 min)
@@ -143,14 +143,14 @@ public class PracticePathSquare extends LinearOpMode {
 
     // Tune these on the real robot.
     private static final double MAX_POWER = 0.7;          // top drive power between points
-    private static final double DRIVE_GAIN = 0.05;        // power per inch of distance left (P)
     private static final double PASS_RADIUS = 4.0;        // inches: close enough to move on
     private static final double STOP_RADIUS = 1.0;        // inches: close enough to stop
     private static final double HEADING_TOLERANCE = 2.0;  // degrees
     private static final double WAYPOINT_TIMEOUT = 3.0;   // seconds per waypoint, then move on
 
     private final Robot robot = new Robot();
-    private final PIDController headingPID = new PIDController(0.02, 0, 0.003);  // our tuned turn gains
+    private final PIDController drivePID = new PIDController(0.05, 0, 0.005);    // copy the tuned gains from LeaveAndParkPinpoint
+    private final PIDController headingPID = new PIDController(0.02, 0, 0.002);  // copy from LeaveAndParkPinpoint
     private final ElapsedTime waypointTimer = new ElapsedTime();
     private final ElapsedTime pathTimer = new ElapsedTime();
     private int timeouts = 0;
@@ -192,6 +192,7 @@ public class PracticePathSquare extends LinearOpMode {
 
     // Drive to one waypoint. Returns when close enough, after the timeout, or at STOP.
     private void driveTo(Waypoint wp, int number) {
+        drivePID.reset();
         headingPID.reset();
         waypointTimer.reset();
         while (opModeIsActive()) {
@@ -217,10 +218,10 @@ public class PracticePathSquare extends LinearOpMode {
                 break;
             }
 
-            // How hard to drive. Pass point: full speed. Stop point: slow down near the end (P).
+            // How hard to drive. Pass point: full speed. Stop point: the drive PID slows down near the end.
             double power = MAX_POWER;
             if (wp.stopHere) {
-                power = Math.min(MAX_POWER, distance * DRIVE_GAIN);
+                power = Range.clip(drivePID.update(distance), 0, MAX_POWER);
             }
 
             // Which way to drive. errX / distance and errY / distance give the direction.
@@ -369,7 +370,7 @@ Team round:
 ## When the path fails: check in this order
 
 1. Robot drives a mirror path to the right: the sign of `right` in `driveTo()`. Compare with lab tab 4.
-2. Robot stops 1 to 2 in short of the last point and times out: P alone stalls near the target (lab tab 7, P only). Raise DRIVE_GAIN a little, or add a small minimum power for the stop point.
+2. Robot stops 1 to 2 in short of the last point and times out: with kI at 0 the drive PID stalls near the target (lab tab 7, P only). Raise drivePID kI, as in odometry.md Module 3.
 3. Robot ends in the right spot on the first run and drifts on later runs: the Pinpoint resets at INIT. Put the robot on the start mark before INIT, not after.
 4. Path bends more each run: `Robot.java` mixes two headings. `headingDegrees()` or `driveFieldCentric()` still reads the Control Hub IMU. Both read the Pinpoint (`odometry.md`, Module 1).
 5. Robot wobbles at a pass point: the pass radius sits too small for the speed. Raise PASS_RADIUS or lower MAX_POWER.
