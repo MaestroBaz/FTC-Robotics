@@ -63,7 +63,7 @@ Details in `docs/architecture.md`.
 
 ## Where the live versions sit
 
-- Lab, published as a claude.ai artifact: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (slug `1c0014a0-253d-4041-8f6c-567cc2c4ba47`, last published version `1794040580-c5ad` on 2026-11-07).
+- Lab, published as a claude.ai artifact: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (slug `1c0014a0-253d-4041-8f6c-567cc2c4ba47`, last published version `1794102156-c1a1` on 2026-11-07).
 - Homework, a claude.ai Docs artifact: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S
 - The claude.ai Project "FIRST Tech Challenge (FTC)" holds copies of the 4 course docs under `claude/*.md`.
 
