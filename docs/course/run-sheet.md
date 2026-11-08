@@ -30,7 +30,7 @@ Laptops, GitHub org, invites, robot config and the archive branch moved to the h
 |---|---|
 | Before start | Gates 1 and 2 rechecked. Scores at 0. Tab 2 open on the AI version for Module 0. |
 | 0:10 | Teams named and seated together. Each team holds its A, B, C cards. |
-| 0:45 | Java module done. If behind, cut the Lists card and keep the Error clinic round. |
+| 0:45 | Java module done. Skip card 6, Loops and arithmetic: it belongs to the hands-on session. If behind, keep the Error clinic round. |
 | 1:20 break | GitHub module done. If behind, cut the conflict drill demo and keep the commit-then-push vote. |
 | 1:55 | Drive modes done. If behind, cut the AUTO demo and keep field-centric. |
 | 2:25 | One loop and launcher done. If behind, cut the match demo and keep the sleep vote. |

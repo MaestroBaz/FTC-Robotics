@@ -442,7 +442,7 @@ td.hit{color:var(--ok);}
     <div>
       <h2>Java basics, the robot way</h2>
       <p class="goal">Goal: read MainTeleOp top to bottom and say what each word does. Team rule 2: Robot.java holds the hardware, OpModes hold the behavior.</p>
-      <p class="lede">Every word in MainTeleOp comes from one of three places: your Robot class, the SDK class you extend, or Java itself. Eleven cards, in the order you meet the words. Each card has something to click.</p>
+      <p class="lede">Every word in MainTeleOp comes from one of three places: your Robot class, the SDK class you extend, or Java itself. Twelve cards, in the order you meet the words. Each card has something to click.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="0"><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">In an import line at the top of MainTeleOp</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns. No import needed: Robot.java sits in the same package as MainTeleOp.</div>
@@ -457,11 +457,12 @@ td.hit{color:var(--ok);}
       <button class="jt" data-jt="private"><span>3</span> Robot.java: public and private</button>
       <button class="jt" data-jt="inherit"><span>4</span> extends and @Override</button>
       <button class="jt" data-jt="decide"><span>5</span> Decisions: if, else, switch</button>
-      <button class="jt" data-jt="scope"><span>6</span> Scope</button>
-      <button class="jt" data-jt="words"><span>7</span> Every word explained</button>
-      <button class="jt" data-jt="imports"><span>8</span> Imports</button>
-      <button class="jt" data-jt="errors"><span>9</span> Error clinic: fix it</button>
-      <button class="jt" data-jt="modules"><span>10</span> The project map</button>
+      <button class="jt" data-jt="loops"><span>6</span> Loops and arithmetic</button>
+      <button class="jt" data-jt="scope"><span>7</span> Scope</button>
+      <button class="jt" data-jt="words"><span>8</span> Every word explained</button>
+      <button class="jt" data-jt="imports"><span>9</span> Imports</button>
+      <button class="jt" data-jt="errors"><span>10</span> Error clinic: fix it</button>
+      <button class="jt" data-jt="modules"><span>11</span> The project map</button>
     </nav>
     <div>
       <!-- anatomy -->
@@ -599,7 +600,6 @@ td.hit{color:var(--ok);}
       </div>
       <!-- vars -->
       <div class="jpane" data-jp="vars">
-        <div class="panel" style="margin-bottom:14px"><h3>Variables are labeled boxes</h3><svg class="diag" id="jv-vbox" role="img" aria-label="Typed variable boxes"></svg></div>
         <div class="grid2">
           <div class="stack">
             <div class="panel">
@@ -615,6 +615,8 @@ td.hit{color:var(--ok);}
             </div>
           </div>
         </div>
+        <!-- the quiz sits first, so all 6 items show at 1366x768 (issue 46). The boxes are the reference picture below -->
+        <div class="panel" style="margin-top:14px"><h3>Variables are labeled boxes</h3><svg class="diag" id="jv-vbox" role="img" aria-label="Typed variable boxes"></svg></div>
       </div>
       <!-- scope -->
       <div class="jpane" data-jp="scope">
@@ -734,6 +736,36 @@ td.hit{color:var(--ok);}
                 <div><code class="bad">if (stick &gt; 0.05) ... else if (stick &gt; 0.5)</code><br>The order matters. 0.8 passes the first test, so the second never runs. Fix: put the strictest test first.</div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+      <!-- loops and arithmetic: for the hands-on session (issue 45) -->
+      <div class="jpane" data-jp="loops">
+        <div class="grid2">
+          <div class="stack">
+            <div class="panel">
+              <h3>Loops: for and while</h3>
+              <p>A <b>loop</b> runs the same block again and again. <code>for</code> counts: start, test, step. <code>while</code> repeats as long as its question is true. Pick a loop, then press Next step and watch the boxes change.</p>
+              <div class="row" id="jv-lppick"><button class="b" data-lp="for">for: the 4 drive motors</button><button class="b" data-lp="while">while: count the balls</button></div>
+              <div class="row" style="margin-top:8px"><button class="b" id="jv-lpback">Back</button><button class="b primary" id="jv-lpnext">Next step</button><button class="b" id="jv-lpreset">Restart</button></div>
+              <label class="tg" style="display:inline-flex; margin-top:8px"><input type="checkbox" id="jv-lpforget"> Forget the line that changes the loop variable</label>
+            </div>
+            <pre class="code" id="jv-lpcode"></pre>
+          </div>
+          <div class="stack">
+            <div class="panel"><h3>Boxes right now</h3><div class="scope"><div class="vars" id="jv-lpvars"></div></div></div>
+            <div class="msg" id="jv-lpmsg"></div>
+            <div class="panel"><h3>Each pass so far</h3><table class="ops" id="jv-lptable"></table></div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <div class="panel">
+            <h3>Arithmetic: ++, +=, / and %</h3>
+            <table class="ops" id="jv-arops"></table>
+          </div>
+          <div class="panel">
+            <h3>What lands in the box? <small>guess, then press Run</small></h3>
+            <div class="stack" id="jv-arquiz" style="gap:8px"></div>
           </div>
         </div>
       </div>
@@ -3276,7 +3308,7 @@ const JV = (function(){
     {l: 10, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], i: [["slow", "0.4"]], nw: "speed", msg: "Inner blocks see outer variables: the if block changes speed, which belongs to runOpMode()."},
     {l: 11, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], msg: "The if block closed. slow is gone. speed keeps its new value, because speed lives outside."},
     {l: 12, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], msg: "axial and speed are both alive: drive(0.80 * 0.4 = 0.32, 0, 0)."},
-    {l: 7, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], nw: "axial", msg: "Next loop pass. You let go of the bumper, but speed is still 0.4. speed lives outside the loop, so speed keeps its old value. Bug: slow mode never turns off. The real MainTeleOp (card 7) creates speed inside the loop, so every pass starts at 1.0."},
+    {l: 7, c: ROBOT, m: [["speed", "0.4"]], w: [["axial", "0.80"]], nw: "axial", msg: "Next loop pass. You let go of the bumper, but speed is still 0.4. speed lives outside the loop, so speed keeps its old value. Bug: slow mode never turns off. The real MainTeleOp (card 8) creates speed inside the loop, so every pass starts at 1.0."},
     {l: 13, c: ROBOT, m: [["speed", "0.4"]], msg: "STOP was pressed, the while block closed. axial is gone."},
     {l: 14, c: ROBOT, m: [["speed", "0.4"]], err: true, msg: "Compile error: cannot find symbol: variable axial. Android Studio catches this before the robot runs. Fix: create axial before the loop, or move this line inside the loop."}
   ];
@@ -3503,6 +3535,100 @@ const JV = (function(){
   $$("#jv-swbtns .b").forEach(b => b.addEventListener("click", () => { swState = b.dataset.s; sw(); }));
   $("#jv-swbrk").addEventListener("change", sw);
   sw();
+
+  /* ---- loops and arithmetic: step a for or a while one line at a time ---- */
+  const LP = {
+    for: ["public void setAllWheels(double power) {   // in Robot.java",
+      "    // an array: 4 motors in one box, index 0 to 3",
+      "    DcMotor[] wheels = {frontLeft, frontRight,",
+      "                        backLeft, backRight};",
+      "    for (int i = 0; i < wheels.length; i++) {",
+      "        wheels[i].setPower(power);",
+      "    }",
+      "    // i is gone here: it lived inside the for",
+      "}"],
+    while: ["int balls = 3;       // POLLEN in the hopper at the start of AUTO",
+      "int shots = 0;",
+      "while (balls > 0 && opModeIsActive()) {",
+      "    balls--;         // the same as balls = balls - 1",
+      "    shots++;         // the same as shots = shots + 1",
+      "}",
+      "telemetry.addData(\"Shots\", shots);"]
+  };
+  const LP_FORGOT = {for: [4, "    for (int i = 0; i < wheels.length; ) {   // i++ forgotten"], while: [3, "    // balls--;      forgotten"]};
+  const WHEELS = ["frontLeft", "frontRight", "backLeft", "backRight"];
+  function forSteps(forget){
+    const st = [{l: 0, v: [["power", "0.5"]], nw: "power", msg: "Someone called setAllWheels(0.5). power holds 0.5."},
+      {l: 2, more: [3], v: [["power", "0.5"], ["wheels", "4 motors"]], nw: "wheels", msg: "wheels holds the 4 motors. wheels.length is 4. Indexes start at 0, so the last index is 3."}];
+    for (let p = 0; p < (forget ? 3 : 4); p++){
+      const i = forget ? 0 : p, v = [["power", "0.5"], ["wheels", "4 motors"], ["i", String(i)]];
+      st.push({l: 4, v, nw: "i", msg: p === 0 ? "Start: int i = 0 runs once. Test: 0 < 4 is true, so the block runs." : forget ? "No step: i is still 0. Test: 0 < 4 is true again." : "Step: i++ makes i " + i + ". Test: " + i + " < 4 is true, so the block runs again."});
+      st.push({l: 5, v, row: [p + 1, i, i + " < 4: true", WHEELS[i] + ".setPower(0.5)"], msg: "wheels[" + i + "] is " + WHEELS[i] + ". It gets power 0.5."});
+    }
+    if (forget) st.push({l: 4, v: [["power", "0.5"], ["wheels", "4 motors"], ["i", "0"]], bad: true, msg: "i never changes, so 0 < 4 stays true forever. frontLeft gets 0.5 again and again, the other 3 wheels never move, and the method never returns. The sticks freeze."});
+    else st.push({l: 4, v: [["power", "0.5"], ["wheels", "4 motors"], ["i", "4"]], nw: "i", msg: "Step: i++ makes i 4. Test: 4 < 4 is false. The loop ends: 4 passes, 4 wheels."},
+      {l: 7, v: [["power", "0.5"], ["wheels", "4 motors"]], ok: true, msg: "After the loop, i is gone: it lived inside the for. for fits when you know the count before you start: 4 wheels, 4 passes."});
+    return st;
+  }
+  function whileSteps(forget){
+    const st = [{l: 0, v: [["balls", "3"]], nw: "balls", msg: "balls starts at 3."}, {l: 1, v: [["balls", "3"], ["shots", "0"]], nw: "shots", msg: "shots starts at 0."}];
+    let balls = 3, shots = 0;
+    for (let p = 0; p < 3; p++){
+      st.push({l: 2, v: [["balls", String(balls)], ["shots", String(shots)]], msg: "Test: " + balls + " > 0 is true, and the OpMode still runs. The block runs."});
+      if (!forget) balls--;
+      st.push({l: 3, v: [["balls", String(balls)], ["shots", String(shots)]], nw: forget ? "" : "balls", msg: forget ? "This line is a comment now, so balls stays " + balls + "." : "balls-- takes 1 away: balls is now " + balls + "."});
+      shots++;
+      st.push({l: 4, v: [["balls", String(balls)], ["shots", String(shots)]], nw: "shots", row: [p + 1, balls, shots], msg: "shots++ adds 1: shots is now " + shots + ". Back up to the test."});
+    }
+    const v = [["balls", String(balls)], ["shots", String(shots)]];
+    if (forget) st.push({l: 2, v, bad: true, msg: "balls never changes, so 3 > 0 stays true forever. shots climbs past 3 and the loop never ends. Only STOP ends it, through opModeIsActive(). Every while needs a line that moves it toward false."});
+    else st.push({l: 2, v, msg: "Test: 0 > 0 is false. The loop ends after 3 passes."},
+      {l: 6, v, ok: true, msg: "The Driver Hub shows Shots: 3. while fits when you do not know the count ahead: keep going until the hopper is empty. In TeleOp, use the main loop and an if instead: a while inside it freezes the sticks."});
+    return st;
+  }
+  let lpKind = "for", lpi = 0, lpSteps = forSteps(false);
+  function lpBuild(){
+    const forget = $("#jv-lpforget").checked, code = LP[lpKind].slice();
+    if (forget) code[LP_FORGOT[lpKind][0]] = LP_FORGOT[lpKind][1];
+    renderCode($("#jv-lpcode"), code);
+    lpSteps = lpKind === "for" ? forSteps(forget) : whileSteps(forget);
+    lpi = 0; lpRender();
+  }
+  function lpRender(){
+    const s = lpSteps[lpi];
+    const lines = [s.l].concat(s.more || []);
+    markLines($("#jv-lpcode"), s.bad ? [] : lines, s.bad ? lines : []);
+    $("#jv-lpvars").innerHTML = s.v.map(v => '<div class="vbox' + (v[0] === s.nw ? " new" : "") + '"><b>' + esc(v[0]) + "</b>" + esc(v[1]) + "</div>").join("");
+    const rows = lpSteps.slice(0, lpi + 1).filter(x => x.row).map(x => "<tr>" + x.row.map(c => "<td>" + esc(String(c)) + "</td>").join("") + "</tr>").join("");
+    const head = lpKind === "for" ? ["Pass", "i", "test", "ran"] : ["Pass", "balls", "shots"];
+    $("#jv-lptable").innerHTML = "<tr>" + head.map(h => "<th>" + h + "</th>").join("") + "</tr>" + (rows || '<tr><td colspan="4" class="note">no pass yet</td></tr>');
+    const m = $("#jv-lpmsg"); m.textContent = "Line " + (s.l + 1) + ": " + s.msg; m.className = "msg " + (s.bad ? "bad" : s.ok ? "ok" : "");
+    $$("#jv-lppick .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.lp === lpKind ? "true" : "false"));
+    $("#jv-lpback").disabled = lpi === 0; $("#jv-lpnext").disabled = lpi === lpSteps.length - 1;
+  }
+  $$("#jv-lppick .b").forEach(b => b.addEventListener("click", () => { lpKind = b.dataset.lp; lpBuild(); }));
+  $("#jv-lpnext").addEventListener("click", () => { if (lpi < lpSteps.length - 1){ lpi++; lpRender(); } });
+  $("#jv-lpback").addEventListener("click", () => { if (lpi > 0){ lpi--; lpRender(); } });
+  $("#jv-lpreset").addEventListener("click", () => { lpi = 0; lpRender(); });
+  $("#jv-lpforget").addEventListener("change", lpBuild);
+  lpBuild();
+  $("#jv-arops").innerHTML = "<tr><th>Sign</th><th>Does</th><th>Robot example</th></tr>" + [
+    ["++", "adds 1 (-- takes 1 away)", "shots++;"], ["+=", "adds to what is in the box", "power += 0.1;"],
+    ["/", "divides. int / int drops the decimals", "5 / 2 is 2, but 5 / 2.0 is 2.5"], ["%", "the remainder after dividing: wraps around", "(path + 1) % 3"]
+  ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td><td><code>" + esc(r[2]) + "</code></td></tr>").join("");
+  const AR = [
+    ["int balls = 3;\nballs++;", "ok", "balls is 4. ++ adds 1 to the box."],
+    ["double power = 0.5;\npower += 0.25;", "ok", "power is 0.75. += adds to what is already there: power = power + 0.25."],
+    ["int half = 5 / 2;", "bad", "half is 2, not 2.5. int / int throws the decimal part away. It does not round: 9 / 10 is 0."],
+    ["double half = 5 / 2;", "bad", "half is 2.0. Trap: Java divides 5 / 2 as whole numbers first, gets 2, then stores 2.0. Fix: 5 / 2.0 gives 2.5."],
+    ["int path = 2;   // AUTO path 0, 1 or 2\npath = (path + 1) % 3;", "ok", "path is 0. 3 / 3 is 1, remainder 0. Each button press picks the next path: 0, 1, 2, then back to 0."],
+    ["int heading = (350 + 20) % 360;", "ok", "heading is 10. A compass wraps past 359 back to 0. The IMU reads -180 to 180 instead, and AngleUnit.normalizeDegrees() wraps those for you."]
+  ];
+  $("#jv-arquiz").innerHTML = AR.map((q, i) => '<div class="cmp"><code>' + esc(q[0]) + '</code><button class="b" data-ar="' + i + '">Run</button><div class="res" id="jv-ar' + i + '"></div></div>').join("");
+  $$("#jv-arquiz [data-ar]").forEach(b => b.addEventListener("click", () => {
+    const q = AR[+b.dataset.ar], r = $("#jv-ar" + b.dataset.ar);
+    r.className = "res " + q[1]; r.textContent = q[2];
+  }));
 
   /* ---- 8 lists ---- */
   const LCODE = [
