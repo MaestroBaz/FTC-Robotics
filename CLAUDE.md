@@ -76,8 +76,10 @@ Until these issues close:
 ## Current state (2026-11-07)
 
 Done and tested:
-- 8 tabs: 1 GitHub teamwork, 2 Java basics (11 cards incl. Every word explained, project map, import address, error clinic), 3 OpMode lifecycle, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift), 8 Encoders in auto.
-- Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser), A/B/C votes with a tally on every Ask the room, word hunt chips on the Every word explained card.
+- 8 tabs in the plan's teaching order: 1 Java basics (10 cards in reading order: anatomy, classes, types, public/private, extends, scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders in auto. The lab opens on Java.
+- Sticky header is 78 px: one row of tabs, one row with the sim speed and the six team chips, hints behind the ? button.
+- Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser). Ask the room votes come in team order, Team 1 first; Reveal pays a point to every team that chose the right answer; right-click takes the last vote back. Word hunt chips on the Every word explained card.
+- Every Java snippet audited against the SDK v12.0 javadoc (2026-11-07): all compile as shown.
 - Sim speed slider, log scale 0.05x to 2x, plus Pause, Step 0.1 s, keys P [ ] .
 - Tabs 6 and 7 charts keep the full history: live window 5-60 s, Show all, drag to zoom, scroll back, zoom buttons, Pause / Play / Reset run.
 - PID response markers (dead time, rise time, overshoot, peak time, settling band and time, steady-state error) with a kid-friendly table. Launcher markers: dip, recovery time, open-loop offset.

@@ -4,11 +4,11 @@ A 3-hour, demo-driven crash course for an FTC team of about 30 students (REV har
 
 ## Open the lab
 
-Open `lab/index.html` in a browser. No install, no server. Tabs:
+Open `lab/index.html` in a browser. No install, no server. The lab opens on Java. Tabs:
 
-1. GitHub teamwork
-2. Java basics
-3. OpMode lifecycle
+1. Java basics
+2. OpMode lifecycle
+3. GitHub teamwork
 4. Drive modes (robot-centric, field-centric, AUTO)
 5. One loop, no sleep
 6. Feedback: launcher

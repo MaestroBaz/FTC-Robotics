@@ -284,9 +284,9 @@ ul.tree .ro{color:var(--muted);}
 </header>
 <div class="topbar">
 <nav class="tabs" aria-label="Labs">
-  <a href="#gitflow" data-tab="gitflow"><span class="n">1</span> GitHub teamwork</a>
-  <a href="#java" data-tab="java"><span class="n">2</span> Java basics</a>
-  <a href="#lifecycle" data-tab="lifecycle"><span class="n">3</span> OpMode lifecycle</a>
+  <a href="#java" data-tab="java"><span class="n">1</span> Java basics</a>
+  <a href="#lifecycle" data-tab="lifecycle"><span class="n">2</span> OpMode lifecycle</a>
+  <a href="#gitflow" data-tab="gitflow"><span class="n">3</span> GitHub teamwork</a>
   <a href="#mecanum" data-tab="mecanum"><span class="n">4</span> Drive modes</a>
   <a href="#oneloop" data-tab="oneloop"><span class="n">5</span> One loop, no sleep</a>
   <a href="#feedback" data-tab="feedback"><span class="n">6</span> Feedback: launcher</a>
@@ -311,7 +311,7 @@ ul.tree .ro{color:var(--muted);}
   <div class="labhead">
     <div>
       <h2>Java basics, the robot way</h2>
-      <p class="lede">Eleven cards cover almost every line in an FTC OpMode. Each card has something to click. Every example comes from real robot code, not from a textbook.</p>
+      <p class="lede">Ten cards cover almost every line in an FTC OpMode, in the order you meet the words reading a file top to bottom. Each card has something to click. Every example comes from real robot code, not from a textbook.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Java guesses from the name</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns.</div>
@@ -319,17 +319,17 @@ ul.tree .ro{color:var(--muted);}
   </div>
   <div class="jlayout">
     <nav class="jtopics" aria-label="Java topics">
+      <!-- order: the words a student meets reading MainTeleOp top to bottom, then the read-through, then imports before the clinic, the map last. Lists is off the nav for the day (pane kept). -->
       <button class="jt" data-jt="anatomy"><span>0</span> Anatomy of a file</button>
-      <button class="jt" data-jt="words"><span>1</span> Every word explained</button>
-      <button class="jt" data-jt="modules"><span>2</span> Modules and packages</button>
-      <button class="jt" data-jt="imports"><span>3</span> Imports</button>
-      <button class="jt" data-jt="classes"><span>4</span> Classes and objects</button>
-      <button class="jt" data-jt="vars"><span>5</span> Variables and constants</button>
-      <button class="jt" data-jt="scope"><span>6</span> Scope</button>
-      <button class="jt" data-jt="private"><span>7</span> public and private</button>
-      <button class="jt" data-jt="inherit"><span>8</span> Inheritance</button>
-      <button class="jt" data-jt="lists"><span>9</span> Lists</button>
-      <button class="jt" data-jt="errors"><span>10</span> Error clinic: fix it</button>
+      <button class="jt" data-jt="classes"><span>1</span> Classes and objects</button>
+      <button class="jt" data-jt="vars"><span>2</span> Types, final and static</button>
+      <button class="jt" data-jt="private"><span>3</span> Robot.java: public and private</button>
+      <button class="jt" data-jt="inherit"><span>4</span> extends LinearOpMode</button>
+      <button class="jt" data-jt="scope"><span>5</span> Scope</button>
+      <button class="jt" data-jt="words"><span>6</span> Every word explained</button>
+      <button class="jt" data-jt="imports"><span>7</span> Imports</button>
+      <button class="jt" data-jt="errors"><span>8</span> Error clinic: fix it</button>
+      <button class="jt" data-jt="modules"><span>9</span> The project map</button>
     </nav>
     <div>
       <!-- anatomy -->
@@ -390,10 +390,6 @@ ul.tree .ro{color:var(--muted);}
               <svg class="diag" id="jv-nest" role="img" aria-label="Project, module, package, class, method, line"></svg>
             </div>
           </div>
-        </div>
-        <div class="panel" style="margin-top:14px">
-          <h3>Class vs package vs module</h3>
-          <div style="overflow-x:auto"><table class="math left" id="jv-cmp"></table></div>
         </div>
         <details class="panel" style="margin-top:14px">
           <summary style="cursor:pointer; font-weight:600">The same project as folders, the way Android Studio's Project panel shows it</summary>
@@ -478,7 +474,7 @@ ul.tree .ro{color:var(--muted);}
         <div class="grid2">
           <div class="stack">
             <div class="panel">
-              <h3>Variables and constants</h3>
+              <h3>Types, final and static</h3>
               <p>A <b>variable</b> is a named box that holds one value of one <b>type</b>. A <b>constant</b> is a box you lock with <code>final</code>: set once, never changed. Constants hold tuned numbers, so you change them in one place.</p>
               <div style="overflow-x:auto"><table class="math" id="jv-types"></table></div>
             </div>
@@ -513,7 +509,7 @@ ul.tree .ro{color:var(--muted);}
         <div class="grid2">
           <div class="stack">
             <div class="panel">
-              <h3>public and private</h3>
+              <h3>Robot.java: public and private</h3>
               <p><b>private</b>: only code inside the same class can use it. <b>public</b>: any class can use it. Our rule: motors and sensors are private inside Robot.java. Actions like <code>drive()</code> are public.</p>
               <p>Why: if only Robot.java touches the motors, every wheel power goes through the same math. Nobody in an OpMode can set one wheel to full power by mistake.</p>
               <p class="note">Press a line of code from MainTeleOp.</p>
@@ -531,7 +527,7 @@ ul.tree .ro{color:var(--muted);}
         <div class="grid2">
           <div class="stack">
             <div class="panel">
-              <h3>Inheritance</h3>
+              <h3>extends LinearOpMode</h3>
               <p><code>MainTeleOp extends LinearOpMode</code> means: MainTeleOp gets everything LinearOpMode has, and LinearOpMode gets everything OpMode has. That is why you write <code>telemetry</code> and <code>gamepad1</code> without creating them.</p>
               <p><code>@Override</code> on <code>runOpMode()</code> means: the SDK has a blank spot named runOpMode, and you fill it in.</p>
               <p><b>Team rule:</b> extend LinearOpMode, and stop there. Do not build chains like <code>BaseAuto extends LinearOpMode</code>, <code>RedAuto extends BaseAuto</code>. Share code with one Robot object instead: a TeleOp <i>has a</i> Robot.</p>
@@ -761,7 +757,7 @@ ul.tree .ro{color:var(--muted);}
       <p class="lede">Both launchers fire POLLEN at the HIVE. Orange uses <code>setPower(0.8)</code>. Blue uses <code>setVelocity(1160)</code>, which reads the encoder and corrects. Drag the battery voltage or run a whole match.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. The hub firmware runs a PIDF loop for it: P, I and D as on tab 7, plus F, a feedforward that sizes the power for the target before any error shows up. Your own <code>PIDController</code> is for positions, where F does nothing.</div>
+      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. The hub firmware runs a PIDF loop for it: P, I and D as on tab 7, plus F, a feedforward that sizes the power for the target before any error shows up. Your own <code>PIDController</code> runs P, I and D for positions. Its F, when the job needs one, is a constant like the power that holds a lift against gravity (tab 7), not kF x target.</div>
     </details>
   </div>
   <div class="grid2">
@@ -856,10 +852,10 @@ ul.tree .ro{color:var(--muted);}
   <div class="labhead">
     <div>
       <h2>PID control: one class, every sensor</h2>
-      <p class="lede">A PID controller turns an error (how far you are from the target) into motor power. P pushes toward the target, D brakes before you overshoot, I fixes what is left over. Pick a job below: the PID code stays the same. Only the sensor, the error, and the 3 numbers change.</p>
+      <p class="lede">A PID controller turns an error (how far you are from the target) into motor power. P pushes toward the target, D brakes before you overshoot, I fixes what is left over. F, the fourth letter in PIDF, adds what you know before any error shows: the power a lift needs to hold against gravity. Pick a job below: the PID code stays the same. Only the sensor, the error, and the 3 numbers change, 4 on the lift.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift holds 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Gravity needs about 18% power just to hold the lift. With P only, the motor gets that power only when the error is big enough: error x kP = 0.18. So the lift settles where the error makes exactly enough power, below the target. The I term adds up the leftover error over time and supplies the missing power. A gravity feedforward (a constant power) also fixes it.</div>
+      <div class="a">Gravity needs about 18% power just to hold the lift. With P only, the motor gets that power only when the error is big enough: error x kP = 0.18. So the lift settles where the error makes exactly enough power, below the target. The I term adds up the leftover error over time and supplies the missing power. The other fix is F, the feedforward in PIDF: add 0.18 power all the time, before any error exists. F acts at once, I has to wait for the error to add up. On the real lift, measure F first (the power that just holds the lift), then tune P and D, and keep I small or zero.</div>
     </details>
   </div>
   <div class="row" style="margin-bottom:14px" role="tablist" aria-label="PID application">
@@ -894,12 +890,12 @@ ul.tree .ro{color:var(--muted);}
         <ol class="tight">
           <li>Set kI and kD to 0. Raise kP until the robot reaches the target fast and overshoots a little.</li>
           <li>Raise kD until the overshoot and wobble stop. Too much D makes the motion slow and jittery.</li>
-          <li>If it stops short (friction, gravity), add a small kI. Watch the I line grow on the chart. The class builds I only near the target, so I cannot pile up during a long move and push past the target (windup).</li>
+          <li>If it stops short against gravity, add F: the constant power that just holds the load (the lift job has the slider). If it stops short from friction, add a small kI and watch the I line grow on the chart. The class builds I only near the target, so I cannot pile up during a long move and push past the target (windup).</li>
           <li>Test 5 times in a row. Write the numbers in <code>Robot.java</code> and commit with what you tested.</li>
         </ol>
       </div>
       <div class="panel">
-        <h3>The class you reuse <small>PIDController.java</small></h3>
+        <h3>The class you reuse <small>PIDController.java: P, I and D. F is one line where you use it, because F depends on the job</small></h3>
         <pre class="code" id="pid-class"></pre>
       </div>
     </div>
@@ -919,9 +915,9 @@ ul.tree .ro{color:var(--muted);}
         <p class="note" style="margin-top:6px">"Response time" is a loose word. Some people mean rise time, others mean settling time. Say which one you mean.</p>
       </div>
       <div class="panel">
-        <h3>What each term asks for <small>power, -1 to 1, same time window as above</small></h3>
+        <h3>What each term asks for <small>power, -1 to 1, P + I + D (+ F on the lift), same time window as above</small></h3>
         <canvas id="pid-plot2" height="200"></canvas>
-        <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>P = kP x error</span><span><i style="background:var(--pollen)"></i>I = kI x sum of error</span><span><i style="background:var(--red)"></i>D = kD x error change</span><span><i style="background:var(--ink)"></i>output</span></div>
+        <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>P = kP x error</span><span><i style="background:var(--pollen)"></i>I = kI x sum of error</span><span><i style="background:var(--red)"></i>D = kD x error change</span><span><i style="background:var(--ok)"></i>F = kF (lift only)</span><span><i style="background:var(--ink)"></i>output</span></div>
       </div>
       <div class="panel">
         <h3>Using it for this job</h3>
@@ -1338,7 +1334,7 @@ const MC = (function(){
     ],
     field: [
       "// Field-centric: stick up = away from the drivers",
-      "// Same idea as the SDK sample RobotTeleopMecanumFieldRelativeDrive",
+      "// Same math as the SDK sample RobotTeleopMecanumFieldRelativeDrive (that sample uses the loop() style OpMode)",
       "public void driveFieldCentric(double forward, double right, double yaw) {",
       "    double theta = Math.atan2(forward, right);      // stick direction",
       "    double r = Math.hypot(right, forward);          // stick distance",
@@ -1347,7 +1343,7 @@ const MC = (function(){
       "    drive(r * Math.sin(theta), r * Math.cos(theta), yaw); // robot-centric drive",
       "}",
       "",
-      "if (gamepad1.a) imu.resetYaw();   // driver re-zeroes the heading"
+      "if (gamepad1.a) robot.resetHeading();   // Robot.java: public void resetHeading() { imu.resetYaw(); }"
     ],
     auto: [
       "// AUTO: drive toward a field point. Needs position (odometry or Pinpoint).",
@@ -2100,11 +2096,11 @@ const PIDLAB = (function(){
   const kp = $("#pid-kp"), ki = $("#pid-ki"), kd = $("#pid-kd");
   const pOn = $("#pid-pon"), iOn = $("#pid-ion"), dOn = $("#pid-don");
   // ---- sim state ----
-  const S = {t: 0, loopAcc: 0, target: 90, hist: [], c: {integral: 0, last: 0, first: true, p: 0, i: 0, d: 0, out: 0},
+  const S = {t: 0, loopAcc: 0, target: 90, hist: [], c: {integral: 0, last: 0, first: true, p: 0, i: 0, d: 0, f: 0, out: 0},
     turn: {h: 0, w: 0},
     aim: {rx: 50, ry: 52, base: 50, h: 0, w: 0, tx: 74, ty: 10, held: true, strafe: false, noise: true, frames: [], meas: null, found: false, nextFrame: 0, lastB: 0, mode: "off", drag: false},
     steps: [],
-    lift: {p: 0, v: 0, heavy: false, ff: false},
+    lift: {p: 0, v: 0, heavy: false, kf: 0},   // kf: the F in PIDF, a constant power that holds the lift against gravity
     m: {t0: 0, start: 0, over: 0, settledAt: -1, inTol: 0}};
   function fmt(v, step){ const d = step < 0.001 ? 4 : step < 0.01 ? 3 : 2; return (+v).toFixed(d); }
   function setSliders(){
@@ -2161,7 +2157,7 @@ const PIDLAB = (function(){
     let ex = "";
     if (app === "turn") ex = '<button class="b" id="pid-bump">Bump the robot</button>';
     if (app === "aim") ex = '<button class="b" id="pid-hold" aria-pressed="false">Hold aim button (gamepad1 right bumper)</button><label class="tg"><input type="checkbox" id="pid-strafe"> Driver strafes side to side</label><label class="tg"><input type="checkbox" id="pid-noise" checked> Camera noise and delay</label><button class="b" id="pid-move">Move the target</button>';
-    if (app === "lift") ex = '<label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><label class="tg"><input type="checkbox" id="pid-ff"> Gravity feedforward kG = 0.18</label><button class="b" id="pid-bump">Push the lift down</button>';
+    if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>F, the feedforward: kF = <b id="pid-kfv"></b> <small class="note">constant power against gravity, no error needed</small></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
     $("#pid-extras").innerHTML = ex;
     const bump = $("#pid-bump");
     if (bump) bump.addEventListener("click", () => { if (app === "turn"){ S.turn.w += 220; S.done = false; S.m.settledAt = -1; } else S.lift.v -= 30; });
@@ -2175,9 +2171,12 @@ const PIDLAB = (function(){
       setHoldLabel();
     }
     if (app === "lift"){
-      $("#pid-heavy").checked = S.lift.heavy; $("#pid-ff").checked = S.lift.ff;
+      $("#pid-heavy").checked = S.lift.heavy;
       $("#pid-heavy").addEventListener("change", e => { S.lift.heavy = e.target.checked; });
-      $("#pid-ff").addEventListener("change", e => { S.lift.ff = e.target.checked; renderUse(); });
+      const kf = $("#pid-kf"); kf.value = S.lift.kf;
+      const showKf = () => { $("#pid-kfv").textContent = (+kf.value).toFixed(2); renderUse(); };
+      kf.addEventListener("input", () => { S.lift.kf = +kf.value; showKf(); });
+      showKf();
     }
     setSliders();
     S.hist = []; S.steps = [];
@@ -2309,9 +2308,11 @@ const PIDLAB = (function(){
       "if (gamepad2.dpad_up && liftTarget != 26) { liftTarget = 26; liftPID.reset(); }",
       "if (gamepad2.dpad_down && liftTarget != 4) { liftTarget = 4; liftPID.reset(); }",
       "double error = liftTarget - robot.liftInches();   // encoder counts / COUNTS_PER_INCH",
-      "double power = liftPID.update(error);",
-      (S.lift.ff ? "power = power + 0.18;                             // gravity feedforward kG" : "// no feedforward"),
-      "robot.setLiftPower(Range.clip(power, -1, 1));"
+      "double power = liftPID.update(error);               // P + I + D",
+      "power = power + " + S.lift.kf.toFixed(2) + ";                             // F: holds the lift against gravity. The F in PIDF",
+      "robot.setLiftPower(Range.clip(power, -1, 1));",
+      "// F is one line here, not inside the class: a lift F is a constant, an arm F is kG x cos(angle),",
+      "// a flywheel F is kF x target speed (the hub does that one), and a turn has no F at all."
     ];
     renderCode($("#pid-use"), L);
   }
@@ -2320,7 +2321,7 @@ const PIDLAB = (function(){
     ["Turn to a heading in AUTO", "IMU", "target - heading (deg)", "Normalize the angle, or 179 to -179 spins the long way"],
     ["Hold heading while strafing", "IMU", "same as above", "Keeps the launcher pointed at the HIVE during field-centric driving"],
     ["Auto-aim on a button", "Camera: AprilTag bearing or Limelight tx", "bearing (deg)", "Camera data is late and noisy: PD is enough, I adds overshoot"],
-    ["Lift, arm or pivot to a preset", "Motor encoder", "target - position", "Gravity: add a small kI or a feedforward"],
+    ["Lift, arm or pivot to a preset", "Motor encoder", "target - position", "Gravity: F = a constant (lift) or kG x cos(angle) (arm). Then a small kI if needed"],
     ["Launcher speed", "Motor encoder velocity", "target - velocity", "setVelocity() already runs PIDF on the hub (tab 6)"],
     ["Park at a distance from a wall", "REV 2m distance sensor", "distance - target", "Same class, different numbers"]
   ].map(r => "<tr><td>" + r.map(esc).join("</td><td>") + "</td></tr>").join("");
@@ -2333,19 +2334,20 @@ const PIDLAB = (function(){
     c.der = 0;
     if (app === "aim"){
       const A = S.aim;
-      if (!A.held){ A.mode = "off"; c.p = c.i = c.d = 0; c.out = 0; resetPID(); return; }
-      if (err === null){ A.mode = "search"; c.p = c.i = c.d = 0; resetPID(); c.out = A.lastB > 0 ? 0.3 : -0.3; return; }
+      if (!A.held){ A.mode = "off"; c.p = c.i = c.d = c.f = 0; c.out = 0; resetPID(); return; }
+      if (err === null){ A.mode = "search"; c.p = c.i = c.d = c.f = 0; resetPID(); c.out = A.lastB > 0 ? 0.3 : -0.3; return; }
       A.lastB = err; A.mode = Math.abs(err) < APPS.aim.tol ? "locked" : "track";
     }
-    if (app === "turn" && (S.done || (Math.abs(err) < APPS.turn.tol && Math.abs(S.turn.w) < 5))){ S.done = true; c.p = c.i = c.d = 0; c.out = 0; return; }   // the Java loop breaks: on target and stopped
+    if (app === "turn" && (S.done || (Math.abs(err) < APPS.turn.tol && Math.abs(S.turn.w) < 5))){ S.done = true; c.p = c.i = c.d = c.f = 0; c.out = 0; return; }   // the Java loop breaks: on target and stopped
     if (c.first){ c.first = false; c.last = err; c.p = P_ * err; c.i = 0; c.d = 0; }
     else {
       if (Math.abs(P_ * err) < 0.35) c.integral += err * dt; else c.integral = 0;   // I only near the target
       const der = (err - c.last) / dt; c.last = err; c.der = der;
       c.p = P_ * err; c.i = I_ * c.integral; c.d = D_ * der;
     }
+    c.f = app === "lift" ? S.lift.kf : 0;   // F needs no error: a constant that holds the lift. Turn and aim have nothing to know in advance
     const cl = APPS[app].clip;
-    c.out = clamp(c.p + c.i + c.d, -cl, cl);
+    c.out = clamp(c.p + c.i + c.d + c.f, -cl, cl);
   }
   function physics(dt){
     S.t += dt;
@@ -2370,8 +2372,7 @@ const PIDLAB = (function(){
     }
     if (app === "lift"){
       const L = S.lift, g = L.heavy ? 0.3 : 0.18;
-      const uu = clamp(u + (L.ff ? 0.18 : 0), -1, 1);
-      L.v += ((uu - g) * 50 - L.v) * (dt / 0.12);
+      L.v += ((u - g) * 50 - L.v) * (dt / 0.12);   // F is already inside u, so the chart, the chips and the diagram agree with the physics
       L.p += L.v * dt;
       if (L.p <= 0){ L.p = 0; if (L.v < 0) L.v = 0; }
       if (L.p >= 30){ L.p = 30; if (L.v > 0) L.v = 0; }
@@ -2400,7 +2401,7 @@ const PIDLAB = (function(){
       S.loopAcc += h;
       if (S.loopAcc >= 0.02){ S.loopAcc -= 0.02; controlPass(0.02); metrics();
         const e = errorNow();
-        S.hist.push({e: e, t: S.t, sp: app === "aim" ? 0 : S.target, me: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), p: S.c.p, i: S.c.i, d: S.c.d, o: S.c.out, mv: app === "aim" && (S.aim.strafe || S.aim.drag)});
+        S.hist.push({e: e, t: S.t, sp: app === "aim" ? 0 : S.target, me: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), p: S.c.p, i: S.c.i, d: S.c.d, f: S.c.f, o: S.c.out, mv: app === "aim" && (S.aim.strafe || S.aim.drag)});
         capHist(S.hist);
       }
       physics(h);
@@ -2611,13 +2612,14 @@ const PIDLAB = (function(){
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("p"), P.accent, 2);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("i"), P.pollen, 2);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("d"), P.red, 1.5);
+    if (app === "lift") drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("f"), P.ok, 1.5);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, cl("o"), P.ink, 2.5);
     ctx.restore();
     CH.overlay(ctx, cv, Tt, Tt + ph);
     CH.update();
   }
   buildApp();
-  return {tick, show: () => {}, get: () => ({app, target: app === "aim" ? 0 : S.target, meas: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), err: errorNow(), c: S.c, hist: S.hist, t: S.t, t0: S.m.t0, integral: S.c.integral, gains: gains(), on: [pOn.checked, iOn.checked, dOn.checked], aimMode: app === "aim" ? S.aim.mode : null, done: !!S.done}), chart: CH};
+  return {tick, show: () => {}, get: () => ({app, target: app === "aim" ? 0 : S.target, meas: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), err: errorNow(), c: S.c, hist: S.hist, t: S.t, t0: S.m.t0, integral: S.c.integral, gains: gains(), kf: app === "lift" ? S.lift.kf : 0, on: [pOn.checked, iOn.checked, dOn.checked, true], aimMode: app === "aim" ? S.aim.mode : null, done: !!S.done}), chart: CH};
 })();
 
 /* =====================================================================
@@ -2830,7 +2832,9 @@ const JV = (function(){
     ["double", "decimal numbers", "double power = 0.75;"],
     ["boolean", "true or false", "boolean launcherReady = false;"],
     ["String", "text, in quotes", "String alliance = \"RED\";"],
-    ["final", "locks a box: a constant", "static final double LAUNCH_VELOCITY = 1160;"]
+    ["final", "locks a box: a constant. UPPER_CASE name", "static final double LAUNCH_VELOCITY = 1160;"],
+    ["static", "belongs to the class, not to one object: reach it as Robot.MAX_SPEED, no new needed", "public static final double MAX_SPEED = 0.8;"],
+    ["enum", "one value from a short fixed list. A typo fails the build", "LaunchState state = LaunchState.IDLE;"]
   ].map(r => "<tr><td><b>" + esc(r[0]) + "</b></td><td>" + esc(r[1]) + "</td><td>" + esc(r[2]) + "</td></tr>").join("");
   const QUIZ = [
     ["int ballsLoaded = 3;", true, "OK. A whole number in an int box."],
@@ -3399,12 +3403,15 @@ const PIDVIZ = (function(){
     const gk = v => v >= 0.01 ? v.toFixed(3) : v.toFixed(4);
     const sn = v => (v === null || v === undefined) ? "--" : (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1));
     const der = g.c.der || 0, idle = g.aimMode === "off" || g.aimMode === "search" || g.done;
+    const lift = g.app === "lift", dy = lift ? 64 : 0;   // the lift gets a 4th row: F, the one term the error does not feed
     const terms = [
       ["P", "kP x error", g.c.p, "acc", 34, gk(g.gains[0]) + " x " + sn(g.err), g.on[0]],
       ["I", "kI x (sum of error x time)", g.c.i, "pol", 98, gk(g.gains[1]) + " x " + (g.integral || 0).toFixed(2), g.on[1]],
       ["D", "kD x (change of error / time)", g.c.d, "red", 162, gk(g.gains[2]) + " x " + sn(der), g.on[2]]];
+    if (lift) terms.push(["F", "kF, a constant: no error needed (PIDF)", g.c.f, "ok", 226, (g.kf || 0).toFixed(2) + " x 1", true]);
     terms.forEach(t => {
-      s += SV.ar(pre, [[262, t[4] + 22], [288, t[4] + 22]], {col: t[3]});
+      if (t[0] !== "F") s += SV.ar(pre, [[262, t[4] + 22], [288, t[4] + 22]], {col: t[3]});
+      else s += SV.tx(276, t[4] + 26, "no error", {size: 10, col: "mut", anchor: "middle"});
       s += '<rect x="290" y="' + t[4] + '" width="250" height="44" rx="8" fill="' + alpha(SV.col(t[3]), 0.08 + 0.35 * mag(t[2])) + '" stroke="' + SV.col(t[3]) + '" stroke-width="2"' + (t[6] ? "" : ' stroke-dasharray="5 4" opacity="0.6"') + "/>";
       s += SV.tx(304, t[4] + 19, t[0], {anchor: "start", weight: "700", size: 16, col: t[3]});
       s += SV.tx(326, t[4] + 19, t[1] + (t[6] ? "" : "  (switched off)"), {anchor: "start", size: 12});
@@ -3417,13 +3424,14 @@ const PIDVIZ = (function(){
     s += SV.box(662, 96, 104, 48, ["Range.clip", "limit power"], {size: 12});
     s += SV.ar(pre, [[766, 120], [846, 120]], {label: "power " + f2(g.c.out), at: [806, 108], mono: true, lcol: "ink"});
     s += SV.box(848, 92, 140, 56, N.plant);
-    s += SV.ar(pre, [[988, 120], [1020, 120], [1020, 236], [988, 236]], {col: "acc"});
-    s += SV.tx(1013, 182, N.meas, {size: 11, col: "acc", weight: "600", anchor: "end"});
-    s += SV.box(848, 212, 140, 48, N.sensor, {stroke: "acc", sw: 2});
-    s += SV.ar(pre, [[848, 236], [192, 236], [192, 142]], {col: "acc", label: "sensor reading " + f2(g.meas) + " " + N.unit, at: [520, 228], mono: true, lcol: "acc"});
-    s += SV.tx(520, 20, "Every loop pass, about 50 times per second: read the sensor, compute the error, add P + I + D, send the power.", {size: 12, col: "mut"});
+    s += SV.ar(pre, [[988, 120], [1020, 120], [1020, 236 + dy], [988, 236 + dy]], {col: "acc"});
+    s += SV.tx(1013, 182 + dy, N.meas, {size: 11, col: "acc", weight: "600", anchor: "end"});
+    s += SV.box(848, 212 + dy, 140, 48, N.sensor, {stroke: "acc", sw: 2});
+    s += SV.ar(pre, [[848, 236 + dy], [192, 236 + dy], [192, 142]], {col: "acc", label: "sensor reading " + f2(g.meas) + " " + N.unit, at: [520, 228 + dy], mono: true, lcol: "acc"});
+    s += SV.tx(520, 20, "Every loop pass, about 50 times per second: read the sensor, compute the error, add P + I + D" + (lift ? " + F" : "") + ", send the power.", {size: 12, col: "mut"});
     if (g.app === "aim") s += SV.tx(520, 272, g.aimMode === "search" ? "SEARCHING: no target in view, so the PID is skipped and the robot spins at a fixed 0.3 toward the last side it saw." : g.aimMode === "off" ? "AIM OFF: the button is not held, so the PID is skipped and the driver turns the robot." : "For aim, the camera measures the error directly: bearing to the target. Target 0 = dead ahead.", {size: 11, col: g.aimMode === "search" ? "red" : "mut"});
-    SV.set($("#pid-loop"), 1040, 280, s);
+    if (lift) s += SV.tx(520, 272 + dy, "PIDF: F is set from what you know in advance (the power that holds the lift), so it acts at once. P, I and D wait for an error.", {size: 11, col: "mut"});
+    SV.set($("#pid-loop"), 1040, 280 + dy, s);
   }
   function minis(){
     const g = PIDLAB.get(), H = g.hist;
@@ -3503,13 +3511,13 @@ const PIDVIZ = (function(){
     "}"
   ];
   const REG = [
-    {k: "package", c: "--muted", l: [0], t: "Package: the folder this file lives in. Card 1."},
-    {k: "imports", c: "--accent", l: [2, 3], t: "Imports: classes from other packages. Card 2."},
+    {k: "package", c: "--muted", l: [0], t: "Package: the folder this file lives in. See The project map."},
+    {k: "imports", c: "--accent", l: [2, 3], t: "Imports: classes from other packages. See the Imports card."},
     {k: "annotation", c: "--pollen", l: [5], t: "Annotation: @TeleOp puts this OpMode on the Driver Hub list."},
-    {k: "class", c: "--ok", l: [6, 20], t: "Class: the blueprint, from { to }. extends LinearOpMode = inheritance. Cards 3 and 7."},
-    {k: "fields", c: "--red", l: [7, 8], t: "Fields: belong to the object for its whole life. SLOW is a constant (final). Cards 4 and 6."},
+    {k: "class", c: "--ok", l: [6, 20], t: "Class: the blueprint, from { to }. See Classes and objects, and extends LinearOpMode."},
+    {k: "fields", c: "--red", l: [7, 8], t: "Fields: belong to the object for its whole life. SLOW is a constant (final). See Types, final and static, and public and private."},
     {k: "method", c: "--accent", l: [10, 11, 19], t: "Method: runOpMode() is a named block of code. The SDK calls it when you press INIT."},
-    {k: "locals", c: "--pollen", l: [15, 16], t: "Local variable: speed lives only inside the while block. Card 5."},
+    {k: "locals", c: "--pollen", l: [15, 16], t: "Local variable: speed lives only inside the while block. See the Scope card."},
     {k: "calls", c: "--ok", l: [12, 13, 14, 17], t: "Method calls: ask an object to do something, with the dot: robot.drive(...)."}
   ];
   const code = $("#jv-acode");
@@ -3549,13 +3557,13 @@ const JV2 = (function(){
     MainTeleOp: "team", Robot: "team", PIDController: "team", LeaveAndPark: "team",
     BasicOmniOpMode_Linear: "samp", SensorIMUOrthogonal: "samp",
     LinearOpMode: "op", TeleOp: "op", Autonomous: "op",
-    DcMotor: "hw", IMU: "hw", HardwareMap: "hw",
+    DcMotor: "hw", DcMotorEx: "hw", IMU: "hw", HardwareMap: "hw",
     ElapsedTime: "ut", Range: "ut",
     List: "ju", ArrayList: "ju"
   };
   const USES = {
     MainTeleOp: ["TeleOp", "LinearOpMode", "ElapsedTime", "Range", "List", "Robot", "PIDController"],
-    Robot: ["DcMotor", "IMU", "HardwareMap"],
+    Robot: ["DcMotor", "DcMotorEx", "HardwareMap", "Range"],
     PIDController: ["ElapsedTime"],
     LeaveAndPark: ["Autonomous", "LinearOpMode", "Robot", "PIDController"],
     BasicOmniOpMode_Linear: ["TeleOp", "LinearOpMode", "DcMotor", "ElapsedTime"],
@@ -3563,7 +3571,7 @@ const JV2 = (function(){
   };
   const DESC = {
     MainTeleOp: "MainTeleOp uses 7 classes. Robot and PIDController sit in the same package, so they need no import. The other 5 live in other packages, so each one needs an import line.",
-    Robot: "Robot uses 3 SDK hardware classes. All 3 live in com.qualcomm.robotcore.hardware, so Robot.java has 3 import lines. Nothing in Robot.java uses the OpMode classes.",
+    Robot: "Robot uses 3 SDK hardware classes from com.qualcomm.robotcore.hardware plus Range from com.qualcomm.robotcore.util, so Robot.java has 4 import lines. Nothing in Robot.java uses the OpMode classes.",
     PIDController: "PIDController needs only ElapsedTime, for the time between loop passes. One import.",
     LeaveAndPark: "The AUTO OpMode uses the same Robot and PIDController as MainTeleOp. One copy of each class, shared by both OpModes, with no imports needed.",
     BasicOmniOpMode_Linear: "A FIRST sample. Its package is the samples package, inside FIRST's module. To use it, copy it into TeamCode and change line 1 to package org.firstinspires.ftc.teamcode.",
@@ -3575,8 +3583,8 @@ const JV2 = (function(){
     const files = {team: ["MainTeleOp", "Robot", "PIDController", "LeaveAndPark"], samp: ["BasicOmniOpMode_Linear", "SensorIMUOrthogonal"]};
     files.team.forEach((c, i) => POS[c] = {x: 64, y: 126 + i * 50, w: 258, h: 38, side: "L"});
     files.samp.forEach((c, i) => POS[c] = {x: 64, y: 448 + i * 50, w: 258, h: 38, side: "L"});
-    const box = {op: [404, 84], hw: [690, 84], ut: [404, 320], ju: [690, 320]};
-    const lists = {op: ["LinearOpMode", "TeleOp", "Autonomous"], hw: ["DcMotor", "IMU", "HardwareMap"], ut: ["ElapsedTime", "Range"], ju: ["List", "ArrayList"]};
+    const box = {op: [404, 84], hw: [690, 84], ut: [404, 320], ju: [690, 340]};
+    const lists = {op: ["LinearOpMode", "TeleOp", "Autonomous"], hw: ["DcMotor", "DcMotorEx", "IMU", "HardwareMap"], ut: ["ElapsedTime", "Range"], ju: ["List", "ArrayList"]};
     Object.keys(lists).forEach(k => lists[k].forEach((c, i) => POS[c] = {x: box[k][0] + 20, y: box[k][1] + 46 + i * 46, w: 230, h: 36, side: "R"}));
     return box;
   }
@@ -3594,7 +3602,7 @@ const JV2 = (function(){
     s += mod(24, 352, 334, 246, "MODULE: FtcRobotController (FIRST, read only)", P.muted);
     s += pkg(40, 380, 302, 206, "...robotcontroller.external.samples");
     s += mod(384, 44, 594, 554, "LIBRARIES: the FTC SDK + Java (Gradle downloads them, read only)", P.ok);
-    [["op", 290], ["hw", 270], ["ut", 270], ["ju", 270]].forEach(([k]) => { const [x, y] = box[k]; s += pkg(x, y, k === "op" || k === "ut" ? 270 : 272, k === "op" || k === "hw" ? 210 : 150, PK[k].name); });
+    [["op", 290], ["hw", 270], ["ut", 270], ["ju", 270]].forEach(([k]) => { const [x, y] = box[k]; s += pkg(x, y, k === "op" || k === "ut" ? 270 : 272, k === "hw" ? 240 : k === "op" ? 210 : k === "ju" ? 136 : 150, PK[k].name); });
     s += SV.box(404, 488, 558, 92, ["A class = one .java file (a blueprint).", "A package = a folder of classes, with a dotted name.", "A module = a part of the project that Android Studio builds on its own."], {fill: P.codebg, size: 13, weight: "600"});
     Object.keys(POS).forEach(c => {
       const p = POS[c], isSel = c === sel, isUsed = used.includes(c), clickable = !!USES[c];
@@ -3658,16 +3666,6 @@ const JV2 = (function(){
       s += SV.tx(x + 12, y + 38, l[1], {anchor: "start", size: 12, mono: i >= 2});
     });
     SV.set($("#jv-nest"), 600, 400, s);
-  }
-  function cmpTable(){
-    const rows = [
-      ["What it is", "A blueprint, in one .java file", "A folder of classes, with a dotted name", "A part of the project that builds on its own"],
-      ["Example", "Robot, MainTeleOp, DcMotor", "org.firstinspires.ftc.teamcode", "TeamCode, FtcRobotController"],
-      ["How you write it", "public class Robot { ... }", "package org.firstinspires.ftc.teamcode; (line 1 of every file)", "You don't. Android Studio and Gradle set modules up"],
-      ["How another file reaches it", "new Robot(), then robot.drive()", "import org.firstinspires...Robot; (only from another package)", "A dependency line in build.gradle (a mentor job)"],
-      ["How many in our project", "One per file: Robot, MainTeleOp, PIDController, ...", "One: teamcode", "Two you see, plus the SDK libraries"]
-    ];
-    $("#jv-cmp").innerHTML = "<tr><th></th><th>Class</th><th>Package</th><th>Module</th></tr>" + rows.map(r => "<tr><td><b>" + esc(r[0]) + "</b></td><td>" + esc(r[1]) + "</td><td>" + esc(r[2]) + "</td><td>" + esc(r[3]) + "</td></tr>").join("");
   }
 
   /* ---------------- import address ---------------- */
@@ -3964,7 +3962,7 @@ const JV2 = (function(){
     SV.set($("#jv-blueprint"), 580, 190, s);
   }
 
-  function show(){ drawMap(); header(); drawNest(); cmpTable(); drawAddr(); drawDecoder(); showErr(); window.__inhDraw(null); drawVars(); drawBlueprint(); }
+  function show(){ drawMap(); header(); drawNest(); drawAddr(); drawDecoder(); showErr(); window.__inhDraw(null); drawVars(); drawBlueprint(); }
   return {show};
 })();
 
@@ -4029,6 +4027,7 @@ const JVW = (function(){
       "package org.firstinspires.ftc.teamcode;",
       "",
       "import com.qualcomm.robotcore.hardware.DcMotor;",
+      "import com.qualcomm.robotcore.hardware.DcMotorEx;",
       "import com.qualcomm.robotcore.hardware.HardwareMap;",
       "import com.qualcomm.robotcore.util.Range;",
       "",
@@ -4046,12 +4045,14 @@ const JVW = (function(){
       "",
       "    public void drive(double axial, double lateral, double yaw) {",
       "        double fl = Range.clip(axial + lateral + yaw, -MAX_SPEED, MAX_SPEED);",
-      "        frontLeft.setPower(fl);",
+      "        frontLeft.setPower(fl);          // one wheel shown; the other three follow the same pattern",
       "    }",
       "",
       "    public boolean launcherReady() {",
       "        return Math.abs(launcher.getVelocity() - LAUNCH_VELOCITY) < 40;",
       "    }",
+      "",
+      "    // launcherOn(), feedOnce(), headingDegrees() and stopDrive() are left out to keep this short",
       "}"
     ],
     "PIDController.java": [
@@ -4065,6 +4066,7 @@ const JVW = (function(){
       "    private final double kD;",
       "    private double integral = 0;",
       "    private double lastError = 0;",
+      "    private boolean firstRun = true;",
       "    private final ElapsedTime timer = new ElapsedTime();",
       "",
       "    public PIDController(double kP, double kI, double kD) {",
@@ -4073,17 +4075,29 @@ const JVW = (function(){
       "        this.kD = kD;",
       "    }",
       "",
+      "    // Call once per loop pass. Returns the power to send.",
       "    public double update(double error) {",
-      "        double dt = timer.seconds();",
+      "        double dt = timer.seconds();          // time since last pass",
       "        timer.reset();",
-      "        if (Math.abs(kP * error) < 0.35 && dt > 0) {",
+      "        if (firstRun) {                       // no history yet",
+      "            firstRun = false;",
+      "            lastError = error;",
+      "            return kP * error;",
+      "        }",
+      "        if (Math.abs(kP * error) < 0.35) {    // I only near the target",
       "            integral = integral + error * dt;",
       "        } else {",
-      "            integral = 0;",
+      "            integral = 0;                     // no windup on long moves",
       "        }",
       "        double derivative = (error - lastError) / dt;",
       "        lastError = error;",
       "        return kP * error + kI * integral + kD * derivative;",
+      "    }",
+      "",
+      "    // Call when the target changes or the button is pressed again.",
+      "    public void reset() {",
+      "        integral = 0;",
+      "        firstRun = true;",
       "    }",
       "}"
     ]
@@ -4095,7 +4109,7 @@ const JVW = (function(){
     ["params", "double axial, double lateral, double yaw", "kw", "parameters", "The inputs a method needs, each with a type and a name. The caller fills them in order: robot.drive(0.5, 0, 0) puts 0.5 in axial, 0 in lateral and 0 in yaw."],
     ["ctor", "PIDController\\(double kP, double kI, double kD\\)", "kw", "constructor", "A method with the class name and no return type: the constructor. It runs once, inside new PIDController(0.02, 0, 0.003), to fill in the boxes of the new object."],
     ["hwget", "hardwareMap\\.get\\(DcMotorE?x?\\.class, \"[a-z_]+\"\\)", "str", "hardwareMap.get(...)", "Finds one device in the robot configuration. DcMotor.class says which kind of device. The text in quotes is the name typed on the Driver Hub, and it must match letter for letter."],
-    ["stick", "-gamepad1\\.left_stick_y", "kw", "-gamepad1.left_stick_y", "Pushing the stick up reads negative in the SDK. The minus sign flips it, so up means forward. The other sticks need no flip."],
+    ["stick", "-gamepad1\\.left_stick_y", "kw", "-gamepad1.left_stick_y", "Pushing the stick up reads negative in the SDK. The minus sign flips it, so up means forward. The x axes need no flip. Both y axes do."],
     ["bumper", "gamepad1\\.left_bumper", "kw", "gamepad1.left_bumper", "A field: true on every loop pass while the bumper is held down. Good for a slow mode you hold."],
     ["waspressed", "rightBumperWasPressed\\(\\)", "kw", "rightBumperWasPressed()", "A method: true once per press, on the pass where the bumper went down. Use it for a button that starts something once, like the launcher."],
     ["adddata", "telemetry\\.addData", "kw", "telemetry.addData", "Queues one line for the Driver Hub screen: a label, a format, a value. %.1f means a decimal with one digit after the point."],
@@ -4184,10 +4198,10 @@ const VIZ = {
   pid: () => { PIDVIZ.loop(); PIDVIZ.minis(); },
   encoders: () => DG.encoder()
 };
-let current = "gitflow";
+let current = "java";
 function route(id){
-  id = id || (location.hash || "#gitflow").slice(1);
-  current = LABS[id] ? id : "gitflow";
+  id = id || (location.hash || "#java").slice(1);
+  current = LABS[id] ? id : "java";
   $$("section.lab").forEach(s => s.classList.toggle("on", s.id === "lab-" + current));
   $$("nav.tabs a").forEach(a => { if (a.dataset.tab === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   readPalette();

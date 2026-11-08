@@ -8,9 +8,9 @@ Line numbers drift. Grep for the names below.
 
 | Tab (hash) | Section id | Module(s) | Viz hook (redrawn each frame) |
 |---|---|---|---|
-| 1 GitHub teamwork (`#gitflow`) | `lab-gitflow` | `GT` (git demo), `GX` (three places, org map, PR loop), wrapped as `GITTAB` | none |
-| 2 Java basics (`#java`) | `lab-java` | `JV` (anatomy, cards), `JV2` (project map `#jv-map`, import address `#jv-addr`, decoder, build line, error clinic, variable boxes `#jv-vbox`, blueprint `#jv-blueprint`), wrapped as `JAVATAB` | none |
-| 3 OpMode lifecycle (`#lifecycle`) | `lab-lifecycle` | `LC` | `DG.lifecycle()`, plus `DG.timeline()` on show |
+| 1 Java basics (`#java`) | `lab-java` | `JV` (anatomy, cards), `JV2` (project map `#jv-map`, import address `#jv-addr`, decoder, build line, error clinic, variable boxes `#jv-vbox`, blueprint `#jv-blueprint`), wrapped as `JAVATAB` | none |
+| 2 OpMode lifecycle (`#lifecycle`) | `lab-lifecycle` | `LC` | `DG.lifecycle()`, plus `DG.timeline()` on show |
+| 3 GitHub teamwork (`#gitflow`) | `lab-gitflow` | `GT` (git demo), `GX` (three places, org map, PR loop), wrapped as `GITTAB` | none |
 | 4 Drive modes (`#mecanum`) | `lab-mecanum` | `MC` | `DG.driveVec()` |
 | 5 One loop, no sleep (`#oneloop`) | `lab-oneloop` | `OL` | `DG.stateMachine()` |
 | 6 Feedback: launcher (`#feedback`) | `lab-feedback` | `FB` | `DG.loops()` (block diagrams) |
@@ -116,7 +116,7 @@ Each step in the PR loop (`PR[]`) and the conflict story (`STEPS[]`) carries a `
 
 - `TEAMS`: 6 teams in `#tm-list`, rendered from one immutable array `{name, pts}`. Keys 1 to 6 add a point (global keydown handler), `+` and `-` buttons adjust, the name input renames, `#tm-reset` zeroes, `#tm-toggle` hides the bar. Saved in `localStorage` under `ftc-lab-teams` inside try/catch, so a private window still works for the page's lifetime. The team with the top score gets `.lead`.
 - Votes: every `details.ask` holds a `span.vote` with `data-right` and `button.opt` children inside the summary. The enhancer after `TEAMS` adds the letter, a tally `<b>`, and the `right` class. Click adds one, right-click takes one back, both stop the summary toggle. Opening the details (Reveal answer) lights the right option and fades the rest through CSS.
-- `JVW` (Java tab, card 1 "Every word explained"): three code listings in `FILES`, a word table `W` of `[id, regex source, color class, label, explanation]`, one combined regex `RE`. `lineHtml()` wraps each match in `span.w[data-w]`. Patterns with inner groups must use `(?:...)`, because the match index maps back to `W`. Clicking a word or a chip highlights every match of the word and fills `#jv-wname` and `#jv-wmsg`.
+- `JVW` (Java tab, "Every word explained" card): three code listings in `FILES`, a word table `W` of `[id, regex source, color class, label, explanation]`, one combined regex `RE`. `lineHtml()` wraps each match in `span.w[data-w]`. Patterns with inner groups must use `(?:...)`, because the match index maps back to `W`. Clicking a word or a chip highlights every match of the word and fills `#jv-wname` and `#jv-wmsg`.
 
 ## Testing
 

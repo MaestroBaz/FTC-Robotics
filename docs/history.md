@@ -125,3 +125,12 @@ Request: Baz asked whether PIDF comes from the SDK, since the sheet and the lab 
 Answer: yes. `DcMotorEx.setVelocityPIDFCoefficients(p, i, d, f)` sets the four numbers the hub firmware uses for `setVelocity()` in `RUN_USING_ENCODER`. F is feedforward: power sized for the target itself, applied before any error exists. SDK recipe: `F = 32767 / maxTicksPerSec`, `P = 0.1 F`, `I = 0.1 P`, `D = 0`. The students' own `PIDController` is for positions, where a constant F does nothing, so the course keeps F out of tab 7 on purpose.
 
 Output: one-line definition of F wherever PIDF appears: the Feedback tab block diagram, its code comment and its Ask the room answer, and the closed-loop caption on cheat sheet page 4. Glossary entry for PIDF.
+
+## 19. Header, votes that score, REV audit, PIDF, card and tab order (2026-11-07)
+
+- Sticky header 174 px to 78 px: one row of tabs, one row of controls.
+- Votes record in team order. Reveal pays a point.
+- REV audit of every Java snippet against the SDK v12.0 javadoc. One compile break fixed: the DcMotorEx import in the Robot.java of the words card. The two PIDController listings now match. The field-centric snippet calls robot.resetHeading(). The stick-sign sentence is fixed.
+- PIDF on the lift: a 4th control, the F slider (kF, 0 to 0.4, default 0), and a 4th box in the loop diagram that the error does not feed. PIDController stays P, I and D. The OpMode adds one line, `power = power + kF`. This replaces the entry 18 choice to keep F out of tab 7.
+- Java cards reordered and renamed (ten cards). Lists is off the nav for the day.
+- Tab bar reordered to the plan's teaching order: Java, lifecycle, GitHub, drive, one loop, then 6, 7, 8. The lab opens on Java.

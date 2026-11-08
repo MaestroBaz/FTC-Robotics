@@ -27,6 +27,15 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const src = fs.readFileSync(path.resolve(__dirname, "..", "lab", "index.html"), "utf8");
   check(src.includes("runs PIDF on the hub (tab 6)") && src.includes("PID class from tab 7"), "launcher and PID references name tabs 6 and 7");
 
+  // ---- tab order: opens on Java, digits read 1 to 8 in the plan's order ----
+  await pg.goto(URL); await pg.waitForTimeout(300);
+  check((await pg.$eval("section.lab.on", s => s.id)) === "lab-java", "the lab opens on Java basics");
+  const nav = await pg.$$eval("nav.tabs a", as => as.map(a => a.querySelector(".n").textContent + ":" + a.dataset.tab).join(" "));
+  check(nav === "1:java 2:lifecycle 3:gitflow 4:mecanum 5:oneloop 6:feedback 7:pid 8:encoders", "tab bar reads 1 Java ... 8 Encoders in the teaching order: " + nav);
+  const cards = await pg.$$eval("nav.jtopics .jt", bs => bs.map(b => b.dataset.jt).join(" "));
+  check(cards === "anatomy classes vars private inherit scope words imports errors modules", "ten Java cards in reading order, Lists off the nav: " + cards);
+  check(src.includes('"import com.qualcomm.robotcore.hardware.DcMotorEx;"') && !src.includes("imu.resetYaw();   // driver"), "words card Robot.java imports DcMotorEx and field-centric calls robot.resetHeading()");
+
   // ---- tab buttons work when the page opens as a data: URL (blocks hash navigation) ----
   const dp = await b.newPage();
   dp.on("pageerror", e => errs.push(e.message));
@@ -117,6 +126,20 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   console.log("  turn PID:", turnPid);
   check(/Settling time=\d/.test(turnPid), "tuned turn PID settles");
   await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-turn.png") });
+
+  // ---- lift: F (PIDF) holds the lift with P only, and the loop diagram grows a 4th box with no error arrow ----
+  await pg.click('.appbtn[data-app="lift"]'); await pg.waitForTimeout(300);
+  await pg.click('[data-ps="P only"]'); await pg.waitForTimeout(3000);
+  const liftP = await chips();
+  await pg.$eval("#pid-kf", el => { el.value = 0.18; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(3000);
+  const liftF = await chips();
+  console.log("  lift P only:", liftP, "| with F:", liftF);
+  const errOf = s => +(s.match(/error (-?[\d.]+) in/) || [0, 99])[1], outOf = s => +(s.match(/output (-?[\d.]+)/) || [0, 0])[1];
+  check(Math.abs(errOf(liftF)) < Math.abs(errOf(liftP)) && Math.abs(errOf(liftF)) < 0.5 && outOf(liftF) > 0.15, "F closes the P-only gap on the lift with no I");
+  check((await pg.$eval("#pid-loop", s => s.innerHTML)).includes("no error") && (await pg.textContent("#pid-use")).includes("power = power + 0.18"), "lift shows the F box without an error arrow and the F line in the code");
+  await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-lift-f.png") });
+  await pg.click('.appbtn[data-app="turn"]'); await pg.waitForTimeout(300);
+  check(!(await pg.$eval("#pid-loop", s => s.innerHTML)).includes("no error"), "turn has no F box");
 
   // ---- auto-aim: each preset, then search after dragging the HIVE out of view ----
   await pg.click('.appbtn[data-app="aim"]');

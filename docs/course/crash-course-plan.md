@@ -21,8 +21,8 @@ Nobody types on this day. The lab replaces hands-on testing with visuals, and th
 
 The four games:
 - Vote: the Ask the room question. One point per team with the right answer.
-- Word hunt: open the Java tab, card 1 "Every word explained". You say what a word does ("this word locks a number so nobody changes the tuned value"). The first team to shout the word scores one point. Click the word to show the plain-words explanation to the room.
-- Spot the bug: Java tab, card 10. Put an error on the projector. The team whose turn comes picks a fix. Click the fix. The room sees the result. A right fix scores one point. A wrong fix passes the same error to the next team.
+- Word hunt: open the Java tab, "Every word explained" card. You say what a word does ("this word locks a number so nobody changes the tuned value"). The first team to shout the word scores one point. Click the word to show the plain-words explanation to the room.
+- Spot the bug: Java tab, "Error clinic: fix it" card. Put an error on the projector. The team whose turn comes picks a fix. Click the fix. The room sees the result. A right fix scores one point. A wrong fix passes the same error to the next team.
 - Prediction: before you press a lab button, each team holds up A, B or C for what the robot will do. Right prediction, one point.
 
 Scoreboard: the top bar of the lab holds 6 teams. Keys 1 to 6 give a point. Click a name to rename a team. Reset scores clears the board. The Teams button hides the bar when you need the screen.
@@ -51,15 +51,15 @@ Laptops, GitHub org and invites, robot config and the archive branch moved to th
 
 | Time | Module | Lab tab | Output |
 |---|---|---|---|
-| 0:00-0:10 | 0. Why we are here, teams and the rules of the game | 3 (AI version) | Teams named, rules agreed |
-| 0:10-0:45 | 1. Java basics, the robot way | 2 Java basics | Teams read a full OpMode and name each part |
-| 0:45-1:00 | 2. What runs when you press INIT, START and STOP | 3 OpMode lifecycle | Teams predict the next line before each press |
-| 1:00-1:20 | 3. GitHub: how the team shares one robot's code | 1 GitHub teamwork | Teams explain commit, push, pull, PR and conflict |
+| 0:00-0:10 | 0. Why we are here, teams and the rules of the game | 2 (AI version) | Teams named, rules agreed |
+| 0:10-0:45 | 1. Java basics, the robot way | 1 Java basics | Teams read a full OpMode and name each part |
+| 0:45-1:00 | 2. What runs when you press INIT, START and STOP | 2 OpMode lifecycle | Teams predict the next line before each press |
+| 1:00-1:20 | 3. GitHub: how the team shares one robot's code | 4 GitHub teamwork | Teams explain commit, push, pull, PR and conflict |
 | 1:20-1:30 | Break | | |
-| 1:30-1:55 | 4. Drive modes, robot-centric and field-centric | 4 Drive modes | Teams predict where the robot goes in each mode |
-| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 5 One loop, 6 Feedback | Teams explain why no sleep and why closed loop |
+| 1:30-1:55 | 4. Drive modes, robot-centric and field-centric | 5 Drive modes | Teams predict where the robot goes in each mode |
+| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 3 One loop, 6 Feedback | Teams explain why no sleep and why closed loop |
 | 2:25-2:50 | 6. PID control and auto-aim | 7 PID control | Teams name P, I and D on the chart |
-| 2:50-3:00 | Final round, scores, what comes next | 2 (Every word explained) | Winner named, next session dated |
+| 2:50-3:00 | Final round, scores, what comes next | 1 Java basics (Every word explained) | Winner named, next session dated |
 
 Encoders (tab 8) stay in a Follow-up Session.
 
@@ -69,7 +69,7 @@ Talking points (5 min):
 - Judges interview students, not code. A robot the team cannot explain loses Control and Inspire contention.
 - FIRST allows AI and asks for credit. The team rule: you merge only code you explain line by line to a reviewer. "The AI wrote it" does not pass review.
 - Show the old code for 2 minutes. Ask: "Who tells me what this thread does at STOP?" Silence makes the point. Do not shame anyone.
-- Then open lab tab 3, pick "AI version with thread", press INIT. The robot breaks rule G304.H before the match starts, and after STOP the app restarts. Two minutes, no lecture needed.
+- Then open lab tab 2, pick "AI version with thread", press INIT. The robot breaks rule G304.H before the match starts, and after STOP the app restarts. Two minutes, no lecture needed.
 - Show the 3 rules on the wall:
   1. One loop. No threads. No `sleep()` inside TeleOp.
   2. Two kinds of files: `Robot.java` (hardware) and OpModes (behavior).
@@ -77,36 +77,37 @@ Talking points (5 min):
 
 Teams and the game (5 min):
 - Press Reset scores. Click each team name in the top bar and type the name the team picks. Hand out one set of A, B and C cards per team.
-- Practice vote, no points: the tab 3 Ask the room question about the AI version. Walk through the moves once: teams hold up a card, you click each team's answer, Reveal answer, then a key per right team. Explain the four games in one sentence each.
+- Practice vote, no points: the tab 2 Ask the room question about the AI version. Walk through the moves once: teams hold up a card, you click each team's answer, Reveal answer, then a key per right team. Explain the four games in one sentence each.
 
 Team rounds:
-- Practice vote on tab 3 (0 points, shows the moves).
+- Practice vote on tab 2 (0 points, shows the moves).
 
 ## Module 1: Java basics, the robot way (35 min)
 
-Lab tab 2 has 11 cards. 35 minutes does not cover all of them in depth, so spend the time on the two cards with the games: Every word explained and Spot the bug.
+Lab tab 1 has 10 cards. 35 minutes does not cover all of them in depth, so spend the time on the two cards with the games: Every word explained and Error clinic: fix it.
 
 | Card | Time | What to click | The one sentence to remember |
 |---|---|---|---|
-| 0 Anatomy of a file | 3 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
-| 1 Every word explained | 8 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
-| 2 Modules and packages | 4 min | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
-| 3 Imports | 3 min | An import name to read the address, then untick an import | An import is the full address of a class: folders, then the class. |
-| 4 Classes and objects | 2 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
-| 5 Variables and constants | 2 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
-| 6 Scope | 1 min | Next line, 10 times | A variable lives until the `}` of its block. |
-| 7 public and private | 2 min | Press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
-| 8 Inheritance | 2 min | Click telemetry, gamepad1, waitForStart | `extends LinearOpMode` is why telemetry and gamepad1 exist. Stop at one level. A TeleOp has a Robot. |
-| 9 Lists | 1 min | Add shots, run the average loop | A List holds many values in order, index from 0. |
-| 10 Spot the bug | 7 min | Errors 1, 4, 6 and 7, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
+| 0 Anatomy of a file | 2 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
+| 1 Classes and objects | 3 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
+| 2 Types, final and static | 3 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
+| 3 Robot.java: public and private | 3 min | Press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
+| 4 extends LinearOpMode | 3 min | Click telemetry, gamepad1, waitForStart | `extends LinearOpMode` is why telemetry and gamepad1 exist. Stop at one level. A TeleOp has a Robot. |
+| 5 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
+| 6 Every word explained | 8 min | MainTeleOp first, then Robot. Click 5 words, then start the word hunt | Every word in the file has a job. Click a word and the job appears in plain words. |
+| 7 Imports | 2 min | An import name to read the address, then untick an import | An import is the full address of a class: folders, then the class. |
+| 8 Error clinic: fix it | 7 min | Errors 1, 4, 6 and 7, one team each | Read the red text, find the cause, apply the fix. Fix the first error first. |
+| 9 The project map | 2 min | MainTeleOp, then Robot, then a sample in the project map | A class is a file, a package is a folder, a module is a part of the project. Same package: no import. Other package: import. |
 
-Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (inside Robot.java) sets up card 7.
+The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends, scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
 
-Word hunt routine (card 1): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the word chips at the bottom for the final round.
+Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (inside Robot.java) sets up the "Robot.java: public and private" card, 8 minutes in.
 
-Spot the bug routine (card 10): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 3, 5, 8 and 9 stay for the final round if time allows.
+Word hunt routine ("Every word explained" card): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the word chips at the bottom for the final round.
 
-Read aloud (card 1 shows these two files): say what each method does while you scroll. Students follow on the projector.
+Spot the bug routine ("Error clinic: fix it" card): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 3, 5, 8 and 9 stay for the final round if time allows.
+
+Read aloud (the "Every word explained" card shows these two files): say what each method does while you scroll. Students follow on the projector.
 
 ```java
 package org.firstinspires.ftc.teamcode;
@@ -266,12 +267,12 @@ Problem to show with the two files: TeleOp and Auto both need the same motors. C
 
 Team rounds:
 - Vote: "Where does Java find the word drive?" (1 point per right team).
-- Word hunt on card 1: 4 words (1 point each, first team).
-- Spot the bug on card 10: errors 1, 4, 6 and 7 (1 point per right fix).
+- Word hunt on the "Every word explained" card: 4 words (1 point each, first team).
+- Spot the bug on the "Error clinic: fix it" card: errors 1, 4, 6 and 7 (1 point per right fix).
 
 ## Module 2: What runs when you press INIT, START and STOP (15 min)
 
-Lab tab 3: press INIT, START, STOP with the team version. Before each press, teams hold up A, B or C for which line runs next, from three lines you name. The state diagram under the code lights up each state. The match timeline shows where INIT, AUTO and TELEOP sit in the 158 seconds.
+Lab tab 2: press INIT, START, STOP with the team version. Before each press, teams hold up A, B or C for which line runs next, from three lines you name. The state diagram under the code lights up each state. The match timeline shows where INIT, AUTO and TELEOP sit in the 158 seconds.
 
 Teach on the whiteboard:
 
@@ -294,7 +295,7 @@ Team rounds:
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)
 
-Lab tab 1, parts A to D:
+Lab tab 3, parts A to D:
 - Open with the vote: "Your laptop dies before you push. Does your team have your code?" Reveal, then score.
 - A, where your code lives (6 min): press Edit, Commit, then "Your partner pushes", then Push. Stop before Push: teams predict A accepted, B rejected, C merged on the server. Press Push. The push gets rejected. Ask a team why, then Pull and Push.
 - B, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
@@ -405,7 +406,7 @@ Team rounds:
 
 ## Module 6: PID control and auto-aim (25 min)
 
-Lab tab 7. The message for the room: one class, every sensor. The PID code never changes. Only the sensor, the error, and 3 numbers change.
+Lab tab 7. The message for the room: one class, every sensor. The PID code never changes. Only the sensor, the error, and 3 numbers change (4 on a lift: F holds against gravity).
 
 Part A, what P, I and D do (12 min). Use "Turn to heading (IMU)" at 0.25x speed, and pause on the moments below:
 0. Start with the control loop diagram at the top: target, error, the 3 term boxes, power, drivetrain, IMU, and the arrow back. Trace one lap with your finger. Each term box shows the live math, for example `0.020 x -12.3 = -0.25`, so moving a slider changes the box at once. The two small charts under the diagram show what I and D mean: I is the shaded area under the error curve, D is the slope of the red line.
@@ -417,12 +418,12 @@ Part A, what P, I and D do (12 min). Use "Turn to heading (IMU)" at 0.25x speed,
 5. Press "Bump the robot". Before the press, teams predict: A the robot stays at the bumped angle, B the robot comes back, C the robot overshoots the other way. The controller recovers on its own.
 
 Part B, same class, other sensors (10 min):
-- "Lift to height (encoder)": P only holds 1.8 in low. Open the vote: which term fixes the 2-inch gap, and why does P alone fail? Reveal, score. Then PID, then tick "Carrying 3 balls". Then try the gravity feedforward with P only.
+- "Lift to height (encoder)": P only holds 1.8 in low. Open the vote: which term fixes the 2-inch gap, and why does P alone fail? Reveal, score. Then PID, then tick "Carrying 3 balls". Then slide F (kF) to 0.18 with P only: the gap closes at once, no I needed. Name it: this is the F in PIDF from the launcher. On the launcher F is kF x target speed and the hub does it. On a lift F is a constant. On a turn there is no F.
 - "Auto-aim at the HIVE (camera)": the aim button starts held. Drag the HIVE to a new spot and release: the robot turns to face the HIVE. Drag the HIVE outside the yellow camera cone: the banner reads SEARCHING and the robot spins toward the side where the camera last saw the target, then the PID takes over. This is why the code has an `else` branch with `lastBearing`. Without the branch the robot sits still when the camera loses the target. Then tick "Driver strafes side to side". The robot keeps facing the target while sliding. Before you switch presets, teams predict what "P too high" does to overshoot in the markers table: A smaller, B the same, C bigger. Compare "P only" and "P too high": overshoot grows from about half the move to about two thirds, so too much P overshoots. Then compare the PD and PID presets: I adds overshoot here, so not every job needs all three terms.
 
-Part C, the class in words (3 min): open the Java tab, card 1, PIDController.java. Word hunt for 3 words: the number multiplied by the error, the stored error from the last loop pass, the method the OpMode calls every loop. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is 6 lines in MainTeleOp. The code builds without a camera attached.
+Part C, the class in words (3 min): open the Java tab, "Every word explained" card, PIDController.java. Word hunt for 3 words: the number multiplied by the error, the stored error from the last loop pass, the method the OpMode calls every loop. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is 6 lines in MainTeleOp. The code builds without a camera attached.
 
-Tuning on the real robot: kP first until the robot overshoots a little, then kD until the overshoot stops, then a small kI only if the robot stops short. Test 5 times. Commit the numbers with a message saying what you tested.
+Tuning on the real robot: kP first until the robot overshoots a little, then kD until the overshoot stops, then F if the robot stops short against gravity (measure the power that just holds the lift), then a small kI if it stops short from friction. Test 5 times. Commit the numbers with a message saying what you tested.
 
 [Verify] where the HIVE AprilTags sit this season (CM 9.9: clusters under each CELL, facing down) and whether the team's camera sees them from the mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
 
@@ -435,8 +436,8 @@ Team rounds:
 
 ## Final round, scores, what comes next (10 min)
 
-- Final word hunt (5 min): Java tab, card 1, MainTeleOp. Use the word chips at the bottom. Five words, 2 points each. Pick words the room met during the day: the method the loop calls on the Robot object, the condition the loop checks, the call waiting for START, the annotation listing the OpMode on the Driver Hub, the keyword making a field private.
-- If time allows, two leftover Spot the bug errors from card 10, 2 points each.
+- Final word hunt (5 min): Java tab, "Every word explained" card, MainTeleOp. Use the word chips at the bottom. Five words, 2 points each. Pick words the room met during the day: the method the loop calls on the Robot object, the condition the loop checks, the call waiting for START, the annotation listing the OpMode on the Driver Hub, the keyword making a field private.
+- If time allows, two leftover Spot the bug errors from the "Error clinic: fix it" card, 2 points each.
 - Scores (2 min): read the scoreboard. Name the winner. Press the Teams button to hide the bar for the last slide.
 - What comes next (3 min): the hands-on Follow-up Session, where every student clones the repo, builds, and opens a pull request. Hand out `team-coding-standard.md` if not done at the door. Ask each student to bring a GitHub username to the next meeting.
 

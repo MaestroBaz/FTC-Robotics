@@ -28,7 +28,7 @@ Laptops, GitHub org, invites, robot config and the archive branch moved to the h
 
 | Elapsed | Checkpoint |
 |---|---|
-| Before start | Gates 1 and 2 rechecked. Scores at 0. Tab 3 open on the AI version for Module 0. |
+| Before start | Gates 1 and 2 rechecked. Scores at 0. Tab 2 open on the AI version for Module 0. |
 | 0:10 | Teams named and seated together. Each team holds its A, B, C cards. |
 | 0:45 | Java module done. If behind, cut the Lists card and keep the Error clinic round. |
 | 1:20 break | GitHub module done. If behind, cut the conflict drill demo and keep the commit-then-push vote. |

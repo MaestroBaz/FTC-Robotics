@@ -504,7 +504,7 @@
 <section class="page">
   <div class="head">
     <h1>Feedback and PID <small>FTC Java Cheat Sheet 2, page 2: sensor in, power out</small></h1>
-    <div class="r">One class. Every sensor. Three numbers.</div>
+    <div class="r">Three numbers, four with F.</div>
   </div>
 
   <div class="two">
@@ -555,7 +555,7 @@
   </div>
 
   <div class="fig">
-    <h2>PID: one loop, three pushes <small>the same class for a turn (IMU), a lift (encoder) and auto-aim (camera)</small></h2>
+    <h2>PID: one loop, three pushes <small>plus F for what you know in advance. Same class for a turn (IMU), a lift (encoder), auto-aim (camera)</small></h2>
     <svg viewBox="0 0 730 176" role="img" aria-label="PID control loop block diagram">
       <g style="font-size:9.5px">
         <rect x="6" y="58" width="70" height="34" rx="5" class="bx"/><text x="41" y="72" text-anchor="middle" class="c">target</text><text x="41" y="85" text-anchor="middle" class="b">90 deg</text>
@@ -576,7 +576,8 @@
         <rect x="682" y="58" width="44" height="34" rx="5" class="gy"/><text x="704" y="79" text-anchor="middle" class="c">robot</text>
         <path d="M704 92 L704 160 L118 160 L118 90" class="ag"/>
         <rect x="360" y="150" width="120" height="20" rx="5" class="ok"/><text x="420" y="164" text-anchor="middle" class="c">sensor: IMU, encoder or camera</text>
-        <text x="600" y="118" text-anchor="middle" class="c">I-zone: I adds up only when |kP x error| &lt; 0.35,</text><text x="600" y="130" text-anchor="middle" class="c">so a long move cannot wind it up.</text>
+        <text x="560" y="118" text-anchor="middle" class="c">I-zone: I adds up only when |kP x error| &lt; 0.35,</text><text x="560" y="130" text-anchor="middle" class="c">so a long move cannot wind it up.</text>
+        <text x="560" y="144" text-anchor="middle" class="c" fill="#1d8650">F: feedforward, added with no error. Lift: a constant</text><text x="560" y="155" text-anchor="middle" class="c" fill="#1d8650">that holds against gravity. Flywheel: kF x target (hub).</text>
       </g>
     </svg>
   </div>
@@ -614,7 +615,7 @@
         <circle cx="262" cy="26" r="12" fill="#cf3535"/><text x="262" y="30" text-anchor="middle" class="w b">2</text>
         <text x="282" y="22" class="b">kD up until the overshoot stops</text><text x="282" y="36" class="c">too high: jitters on a noisy sensor.</text>
         <circle cx="504" cy="26" r="12" fill="#1d8650"/><text x="504" y="30" text-anchor="middle" class="w b">3</text>
-        <text x="524" y="22" class="b">a small kI only if it stops short</text><text x="524" y="36" class="c">commit the numbers and what you tested.</text>
+        <text x="524" y="22" class="b">F for gravity, kI for friction</text><text x="524" y="36" class="c">only if it stops short. Commit what you tested.</text>
       </g>
     </svg>
   </div>

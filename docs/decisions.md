@@ -24,6 +24,8 @@
 | PID with an I-zone instead of an integral cap | A cap still lets I pile up during long moves. The I-zone (`|kP * error| < 0.35`) stops windup and stays simple. |
 | Aim presets show PD as the tuned answer and PID as worse | Camera data is late and noisy. Teaches that not every job needs all three terms. |
 | Search turn toward the last seen bearing when the target is lost | Without it the robot sits still when the HIVE leaves the view, which looked like a broken PID. |
+| Tab bar follows the teaching order (2026-11-07): Java, lifecycle, GitHub, drive, one loop, then 6, 7, 8 | GitHub sits third, before the break: it is the low-intensity module, and its conflict story reuses the slow-mode line from MainTeleOp. One loop stays next to the launcher because its state machine calls launcherReady(). Lifecycle and one loop stay separate tabs, because a merged tab doubles the scroll on the projector. |
+| Java Basics cards follow the words a student meets reading MainTeleOp top to bottom (2026-11-07) | Classes, types, private, extends and scope come before the read-through card. Imports come before the error clinic. The project map comes last. Lists leaves the day and waits for the Follow-up Session. |
 
 ## Lab engineering
 
@@ -38,3 +40,5 @@
 | Colors only through CSS tokens | Light and dark themes stay correct. |
 | Plain ASCII in all content | Baz's style rule. Also avoids encoding issues in code panels. |
 | GitHub Issues hold all open work, no backlog file | Baz's choice. One list stops drift, and the engineering skills read the tracker. |
+| F lives outside PIDController (2026-11-07) | The class stays PID and the OpMode adds F per job. The hub's F multiplies the target, while a lift's F is a constant, and one kF inside `update(error)` cannot be both. A lift F holds against gravity, an arm F is kG x cos(angle), a flywheel F is kF x target speed, a turn has no F. |
+| Velocity instead of power rejected for the turn, lift and aim apps (2026-11-07) | Their output is power and their sensor measures a position. The launcher on tab 6 is the velocity example. |

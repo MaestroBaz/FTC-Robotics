@@ -17,11 +17,11 @@ Do these 9 items in order. Each one prepares a tab of tomorrow's lab.
 
 | # | Item | Time | Type | Prepares for |
 | --- | --- | --- | --- | --- |
-| 1 | [Learn Git Branching](https://learngitbranching.js.org/): the Introduction Sequence (commits, branches, merging) | 25 min | Interactive | Tab 1: GitHub teamwork |
-| 2 | [GitHub Skills: Introduction to GitHub](https://github.com/skills/introduction-to-github): branch, commit, pull request, merge | 45 min | Interactive, in your own repo | Tab 1: GitHub teamwork |
-| 3 | [Learn Java for Robotics: Your First Program (FTC)](https://www.youtube.com/watch?v=F24X8Ut83os), Brogan M. Pratt | 24 min | Video | Tab 2: Java basics |
-| 4 | [I Wish I Knew This When I Started (Learn Java for FTC)](https://www.youtube.com/watch?v=bRZ0UDiIWj0), Brogan M. Pratt: classes and methods | 33 min | Video | Tab 2: Java basics |
-| 5 | [gm0: LinearOpMode vs OpMode](https://gm0.org/en/latest/docs/software/getting-started/linear-opmode-vs-opmode.html) | 5 min | Reading | Tab 3: OpMode lifecycle |
+| 1 | [Learn Git Branching](https://learngitbranching.js.org/): the Introduction Sequence (commits, branches, merging) | 25 min | Interactive | Tab 3: GitHub teamwork |
+| 2 | [GitHub Skills: Introduction to GitHub](https://github.com/skills/introduction-to-github): branch, commit, pull request, merge | 45 min | Interactive, in your own repo | Tab 3: GitHub teamwork |
+| 3 | [Learn Java for Robotics: Your First Program (FTC)](https://www.youtube.com/watch?v=F24X8Ut83os), Brogan M. Pratt | 24 min | Video | Tab 1: Java basics |
+| 4 | [I Wish I Knew This When I Started (Learn Java for FTC)](https://www.youtube.com/watch?v=bRZ0UDiIWj0), Brogan M. Pratt: classes and methods | 33 min | Video | Tab 1: Java basics |
+| 5 | [gm0: LinearOpMode vs OpMode](https://gm0.org/en/latest/docs/software/getting-started/linear-opmode-vs-opmode.html) | 5 min | Reading | Tab 2: OpMode lifecycle |
 | 6 | [gm0: Mecanum TeleOp](https://gm0.org/en/latest/docs/software/tutorials/mecanum-drive.html), read through the field-centric section | 12 min | Reading | Tab 4: Drive modes |
 | 7 | [gm0: Finite State Machines](https://gm0.org/en/latest/docs/software/concepts/finite-state-machines.html) | 10 min | Reading | Tab 5: One loop, no sleep |
 | 8 | [Understanding PID Control, Part 1](https://www.youtube.com/watch?v=wkfEZmsQqiA), MATLAB (Brian Douglas) | 12 min | Video | Tabs 6 and 7: Feedback, PID |

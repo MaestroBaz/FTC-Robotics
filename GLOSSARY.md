@@ -29,5 +29,5 @@ A condition that blocks the Crash Course when unmet. A failure with a workable f
 _Avoid_: blocker, requirement
 
 **PIDF**:
-The velocity loop the REV hub firmware runs for setVelocity(): P, I and D as in PID, plus F, a feedforward term that sizes the power for the target itself before any error exists. The students' own PIDController has no F because it targets positions.
+The velocity loop the REV hub firmware runs for setVelocity(): P, I and D as in PID, plus F, a feedforward term sized for the target itself before any error exists. For a position job the F is a constant (a lift holding against gravity) or depends on the angle (an arm), and the team adds it in the OpMode, outside PIDController.
 _Avoid_: PID with F, feed-forward PID
