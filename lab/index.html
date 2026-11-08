@@ -405,6 +405,10 @@ td.hit{color:var(--ok);}
 .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
 @media (max-width:600px){ #pid-loop{min-width:900px;} }
 /* ==== end area pid ==== */
+/* ==== area encoders: tab 8 ==== */
+#en-kv{font-size:16px;}
+#en-robot summary{cursor:pointer;}
+/* ==== end area encoders ==== */
 </style>
 </head>
 <body>
@@ -1010,10 +1014,11 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>Encoders: drive 24 inches in AUTO, and why it misses</h2>
-      <p class="lede">The code turns inches into encoder counts. The real robot below has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels. It misses the line for two reasons: constants that do not match the hardware, and wheels that slip. An encoder counts wheel turns, not robot motion.</p>
+      <p class="goal">Goal: turn inches into encoder ticks, and name two reasons the robot still misses.</p>
+      <p class="lede">Your code turns inches into encoder ticks, also called counts: one tick is one encoder step. The robot in the Field strip has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels. The robot misses the line for two reasons: a constant wrong for the hardware, or wheels slipping. An encoder counts wheel turns, not robot motion.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Someone typed the wheel diameter as 3 instead of 4.09. Does the robot stop short or drive too far?</span><span class="vote" data-right="1"><button class="opt" type="button">Stops short</button><button class="opt" type="button">Drives too far</button><button class="opt" type="button">Same distance, the encoder measures real inches</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Too far. A smaller diameter in code means more counts per inch, so the code asks for more counts than 24 real inches need. Always test: command 48 in, measure with a tape, fix the constant.</div>
+      <div class="a">Too far: about 33 in, 9 in past the line. A smaller diameter in code means more counts per inch, so the code asks for more counts than 24 real inches need. Always test: command 48 in, measure with a tape, fix the constant.</div>
     </details>
   </div>
   <div class="grid2">
@@ -1046,26 +1051,31 @@ td.hit{color:var(--ok);}
           <label class="field" style="flex:1 1 180px"><span>Floor slip: <b id="en-slipv">0%</b> <small class="note">strafing slips 2.5x more</small></span><input type="range" id="en-slip" min="0" max="15" step="1" value="0"></label>
           <label class="tg"><input type="checkbox" id="en-ramp"> Ramp the power up over 0.5 s</label>
         </div>
-        <div class="msg" id="en-msg" style="margin-top:10px">Press INIT + START.</div>
       </div>
-      <pre class="code" id="en-code"></pre>
+      <div class="panel">
+        <h3>Your AUTO OpMode <small>driveInches(24, 0.5) after waitForStart()</small></h3>
+        <pre class="code" id="en-code"></pre>
+        <p class="note" style="margin-top:8px">This code drives forward only. Strafe right needs its own Robot method: frontLeft and backRight get +move, frontRight and backLeft get -move.</p>
+      </div>
+      <details class="panel" id="en-robot"><summary><h3 style="display:inline">Inside Robot.java <small>the hub drives, your loop waits</small></h3></summary><pre class="code" id="en-robot-code"></pre></details>
     </div>
     <div class="stack">
       <div class="panel">
         <h3>Field strip <small>green line = where you wanted to stop</small></h3>
         <canvas id="en-canvas" height="230"></canvas>
+        <div class="msg" id="en-msg" style="margin-top:10px">Press INIT + START.</div>
         <dl class="kv" style="margin-top:10px" id="en-kv"></dl>
       </div>
       <div class="panel"><h3>Inside the encoder <small>counts turn into inches</small></h3><canvas id="en-wheel" height="200"></canvas></div>
       <div class="panel">
         <h3>When AUTO misses: fix it in this order <small>cheapest first</small></h3>
         <ol class="tight">
-          <li><b>Check the constants with a tape.</b> Command 48 in, measure, fix COUNTS_PER_INCH. Strafing needs its own constant. Free.</li>
-          <li><b>Ramp the power.</b> A sudden start spins the wheels in place. One line in the loop. Free.</li>
-          <li><b>Hold the heading with the IMU.</b> The same PIDController from tab 7 steers while you drive: error = target heading - IMU heading. SDK sample: RobotAutoDriveByGyro_Linear. Free.</li>
-          <li><b>Odometry: goBILDA Pinpoint.</b> Two unpowered pods that do not slip, plus an IMU. The SDK has the driver (GoBildaPinpointDriver, sample SensorGoBildaPinpoint). It gives X, Y and heading. About $280 with pods.</li>
+          <li><b>Check the constants with a tape.</b> Command 48 in, measure, fix COUNTS_PER_INCH. Do the same for a strafe: mecanum strafing slips more, so strafing gets its own STRAFE_COUNTS_PER_INCH. Free.</li>
+          <li><b>Ramp the power.</b> A sudden start spins the wheels in place. Three new lines in driveInches(). Free.</li>
+          <li><b>Hold the heading with the IMU.</b> Fixes a crooked path, not a short one. The PIDController from tab 7 steers while you drive: error = target heading - IMU heading. SDK sample: RobotAutoDriveByGyro_Linear. Free.</li>
+          <li><b>Odometry: goBILDA Pinpoint.</b> Two free-rolling pods pressed to the floor, plus an IMU. Nothing drives them, so they barely slip. The SDK has the driver (GoBildaPinpointDriver, sample SensorGoBildaPinpoint). The Pinpoint gives X, Y and heading. About $280 with pods.</li>
         </ol>
-        <p class="note" style="margin-top:8px">Not this season: Road Runner and Pedro Pathing. LEAVE + PARK needs two moves and a turn. AprilTags cannot fix position this year: BIOBUZZ tags move (SDK 12.0 notes), so use them for aiming at the HIVE only.</p>
+        <p class="note" style="margin-top:8px">Later, not now: Road Runner and Pedro Pathing. First run a clean encoder auto. LEAVE + PARK needs two moves and a turn. This year AprilTags do not tell you where the robot is, because the BIOBUZZ tags move. Use them to aim at the HIVE.</p>
       </div>
     </div>
   </div>
@@ -2282,23 +2292,62 @@ const EN = (function(){
   const codeRamp = [
     "private void driveInches(double inches, double power) {",
     "    robot.startDriveInches(inches, 0.1);   // start slow",
-    "    rampTimer.reset();",
+    "    ElapsedTime rampTimer = new ElapsedTime();   // starts at 0 s",
     "    while (opModeIsActive() && robot.driveBusy()) {",
-    "        double ramped = power * rampTimer.seconds() / 0.5;",
-    "        robot.setDrivePower(Range.clip(ramped, 0.1, power));",
+    "        double ramped = Math.min(power, 0.1 + power * rampTimer.seconds() / 0.5);",
+    "        robot.setDrivePower(ramped);   // more power each pass",
+    "        telemetry.addData(\"Driving\", \"%.0f in\", inches);",
     "        telemetry.update();",
     "    }",
     "    robot.finishDrive();   // power 0, RUN_USING_ENCODER",
     "}"
   ];
+  // Robot.java, the same code as the plan: the hub drives to the target, the OpMode loop only waits
+  const robotCode = [
+    "public void startDriveInches(double inches, double power) {",
+    "    int move = (int) (inches * COUNTS_PER_INCH);",
+    "    DcMotor[] motors = {frontLeft, frontRight, backLeft, backRight};",
+    "    for (DcMotor m : motors) {",
+    "        // where to stop",
+    "        m.setTargetPosition(m.getCurrentPosition() + move);",
+    "        // the hub drives there",
+    "        m.setMode(DcMotor.RunMode.RUN_TO_POSITION);",
+    "        m.setPower(Math.abs(power));   // top speed on the way",
+    "    }",
+    "}",
+    "",
+    "// true until a wheel reaches its target",
+    "public boolean driveBusy() {",
+    "    return frontLeft.isBusy() && frontRight.isBusy()",
+    "        && backLeft.isBusy() && backRight.isBusy();",
+    "}",
+    "",
+    "public void setDrivePower(double power) {",
+    "    DcMotor[] motors = {frontLeft, frontRight, backLeft, backRight};",
+    "    for (DcMotor m : motors) {",
+    "        m.setPower(power);",
+    "    }",
+    "}",
+    "",
+    "public void finishDrive() {",
+    "    DcMotor[] motors = {frontLeft, frontRight, backLeft, backRight};",
+    "    for (DcMotor m : motors) {",
+    "        m.setPower(0);",
+    "        m.setMode(DcMotor.RunMode.RUN_USING_ENCODER);",
+    "    }",
+    "}"
+  ];
+  renderCode($("#en-robot-code"), robotCode);
+  const BUSY_LINES = robotCode.map((l, i) => i).filter(i => robotCode[i].includes("isBusy()"));
   let lines = code;
   function renderC(){
     lines = ($("#en-ramp").checked ? codeRamp : code).slice();
-    if ($("#en-bug").checked){ const w = lines.findIndex(l => l.includes("while (")); lines[w] = "    while (robot.driveBusy()) {             // no opModeIsActive()!"; }
+    if ($("#en-bug").checked){ const w = lines.findIndex(l => l.includes("while (")); lines[w] = "    while (robot.driveBusy()) {   // no opModeIsActive()!"; }
     renderCode($("#en-code"), lines);
   }
   const W_LINE = () => lines.findIndex(l => l.includes("while (")), F_LINE = () => lines.findIndex(l => l.includes("finishDrive"));
-  $("#en-bug").addEventListener("change", renderC); $("#en-ramp").addEventListener("change", renderC); renderC();
+  $("#en-bug").addEventListener("change", () => { renderC(); if ($("#en-bug").checked) setMsg("Bug on. Press INIT + START, then press STOP while the robot moves. Too fast? Drag the sim speed to 0.25x first.", ""); });
+  $("#en-ramp").addEventListener("change", renderC); renderC();
   // floor slip and move direction: an encoder counts wheel turns, the tape measures the robot
   let strafe = false;
   const slipBase = () => (+$("#en-slip").value / 100) * (strafe ? 2.5 : 1);
@@ -2317,7 +2366,7 @@ const EN = (function(){
     st.stopAt = st.t;
     if ($("#en-bug").checked){
       st.phase = "stuck"; st.t2 = 0;
-      setMsg("STOP pressed. The SDK cuts motor power, but your loop only checks driveBusy(). The encoder never reaches the target, so the loop never ends.", "bad");
+      setMsg("STOP pressed. The SDK cuts motor power, but your loop checks only driveBusy(). The wheels stopped short of the target, so driveBusy() stays true and the loop never ends. In a match, the 30 s AUTO timer presses STOP for you.", "bad");
     } else {
       st.phase = "stopped";
       setMsg("STOP pressed: opModeIsActive() turned false, the loop ended, finishDrive() ran. Clean stop.", "ok");
@@ -2339,41 +2388,46 @@ const EN = (function(){
       if (Math.abs(st.target - st.ticks) <= 5){
         st.phase = "done"; st.power = 0;
         const encIn = st.ticks / REAL_CPI, constMiss = encIn - st.want, slipMiss = st.posIn - encIn, miss = st.posIn - st.want;
-        if (Math.abs(miss) < 0.5) setMsg("driveBusy() went false at " + Math.round(st.ticks) + " counts. The robot stopped on the line.", "ok");
-        else if (Math.abs(slipMiss) >= 0.5 && Math.abs(constMiss) < 0.5) setMsg("The encoder reached " + Math.round(st.ticks) + " counts, so driveBusy() went false. The tape says " + st.posIn.toFixed(1) + " in, not " + st.want + ". The wheels slipped" + (st.strafe ? " (strafing slips more)" : "") + ". An odometry pod would read " + st.posIn.toFixed(1) + " in, because it rolls with the robot.", "bad");
-        else setMsg("The encoder hit its target, but the robot is " + Math.abs(miss).toFixed(1) + " in " + (miss > 0 ? "past" : "short of") + " the line. " + (Math.abs(constMiss) >= 0.5 ? "The constants in code do not match the real robot." : "") + (Math.abs(slipMiss) >= 0.5 ? " The wheels slipped too." : ""), "bad");
+        const late = $("#en-bug").checked ? "Too late: the drive finished before STOP. Run again and press STOP while the robot moves. " : "";
+        if (Math.abs(miss) < 0.5) setMsg(late + "driveBusy() went false at " + Math.round(st.ticks) + " counts, within 5 counts of the target (the hub tolerance). The robot stopped on the line.", "ok");
+        else if (Math.abs(slipMiss) >= 0.5 && Math.abs(constMiss) < 0.5) setMsg(late + "The encoder reached " + Math.round(st.ticks) + " counts, so driveBusy() went false. The tape says " + st.posIn.toFixed(1) + " in, not " + st.want + ". The wheels slipped" + (st.strafe ? " (strafing slips more)" : "") + (st.ramp ? ". Ramp helped. The rest is steady slip: measure a strafe with a tape and give strafing its own COUNTS_PER_INCH, or add odometry pods." : ". Try the ladder: tick Ramp and run again."), "bad");
+        else setMsg(late + "The encoder hit its target, but the robot is " + Math.abs(miss).toFixed(1) + " in " + (miss > 0 ? "past" : "short of") + " the line. " + (Math.abs(constMiss) >= 0.5 ? "The constants in code do not match the real robot." : "") + (Math.abs(slipMiss) >= 0.5 ? " The wheels slipped too." : ""), "bad");
       }
     } else if (st.phase === "stuck"){
       st.power = 0; st.t2 += dt;
-      if (st.t2 > 2.5){ st.phase = "crashed"; setMsg("The Robot Controller app reports the OpMode stuck and restarts. You lose the robot and telemetry for several seconds. Always check opModeIsActive() in every while loop.", "bad"); }
+      if (st.t2 > 2.5){ st.phase = "crashed"; setMsg("The Robot Controller app gives up on the stuck OpMode and restarts. You lose the robot for several seconds, often the start of TeleOp. Check opModeIsActive() in every while loop.", "bad"); }
     } else if (st.phase === "stopped"){ st.power = 0; }
     draw();
   }
   function draw(){
     const {ctx, w, h} = fit($("#en-canvas"));
     const c = cfg(), maxIn = Math.max(36, (st.want || c.dist) * 1.6, st.posIn + 6);
-    const L = 30, R = 20, sc = (w - L - R) / maxIn, y = h / 2 + 10;
+    const L = Math.round(h * 0.21) + 10, R = 20, sc = (w - L - R) / maxIn, y = h / 2 + 10;
     ctx.strokeStyle = P.line; ctx.lineWidth = 1;
-    for (let i = 0; i <= maxIn; i += 6){ const x = L + i * sc; ctx.beginPath(); ctx.moveTo(x, 30); ctx.lineTo(x, h - 30); ctx.stroke(); if (i % 12 === 0) text(ctx, i + " in", x, h - 12, {align: "center", color: P.muted, size: 11}); }
+    for (let i = 0; i <= maxIn; i += 6){ const x = L + i * sc; ctx.beginPath(); ctx.moveTo(x, 30); ctx.lineTo(x, h - 30); ctx.stroke(); if (i % 12 === 0) text(ctx, i + " in", x, h - 12, {align: "center", color: P.muted, size: 13}); }
     const want = st.phase === "idle" ? c.dist : st.want;
     ctx.strokeStyle = P.ok; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(L + want * sc, 24); ctx.lineTo(L + want * sc, h - 26); ctx.stroke();
     text(ctx, "target " + want + " in", L + want * sc + 6, 22, {color: P.ok, weight: "600"});
     drawRobot(ctx, L + st.posIn * sc, y, (st.phase === "idle" ? strafe : st.strafe) ? 0 : -Math.PI / 2, clamp(18 * sc, 30, h * 0.42), {body: st.phase === "crashed" ? alpha(P.red, 0.3) : undefined});   // strafe: front faces up, robot slides right
-    const busy = st.phase === "drive";
+    // STOP cuts power short of the target, so the wheels stay busy: the && in the while line ends the loop only through opModeIsActive()
+    const busy = st.phase === "drive" || st.phase === "stuck" || st.phase === "stopped" || st.phase === "crashed";
+    const active = st.phase === "drive" || st.phase === "done";
+    const bool = v => '<dd style="color:' + (v ? P.ok : P.red) + '">' + v + "</dd>";
     $("#en-kv").innerHTML =
+      "<dt><b>encoder says</b></dt><dd><b>" + (st.ticks / REAL_CPI).toFixed(1) + " in</b></dd>" +
+      "<dt><b>tape measure (real)</b></dt><dd><b>" + st.posIn.toFixed(1) + " in</b></dd>" +
+      "<dt>driveBusy()</dt>" + bool(busy) +
+      "<dt>opModeIsActive()</dt>" + bool(active) +
       "<dt>currentPosition</dt><dd>" + Math.round(st.ticks) + " counts</dd>" +
       "<dt>targetPosition</dt><dd>" + (st.target || c.target) + " counts</dd>" +
-      "<dt>driveBusy()</dt><dd>" + busy + "</dd>" +
-      "<dt>opModeIsActive()</dt><dd>" + !(st.phase === "stuck" || st.phase === "stopped" || st.phase === "crashed") + "</dd>" +
       "<dt>motor power</dt><dd>" + st.power.toFixed(2) + "</dd>" +
-      "<dt>encoder says</dt><dd>" + (st.ticks / REAL_CPI).toFixed(1) + " in</dd>" +
-      "<dt>tape measure (real)</dt><dd>" + st.posIn.toFixed(1) + " in</dd>" +
       "<dt>odometry pod says</dt><dd>" + st.posIn.toFixed(1) + " in</dd>";
     let hlL = [];
     const wl = W_LINE(), fl = F_LINE();
     if (st.phase === "drive") hlL = lines.map((_, i) => i).filter(i => i > wl && i < fl - 1).concat([wl]);
     else if (st.phase === "done" || st.phase === "stopped") hlL = [fl];
     markLines($("#en-code"), hlL, (st.phase === "stuck" || st.phase === "crashed") ? [wl] : []);
+    markLines($("#en-robot-code"), st.phase === "drive" ? BUSY_LINES : [], []);
   }
   return {tick, show: () => {}, get: () => ({ticks: st.ticks, posIn: st.posIn, realCpr: REAL_CPR, realDia: REAL_DIA})};
 })();
@@ -3826,7 +3880,8 @@ const DG = (function(){
     const cv = $("#en-wheel"); if (!cv || !cv.clientWidth) return;
     const g = EN.get();
     const {ctx, w, h} = fit(cv);
-    const R = Math.min(h * 0.38, w * 0.16), cx = R + 20, cy = h / 2;
+    const narrow = w < 500;   // phone: lift the wheel so the captions fit underneath
+    const R = Math.min(h * 0.38, w * 0.16), cx = R + 20, cy = narrow ? R + 14 : h / 2;
     const ang = (g.ticks / g.realCpr) * Math.PI * 2;
     ctx.fillStyle = P.codebg; ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     for (let i = 0; i < 24; i++){ const a = ang + i * Math.PI / 12; ctx.strokeStyle = i === 0 ? P.red : P.muted; ctx.lineWidth = i === 0 ? 3 : 1.5; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * R * 0.75, cy + Math.sin(a) * R * 0.75); ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); ctx.stroke(); }
@@ -3838,9 +3893,18 @@ const DG = (function(){
     const circ = Math.PI * g.realDia, inches = Math.max(24, g.posIn + 4), sc = (x1 - x0) / inches;
     ctx.strokeStyle = P.line; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0, yb); ctx.lineTo(x1, yb); ctx.stroke();
     ctx.strokeStyle = P.accent; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0, yb); ctx.lineTo(x0 + g.posIn * sc, yb); ctx.stroke();
-    for (let k = 1; k * circ <= inches; k++){ const x = x0 + k * circ * sc; ctx.strokeStyle = P.red; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb - 12); ctx.lineTo(x, yb + 12); ctx.stroke(); text(ctx, k + " turn" + (k > 1 ? "s" : ""), x, yb - 18, {align: x > w - 50 ? "right" : "center", size: 11, color: P.red}); }
-    text(ctx, "1 turn = " + g.realCpr + " counts = PI x " + g.realDia + " in = " + circ.toFixed(2) + " in of floor", x0, yb + 34, {size: 12, weight: "600"});
-    text(ctx, "so 1 inch = " + (g.realCpr / circ).toFixed(1) + " counts on the real robot", x0, yb + 52, {size: 12, color: P.muted});
+    // with slip the wheel turns further than the robot moves: the red bar (encoder) runs ahead of the accent bar (robot)
+    const xe = x0 + (g.ticks / g.realCpr) * circ * sc, xr = x0 + g.posIn * sc, yr = yb - 30;
+    ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, yr); ctx.lineTo(xe, yr); ctx.stroke();
+    if (g.ticks > 0){
+      const at = x => x > w - 60 ? "right" : x < x0 + 50 ? "left" : "center";
+      text(ctx, "encoder says", xe, yr - 6, {align: at(xe), size: 11, weight: "600", color: P.red});
+      text(ctx, "robot moved", xr, yb + 20, {align: at(xr), size: 11, weight: "600", color: P.accent});
+    }
+    for (let k = 1; k * circ <= inches; k++){ const x = x0 + k * circ * sc; ctx.strokeStyle = P.red; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb - 12); ctx.lineTo(x, yb + 12); ctx.stroke(); text(ctx, k + " turn" + (k > 1 ? "s" : ""), x, yb - 16, {align: x > w - 50 ? "right" : "center", size: 11, color: P.red}); }
+    const cx0 = narrow ? 16 : x0, cy0 = narrow ? h - 28 : yb + 40;
+    text(ctx, "1 turn = " + g.realCpr + " counts = " + (narrow ? "" : "PI x " + g.realDia + " in = ") + circ.toFixed(2) + " in" + (narrow ? "" : " of floor"), cx0, cy0, {size: 12, weight: "600"});
+    text(ctx, "so 1 inch = " + (g.realCpr / circ).toFixed(1) + " counts on the real robot", cx0, cy0 + 18, {size: 12, color: P.muted});
   }
   /* ---- Java: anatomy of a file (static) ---- */
   return {lifecycle, timeline, driveVec, stateMachine, loops, encoder};

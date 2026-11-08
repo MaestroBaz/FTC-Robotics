@@ -446,7 +446,7 @@ Team rounds:
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
-Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug and press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: the encoder reads 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
+Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug. Set the sim speed to 0.25x first, then press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: the encoder reads 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. With Ramp still ticked, type 3.27 for the diameter: the robot stops on the line. A measured constant soaks up steady slip. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
 Then use `turnToHeading()` from Module 6 for turns.
 
 BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a fancy auto failing 1 match in 3.
@@ -454,8 +454,10 @@ BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a
 Counts per inch:
 
 ```
-COUNTS_PER_INCH = (encoder counts per motor rev * gear reduction) / (wheel diameter in inches * PI)
+COUNTS_PER_INCH = (counts per rev of the output shaft) / (wheel diameter in inches * PI)
 ```
+
+goBILDA and REV list counts at the output shaft: 537.7 for the 312 rpm Yellow Jacket, 560 for the HD Hex 20:1, 288 for the Core Hex. These numbers include the gearbox. Multiply only by extra gears or belts between the motor and the wheel.
 
 Look up counts per rev for the team's drive motors. Measure, then test: command 48 inches and measure the real distance. Adjust.
 
@@ -476,6 +478,13 @@ public boolean driveBusy() {
     return frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy();
 }
 
+public void setDrivePower(double power) {
+    DcMotor[] motors = {frontLeft, frontRight, backLeft, backRight};
+    for (DcMotor m : motors) {
+        m.setPower(power);
+    }
+}
+
 public void finishDrive() {
     DcMotor[] motors = {frontLeft, frontRight, backLeft, backRight};
     for (DcMotor m : motors) {
@@ -484,6 +493,8 @@ public void finishDrive() {
     }
 }
 ```
+
+In RUN_TO_POSITION, setPower() sets the top speed on the way to the target, so the ramp changes the speed, not the target.
 
 The AUTO OpMode:
 
