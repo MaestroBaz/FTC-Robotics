@@ -372,7 +372,7 @@ Part A, why no sleep (lab tab 5, 10 min):
 - Key idea: each loop pass must finish fast. Anything waiting (sleep, a while loop inside the loop) freezes the drivers' sticks.
 
 Part B, feedback across a match (lab tab 6, 10 min):
-- Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)`? Right answer B: slower wheel, shots fall short. Reveal, score.
+- Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)` as the battery drains? Right answer B: the wheel slows as the battery drains, shots go from long to short. Reveal, score.
 - Before you press "Run a 2-minute match", teams predict which robot wins on the scoreboard and by how much: A open loop, B closed loop by a little, C closed loop by a lot. Press, then compare hit rates. Right answer C: the lab ends near 50% for `setPower(0.8)` and 100% for `setVelocity(1160)`.
 - Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
 - Ask: why does drive still use setPower? The driver closes that loop with their eyes.

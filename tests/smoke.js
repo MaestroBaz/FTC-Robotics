@@ -689,6 +689,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     // the plan's answer key for the match prediction: C, closed loop by a lot (near 50% vs 100%)
     const rates = await pg.$$eval("#fb-score tr", trs => trs.slice(1).map(tr => parseInt(tr.lastElementChild.textContent, 10)));
     check(rates[0] >= 40 && rates[0] <= 60 && rates[1] === 100 && /Right answer C: the lab ends near 50%/.test(fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8")), "feedback: the 2-minute match ends near 50% vs 100%, as the plan's answer key says: " + rates.join(" vs "));
+    // the battery vote asks about the drain, so B (long to short) is the only right answer, and the plan says the same
+    const fbVote = await pg.$eval("#lab-feedback .ask .vote", v => ({ right: v.dataset.right, opts: [...v.querySelectorAll(".opt")].map(o => o.textContent) }));
+    check(fbVote.right === "1" && /as the battery drains\?/.test(await pg.textContent("#lab-feedback .ask .q")) && /long to short/.test(fbVote.opts[1]) && /speeds up/.test(fbVote.opts[2])
+      && /Right answer B: the wheel slows as the battery drains, shots go from long to short/.test(fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8"))
+      && /4x speed/.test(await pg.textContent("#fb-match")), "feedback: the battery vote asks about the drain, B is long to short, the match button names 4x speed: " + fbVote.opts.join(" | "));
     // P + I + D box: F and the fix add up to the motor power on screen
     const sum = (await pg.textContent("#fb-blocks")).match(/F = kF x target([\d.]+) power.*fixes error: ([+-][\d.]+).*?power ([\d.]+)/);
     check(sum && Math.abs(+sum[1] + +sum[2] - +sum[3]) < 1e-9, "feedback: block diagram F + fix = motor power: " + (sum ? sum.slice(1).join(" ") : "no match"));
@@ -696,6 +701,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     await pg.setViewportSize({ width: 390, height: 844 }); await pg.waitForTimeout(200);
     const fbPhone = await pg.evaluate(() => ({ blocks: document.querySelector("#fb-blocks").getBoundingClientRect().width, score: document.querySelector("#fb-score").scrollWidth, box: document.querySelector("#fb-score").parentElement.clientWidth, page: document.documentElement.scrollWidth }));
     check(fbPhone.blocks >= 830 && fbPhone.score <= fbPhone.box && fbPhone.page <= 390, "feedback: at 390 px the block diagrams keep 830 px, the score table fits, no page scroll: " + JSON.stringify(fbPhone));
+    // Save PNG on a phone: the title wraps, the time span moves under it, no legend row runs past the chart edge
+    const fbPng = await pngOf("#fb-cbar"), fbLay = await pg.evaluate(() => window.__pngLayout);
+    const fbCw = await pg.$eval("#fb-plot", c => c.clientWidth), dpr = await pg.evaluate(() => window.devicePixelRatio || 1);
+    check(fbPng.isPng && fbPng.w === Math.round((fbCw + 32) * dpr) && fbLay.W === fbCw + 32 && !fbLay.oneLine && fbLay.rowW.length > 2 && fbLay.rowW.every(w => w <= fbLay.maxW),
+      "feedback: at 390 px Save PNG is the chart width + 32, the time span sits on its own line, every legend row fits: " + JSON.stringify(fbLay));
     await pg.setViewportSize({ width: 1366, height: 900 });
     await pg.evaluate(() => window.__setPause(false)); await pg.click('#ts-ticks span[data-v="1"]');
   }

@@ -1023,8 +1023,8 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
       <p class="goal">Goal: explain open loop and closed loop, and why the launcher uses <code>setVelocity()</code>.</p>
       <p class="lede">Both launchers fire POLLEN at the HIVE. Yellow uses <code>setPower(0.8)</code> and never checks the speed. Blue uses <code>setVelocity(1160)</code>: the encoder measures the speed and the hub corrects the power. The encoder counts ticks as the wheel turns, so speed is ticks per second.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Power is a share of the battery voltage. 0.8 x 13.6 V gives the motor 10.9 V. 0.8 x 11.8 V gives it 9.4 V. Less voltage, slower wheel, short shots. The team tuned 0.8 on a 12.5 V battery, so a fresh battery shoots long early in the match. <code>setVelocity()</code> reads the encoder again and again and adds or cuts power until the wheel spins at 1160 ticks/s. Checking the sensor and correcting is feedback, the thing the Control Award looks for.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code> as the battery drains?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed the whole match</button><button class="opt" type="button">The wheel slows down: shots go from long to short</button><button class="opt" type="button">The wheel speeds up: shots fly longer</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">Power is a share of the battery voltage. 0.8 x 13.6 V gives the motor 10.9 V. 0.8 x 11.8 V gives it 9.4 V. Less voltage, slower wheel, short shots. The team tuned 0.8 on a 12.5 V battery, so the shots fly long early in the match and fall short at the end. <code>setVelocity()</code> reads the encoder again and again and adds or cuts power until the wheel spins at 1160 ticks/s. Checking the sensor and correcting is feedback, the thing the Control Award looks for.</div>
     </details>
   </div>
   <div class="grid2">
@@ -1033,7 +1033,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
         <h3>Controls</h3>
         <div class="field"><span>Battery voltage: <b id="fb-vv">12.5 V</b> <small class="note">fresh 13.6, tuned 12.5, end of match 11.8</small></span><input type="range" id="fb-v" min="11" max="14" step="0.1" value="12.5"></div>
         <div class="row" style="margin-top:12px">
-          <button class="b primary" id="fb-match">Run a 2-minute match (sped up)</button>
+          <button class="b primary" id="fb-match">Run a 2-minute match (4x speed)</button>
           <button class="b" id="fb-feed">Feed 1 ball</button>
           <button class="b" id="fb-burst">Fire 3 fast</button>
         </div>
@@ -2136,27 +2136,50 @@ function legendItems(cv){
     return {t: s.textContent.trim(), sw: !!i, fill: cs ? cs.backgroundColor : null, dash: cs && cs.borderTopStyle === "dashed" ? cs.borderTopColor : null};
   });
 }
+// Split s at spaces into lines no wider than maxW at the font set on ctx. A single long word keeps its own line.
+function wrapWords(ctx, s, maxW){
+  const lines = [];
+  for (const w of s.split(" ")){
+    const last = lines[lines.length - 1], joined = last === undefined ? w : last + " " + w;
+    if (last !== undefined && ctx.measureText(joined).width <= maxW) lines[lines.length - 1] = joined; else lines.push(w);
+  }
+  return lines;
+}
 function legendRows(ctx, items, maxW){
   ctx.font = "500 13px IBM Plex Sans, sans-serif";
   const rows = []; let x = maxW;
-  for (const it of items){
+  const put = it => {
     const w = (it.sw ? 22 : 0) + ctx.measureText(it.t).width + 18;
     if (x + w > maxW){ rows.push([]); x = 0; }
-    rows[rows.length - 1].push(Object.assign({x}, it)); x += w;
+    rows[rows.length - 1].push(Object.assign({x, w}, it)); x += w;
+  };
+  for (const it of items){
+    if ((it.sw ? 22 : 0) + ctx.measureText(it.t).width + 18 <= maxW){ put(it); continue; }
+    // an item wider than the chart: one row per piece, the swatch only on the first, the rest indented under its text
+    wrapWords(ctx, it.t, maxW - (it.sw ? 22 : 0) - 18).forEach((t, i) => put(Object.assign({}, it, {t}, i ? {fill: null, dash: null} : {})));
   }
   return rows;
 }
 function chartPng(title, sub, cvs){
-  const PAD = 16, TH = 36, LH = 20, GAP = 10, dpr = window.devicePixelRatio || 1;
+  const PAD = 16, LH = 20, GAP = 10, dpr = window.devicePixelRatio || 1;
   const out = document.createElement("canvas"), c0 = out.getContext("2d");
   const W = Math.max(...cvs.map(c => c.clientWidth)) + 2 * PAD;
   const blocks = cvs.map(cv => ({cv, w: cv.clientWidth, h: cv.clientHeight, rows: legendRows(c0, legendItems(cv), cv.clientWidth)}));
+  // title and time span share one line when both fit, else the title wraps and the span gets its own line
+  c0.font = "700 18px IBM Plex Sans, sans-serif";
+  const titleW = c0.measureText(title).width, titleLines = wrapWords(c0, title, W - 2 * PAD);
+  c0.font = "500 12px JetBrains Mono, monospace";
+  const subW = c0.measureText(sub).width, oneLine = titleW + subW + 16 <= W - 2 * PAD;
+  const TH = 36 + 22 * (titleLines.length - 1) + (oneLine ? 0 : 18);
   const H = PAD + TH + blocks.reduce((sum, k) => sum + k.h + k.rows.length * LH + GAP, 0) + PAD - GAP;
   out.width = Math.round(W * dpr); out.height = Math.round(H * dpr);
   const ctx = out.getContext("2d"); ctx.scale(dpr, dpr);
   ctx.fillStyle = P.surface; ctx.fillRect(0, 0, W, H);
-  text(ctx, title, PAD, PAD + 18, {size: 18, weight: "700", mono: false, color: P.ink});
-  text(ctx, sub, W - PAD, PAD + 18, {size: 12, color: P.muted, align: "right"});
+  titleLines.forEach((t, i) => text(ctx, t, PAD, PAD + 18 + 22 * i, {size: 18, weight: "700", mono: false, color: P.ink}));
+  if (oneLine) text(ctx, sub, W - PAD, PAD + 18, {size: 12, color: P.muted, align: "right"});
+  else text(ctx, sub, PAD, PAD + 36 + 22 * (titleLines.length - 1), {size: 12, color: P.muted});
+  window.__pngLayout = {W, maxW: Math.min(...blocks.map(k => k.w)), oneLine, titleLines: titleLines.length, titleW, subW,
+    rowW: [].concat(...blocks.map(k => k.rows.map(r => r.length ? r[r.length - 1].x + r[r.length - 1].w - 18 : 0)))};
   let y = PAD + TH;
   for (const k of blocks){
     ctx.fillStyle = P.field; ctx.fillRect(PAD, y, k.w, k.h);
