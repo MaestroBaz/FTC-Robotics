@@ -182,7 +182,6 @@ pre.code .w.on{background:color-mix(in srgb,var(--pollen) 35%,transparent); bord
 .tcgrp{display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap;}
 .tcscrub{display:inline-flex; gap:6px; align-items:center; flex:1 1 180px; min-width:150px;}
 .tcscrub input{flex:1; min-width:80px; accent-color:var(--accent);}
-.tc-hint{flex-basis:100%; font-size:12px;}
 canvas.tc-canvas{cursor:crosshair; touch-action:pan-y;}
 table.resp td:nth-child(3){white-space:normal; text-align:left; font-family:var(--body); color:var(--muted);}
 table.resp td:nth-child(2){font-weight:700;}
@@ -356,6 +355,8 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 /* ==== area oneloop: CSS for the oneloop teaching fixes goes below this line ==== */
 /* ==== end area oneloop ==== */
 /* ==== area feedback: CSS for the feedback teaching fixes goes below this line ==== */
+#lab-feedback .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}   /* same rule as the whole area's .labhead .goal */
+td.hit{color:var(--ok);}
 /* ==== end area feedback ==== */
 /* ==== area pid: CSS for the pid teaching fixes goes below this line ==== */
 /* ==== end area pid ==== */
@@ -393,7 +394,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <button class="b" id="ts-pause" aria-pressed="false">Pause</button>
   <button class="b" id="ts-step" title="Step 0.1 s of sim time">Step</button>
   <span class="chip" id="ts-chip">real time</span>
-  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right." aria-label="Keyboard shortcuts and voting rules">?</button>
+  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right. Charts: drag to zoom, double-click for live, Shift + wheel scrolls, Ctrl + wheel zooms." aria-label="Keyboard shortcuts and voting rules">?</button>
   <button class="b" id="tm-toggle" aria-pressed="true" aria-controls="teambar">Teams</button>
   <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset</button></span>
 </div>
@@ -917,32 +918,34 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <div class="labhead">
     <div>
       <h2>Open loop vs closed loop: the launcher across a match</h2>
-      <p class="lede">Both launchers fire POLLEN at the HIVE. Orange uses <code>setPower(0.8)</code>. Blue uses <code>setVelocity(1160)</code>, which reads the encoder and corrects. Drag the battery voltage or run a whole match.</p>
+      <p class="goal">Goal: explain why setVelocity() hits the HIVE all match and setPower() does not.</p>
+      <p class="lede">Both launchers fire POLLEN at the HIVE. Yellow uses <code>setPower(0.8)</code> and never checks the speed. Blue uses <code>setVelocity(1160)</code>: the encoder measures the speed and the hub corrects the power. The encoder counts ticks as the wheel turns, so speed is ticks per second.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. Inside the hub, <code>setVelocity()</code> runs PIDF. F comes first: the hub knows 1160 ticks/s needs about 0.8 power, so F sends that power before any error shows. A correction from the encoder error fixes the rest, like the dip after a shot or a low battery. Tab 7 names the correction: P, I and D.</div>
+      <div class="a">Power is a share of the battery voltage. 0.8 x 13.6 V gives the motor 10.9 V. 0.8 x 11.8 V gives it 9.4 V. Less voltage, slower wheel, short shots. The team tuned 0.8 on a 12.5 V battery, so a fresh battery shoots long early in the match. <code>setVelocity()</code> reads the encoder again and again and adds or cuts power until the wheel spins at 1160 ticks/s. Checking the sensor and correcting is feedback, the thing the Control Award looks for.</div>
     </details>
   </div>
   <div class="grid2">
     <div class="stack">
       <div class="panel">
         <h3>Controls</h3>
-        <div class="field"><span>Battery voltage: <b id="fb-vv">12.5 V</b></span><input type="range" id="fb-v" min="11" max="14" step="0.1" value="12.5"></div>
+        <div class="field"><span>Battery voltage: <b id="fb-vv">12.5 V</b> <small class="note">fresh 13.6, tuned 12.5, end of match 11.8</small></span><input type="range" id="fb-v" min="11" max="14" step="0.1" value="12.5"></div>
         <div class="row" style="margin-top:12px">
-          <button class="b primary" id="fb-feed">Feed 1 ball</button>
+          <button class="b primary" id="fb-match">Run a 2-minute match (sped up)</button>
+          <button class="b" id="fb-feed">Feed 1 ball</button>
           <button class="b" id="fb-burst">Fire 3 fast</button>
-          <button class="b" id="fb-match">Run a 2-minute match (sped up)</button>
-          <button class="b" id="fb-reset">Reset score</button>
         </div>
+        <p class="note">Predict before the match: A open loop wins, B closed loop by a little, C closed loop by a lot.</p>
       </div>
       <div class="panel">
         <h3>Scoreboard <small>shot lands in the HIVE between 1120 and 1200 ticks/s</small></h3>
-        <table class="math" id="fb-score"></table>
+        <div style="overflow-x:auto"><table class="math" id="fb-score"></table></div>
       </div>
       <div class="grid2" style="grid-template-columns:1fr 1fr; gap:12px">
         <pre class="code" id="fb-codeA"></pre>
         <pre class="code" id="fb-codeB"></pre>
       </div>
+      <p class="note">Drive keeps <code>setPower()</code>: the driver watches the robot and corrects with the sticks. Nobody watches the launcher speed, so the encoder does the checking.</p>
     </div>
     <div class="panel">
       <h3>Launcher speed over time <small>ticks per second</small></h3>
@@ -952,8 +955,8 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
         <span><i style="background:var(--pollen)"></i>setPower(0.8)</span>
         <span><i style="background:var(--accent)"></i>setVelocity(1160)</span>
         <span><i style="background:color-mix(in srgb,var(--ok) 35%,transparent); height:10px"></i>HIVE window</span>
-        <span>dots = shots</span>
-        <span><i style="background:none; border-top:2px dashed var(--muted); height:0"></i>dotted = markers: dip, recovery time, offset</span>
+        <span>dots = shots: green in the HIVE, red missed</span>
+        <span><i style="background:none; border-top:2px dashed var(--muted); height:0"></i>dashed = markers: dip (the ball slows the wheel), recovery time, open-loop offset</span>
       </div>
       <div class="row" style="margin-top:10px" id="fb-ready"></div>
     </div>
@@ -1906,15 +1909,14 @@ function TimeChart(o){
     '<button class="b tc-out" title="Zoom out" aria-label="Zoom out">-</button><button class="b tc-in" title="Zoom in" aria-label="Zoom in">+</button></span>' +
     '<label class="tcscrub"><span class="note">Scroll back</span><input type="range" class="tc-scrub" min="0" max="1000" value="1000" aria-label="Scroll back in time"></label>' +
     (o.fitToggle ? '<label class="tg"><input type="checkbox" class="tc-fit"' + (V.fitY ? " checked" : "") + "> Fit Y to data</label>" : "") +
-    (o.markToggle ? '<label class="tg"><input type="checkbox" class="tc-marks" checked> ' + o.markToggle + "</label>" : "") +
-    '<span class="note tc-hint">Drag across a chart to zoom in. Double-click: back to live. Shift + wheel scrolls, Ctrl + wheel zooms.</span>';
+    (o.markToggle ? '<label class="tg"><input type="checkbox" class="tc-marks" checked> ' + o.markToggle + "</label>" : "") ;
   const q = s => bar.querySelector(s);
   const scrub = q(".tc-scrub");
   let scrubbing = false;
   function span(){ const a = o.tMin(), b = o.tNow(); return [a, Math.max(b, a)]; }
   function range(){
     const [a, b] = span();
-    if (V.mode === "live") return [b - V.win, b];
+    if (V.mode === "live"){ const e = Math.max(b, a + V.win); return [e - V.win, e]; }
     if (V.mode === "all") return [a, Math.max(b, a + 1)];
     return [V.t0, V.t1];
   }
@@ -2021,8 +2023,8 @@ function TimeChart(o){
 }
 
 const FB = (function(){
-  renderCode($("#fb-codeA"), ["// open loop", "launcher.setPower(0.8);", "// speed depends on battery"]);
-  renderCode($("#fb-codeB"), ["// closed loop (encoder)", "launcher.setVelocity(1160);", "// hub: F sends the usual power for 1160,", "// P, I and D fix the encoder error"]);
+  renderCode($("#fb-codeA"), ["// open loop (Robot.java)", "launcher.setPower(0.8);", "// speed follows the battery"]);
+  renderCode($("#fb-codeB"), ["// closed loop (Robot.java)", "launcher.setVelocity(1160);", "// hub reads the encoder", "// and fixes the speed"]);
   const KV = 116, TAU = 0.35, TARGET = 1160, LO = 1120, HI = 1200;
   let T = 0, V = 12.5, match = null, queue = [];
   const o = {w: 0}, c = {w: 0, i: 0}; let lastU = 0;
@@ -2041,10 +2043,9 @@ const FB = (function(){
   }
   $("#fb-feed").addEventListener("click", feed);
   $("#fb-burst").addEventListener("click", () => { queue.push(T, T + 0.5, T + 1.0); });
-  $("#fb-reset").addEventListener("click", () => { for (const k of ["o", "c"]) score[k] = {in: 0, short: 0, long: 0}; renderScore(); });
   $("#fb-match").addEventListener("click", () => { match = {t: 0, next: 2.5}; for (const k of ["o", "c"]) score[k] = {in: 0, short: 0, long: 0}; renderScore(); });
   function renderScore(){
-    const row = (name, s) => "<tr><td>" + name + "</td><td class=\"pos\">" + s.in + "</td><td class=\"neg\">" + s.short + "</td><td class=\"neg\">" + s.long + "</td><td>" + (s.in + s.short + s.long ? Math.round(100 * s.in / (s.in + s.short + s.long)) + "%" : "-") + "</td></tr>";
+    const row = (name, s) => "<tr><td>" + name + "</td><td class=\"hit\">" + s.in + "</td><td class=\"neg\">" + s.short + "</td><td class=\"neg\">" + s.long + "</td><td>" + (s.in + s.short + s.long ? Math.round(100 * s.in / (s.in + s.short + s.long)) + "%" : "-") + "</td></tr>";
     $("#fb-score").innerHTML = "<tr><th>Mode</th><th>In HIVE</th><th>Short</th><th>Long</th><th>Hit rate</th></tr>" + row("setPower(0.8)", score.o) + row("setVelocity(1160)", score.c);
   }
   renderScore();
@@ -2052,7 +2053,7 @@ const FB = (function(){
     T += dt;
     if (match){
       match.t += dt;
-      V = 13.6 - (13.6 - 11.7) * Math.min(1, match.t / 30);
+      V = 13.6 - (13.6 - 11.8) * Math.min(1, match.t / 30);
       vIn.value = V.toFixed(1); $("#fb-vv").textContent = V.toFixed(1) + " V (match " + Math.round(match.t / 30 * 120) + " s of 120)";
       if (match.t >= match.next){ feed(); match.next += 2.0; }
       if (match.t >= 30){ match = null; $("#fb-vv").textContent = V.toFixed(1) + " V (match over)"; }
@@ -2079,7 +2080,7 @@ const FB = (function(){
     const n = Math.max(1, Math.round(dt / 0.005));
     for (let i = 0; i < n; i++) step(dt / n);
     acc += dt;
-    if (acc > 0.03){ acc = 0; hist.push({t: T, o: o.w, c: c.w}); capHist(hist); }
+    if (acc > 0.03){ acc = 0; hist.push({t: T, o: o.w, c: c.w, v: V}); capHist(hist); }
     while (shots.length > 4000) shots.shift();
     draw();
   }
@@ -2102,17 +2103,18 @@ const FB = (function(){
       }
       if (tr !== null){
         dashed(ctx, X(tr), Tp, X(tr), Y(TARGET), P.accent, 1.2);
-        bracketH(ctx, X(s.t), X(tr), Tp + 10, P.accent, "back in window to stay: " + (tr - s.t).toFixed(2) + " s", L, R);
+        bracketH(ctx, X(s.t), X(tr), Tp + 10, P.accent, "recovery time " + (tr - s.t).toFixed(2) + " s", L, R);
       } else text(ctx, nxt ? "next shot came before it recovered" : "recovering...", Math.min(R - 4, X(s.t) + 6), Tp + 14, {color: P.accent, size: 11, weight: "600", align: X(s.t) + 220 > R ? "right" : "left"});
     }
     // open loop: how far its steady speed sits from the target
     const last = hist[Math.max(0, Math.min(hist.length, bsearch(hist, t1)) - 1)];
     if (last && last.t > t0){
-      const off = last.o - TARGET, xr = Math.min(R - 30, X(last.t) - 30);
+      // steady speed for this battery, not the newest sample: after a shot the newest sample is still recovering
+      const steady = KV * last.v * 0.8, off = steady - TARGET, xr = Math.min(R - 30, X(last.t) - 30);
       if (Math.abs(off) > 15){
         ctx.save(); ctx.strokeStyle = P.pollen; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(xr - 5, Y(TARGET)); ctx.lineTo(xr + 5, Y(TARGET)); ctx.moveTo(xr - 5, Y(last.o)); ctx.lineTo(xr + 5, Y(last.o)); ctx.moveTo(xr, Y(TARGET)); ctx.lineTo(xr, Y(last.o)); ctx.stroke(); ctx.restore();
-        text(ctx, "open-loop offset " + (off > 0 ? "+" : "") + Math.round(off), xr - 8, (Y(TARGET) + Y(last.o)) / 2 + 4, {color: P.pollen, size: 11, weight: "700", align: "right"});
+        ctx.beginPath(); ctx.moveTo(xr - 5, Y(TARGET)); ctx.lineTo(xr + 5, Y(TARGET)); ctx.moveTo(xr - 5, Y(steady)); ctx.lineTo(xr + 5, Y(steady)); ctx.moveTo(xr, Y(TARGET)); ctx.lineTo(xr, Y(steady)); ctx.stroke(); ctx.restore();
+        text(ctx, "open loop off by " + (off > 0 ? "+" : "") + Math.round(off), xr - 8, Y(steady) + (off < 0 ? 14 : -6), {color: P.pollen, size: 11, weight: "700", align: "right"});
       }
     }
   }
@@ -2120,7 +2122,7 @@ const FB = (function(){
     const cv = $("#fb-plot"), {ctx, w, h} = fit(cv);
     const L = 52, Rm = 12, Tp = 12, B = 26, pw = w - L - Rm, ph = h - Tp - B;
     const m = CH.map(cv, L, pw), X = m.X;
-    let lo = 0, hi = 1600;
+    let lo = 700, hi = 1400;
     if (CH.fitY()){
       const ex = extentOf(hist, m.t0, m.t1, [p => p.o, p => p.c]);
       if (ex){ lo = Math.min(ex[0], LO) - 40; hi = Math.max(ex[1], HI) + 40; lo = Math.max(0, lo); }
@@ -3687,7 +3689,7 @@ const DG = (function(){
     s += SV.ar(pre, [[160, 59], [228, 59]], {});
     s += SV.box(230, 34, 150, 50, ["Motor", "speed depends on volts"]);
     s += SV.ar(pre, [[380, 59], [458, 59]], {});
-    s += SV.box(460, 34, 180, 50, ["Flywheel " + Math.round(g.o) + " t/s", "nobody checks it"], {mono: true, stroke: (g.o < 1120 || g.o > 1200) ? "red" : "ok", sw: 2});
+    s += SV.box(460, 34, 180, 50, ["Flywheel " + Math.round(g.o) + " ticks/s", "nobody checks it"], {mono: true, stroke: (g.o < 1120 || g.o > 1200) ? "red" : "ok", sw: 2});
     s += SV.box(250, 100, 110, 30, ["battery " + g.V.toFixed(1) + " V"], {size: 12, stroke: "red", tcol: "red"});
     s += SV.ar(pre, [[305, 100], [305, 86]], {col: "red"});
     // Closed loop: the hub box opens up to show F (from the target, no error needed) beside P + I + D (from the error)
@@ -3703,7 +3705,7 @@ const DG = (function(){
     s += SV.tx(150, my - 13, "+", {size: 14, weight: "700", col: "ok"});
     s += SV.tx(176, my + 31, "-", {size: 16, weight: "700", col: "red"});
     s += SV.ar(pre, [[183, my], [298, my]], {label: "error " + Math.round(1160 - g.c), at: [222, my - 8], mono: true, lcol: "ink", size: 12});
-    s += SV.box(300, 166, 120, 40, ["F = kF x target", g.ff.toFixed(2) + ", no error needed"], {stroke: "ok", sw: 2, size: 13});
+    s += SV.box(300, 166, 120, 40, ["F = kF x target", g.ff.toFixed(2) + " power"], {stroke: "ok", sw: 2, size: 13});
     s += SV.box(300, 214, 120, 44, ["P + I + D", "fixes error: " + (g.u - g.ff >= 0 ? "+" : "") + (g.u - g.ff).toFixed(2)], {stroke: "acc", sw: 2, size: 13});
     s += SV.circ(448, my, 14, {});
     s += SV.tx(448, my + 6, "+", {size: 16, weight: "700"});
@@ -3711,8 +3713,10 @@ const DG = (function(){
     s += SV.ar(pre, [[420, my], [432, my]], {col: "acc"});
     s += SV.ar(pre, [[462, my], [498, my]], {});
     s += SV.box(500, y, 100, 50, ["Motor", "power " + g.u.toFixed(2)], {mono: true});
+    s += SV.box(505, 158, 90, 28, ["battery " + g.V.toFixed(1) + " V"], {size: 12, stroke: "red", tcol: "red"});
+    s += SV.ar(pre, [[550, 186], [550, 208]], {col: "red"});
     s += SV.ar(pre, [[600, my], [622, my]], {});
-    s += SV.box(624, y, 150, 50, ["Flywheel " + Math.round(g.c) + " t/s"], {mono: true, stroke: Math.abs(g.c - 1160) < 40 ? "ok" : "pol", sw: 2});
+    s += SV.box(624, y, 150, 50, ["Flywheel", Math.round(g.c) + " ticks/s"], {mono: true, stroke: Math.abs(g.c - 1160) < 40 ? "ok" : "pol", sw: 2});
     s += SV.ar(pre, [[774, my], [805, my], [805, 300], [642, 300]], {col: "acc"});
     s += SV.box(500, 280, 140, 40, ["Encoder", "measures speed"], {stroke: "acc", size: 13});
     s += SV.ar(pre, [[500, 300], [165, 300], [165, my + 19]], {col: "acc", label: "measured " + Math.round(g.c), at: [330, 294], mono: true, lcol: "acc", size: 12});
@@ -4410,6 +4414,7 @@ const JVW = (function(){
       "public class Robot {",
       "    public static final double MAX_SPEED = 0.8;   // one tuned number, used everywhere",
       "    private static final double LAUNCH_VELOCITY = 1160;",
+      "    private static final double VELOCITY_TOLERANCE = 40;",
       "",
       "    private DcMotor frontLeft;        // only Robot.java touches motors",
       "    private DcMotorEx launcher;",
@@ -4425,7 +4430,7 @@ const JVW = (function(){
       "    }",
       "",
       "    public boolean launcherReady() {",
-      "        return Math.abs(launcher.getVelocity() - LAUNCH_VELOCITY) < 40;",
+      "        return Math.abs(launcher.getVelocity() - LAUNCH_VELOCITY) < VELOCITY_TOLERANCE;",
       "    }",
       "",
       "    // launcherOn(), feedOnce(), headingDegrees() and stopDrive() are left out to keep this short",

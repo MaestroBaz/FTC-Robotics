@@ -126,7 +126,7 @@ public class Robot {
 
     // Tune these on the real robot.
     public static final double LAUNCH_VELOCITY = 1160;   // encoder ticks per second
-    public static final double VELOCITY_TOLERANCE = 50;  // ticks per second
+    public static final double VELOCITY_TOLERANCE = 40;  // ticks per second
     public static final double COUNTS_PER_INCH = 42.8;   // example: 537.7 counts/rev, 4 in wheel. Formula in the encoders session
 
     private DcMotor frontLeft;
@@ -354,8 +354,9 @@ Part B, feedback across a match (lab tab 6, 10 min):
 - Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)`? Reveal, score.
 - Before you press "Run a 2-minute match", teams predict which robot wins on the scoreboard and by how much: A open loop, B closed loop by a little, C closed loop by a lot. Press, then compare hit rates.
 - Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
+- Ask: why does drive still use setPower? The driver closes that loop with their eyes.
 - Markers: dip, recovery time, open-loop offset. Pause on the dip after a shot and name each one.
-- IMU: show heading on telemetry. `resetYaw()` sets zero. Mention bulk reads: one line in `init`, faster loops.
+- Set the battery to 12.5 V. The open loop now sits on target. Press Fire 3 fast: the open loop hits 1 of 3, the closed loop 3 of 3. Each ball slows the wheel. The open loop needs about 0.65 s to get back, and the next ball comes after 0.5 s. The closed loop pushes back and recovers in about 0.2 s.
 
 Part C, the state machine, read aloud (10 min). This goes into `MainTeleOp`:
 
