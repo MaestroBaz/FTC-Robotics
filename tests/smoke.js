@@ -555,6 +555,78 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/`\? :` to pick one of two values/.test(std) && src.includes("turn = lastBearing > 0 ? -0.3 : 0.3;") && !/\| Interfaces, abstract classes, generics \|/.test(std) && src.includes("List<Double> shots = new ArrayList<>();"), "docs: standard allows List<Type> and one-level ternary, and the lab Java matches");
   // ==== end area docs ====
 
+  // ==== area charts ====
+  {
+    // count pixels near a palette color inside a box of a canvas (dpr 1 in this browser)
+    const near = (sel, varName, box) => pg.evaluate(([sel, varName, box]) => {
+      const cv = document.querySelector(sel), d = window.devicePixelRatio || 1;
+      const hex = getComputedStyle(document.documentElement).getPropertyValue(varName).trim().slice(1), n = parseInt(hex, 16);
+      const want = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      const x0 = Math.round((box ? box[0] : 0) * d), y0 = Math.round((box ? box[1] : 0) * d);
+      const w = box ? Math.round((box[2] - box[0]) * d) : cv.width, h = box ? Math.round((box[3] - box[1]) * d) : cv.height;
+      const px = cv.getContext("2d").getImageData(x0, y0, w, h).data;
+      let c = 0; for (let i = 0; i < px.length; i += 4) if (px[i + 3] > 200 && Math.abs(px[i] - want[0]) < 30 && Math.abs(px[i + 1] - want[1]) < 30 && Math.abs(px[i + 2] - want[2]) < 30) c++;
+      return c;
+    }, [sel, varName, box]);
+    // #9: the yellow open-loop line runs right through the HIVE window label at 13.1 V (1216 ticks/s). The label keeps a plate.
+    await pg.goto(URL + "#feedback"); await pg.waitForTimeout(300);
+    await pg.$eval("#fb-v", el => { el.value = 13.1; el.dispatchEvent(new Event("input")); });
+    await pg.selectOption("#fb-cbar .tc-win", "5");
+    await pg.$eval("#ts-slider", el => { el.value = 1000; el.dispatchEvent(new Event("input")); });
+    await pg.click("#fb-cbar .tc-reset"); await pg.waitForTimeout(4500);   // 9 s of sim: the 5 s window shows only the steady part
+    const hiveY = 12 + 322 - (1200 - 700) / 700 * 322 - 4;   // draw(): Tp 12, plot 322 px tall, 700 to 1400, label 4 px above 1200
+    const onLabel = await near("#fb-plot", "--pollen", [60, hiveY - 8, 126, hiveY + 1]);
+    check(onLabel === 0, "charts #9: no yellow curve pixels inside the HIVE window label (" + onLabel + ")");
+    await pg.click("#fb-burst"); await pg.waitForTimeout(1200);
+    await pg.locator("#lab-feedback").screenshot({ path: path.join(SHOTS, "feedback-fire3.png") });
+    await pg.click('#ts-ticks span[data-v="1"]');
+    // #26: one Save PNG per chart, a real PNG with a title strip above the chart
+    check((await pg.$$("#fb-cbar .tc-png, #pid-cbar .tc-png, #mc-cbar .tc-png")).length === 3, "charts #26: tabs 4, 6 and 7 each have a Save PNG button");
+    const [dl] = await Promise.all([pg.waitForEvent("download"), pg.click("#fb-cbar .tc-png")]);
+    const png = fs.readFileSync(await dl.path());
+    const cvBox = await pg.$eval("#fb-plot", c => [c.width, c.height]);
+    const pw = png.readUInt32BE(16), ph = png.readUInt32BE(20);
+    check(/^ftc-launcher-speed.*\.png$/.test(dl.suggestedFilename()) && png.slice(1, 4).toString() === "PNG" && pw > cvBox[0] && ph > cvBox[1] + 30,
+      "charts #26: Save PNG downloads " + dl.suggestedFilename() + " " + pw + "x" + ph + " (chart " + cvBox.join("x") + ") with room for the title");
+    check(/^Saved ftc-/.test(await pg.textContent("#fb-cbar .tc-msg")), "charts #26: the bar says the file was saved");
+    // a sandboxed frame without allow-downloads: the download fails quietly, so the bar shows the picture to right-click instead
+    const sb = await b.newPage({ viewport: { width: 1366, height: 900 } });
+    sb.on("pageerror", e => errs.push("sandbox: " + e.message));
+    await sb.setContent('<iframe sandbox="allow-scripts" style="width:1300px;height:880px" srcdoc="' + src.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '"></iframe>');
+    await sb.waitForTimeout(800);
+    const fr = sb.frames()[1];
+    await fr.evaluate(() => document.querySelector('nav.tabs a[data-tab="feedback"]').click()); await sb.waitForTimeout(500);
+    await fr.evaluate(() => document.querySelector("#fb-cbar .tc-png").click()); await sb.waitForTimeout(500);
+    const sbState = await fr.evaluate(() => ({ img: !!document.querySelector(".tc-pngbox img[src^='data:image/png']"), msg: document.querySelector("#fb-cbar .tc-msg").textContent }));
+    check(sbState.img && /Save image as/.test(sbState.msg), "charts #26: inside a sandboxed frame Save PNG shows the picture and says how to save it: " + sbState.msg);
+    await sb.close();
+    // #27: wheel powers over time on the mecanum tab, same chart controls
+    await pg.goto(URL + "#mecanum"); await pg.waitForTimeout(300);
+    await pg.check('#lab-mecanum input[value="robot"]');
+    await pg.click("#mc-cbar .tc-reset");
+    await pg.click('#lab-mecanum [data-p="1,0,0"]'); await pg.waitForTimeout(1200);   // strafe right: fl +1, fr -1, bl -1, br +1
+    await pg.evaluate(() => { window.__mcs = new Set(); const f = CanvasRenderingContext2D.prototype.stroke; CanvasRenderingContext2D.prototype.stroke = function () { if (this.canvas.id === "mc-plot") window.__mcs.add(String(this.strokeStyle).toLowerCase()); return f.apply(this, arguments); }; });
+    await pg.waitForTimeout(200);
+    const mcCols = await pg.evaluate(() => ["--accent", "--red", "--pollen", "--ok"].map(v => window.__mcs.has(getComputedStyle(document.documentElement).getPropertyValue(v).trim().toLowerCase())));
+    check(mcCols.every(Boolean) && (await near("#mc-plot", "--red")) > 0, "charts #27: the wheel chart draws all four wheels in blue, red, yellow and green: " + mcCols.join(" "));
+    check((await pg.getAttribute("#mc-cbar .tc-live", "aria-pressed")) === "true", "charts #27: the wheel chart starts live");
+    await pg.locator("#mc-plot").scrollIntoViewIfNeeded();
+    const mp = await (await pg.$("#mc-plot")).boundingBox();
+    await pg.mouse.move(mp.x + 120, mp.y + 60); await pg.mouse.down(); await pg.mouse.move(mp.x + 300, mp.y + 70, { steps: 5 }); await pg.mouse.up(); await pg.waitForTimeout(150);
+    check((await pg.getAttribute("#mc-cbar .tc-live", "aria-pressed")) === "false", "charts #27: drag on the wheel chart zooms in");
+    await pg.click("#mc-cbar .tc-pause"); await pg.waitForTimeout(150);
+    check((await pg.textContent("#ts-chip")) === "PAUSED", "charts #27: the wheel chart Pause pauses the sim");
+    await pg.click("#mc-cbar .tc-play"); await pg.click("#mc-cbar .tc-live");
+    await pg.click('#lab-mecanum [data-p="0,0,0"]');
+    await pg.locator("#lab-mecanum").screenshot({ path: path.join(SHOTS, "mecanum-chart.png") });
+    const mf = await b.newPage({ viewport: { width: 1366, height: 768 } });
+    await mf.goto(URL + "#mecanum"); await mf.waitForTimeout(300);
+    const mcTop = await mf.evaluate(() => Math.round(document.querySelector("#lab-mecanum .grid2").getBoundingClientRect().top));
+    check(mcTop <= 330, "charts #27: mecanum first sim still starts at " + mcTop + " px on a 1366x768 projector");
+    await mf.close();
+  }
+  // ==== end area charts ====
+
   // ---- phone width ----
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   m.on("pageerror", e => errs.push("mobile: " + e.message));

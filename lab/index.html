@@ -399,6 +399,11 @@ td.hit{color:var(--ok);}
 #en-tt{margin-top:18px;}
 #en-tt-code[hidden]{display:none;}   /* pre.code sets display, so the hidden attribute needs this */
 /* ==== end area encoders ==== */
+/* ==== area charts ==== */
+.tcbar .tc-msg{font-size:13px; max-width:420px;}
+.tc-pngbox{display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; margin:0 0 8px;}
+.tc-pngbox img{max-width:100%; width:360px; border:1px solid var(--line); border-radius:8px;}
+/* ==== end area charts ==== */
 </style>
 </head>
 <body>
@@ -908,6 +913,17 @@ td.hit{color:var(--ok);}
         <div style="overflow-x:auto"><table class="math" id="mc-table"></table></div>
         <p class="note" id="mc-note" style="margin:8px 0 0"></p>
       </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <h3>Wheel powers over time <small>-1 to 1, what each motor gets. Lines on top of each other = same power</small></h3>
+    <div id="mc-cbar"></div>
+    <canvas id="mc-plot" height="220"></canvas>
+    <div class="legend" style="margin-top:8px">
+      <span><i style="background:var(--accent)"></i>FL frontLeft</span>
+      <span><i style="background:var(--red)"></i>FR frontRight</span>
+      <span><i style="background:var(--pollen)"></i>BL backLeft</span>
+      <span><i style="background:var(--ok)"></i>BR backRight</span>
     </div>
   </div>
   <pre class="code" id="mc-code" style="margin-top:16px"></pre>
@@ -1612,6 +1628,10 @@ const MC = (function(){
   let yawOffset = 0, mode = "robot", goal = {x: 110, y: 72};
   const trail = [];
   let ghost = [];   // the last path, kept as a dashed line after Reset robot
+  // wheel power history for the chart. Fixed colors, the same dots sit next to the wheel labels.
+  const WCOL = () => ({fl: P.accent, fr: P.red, bl: P.pollen, br: P.ok});
+  const WK = ["fl", "fr", "bl", "br"], hist = [];
+  let T = 0, acc = 0;
   const wrapR = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; };
   const deg = r => r * 180 / Math.PI;
   function heading(){ return wrapR(robot.h - yawOffset); }
@@ -1712,6 +1732,8 @@ const MC = (function(){
   function tick(dt){
     const m = compute(); lastM = m;
     const a = m.actual;
+    T += dt; acc += dt;
+    if (acc >= 0.03){ acc = 0; hist.push({t: T, fl: a.fl, fr: a.fr, bl: a.bl, br: a.br}); capHist(hist); }
     const f = (a.fl + a.fr + a.bl + a.br) / 4, r = (a.fl - a.fr - a.bl + a.br) / 4, w = (a.fl - a.fr + a.bl - a.br) / 4;
     const k = 1 - Math.exp(-dt / 0.12);
     // inertia acts in the field frame, so a turning robot still drives a nearly straight line
@@ -1726,6 +1748,26 @@ const MC = (function(){
     $("#mc-rsv").textContent = "x " + f2(rs.x);
     table(m);
     draw(m);
+    plot();
+  }
+  const MODE_NAME = {robot: "robot-centric", field: "field-centric", auto: "AUTO"};
+  const CH = TimeChart({bar: $("#mc-cbar"), canvases: [$("#mc-plot")], win: 10, wins: [5, 10, 30, 60],
+    title: () => "Mecanum wheel powers over time, " + MODE_NAME[mode] + " mode",
+    tMin: () => hist.length ? hist[0].t : T, tNow: () => T, onReset: () => { hist.length = 0; acc = 0; }});
+  function plot(){
+    const cv = $("#mc-plot"), {ctx, w, h} = fit(cv);
+    const L = 44, Tp = 12, B = 26, pw = w - L - 12, ph = h - Tp - B;
+    const mp = CH.map(cv, L, pw), Y = v => Tp + ph * (1 - (v + 1.1) / 2.2);
+    ctx.strokeStyle = P.line; ctx.lineWidth = 1;
+    for (const v of [-1, -0.5, 0, 0.5, 1]){ ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); text(ctx, tickLabel(v), L - 6, Y(v) + 4, {align: "right", color: P.muted, size: 11}); }
+    CH.xaxis(ctx, mp, L, pw, Tp, Tp + ph, h - 8);
+    ctx.save(); ctx.beginPath(); ctx.rect(L, Tp, pw, ph); ctx.clip();
+    // wide first, thin on top: four equal powers read as one striped band, every color still shows
+    const col = WCOL(), wid = {fl: 7, fr: 5, bl: 3, br: 1.5};
+    for (const k of WK) drawSeries(ctx, hist, mp.t0, mp.t1, mp.X, Y, p => p[k], col[k], wid[k]);
+    ctx.restore();
+    CH.overlay(ctx, cv, Tp, Tp + ph);
+    CH.update();
   }
   function table(m){
     const cls = v => v > 0.005 ? "pos" : v < -0.005 ? "neg" : "";
@@ -1820,14 +1862,16 @@ const MC = (function(){
       // arrows start at the wheel centers, short enough that a front and a back arrow never touch
       const x = wx + sd * (S / 2 + S * 0.2), y = wy + (k[0] === "f" ? -S * 0.29 : S * 0.29);
       arrow(ctx, x, y, x, y - p * S * 0.26, p >= 0 ? P.accent : P.red, 4);
-      text(ctx, k.toUpperCase() + " " + (p >= 0 ? "+" : "") + p.toFixed(2), x + sd * 10, y + 4, {align: sd < 0 ? "right" : "left", weight: "600", color: (bug.checked && k === "fl") ? P.red : P.ink});
+      const lab = k.toUpperCase() + " " + (p >= 0 ? "+" : "") + p.toFixed(2);
+      text(ctx, lab, x + sd * 10, y + 4, {align: sd < 0 ? "right" : "left", weight: "600", color: (bug.checked && k === "fl") ? P.red : P.ink});
+      ctx.fillStyle = WCOL()[k]; ctx.beginPath(); ctx.arc(x + sd * (18 + ctx.measureText(lab).width), y, 5, 0, Math.PI * 2); ctx.fill();   // the wheel's color in the chart below
     }
     const a = m.actual;
     const fv = (a.fl + a.fr + a.bl + a.br) / 4, rv = (a.fl - a.fr - a.bl + a.br) / 4;
     arrow(ctx, wx, wy, wx + rv * S * 0.45, wy - fv * S * 0.45, P.ink, 5);
     text(ctx, "robot's own view: front is up", 10, h - 10, {color: P.muted, size: 11});
   }
-  return {tick, show: () => {}, get: () => ({mode, heading: heading(), m: lastM})};
+  return {tick, show: () => {}, get: () => ({mode, heading: heading(), m: lastM}), chart: CH};
 })();
 
 /* =====================================================================
@@ -2030,7 +2074,100 @@ function bracketH(ctx, x1, x2, y, col, label, L, R){
   let tx = (x1 + x2) / 2, al = "center";
   if (x2 - x1 < tw + 10){ tx = x2 + 6; al = "left"; if (tx + tw > R){ tx = x1 - 6; al = "right"; } }
   if (al === "center" && tx - tw / 2 < L) { tx = L + tw / 2; }
-  text(ctx, label, tx, y - 3 + (al === "center" ? 0 : 7), {color: col, size: 11, weight: "600", align: al, mono: true});
+  plateText(ctx, label, tx, y - 3 + (al === "center" ? 0 : 7), {color: col, size: 11, weight: "600", align: al, mono: true});
+}
+// A plate in the chart color behind a label: a curve under the label never cuts the letters.
+// Draw it after the curves. Mono font, the same font text() uses by default.
+function plate(ctx, s, x, y, o){
+  const sz = o.size || 12, al = o.align || "left";
+  ctx.save(); ctx.font = (o.weight || "500") + " " + sz + "px JetBrains Mono, monospace";
+  const w = ctx.measureText(s).width, x0 = al === "right" ? x - w : al === "center" ? x - w / 2 : x;
+  ctx.fillStyle = P.field; ctx.fillRect(x0 - 3, y - sz, w + 6, sz + 4);
+  ctx.restore();
+}
+function plateText(ctx, s, x, y, o){ plate(ctx, s, x, y, o); text(ctx, s, x, y, o); }
+// ---- Save PNG: the chart canvases on a panel-color card, with a title line and the legend under each canvas ----
+function legendItems(cv){
+  const lg = cv.nextElementSibling;
+  if (!lg || !lg.classList.contains("legend")) return [];
+  return [...lg.children].filter(s => !s.hidden && getComputedStyle(s).display !== "none").map(s => {
+    const i = s.querySelector("i"), cs = i && getComputedStyle(i);
+    return {t: s.textContent.trim(), sw: !!i, fill: cs ? cs.backgroundColor : null, dash: cs && cs.borderTopStyle === "dashed" ? cs.borderTopColor : null};
+  });
+}
+function legendRows(ctx, items, maxW){
+  ctx.font = "500 13px IBM Plex Sans, sans-serif";
+  const rows = []; let x = maxW;
+  for (const it of items){
+    const w = (it.sw ? 22 : 0) + ctx.measureText(it.t).width + 18;
+    if (x + w > maxW){ rows.push([]); x = 0; }
+    rows[rows.length - 1].push(Object.assign({x}, it)); x += w;
+  }
+  return rows;
+}
+function chartPng(title, sub, cvs){
+  const PAD = 16, TH = 36, LH = 20, GAP = 10, dpr = window.devicePixelRatio || 1;
+  const out = document.createElement("canvas"), c0 = out.getContext("2d");
+  const W = Math.max(...cvs.map(c => c.clientWidth)) + 2 * PAD;
+  const blocks = cvs.map(cv => ({cv, w: cv.clientWidth, h: cv.clientHeight, rows: legendRows(c0, legendItems(cv), cv.clientWidth)}));
+  const H = PAD + TH + blocks.reduce((sum, k) => sum + k.h + k.rows.length * LH + GAP, 0) + PAD - GAP;
+  out.width = Math.round(W * dpr); out.height = Math.round(H * dpr);
+  const ctx = out.getContext("2d"); ctx.scale(dpr, dpr);
+  ctx.fillStyle = P.surface; ctx.fillRect(0, 0, W, H);
+  text(ctx, title, PAD, PAD + 18, {size: 18, weight: "700", mono: false, color: P.ink});
+  text(ctx, sub, W - PAD, PAD + 18, {size: 12, color: P.muted, align: "right"});
+  let y = PAD + TH;
+  for (const k of blocks){
+    ctx.fillStyle = P.field; ctx.fillRect(PAD, y, k.w, k.h);
+    ctx.drawImage(k.cv, PAD, y, k.w, k.h);
+    y += k.h;
+    for (const r of k.rows){
+      for (const it of r){
+        const x = PAD + it.x, by = y + 15;
+        if (it.dash) dashed(ctx, x, by - 4, x + 16, by - 4, it.dash, 2, [4, 3]);
+        else if (it.sw && it.fill && it.fill !== "rgba(0, 0, 0, 0)"){ ctx.fillStyle = it.fill; ctx.fillRect(x, by - 10, 16, 10); }
+        text(ctx, it.t, x + (it.sw ? 22 : 0), by, {size: 13, mono: false, color: P.ink});
+      }
+      y += LH;
+    }
+    y += GAP;
+  }
+  return out;
+}
+// Download through <a download>. A sandboxed frame (an artifact) can block it without any error,
+// so inside a frame the bar also shows the picture: right-click it, Save image as.
+let pngUrl = null;
+function savePng(o, bar, span){
+  const say = s => { bar.querySelector(".tc-msg").textContent = s; };
+  const title = typeof o.title === "function" ? o.title() : (o.title || "Chart");
+  const name = "ftc-" + title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + ".png";
+  let out;
+  try { out = chartPng(title, "sim time " + span[0].toFixed(1) + " to " + span[1].toFixed(1) + " s", o.canvases); }
+  catch(e){ say("Could not draw the PNG: " + e.message); return; }
+  let framed = true; try { framed = window.self !== window.top; } catch(e){ /* cross-origin parent: framed */ }
+  const showPic = msg => {
+    let box = bar.nextElementSibling;
+    if (!box || !box.classList.contains("tc-pngbox")){
+      box = document.createElement("div"); box.className = "tc-pngbox";
+      box.innerHTML = '<img alt=""><button class="b tc-pngx">Close picture</button>';
+      box.querySelector(".tc-pngx").addEventListener("click", () => { box.remove(); say(""); });
+      bar.insertAdjacentElement("afterend", box);
+    }
+    const img = box.querySelector("img"); img.alt = title; img.src = out.toDataURL("image/png");
+    say(msg);
+  };
+  if (!out.toBlob){ showPic("This browser cannot download it. Right-click the picture, then Save image as."); return; }
+  out.toBlob(blob => {
+    if (!blob){ say("Could not make the PNG."); return; }
+    try {
+      if (pngUrl) URL.revokeObjectURL(pngUrl);
+      pngUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = pngUrl; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch(e){ showPic("Download failed. Right-click the picture, then Save image as."); return; }
+    if (framed) showPic("Saved " + name + "? If no file came, this page blocks downloads: right-click the picture, then Save image as.");
+    else say("Saved " + name);
+  }, "image/png");
 }
 function TimeChart(o){
   const wins = o.wins || [5, 10, 30, 60];
@@ -2044,7 +2181,8 @@ function TimeChart(o){
     '<button class="b tc-out" title="Zoom out" aria-label="Zoom out">-</button><button class="b tc-in" title="Zoom in" aria-label="Zoom in">+</button></span>' +
     '<label class="tcscrub"><span class="note">Scroll back</span><input type="range" class="tc-scrub" min="0" max="1000" value="1000" aria-label="Scroll back in time"></label>' +
     (o.fitToggle ? '<label class="tg"><input type="checkbox" class="tc-fit"' + (V.fitY ? " checked" : "") + "> Fit Y to data</label>" : "") +
-    (o.markToggle ? '<label class="tg"><input type="checkbox" class="tc-marks" checked> ' + o.markToggle + "</label>" : "") ;
+    (o.markToggle ? '<label class="tg"><input type="checkbox" class="tc-marks" checked> ' + o.markToggle + "</label>" : "") +
+    '<span class="tcgrp"><button class="b tc-png" title="Save this chart as a picture">Save PNG</button><span class="note tc-msg" aria-live="polite"></span></span>';
   const q = s => bar.querySelector(s);
   const scrub = q(".tc-scrub");
   let scrubbing = false;
@@ -2081,6 +2219,7 @@ function TimeChart(o){
   q(".tc-out").addEventListener("click", () => zoom(2));
   if (q(".tc-fit")) q(".tc-fit").addEventListener("change", e => { V.fitY = e.target.checked; });
   if (q(".tc-marks")) q(".tc-marks").addEventListener("change", e => { V.marks = e.target.checked; });
+  q(".tc-png").addEventListener("click", () => savePng(o, bar, range()));
   scrub.addEventListener("pointerdown", () => { scrubbing = true; });
   window.addEventListener("pointerup", () => { scrubbing = false; });
   scrub.addEventListener("input", () => {
@@ -2209,7 +2348,7 @@ const FB = (function(){
     for (const k of ["o", "c"]) score[k] = {in: 0, short: 0, long: 0}; renderScore();
     $("#fb-vv").textContent = V.toFixed(1) + " V";
   }
-  const CH = TimeChart({bar: $("#fb-cbar"), canvases: [$("#fb-plot")], win: 10, wins: [5, 10, 30, 60],
+  const CH = TimeChart({bar: $("#fb-cbar"), canvases: [$("#fb-plot")], win: 10, wins: [5, 10, 30, 60], title: "Launcher speed over time (ticks per second)",
     tMin: () => hist.length ? hist[0].t : T, tNow: () => T, onReset: resetRun, markToggle: "Show markers", fitToggle: true});
   function tick(dt){
     const n = Math.max(1, Math.round(dt / 0.005));
@@ -2234,12 +2373,14 @@ const FB = (function(){
         dashed(ctx, X(s.t), Tp, X(s.t), Y(mn), P.accent, 1.2);
         const right = X(tm) + 160 < R;
         dashed(ctx, X(tm), Y(mn), right ? X(tm) + 60 : X(tm) - 60, Y(mn), P.accent, 1.2);
-        text(ctx, "dip to " + Math.round(mn), right ? X(tm) + 64 : X(tm) - 64, Y(mn) + 4, {color: P.accent, size: 11, weight: "600", align: right ? "left" : "right"});
+        const dl = "dip to " + Math.round(mn);   // on a narrow chart, slide right instead of clipping at the y axis
+        ctx.font = "600 11px JetBrains Mono, monospace";
+        plateText(ctx, dl, right ? X(tm) + 64 : Math.max(X(tm) - 64, L + 4 + ctx.measureText(dl).width), Y(mn) + 4, {color: P.accent, size: 11, weight: "600", align: right ? "left" : "right"});
       }
       if (tr !== null){
         dashed(ctx, X(tr), Tp, X(tr), Y(TARGET), P.accent, 1.2);
         bracketH(ctx, X(s.t), X(tr), Tp + 10, P.accent, "recovery time " + (tr - s.t).toFixed(2) + " s", L, R);
-      } else text(ctx, nxt ? "next shot came before it recovered" : "recovering...", Math.min(R - 4, X(s.t) + 6), Tp + 14, {color: P.accent, size: 11, weight: "600", align: X(s.t) + 220 > R ? "right" : "left"});
+      } else plateText(ctx, nxt ? "next shot came before it recovered" : "recovering...", Math.min(R - 4, X(s.t) + 6), Tp + 14, {color: P.accent, size: 11, weight: "600", align: X(s.t) + 220 > R ? "right" : "left"});
     }
     // open loop: how far its steady speed sits from the target
     const last = hist[Math.max(0, Math.min(hist.length, bsearch(hist, t1)) - 1)];
@@ -2254,10 +2395,13 @@ const FB = (function(){
         const lab = "open loop off by " + (off > 0 ? "+" : "") + Math.round(off), ly = Y(steady) + (off < 0 ? 15 : -7);
         ctx.save(); ctx.font = "700 11px JetBrains Mono, monospace"; ctx.textAlign = "right";
         const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width); // on a narrow chart, slide right instead of clipping at the y axis
+        plate(ctx, lab, lx, ly, {size: 11, weight: "700", align: "right"});
         ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = P.field; ctx.strokeText(lab, lx, ly); ctx.restore();
         text(ctx, lab, lx, ly, {color: P.pollen, size: 11, weight: "700", align: "right"});
+        return off;
       }
     }
+    return 0;
   }
   function draw(){
     const cv = $("#fb-plot"), {ctx, w, h} = fit(cv);
@@ -2275,7 +2419,6 @@ const FB = (function(){
     ctx.strokeStyle = P.line; ctx.lineWidth = 1;
     for (const v of niceTicks(lo, hi, 4)){ ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); text(ctx, tickLabel(v), L - 6, Y(v) + 4, {align: "right", color: P.muted, size: 11}); }
     CH.xaxis(ctx, m, L, pw, Tp, Tp + ph, h - 8);
-    text(ctx, "HIVE window", L + 6, Y(HI) - 4, {color: P.ok, size: 11, weight: "600"});
     dashed(ctx, L, Y(TARGET), L + pw, Y(TARGET), P.muted, 1, [5, 5]);
     ctx.save(); ctx.beginPath(); ctx.rect(L, Tp, pw, ph); ctx.clip();
     drawSeries(ctx, hist, m.t0, m.t1, X, Y, p => p.o, P.pollen, 2.5);
@@ -2286,8 +2429,11 @@ const FB = (function(){
       ctx.strokeStyle = s.k === "o" ? P.pollen : P.accent; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(X(s.t), Y(s.w), 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
-    if (CH.marks()) shotMarks(ctx, X, Y, m.t0, m.t1, L, L + pw, Tp);
+    const off = CH.marks() ? shotMarks(ctx, X, Y, m.t0, m.t1, L, L + pw, Tp) : 0;
     ctx.restore();
+    // after the curves, so they pass behind it. On a narrow chart the open-loop label above the window
+    // reaches the left edge, so the HIVE label moves under the window.
+    plateText(ctx, "HIVE window", L + 6, pw < 400 && off > 15 ? Y(LO) + 14 : Y(HI) - 4, {color: P.ok, size: 11, weight: "600"});
     CH.overlay(ctx, cv, Tp, Tp + ph);
     CH.update();
     const ready = Math.abs(c.w - TARGET) < 40;
@@ -3021,7 +3167,7 @@ const PIDLAB = (function(){
     }
     plot1(); plot2();
   }
-  const CH = TimeChart({bar: $("#pid-cbar"), canvases: [$("#pid-plot1"), $("#pid-plot2")], win: 10, wins: [5, 10, 30, 60],
+  const CH = TimeChart({bar: $("#pid-cbar"), canvases: [$("#pid-plot1"), $("#pid-plot2")], win: 10, wins: [5, 10, 30, 60], title: () => "PID: " + APPS[app].title,
     tMin: () => S.hist.length ? S.hist[0].t : S.t, tNow: () => S.t, onReset: () => resetRun(), fitY: true, fitToggle: true, markToggle: "Show response markers"});
   // ---- response metrics for one move ----
   function response(st, tEnd){
