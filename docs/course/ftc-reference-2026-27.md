@@ -1,6 +1,6 @@
 # FTC Reference: 2026-27 Season (BIOBUZZ) for the Software Team
 
-Compiled 2026-11-01. Sources: Competition Manual (CM) TU07 dated 2026-10-29, FTC Docs, REV docs, gm0, FtcRobotController v12.0. Items marked [Verify] came from page summaries. Check the exact wording in the CM before you quote them to students or judges.
+Compiled 2026-11-01, checked against the manual 2026-11-07 (issue 42). Sources: Competition Manual (CM) TU08 dated 2026-11-05 (TU08 changes only G405, R612 and T402), FTC Docs, REV docs, gm0, FtcRobotController v12.0. Items still marked [Verify] are unconfirmed. Check the exact wording in the CM before you quote them to students or judges.
 
 ## 1. The season
 
@@ -8,8 +8,8 @@ Compiled 2026-11-01. Sources: Competition Manual (CM) TU07 dated 2026-10-29, FTC
 - Two alliances of two robots. Robots collect POLLEN (yellow, about 2.8 in, 40 per match) and NECTAR (about 3.6 in, 8 red + 8 blue), launch them into the alliance HIVE, and place NECTAR into FLOWERS. Enough elements in a CELL tip the HIVE. Each tip scores and releases more NECTAR.
 - Robots start touching 4 preloaded POLLEN (CM 10.3.4).
 - Match: AUTO 30 s, 8 s transition, TELEOP 2:00. No formal endgame. NECTAR goes into FLOWERS only in the last 60 s (G410, MAJOR FOUL per NECTAR).
-- Points (Table 10-2): LEAVE 3, PARK 5 (AUTO). HIVE TIP 20 in AUTO or TELEOP. Ranking points: SWARM, POLLINATOR 1, POLLINATOR 2 (non-Championship thresholds 16 points, 4 tips, 7 tips).
-- AprilTags (CM 9.9): 36h11 family, 3.25 in, in clusters of 4 on the bottom of each CELL, facing down toward the tiles. Purpose: navigation and targeting. [Verify] the full ID map in Figure 9-17.
+- Points (Table 10-2): LEAVE 3 (AUTO). PARK 5, in AUTO and again in TELEOP. LEAVE is judged at the end of AUTO, so a robot parked touching the wall loses LEAVE (Q&A 21). HIVE TIP 20 in AUTO or TELEOP. Ranking points: SWARM, POLLINATOR 1, POLLINATOR 2 (non-Championship thresholds 16 points, 4 tips, 7 tips).
+- AprilTags (CM 9.9): 36h11 family, 3.25 in, in clusters of 4 on the bottom of each CELL, facing down toward the tiles. Purpose: navigation and targeting. IDs (Figure 9-17): red far 30-33, red audience 34-37, blue audience 38-41, blue far 42-45.
 - No randomization found this season (fixed staging, CM 10.3.1). Software impact: vision is optional. Encoders, IMU, and launcher velocity control matter more than a camera this year.
 
 Sources:
@@ -23,12 +23,12 @@ Sources:
 - R702: Coprocessor software stays stock. Exception: Limelight 3A, the one reprogrammable vision coprocessor (Table 12-9). Allowed examples: SparkFun OTOS, OctoQuad FTC Edition, HuskyLens, Pixy2. Not allowed: OpenMV, OAK-1, Limelight 3G.
 - R707/R708: Only single-sensor UVC webcams supported by the SDK (example Logitech C270). No stereo cameras.
 - R503: Max 8 motors and 8 servos total. R505: max 2 motors or 2 servos per hub port.
-- R704: No wireless other than the official tools. Disconnect laptops from robot Wi-Fi during matches. Third-party tools such as FTC Dashboard and Panels are not allowed in matches, and no continuous video stream. [Verify wording] If our code starts FTC Dashboard, we need a way to turn it off at events.
+- R704: No wireless other than the official tools. Disconnect laptops from robot Wi-Fi during matches. R704.D names FTC Dashboard and FTControl Panels with no match-only limit: they stay off at the whole venue, pits and practice fields included. Q&A 26 applies R704.D to Wi-Fi streaming in the pits for a HuskyLens 2 question. The same reading for Dashboard is [Likely]. No continuous video stream. If our code starts FTC Dashboard, it needs a switch to turn it off before we load the robot for an event.
 - R705: Name devices `<team#>-RC` and `<team#>-DS`.
 - R711: Change the Control Hub Wi-Fi password from the default. Wi-Fi on, Bluetooth off.
 - R901/R904: One Driver Station (REV Driver Hub recommended). Wired gamepads only.
 - G305 / CM 10.3.3: Select an OpMode and press INIT before the match. An AUTO OpMode needs the 30 s timer enabled on the Driver Station. Tip: `@Autonomous(preselectTeleOp = "Main TeleOp")` loads the TeleOp for the drivers after AUTO.
-- G304.H (new in TU07): Robot fully motionless after INIT. No motor movement, no servo sweeps after init finishes. Background threads started in init break this rule easily.
+- G304.H, the rule text: the robot is "fully motionless following completion of OpMode initialization". The rule covers the time after init finishes: from then on, nothing moves until START. Background threads started in init break this rule easily. Team policy is stricter: no movement during INIT at all, so the robot never moves before START.
 - G401: No driver interaction from countdown to end of AUTO except pressing start. G403: no powered movement during the transition. G404: no powered movement after TELEOP ends.
 
 Source: https://ftc-resources.firstinspires.org/ftc/game/manual-12
@@ -45,13 +45,16 @@ Source: https://ftc-resources.firstinspires.org/ftc/game/manual-06
 ## 4. AI policy
 
 - CM 6.2: Teams use AI to compose portfolios if they credit it (example footnote: "Portfolio created by Team XXXXX and ChatGPT").
-- FIRST blog "Expanding the FIRST Toolbox with Artificial Intelligence" encourages AI, including for robot code, with credit and attribution. Judges evaluate what the team accomplished. [Verify] whether the post still reflects 2026-27 policy.
+- FIRST blog "Expanding the FIRST Toolbox with Artificial Intelligence" (2023-11-01) encourages AI, including for robot code, with credit and attribution. Judges evaluate what the team accomplished.
+- Newest FIRST statement found (checked 2026-11-08): the FRC post "Award Deadlines Approaching" (2026-01-29, by the Vice President of FRC and FTC) permits AI for award submissions and "writing robot code", and tells judges not to rank a team lower for using AI. The post addresses FRC. The 2026-27 FTC manual (CM 6.2) covers portfolios only, and a search of the FTC Game Q&A turned up no AI answer. [Verify] FTC robot code: no FTC-specific 2026-27 statement found. Until one appears, follow the 2023 post and the FRC post: use AI, credit AI, explain every line.
 - CM 1.4.3 on mentors: involvement is "however much is needed to inspire the youth on the team." Students need to own and explain the robot in judging.
 - Team takeaway: banning AI goes against FIRST guidance and does not work. The rule we enforce: no code merges unless the author explains every line in review.
 
 Sources:
 - https://ftc-resources.firstinspires.org/ftc/game/manual-01
 - https://community.firstinspires.org/expanding-the-first-toolbox-with-artificial-intelligence
+- https://www.firstinspires.org/community-blog/2026-award-deadlines-approaching (FRC, 2026-01-29)
+- https://ftc-resources.firstinspires.org/ftc/game/manual-06
 - Official CM chatbot: https://ftc-cmchatbot.firstinspires.org/
 
 ## 5. Hardware
@@ -120,7 +123,7 @@ The RobotHardware sample is FIRST's own model for structure: one plain class, pr
 | REV 2m Distance | `hardwareMap.get(DistanceSensor.class, "dist")`, `getDistance(DistanceUnit.MM)` |
 | Touch sensor | `TouchSensor.isPressed()`, or `DigitalChannel.getState()` where false means pressed |
 | Motor encoder | `motor.getCurrentPosition()`, `RUN_TO_POSITION`, `DcMotorEx.getVelocity()` |
-| REV Through Bore Encoder | Plugs into a motor encoder port. Incremental only. [Verify] read through the paired motor's `getCurrentPosition()` |
+| REV Through Bore Encoder | Plugs into a motor encoder port. Incremental only (REV docs). Read the count through the paired motor's `getCurrentPosition()` (gm0, not yet tested on our hardware) |
 | goBILDA Pinpoint | `hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint")`, set offsets and pod type, call `update()` each loop, then `getPosition()` |
 
 | SparkFun OTOS | Optical tracking sensor, driver since SDK 9.2, sample `SensorSparkFunOTOS`. Mounts about 10 mm above the tiles. Calibrate the linear and angular scalars, or expect 3 to 5% error. |
@@ -164,7 +167,7 @@ Links:
 | Tool | Use for us |
 |---|---|
 | Game Manual 0, https://gm0.org/en/latest/docs/software/index.html | Main reference. Mecanum, encoders, bulk reads, state machines, control loops |
-| FTC Dashboard | Practice-only tuning tool. Not allowed in matches [Verify R704] |
+| FTC Dashboard | Tuning tool for the lab at school. Off at the whole venue, pits included (R704.D, Q&A 26) |
 | Road Runner, Pedro Pathing | Path following. Not for this course. Revisit after the team writes clean basic auto |
 | FTCLib | Unmaintained since 2024 and adds command-based abstraction. Avoid |
 

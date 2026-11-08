@@ -772,7 +772,7 @@ td.hit{color:var(--ok);}
       <p class="lede">Step through a LinearOpMode with the Driver Hub buttons. The highlighted line is running now. Switch to the AI-written version to see why a background thread breaks the rules.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init: a second piece of code running alongside yours. What does the robot do after INIT? After STOP?</span><span class="vote" data-right="2"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">The thread starts moving the arm right after INIT, before the match starts. This breaks rule G304.H: the robot sits still after INIT. STOP ends <code>runOpMode()</code>, but nobody tells the thread to stop. Its <code>while (true)</code> loop keeps running until the app restarts.</div>
+      <div class="a">The thread starts moving the arm right after INIT, before the match starts. This breaks rule G304.H: the robot stays fully motionless once init finishes. STOP ends <code>runOpMode()</code>, but nobody tells the thread to stop. Its <code>while (true)</code> loop keeps running until the app restarts.</div>
     </details>
   </div>
   <div class="grid2">
@@ -4717,7 +4717,7 @@ const JVW = (function(){
     ["waspressed", "rightBumperWasPressed\\(\\)", "kw", "rightBumperWasPressed()", "A method: true once per press, on the pass where the bumper went down. Use it for a button that starts something once, like the launcher."],
     ["adddata", "telemetry\\.addData", "kw", "telemetry.addData", "Queues one line for the Driver Hub screen: a label, a format, a value. %.1f means a decimal with one digit after the point."],
     ["update", "telemetry\\.update\\(\\)", "kw", "telemetry.update()", "Sends the queued lines to the screen. Forget this line, and the screen never changes."],
-    ["waitforstart", "waitForStart\\(\\)", "kw", "waitForStart()", "Waits until the driver presses START. Nothing moves before this line, which is what rule G304.H asks for."],
+    ["waitforstart", "waitForStart\\(\\)", "kw", "waitForStart()", "Waits until the driver presses START. Rule G304.H: once init finishes, the robot stays fully motionless until START. Our team rule is stricter: nothing moves before this line, INIT included."],
     ["active", "opModeIsActive\\(\\)", "kw", "opModeIsActive()", "true from START until STOP. As the loop condition, it ends the loop the moment the driver presses STOP."],
     ["mathabs", "Math\\.abs", "kw", "Math.abs", "Distance from zero: Math.abs(-3) is 3. Math is a Java class you use through its name, with no object and no import."],
     ["enumval", "LaunchState\\.(?:IDLE|SPINNING_UP|FEEDING)", "num", "LaunchState.IDLE", "One value of the enum, reached through the enum name. The launcher is always in exactly one of the three states."],

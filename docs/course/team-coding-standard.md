@@ -18,7 +18,8 @@
 | `enum` | States in a state machine |
 | `ElapsedTime` | Timing without sleep |
 | `extends LinearOpMode` | The one inheritance we use. It makes an OpMode |
-| `List<Type>` and `ArrayList` | Many values in order, such as camera detections |
+| `List<Type>` and `ArrayList` | Many values in order, such as camera detections. You fill in the type: `List<Double> shots = new ArrayList<>();` |
+| `? :` to pick one of two values | One choice, one line: `turn = lastBearing > 0 ? -0.3 : 0.3;` reads "if lastBearing is above 0, use -0.3, else 0.3". Never nest one inside another. More than a value to pick: use `if / else` |
 | Our own small helper classes: `Robot`, `PIDController` | One job per class, used by many OpModes |
 
 ## Java we do not use (until a mentor approves a design)
@@ -28,7 +29,8 @@
 | `Thread`, `Runnable`, executors, `synchronized` | State machine in the main loop |
 | `sleep()` in TeleOp | `ElapsedTime` and a state |
 | Our own base classes and inheritance chains | One `Robot` class |
-| Interfaces, abstract classes, generics | Plain classes and methods |
+| Interfaces, abstract classes, our own generic classes and methods (`class Box<T>`) | Plain classes and methods. Filling in the type on `List<Type>` is fine |
+| Nested `? :` (`a ? b : c ? d : e`) | `if / else if / else` |
 | Lambdas and streams | `for` loops |
 | Command-based frameworks (FTCLib) | Plain OpModes |
 | Copy-pasted hardware setup in many OpModes | `robot.init(hardwareMap)` |
@@ -75,5 +77,5 @@ Base the code on the official FTC SDK sample: <sample name>.
 - [ ] Builds without errors
 - [ ] Tested on the robot (in a mentor-led session, a clean build is enough: the mentor tests on the robot)
 - [ ] No threads, no sleep in TeleOp
-- [ ] Robot does not move between INIT and START
+- [ ] Robot does not move between INIT and START (team rule. G304.H asks for "fully motionless following completion of OpMode initialization")
 - [ ] I explain every line
