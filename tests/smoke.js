@@ -472,6 +472,22 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     check(/driveBusy\(\) stays true/.test(await en.textContent("#en-msg")) && lay.msg <= 768, "encoders: the bug message sits above the fold at 1366x768 (" + Math.round(lay.msg) + " px)");
     check(lay.span <= lay.room, "encoders: robot, booleans and the red while line fit on one screen (" + Math.round(lay.span) + " of " + Math.round(lay.room) + " px)");
     check(/setTargetPosition/.test(await en.textContent("#en-robot-code")) && !src.includes("rampTimer.reset"), "encoders: Robot.java shows setTargetPosition, the ramp code compiles as shown");
+    // turnToHeading exercise (issue 28): sim time, break window, hidden answer, same Java as tab 7
+    check(await en.$eval("#en-tt-code", el => el.hidden && getComputedStyle(el).display === "none"), "encoders: the turnToHeading answer starts hidden");
+    await en.evaluate(() => window.__setPause(true));
+    await en.click("#en-tt-run"); await en.waitForTimeout(600);
+    check(/hub drives 24 in/.test(await en.textContent("#en-tt-msg")), "encoders: the drive + turn run waits while the sim is paused");
+    await en.evaluate(() => window.__setPause(false));
+    for (let i = 0; i < 40 && !/Break after/.test(await en.textContent("#en-tt-msg")); i++) await en.waitForTimeout(200);
+    const ttChips = (await en.textContent("#en-tt-chips")).replace(/\s+/g, "");
+    check(/Break after \d\.\d s/.test(await en.textContent("#en-tt-msg")) && ttChips.includes("|error|<1.5:true") && ttChips.includes("|rate|<5:true"), "encoders: turnToHeading(90) breaks inside the 1.5 deg window and stopped: " + ttChips);
+    await en.click("#en-tt-show");
+    const ttCode = await en.$eval("#en-tt-code", el => el.hidden ? "" : [...el.querySelectorAll(".ln")].map(n => n.textContent.trim()));
+    check(ttCode.includes("driveInches(24, 0.5);") && ttCode.includes("turnToHeading(90);                       // the new line") && (await en.textContent("#en-tt-show")) === "Hide the answer", "encoders: Show the answer reveals the drive then turnToHeading(90)");
+    await en.goto(URL + "#pid"); await en.waitForTimeout(300);
+    const pidTurn = await en.$$eval("#pid-use .ln", ns => ns.map(n => n.textContent.trim()));
+    const method = pidTurn.slice(pidTurn.findIndex(l => l.startsWith("private void turnToHeading")));
+    check(method.length > 8 && method.every(l => ttCode.includes(l)), "encoders: the exercise answer prints the same turnToHeading() lines as the tab 7 turn job");
     await en.close();
   }
   // ==== end area encoders ====

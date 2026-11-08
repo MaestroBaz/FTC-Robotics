@@ -396,6 +396,8 @@ td.hit{color:var(--ok);}
 /* ==== area encoders: tab 8 ==== */
 #en-kv{font-size:16px;}
 #en-robot summary{cursor:pointer;}
+#en-tt{margin-top:18px;}
+#en-tt-code[hidden]{display:none;}   /* pre.code sets display, so the hidden attribute needs this */
 /* ==== end area encoders ==== */
 </style>
 </head>
@@ -1065,6 +1067,22 @@ td.hit{color:var(--ok);}
           <li><b>Odometry: goBILDA Pinpoint.</b> Two free-rolling pods pressed to the floor, plus an IMU. Nothing drives them, so they barely slip. The SDK has the driver (GoBildaPinpointDriver, sample SensorGoBildaPinpoint). The Pinpoint gives X, Y and heading. About $280 with pods.</li>
         </ol>
         <p class="note" style="margin-top:8px">Later, not now: Road Runner and Pedro Pathing. First run a clean encoder auto. LEAVE + PARK needs two moves and a turn. This year AprilTags do not tell you where the robot is, because the BIOBUZZ tags move. Use them to aim at the HIVE.</p>
+      </div>
+    </div>
+  </div>
+  <div class="panel" id="en-tt">
+    <h3>Exercise: add a turn after the drive <small>turnToHeading(90) with the team's PIDController</small></h3>
+    <p class="note">After driveInches(24, 0.5), call turnToHeading(90). Use the turn job from tab 7: the same PIDController, the same break line. SDK sample: RobotAutoDriveByGyro_Linear. Write your answer first, then press Show the answer.</p>
+    <div class="grid2 even">
+      <div>
+        <div class="row"><button class="b primary" id="en-tt-run">Run: drive 24 in, then turn to 90</button></div>
+        <canvas id="en-tt-canvas" height="230" style="margin-top:10px"></canvas>
+        <div class="row" id="en-tt-chips" style="margin-top:8px"></div>
+        <div class="msg" id="en-tt-msg" style="margin-top:8px">Press Run. The robot drives forward, then turns left to heading 90.</div>
+      </div>
+      <div>
+        <div class="row"><button class="b" id="en-tt-show" aria-expanded="false">Show the answer</button></div>
+        <pre class="code" id="en-tt-code" hidden style="margin-top:10px"></pre>
       </div>
     </div>
   </div>
@@ -2253,6 +2271,24 @@ const FB = (function(){
 /* =====================================================================
    LAB 5: ENCODERS
    ===================================================================== */
+// turnToHeading() in Java: tab 7 (turn job) and the tab 8 exercise answer print these same lines
+function turnJava(ctor){
+  return [
+    "private final PIDController turnPID = " + ctor,
+    "// Robot.java needs headingDegrees() and turnRateDegrees(): imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate",
+    "",
+    "private void turnToHeading(double target) {      // AUTO",
+    "    turnPID.reset();",
+    "    while (opModeIsActive()) {",
+    "        double error = AngleUnit.normalizeDegrees(target - robot.headingDegrees());  // IMU",
+    "        if (Math.abs(error) < 1.5 && Math.abs(robot.turnRateDegrees()) < 5) break;  // on target AND stopped",
+    "        double power = Range.clip(turnPID.update(error), -0.6, 0.6);",
+    "        robot.drive(0, 0, -power);                // + power turns left",
+    "    }",
+    "    robot.stopDrive();",
+    "}"
+  ];
+}
 const EN = (function(){
   const REAL_CPR = 537.7, REAL_DIA = 4.09, REAL_CPI = REAL_CPR / (REAL_DIA * Math.PI);
   let st = {phase: "idle", ticks: 0, target: 0, power: 0, stopAt: -1, t: 0, posIn: 0};
@@ -2369,6 +2405,7 @@ const EN = (function(){
   });
   function tick(dt){
     st.t += dt;
+    TT.tick(dt);
     if (st.phase === "drive"){
       const remaining = st.target - st.ticks;
       st.power = clamp(remaining / 300, -0.5, 0.5);
@@ -2426,6 +2463,117 @@ const EN = (function(){
     markLines($("#en-code"), hlL, (st.phase === "stuck" || st.phase === "crashed") ? [wl] : []);
     markLines($("#en-robot-code"), st.phase === "drive" ? BUSY_LINES : [], []);
   }
+  // ---- exercise: drive 24 in, then turnToHeading(90). Same PID, physics and break line as the tab 7 turn job ----
+  const TT = (function(){
+    const KP = 0.02, KI = 0.04, KD = 0.002, TOL = 1.5, RATE = 5, GOAL = 90, DRIVE = 24, DT = 0.02;
+    const norm = a => ((a + 180) % 360 + 360) % 360 - 180;   // AngleUnit.normalizeDegrees()
+    const lines = [
+      "// two new imports",
+      "import com.qualcomm.robotcore.util.Range;",
+      "import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;",
+      "",
+      "@Autonomous(name = \"Leave and Park\", group = \"Competition\", preselectTeleOp = \"Main TeleOp\")",
+      "public class LeaveAndPark extends LinearOpMode {",
+      "",
+      "    private final Robot robot = new Robot();",
+      "",
+      "    @Override",
+      "    public void runOpMode() {",
+      "        robot.init(hardwareMap);",
+      "        waitForStart();",
+      "        driveInches(24, 0.5);",
+      "        turnToHeading(90);                       // the new line",
+      "    }",
+      "",
+      "    // driveInches() stays the same",
+      ""
+    ].concat(turnJava("new PIDController(0.02, 0.04, 0.002);").map(l => l ? "    " + l : l), ["}"]);
+    const at = s => lines.findIndex(l => l.includes(s));
+    const L_DRIVE = at("driveInches(24"), L_CALL = at("turnToHeading(90)"), L_WHILE = at("while (opModeIsActive())"), L_BREAK = at("break;"), L_STOP = at("robot.stopDrive()");
+    const L_LOOP = lines.map((_, i) => i).filter(i => i >= L_WHILE && i < L_STOP - 1 && i !== L_BREAK);
+    renderCode($("#en-tt-code"), lines);
+    const fresh = () => ({phase: "idle", y: 0, h: 0, w: 0, out: 0, acc: 0, tc: 0, tDone: -1, integral: 0, last: 0, first: true, hist: []});
+    let s = fresh();
+    function control(){
+      const err = norm(GOAL - s.h);
+      if (Math.abs(err) < TOL && Math.abs(s.w) < RATE){ s.phase = "done"; s.tDone = s.tc; s.out = 0; return; }   // the break line
+      let u;
+      if (s.first){ s.first = false; s.last = err; u = KP * err; }
+      else {
+        if (Math.abs(KP * err) < 0.35) s.integral += err * DT; else s.integral = 0;   // I only near the target
+        u = KP * err + KI * s.integral + KD * (err - s.last) / DT; s.last = err;
+      }
+      s.out = clamp(u, -0.6, 0.6);
+    }
+    function tick(dt){
+      if (s.phase === "drive"){
+        s.y = Math.min(DRIVE, s.y + clamp((DRIVE - s.y) * 3, 2, 28) * dt);   // RUN_TO_POSITION slows near the target
+        if (s.y >= DRIVE - 0.01){ s.y = DRIVE; s.phase = "turn"; s.acc = 0; }
+      } else if (s.phase === "turn" || (s.phase === "done" && s.tc - s.tDone < 1)){
+        s.acc += dt;
+        while (s.acc >= DT){   // 50 Hz, like the tab 7 sim: deadband 0.05, 300 deg/s at full power, 0.18 s lag
+          s.acc -= DT; s.tc += DT;
+          if (s.phase === "turn") control();
+          const ue = Math.abs(s.out) < 0.05 ? 0 : s.out;
+          s.w += (ue * 300 - s.w) * (DT / 0.18);
+          s.h += s.w * DT;
+          s.hist.push({t: s.tc, e: norm(GOAL - s.h)});
+        }
+      }
+      draw();
+    }
+    function msg(t, cls){ const m = $("#en-tt-msg"); if (m.textContent !== t) m.textContent = t; m.className = "msg " + (cls || ""); }
+    function draw(){
+      const cv = $("#en-tt-canvas"), narrow = cv.clientWidth < 560, ch = (narrow ? 440 : 230) + "px";
+      if (cv.style.height !== ch) cv.style.height = ch;   // a phone stacks the path above the chart
+      const {ctx, w, h} = fit(cv);
+      const err = norm(GOAL - s.h);
+      // left (top on a phone): top view of the path
+      const fh = narrow ? 210 : h, fw = narrow ? w : Math.round(Math.min(w * 0.42, 280)), sc = (fh - 50) / 34, x0 = fw * 0.62, y0 = fh - 22 - 4 * sc, ry = y0 - s.y * sc;
+      ctx.strokeStyle = P.line; ctx.lineWidth = 1;
+      for (let i = 0; i <= 30; i += 6){ const yy = y0 - i * sc; ctx.beginPath(); ctx.moveTo(8, yy); ctx.lineTo(fw - 8, yy); ctx.stroke(); }
+      dashed(ctx, x0 + 34, y0 - DRIVE * sc, fw - 8, y0 - DRIVE * sc, P.ok, 2);   // right of the robot: the heading lines go left
+      text(ctx, "24 in", fw - 8, y0 - DRIVE * sc - 6, {color: P.ok, weight: "600", size: 13, align: "right"});
+      arrow(ctx, x0, y0, x0, Math.min(y0, ry + 2), alpha(P.accent, 0.6), 3);
+      const hr = s.h * Math.PI / 180, gr = GOAL * Math.PI / 180, Lr = 46;
+      [-TOL, TOL].forEach(d => dashed(ctx, x0, ry, x0 - Lr * Math.sin(gr + d * Math.PI / 180) * 1.6, ry - Lr * Math.cos(gr + d * Math.PI / 180) * 1.6, P.ok, 1.5, [3, 3]));
+      text(ctx, "target 90", 8, ry + 20, {color: P.ok, weight: "600", size: 13});
+      drawRobot(ctx, x0, ry, hr, clamp(16 * sc, 30, Math.min(64, fw * 0.3)));
+      text(ctx, "heading " + s.h.toFixed(1), fw / 2, fh - 6, {align: "center", size: 13, weight: "600"});
+      // right (bottom on a phone): heading error over time, with the break window
+      const cl = (narrow ? 0 : fw) + 54, cr = w - 12, ct = (narrow ? fh : 0) + 26, cb = h - 30, tMax = Math.max(2.5, s.tc + 0.3);
+      const X = t => cl + (t / tMax) * (cr - cl), Y = e => cb - ((e + 18) / 113) * (cb - ct);
+      text(ctx, "heading error (deg)", cl, ct - 10, {size: 13, weight: "600", color: P.muted});
+      ctx.strokeStyle = P.line; ctx.lineWidth = 1;
+      [0, 45, 90].forEach(e => { ctx.beginPath(); ctx.moveTo(cl, Y(e)); ctx.lineTo(cr, Y(e)); ctx.stroke(); text(ctx, String(e), cl - 6, Y(e) + 4, {align: "right", size: 13, color: P.muted}); });
+      for (let t = 0; t <= tMax; t += 1) text(ctx, t + " s", X(t), h - 10, {align: "center", size: 13, color: P.muted});
+      const bh = Math.max(8, Y(-TOL) - Y(TOL));
+      ctx.fillStyle = alpha(P.ok, 0.28); ctx.fillRect(cl, Y(0) - bh / 2, cr - cl, bh);
+      text(ctx, "break window +/-1.5", cl + 4, Y(0) + bh / 2 + 15, {size: 13, weight: "600", color: P.ok});
+      if (s.hist.length){
+        ctx.strokeStyle = P.accent; ctx.lineWidth = 2.5; ctx.beginPath();
+        s.hist.forEach((p, i) => { const px = X(p.t), py = Y(clamp(p.e, -18, 95)); if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); });
+        ctx.stroke();
+      }
+      if (s.tDone >= 0){ dashed(ctx, X(s.tDone), ct, X(s.tDone), cb, P.ok, 2); text(ctx, "break", X(s.tDone) + 4, ct + 12, {size: 13, weight: "600", color: P.ok}); }
+      // chips: the two halves of the break line
+      const inErr = Math.abs(err) < TOL, still = Math.abs(s.w) < RATE;
+      $("#en-tt-chips").innerHTML = chip("error " + err.toFixed(1) + " deg", "run") + chip("turn rate " + (Math.round(s.w) || 0) + " deg/s", "run") + chip("power " + s.out.toFixed(2), "run") +
+        chip("|error| < 1.5: " + inErr, inErr ? "ok" : "bad") + chip("|rate| < 5: " + still, still ? "ok" : "bad");
+      if (s.phase === "idle") msg("Press Run. The robot drives forward, then turns left to heading 90.");
+      else if (s.phase === "drive") msg("driveInches(24, 0.5): the hub drives 24 in. The turn waits.");
+      else if (s.phase === "turn") msg("turnToHeading(90): error = 90 - heading. Big error, full power (clipped to 0.6). Small error, less power.");
+      else msg("Break after " + s.tDone.toFixed(1) + " s: error under 1.5 deg AND turn rate under 5 deg/s. stopDrive() ran. Next: driveInches() again to PARK.", "ok");
+      const hl = s.phase === "drive" ? [L_DRIVE] : s.phase === "turn" ? [L_CALL].concat(L_LOOP) : s.phase === "done" ? [L_BREAK, L_STOP] : [];
+      markLines($("#en-tt-code"), hl, []);
+    }
+    $("#en-tt-run").addEventListener("click", () => { s = Object.assign(fresh(), {phase: "drive"}); });
+    $("#en-tt-show").addEventListener("click", e => {
+      const pre = $("#en-tt-code"), open = pre.hidden;
+      pre.hidden = !open; e.target.textContent = open ? "Hide the answer" : "Show the answer"; e.target.setAttribute("aria-expanded", String(open));
+    });
+    return {tick};
+  })();
   return {tick, show: () => {}, get: () => ({ticks: st.ticks, posIn: st.posIn, realCpr: REAL_CPR, realDia: REAL_DIA})};
 })();
 
@@ -2638,21 +2786,7 @@ const PIDLAB = (function(){
     const g = gains().map((v, i) => fmt(v, APPS[app].range[["kp", "ki", "kd"][i]][2]));
     const ctor = "new PIDController(" + g.join(", ") + ");";
     let L;
-    if (app === "turn") L = [
-      "private final PIDController turnPID = " + ctor,
-      "// Robot.java needs headingDegrees() and turnRateDegrees(): imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate",
-      "",
-      "private void turnToHeading(double target) {      // AUTO",
-      "    turnPID.reset();",
-      "    while (opModeIsActive()) {",
-      "        double error = AngleUnit.normalizeDegrees(target - robot.headingDegrees());  // IMU",
-      "        if (Math.abs(error) < 1.5 && Math.abs(robot.turnRateDegrees()) < 5) break;  // on target AND stopped",
-      "        double power = Range.clip(turnPID.update(error), -0.6, 0.6);",
-      "        robot.drive(0, 0, -power);                // + power turns left",
-      "    }",
-      "    robot.stopDrive();",
-      "}"
-    ];
+    if (app === "turn") L = turnJava(ctor);
     if (app === "aim") L = [
       "private final PIDController aimPID = " + ctor,
       "private double lastBearing = 0;",
