@@ -46,17 +46,31 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
 
   // ---- team scoreboard: keys, buttons, persistence, toggle ----
   await pg.goto(URL + "#java"); await pg.waitForTimeout(300);
-  await pg.click("#tm-reset");
+  await pg.click("#tm-reset"); await pg.click("#tm-reset");
   await pg.keyboard.press("3");
   await pg.click('.team[data-i="2"] button[data-d="1"]');
   check((await pg.textContent('.team[data-i="2"] b')) === "2" && !!(await pg.$('.team[data-i="2"].lead')), "key 3 and + give team 3 two points and the lead");
   await pg.reload(); await pg.waitForTimeout(300);
   check((await pg.textContent('.team[data-i="2"] b')) === "2", "scores survive a reload");
-  await pg.click("#tm-reset");
+  await pg.click("#tm-reset"); await pg.click("#tm-reset");
   check((await pg.textContent('.team[data-i="2"] b')) === "0", "Reset scores clears the board");
   await pg.click("#tm-toggle");
   check(!(await pg.isVisible("#teambar")), "Teams button hides the scoreboard");
   await pg.click("#tm-toggle");
+
+  // ==== area whole: ligatures, summary-click guard, two-click reset ====
+  check((await pg.$eval("pre.code", p => getComputedStyle(p).fontFeatureSettings)).includes('"calt" 0'), "code panels draw no ligatures");
+  await pg.click("#lab-java details.ask .q");
+  await pg.click("#lab-java details.ask .tag");
+  check(!(await pg.$eval("#lab-java details.ask", d => d.open)), "clicking the question does not reveal the answer");
+  await pg.keyboard.press("2");
+  await pg.click("#tm-reset");
+  check((await pg.textContent("#tm-reset")) === "Click again to clear" && (await pg.textContent('.team[data-i="1"] b')) === "1", "one click on Reset scores only arms it");
+  await pg.mouse.move(600, 600);
+  check((await pg.textContent("#tm-reset")) === "Reset scores", "moving away disarms Reset scores");
+  await pg.click("#tm-reset"); await pg.click("#tm-reset");
+  check((await pg.textContent('.team[data-i="1"] b')) === "0", "two clicks on Reset scores clear the board");
+  // ==== end area whole ====
 
   // ---- Ask the room votes: tally, undo, reveal ----
   const optB = '#lab-java details.ask .opt:nth-child(2)';
@@ -74,8 +88,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.textContent('.team[data-i="2"] b')) === "0" && (await pg.textContent(optB + " b")) === "1", "right-click refunds the last paid vote");
   for (let i = 0; i < 5; i++) await pg.click(optB);
   check((await pg.textContent("#lab-java details.ask .vnext")) === "all 6 teams voted" && (await pg.textContent(optB + " b")) === "5", "a 7th vote is ignored");
-  await pg.click("#tm-reset");
-  check((await pg.textContent(optB + " b")) === "0" && (await pg.textContent('.team[data-i="0"] b')) === "0", "Reset clears votes and scores together");
+  await pg.click("#tm-reset"); await pg.click("#tm-reset");
+  check((await pg.textContent(optB + " b")) === "0" && (await pg.textContent('.team[data-i="0"] b')) === "0" && !(await pg.$("#lab-java details.ask[open]")), "Reset clears votes and scores together and hides the answer");
   check((await pg.$$("details.ask .vote")).length === 9, "every Ask the room has a vote");
   check((await pg.$$("details.ask .vote .reveal")).length === 9, "Reveal sits at the end of every vote row");
 

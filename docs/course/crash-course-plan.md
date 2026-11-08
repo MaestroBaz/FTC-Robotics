@@ -2,7 +2,7 @@
 
 Audience: about 30 students with basic Java (variables, if, loops), in 6 teams of about 5. No student laptops and no robot in the room. The mentor runs the lab on the projector from the local file `lab/index.html`. Students do not type code on this day. Goal: every team reads a full OpMode, names each part, and predicts what the robot does before the demo shows the answer. A hands-on Follow-up Session covers cloning, building and pull requests.
 
-Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 GitHub teamwork, 2 Java basics, 3 OpMode lifecycle, 4 Drive modes, 5 One loop, 6 Feedback, 7 PID control, 8 Encoders in auto). On the day, open the same file from disk.
+Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). On the day, open the same file from disk.
 
 Homework for the night before: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S (FTC Crash Course: Homework for Tonight, about 3 hours, GitHub first).
 
@@ -14,7 +14,7 @@ Charts (tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live 
 
 Nobody types on this day. The lab replaces hands-on testing with visuals, and the team game replaces typing with predictions. Every module runs the same four moves:
 
-1. Ask the room (2 min). Each lab tab opens with a question and three answers, A, B and C. Teams talk for 30 seconds and hold up one printed card. You click the answer each team holds up (right-click takes one back), then click Reveal answer, then press the key 1 to 6 for each team with the right answer. A wrong prediction followed by the demo sticks better than a lecture.
+1. Ask the room (2 min). Each lab tab opens with a question and three answers, A, B and C. Teams talk for 30 seconds and hold up one printed card. You click the answer each team holds up, Team 1 first (right-click takes one back), then click Reveal answer. The lab gives one point to every team with the right answer. Keys 1 to 6 are for the other three games. A wrong prediction followed by the demo sticks better than a lecture.
 2. Show the lab (5-10 min). Run the tab on the projector. Turn on the bug toggles. Let a student from the leading team drive the controls.
 3. Team round (3-5 min). One of four games, listed per module below: a vote, a word hunt, a spot-the-bug, or a prediction before a demo.
 4. Read the code aloud (2 min). Point at the real file on the Java tab and say what one line does. Teams listen for words to hunt later.
@@ -25,7 +25,7 @@ The four games:
 - Spot the bug: Java tab, "Error clinic: fix it" card. Put an error on the projector. The team whose turn comes picks a fix. Click the fix. The room sees the result. A right fix scores one point. A wrong fix passes the same error to the next team.
 - Prediction: before you press a lab button, each team holds up A, B or C for what the robot will do. Right prediction, one point.
 
-Scoreboard: the top bar of the lab holds 6 teams. Keys 1 to 6 give a point. Click a name to rename a team. Reset scores clears the board. The Teams button hides the bar when you need the screen.
+Scoreboard: the top bar of the lab holds 6 teams. Keys 1 to 6 give a point in the word hunt, spot the bug and prediction games. Click a name to rename a team. Click Reset scores twice to clear the board. The Teams button hides the bar when you need the screen.
 
 Design choices:
 - One working TeleOp with field-centric drive, a launcher state machine and auto-aim, shown in steps. The same three files (MainTeleOp.java, Robot.java, PIDController.java) come back in every module, so by the end the room has read them many times.
@@ -41,7 +41,7 @@ The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fal
 - [ ] Print `team-coding-standard.md`, one per student.
 - [ ] Print `run-sheet.md`.
 - [ ] Print 6 sets of A, B and C cards, one set per team.
-- [ ] Test the projector with `lab/index.html` opened from disk, browser zoom at 125-150%, so the code lines read from the back row.
+- [ ] Test the projector with `lab/index.html` opened from disk at browser zoom 125%, not more. Check that the vote options and code read from the back row. Press Hide after each vote so the demo gets the screen.
 - [ ] On the morning of the course, copy `lab/index.html` to a USB stick.
 - [ ] Send the homework link to the students.
 
@@ -54,10 +54,10 @@ Laptops, GitHub org and invites, robot config and the archive branch moved to th
 | 0:00-0:10 | 0. Why we are here, teams and the rules of the game | 2 (AI version) | Teams named, rules agreed |
 | 0:10-0:45 | 1. Java basics, the robot way | 1 Java basics | Teams read a full OpMode and name each part |
 | 0:45-1:00 | 2. What runs when you press INIT, START and STOP | 2 OpMode lifecycle | Teams predict the next line before each press |
-| 1:00-1:20 | 3. GitHub: how the team shares one robot's code | 4 GitHub teamwork | Teams explain commit, push, pull, PR and conflict |
+| 1:00-1:20 | 3. GitHub: how the team shares one robot's code | 3 GitHub teamwork | Teams explain commit, push, pull, PR and conflict |
 | 1:20-1:30 | Break | | |
-| 1:30-1:55 | 4. Drive modes, robot-centric and field-centric | 5 Drive modes | Teams predict where the robot goes in each mode |
-| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 3 One loop, 6 Feedback | Teams explain why no sleep and why closed loop |
+| 1:30-1:55 | 4. Drive modes, robot-centric and field-centric | 4 Drive modes | Teams predict where the robot goes in each mode |
+| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 5 One loop, 6 Closed loop | Teams explain why no sleep and why closed loop |
 | 2:25-2:50 | 6. PID control and auto-aim | 7 PID control | Teams name P, I and D on the chart |
 | 2:50-3:00 | Final round, scores, what comes next | 1 Java basics (Every word explained) | Winner named, next session dated |
 
@@ -77,10 +77,10 @@ Talking points (5 min):
 
 Teams and the game (5 min):
 - Press Reset scores. Click each team name in the top bar and type the name the team picks. Hand out one set of A, B and C cards per team.
-- Practice vote, no points: the tab 2 Ask the room question about the AI version. Walk through the moves once: teams hold up a card, you click each team's answer, Reveal answer, then a key per right team. Explain the four games in one sentence each.
+- Practice vote: the tab 2 Ask the room question about the AI version. Walk through the moves once: teams hold up a card, you click each team's answer, then Reveal answer. The lab pays the points. Press Reset scores after the practice, so the game starts at 0 and the tab 2 vote is fresh for Module 2. Explain the four games in one sentence each.
 
 Team rounds:
-- Practice vote on tab 2 (0 points, shows the moves).
+- Practice vote on tab 2 (Reset scores after it, shows the moves).
 
 ## Module 1: Java basics, the robot way (35 min)
 
