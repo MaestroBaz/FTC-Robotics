@@ -3613,6 +3613,8 @@ const JV = (function(){
   }
   $$(".jt").forEach(b => b.addEventListener("click", e => {
     showTopic(b.dataset.jt);
+    const ask = $("#lab-java details.ask");
+    if (ask && ask.open) $("#lab-java .labhead").classList.add("qgone");   // a revealed question folds once a card opens: votes and points stay
     const top = $(".jpane.on").getBoundingClientRect().top, pad = $(".topbar").offsetHeight + 12;   // open the card on its heading, not mid-card
     if (top < pad) window.scrollBy(0, top - pad);
     if (e.detail > 0 && document.body.classList.contains("autohide")){ b.blur(); $(".jtopics").classList.add("shut"); }   // mouse click, not keyboard
@@ -3723,9 +3725,9 @@ const JV = (function(){
   ].map(r => "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "<br><code>" + esc(r[2]) + "</code></td></tr>").join("");
   const QUIZ = [
     ["int ballsLoaded = 3;", true, "OK. A whole number in an int box."],
-    ["int power = 0.5;", false, "Error: possible lossy conversion from double to int. Fix: double power = 0.5;"],
+    ["int power = 0.5;", false, "Error: incompatible types: possible lossy conversion from double to int. Fix: double power = 0.5;"],
     ["double speed = 1;", true, "OK. A whole number fits in a double box. Java stores it as 1.0."],
-    ["boolean ready = \"true\";", false, "Error: String cannot be converted to boolean. Fix: boolean ready = true;"],
+    ["boolean ready = \"true\";", false, "Error: incompatible types: String cannot be converted to boolean. Fix: boolean ready = true;"],
     ["String alliance = RED;", false, "Error: cannot find symbol: variable RED. Text needs quotes. Fix: String alliance = \"RED\";"],
     ["Robot.MAX_SPEED = 1.0;   // in an OpMode. MAX_SPEED is final", false, "Error: cannot assign a value to final variable MAX_SPEED. Tune it in Robot.java."]
   ];
@@ -3975,6 +3977,7 @@ const JV = (function(){
     let run = [];
     for (let k = start + 1; k < code.length - 1; k++){
       if (/^    case /.test(code[k])) continue;   // a case label is not a stop sign: without break, Java falls through it
+      if (noBrk && swState === "SPINNING_UP" && /feedTimer\.reset|= LaunchState\.FEEDING/.test(code[k])) continue;   // the fall-through story: the wheel is not at speed, so this if body is skipped
       run.push(k);
       if (/break;/.test(code[k])) break;
     }
@@ -3985,7 +3988,7 @@ const JV = (function(){
     $$("#jv-swbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.s === swState ? "true" : "false"));
     const m = $("#jv-swmsg");
     const fell = noBrk && swState === "SPINNING_UP";
-    m.innerHTML = fell ? "No <code>break</code>: Java runs SPINNING_UP, then falls into FEEDING and feeds a ball before the wheel is at speed. The shot falls short. Every case ends with <code>break</code>."
+    m.innerHTML = fell ? "No <code>break</code>: Java runs SPINNING_UP, then falls into FEEDING in the same pass. The wheel is not at speed yet, so <code>feedTimer.reset()</code> never ran and <code>feedTimer.seconds() &gt; 0.3</code> is already true: feederOff() runs and launchState jumps back to IDLE. Next pass, IDLE turns the launcher off. You press the bumper and nothing launches. Every case ends with <code>break</code>."
       : "launchState is <b>" + swState + "</b>. Java jumps to <code>case " + swState + ":</code>, runs down to <code>break</code>, and leaves the switch. Next loop pass, it checks again.";
     m.className = "msg " + (fell ? "bad" : "ok");
   }
@@ -4726,7 +4729,7 @@ const JV2 = (function(){
   };
   const USES = {
     MainTeleOp: ["TeleOp", "LinearOpMode", "ElapsedTime", "Range", "List", "Robot", "PIDController"],
-    Robot: ["DcMotor", "DcMotorEx", "HardwareMap"],
+    Robot: ["DcMotor", "DcMotorEx", "IMU", "HardwareMap"],
     PIDController: ["ElapsedTime"],
     LeaveAndPark: ["Autonomous", "LinearOpMode", "Robot", "PIDController"],
     BasicOmniOpMode_Linear: ["TeleOp", "LinearOpMode", "DcMotor", "ElapsedTime"],
@@ -4734,7 +4737,7 @@ const JV2 = (function(){
   };
   const DESC = {
     MainTeleOp: "This is MainTeleOp later in the season, with auto-aim and a shot list. It uses 7 classes. Robot and PIDController sit in the same package, so they need no import. The other 5 live in other packages, so each one needs an import line.",
-    Robot: "Robot uses 3 SDK hardware classes from com.qualcomm.robotcore.hardware, so Robot.java has 3 import lines. Nothing in Robot.java uses the OpMode classes.",
+    Robot: "Robot uses 4 SDK hardware classes from com.qualcomm.robotcore.hardware: DcMotor, DcMotorEx, IMU and HardwareMap. Each one needs an import line. The real Robot.java has a few more, such as CRServo and AngleUnit. Nothing in Robot.java uses the OpMode classes.",
     PIDController: "PIDController needs only ElapsedTime, for the time between loop passes. One import.",
     LeaveAndPark: "The AUTO OpMode uses the same Robot and PIDController as MainTeleOp. One copy of each class, shared by both OpModes, with no imports needed.",
     BasicOmniOpMode_Linear: "A FIRST sample. Its package is the samples package, inside FIRST's module. To use it, copy it into TeamCode and change line 1 to package org.firstinspires.ftc.teamcode.",
@@ -4924,7 +4927,7 @@ const JV2 = (function(){
     t += brace(20, 25, "kind", "red", 48);
     t += brace(27, 45, "what went wrong", "red", 48);
     t += SV.tx(560, 96, "<- the class Java could not find", {anchor: "start", size: 12, col: "mut"});
-    t += SV.tx(560, 122, "<- the file it was looking in", {anchor: "start", size: 12, col: "mut"});
+    t += SV.tx(560, 122, "<- the class it was looking in", {anchor: "start", size: 12, col: "mut"});
     t += SV.tx(x0, 156, "Build window (bottom of Android Studio): click the blue file link to jump to the line. Fix the FIRST error first: one missing import often causes 10 red lines.", {anchor: "start", size: 12, col: "mut"});
     SV.set($("#jv-buildline"), 1000, 168, t);
   }

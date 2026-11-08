@@ -232,8 +232,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#jv-swbtns .b[data-s="SPINNING_UP"]');
   check((await pg.getAttribute("#jv-swmsg", "class")).includes("ok"), "switch with break stays in SPINNING_UP");
   await pg.check("#jv-swbrk");
-  check(/falls into FEEDING/.test(await pg.textContent("#jv-swmsg")), "forgetting break falls through into FEEDING");
-  check(await pg.$$eval("#jv-swcode .ln", ls => { const f = ls.findIndex(l => /case FEEDING/.test(l.textContent)); const fell = ls.slice(f + 1, f + 4); return fell.every(l => l.classList.contains("err") && !l.classList.contains("run")); }), "fall-through lines show red, not green");
+  check(/falls into FEEDING/.test(await pg.textContent("#jv-swmsg")) && /nothing launches/.test(await pg.textContent("#jv-swmsg")) && !/falls short/.test(await pg.textContent("#jv-swmsg")), "forgetting break falls through into FEEDING, which turns the feeder off at once: nothing launches");
+  check(await pg.$$eval("#jv-swcode .ln", ls => { const f = ls.findIndex(l => /case FEEDING/.test(l.textContent)); const fell = ls.slice(f + 1, f + 4); const skipped = ls.filter(l => /feedTimer\.reset|= LaunchState\.FEEDING/.test(l.textContent)); return fell.every(l => l.classList.contains("err") && !l.classList.contains("run")) && skipped.length === 2 && skipped.every(l => !l.classList.contains("run") && !l.classList.contains("err")); }), "fall-through lines show red, not green, and the skipped feedTimer.reset() line stays unlit to match the message");
   await shot(pg.locator("#lab-java"), "java-decide.png");
 
   // ---- Ask the room: Hide folds the question, Show brings it back ----
@@ -896,6 +896,20 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
       clinic.push(Math.round(worst));
     }
     check(clinic.every(y => y <= 768) && (await jp.$eval("#jv-errlist", e => e.getBoundingClientRect().top)) >= 0, "java error clinic at 1366x768: for all 9 errors the Build text, choices and verdict end above the fold: " + clinic.join(", "));
+    // #46 reveal without Hide: opening a card folds a revealed question, so card 2 and its 6 answers still fit at 1366x768
+    await jp.evaluate(() => window.scrollTo(0, 0));
+    const team1 = +(await jp.textContent('.team[data-i="0"] b'));
+    await jp.click("#lab-java details.ask .opt:nth-child(1)"); await jp.click("#lab-java details.ask .reveal");
+    await jp.waitForSelector("#lab-java details.ask[open]"); await jp.waitForTimeout(50);
+    const shownAfterReveal = !(await jp.$eval("#lab-java .labhead", h => h.classList.contains("qgone")));
+    await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="vars"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
+    const qr = await jp.$$eval("#jv-compile .cmp", cs => cs.map(c => Math.round(c.getBoundingClientRect().bottom)));
+    check(shownAfterReveal && (await jp.$eval("#lab-java .labhead", h => h.classList.contains("qgone"))) && +(await jp.textContent('.team[data-i="0"] b')) === team1 + 1 && qr.every(y => y > 0 && y <= 768), "#46 java: a revealed question folds when a card opens, the point stays, and card 2 answers end above 768 px: " + qr.join(", "));
+    await jp.click("#lab-java .ask-show");
+    check(/incompatible types: possible lossy/.test(await jp.textContent("#jv-q1")) && /incompatible types: String cannot/.test(await jp.textContent("#jv-q3")), "java card 2: type errors read the way javac prints them, with incompatible types:");
+    await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="modules"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
+    await jp.click('#jv-map .mapfile[data-c="Robot"]');
+    check(/import com\.qualcomm\.robotcore\.hardware\.IMU;/.test(await jp.textContent("#jv-mapcode")) && /IMU/.test(await jp.textContent("#jv-modmsg")), "project map: Robot.java imports IMU, like card 3 and the plan");
     // Every word explained: the lede names four places, every MainTeleOp word outside package and import lines is clickable, and each says where it comes from
     await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="words"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
     const bare = await jp.$eval("#jv-wcode", c => [...c.querySelectorAll(".ln")].filter(l => !/^(package|import) /.test(l.textContent)).flatMap(l => {
