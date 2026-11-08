@@ -28,7 +28,7 @@ Table 6-8, in our words: [Certain]
 
 Our candidates for Required 2: the launcher on `setVelocity()` (motor encoder), the turn to heading (IMU), the lift to height (lift encoder), the auto-aim (camera bearing), the AUTO drive on the drive encoders (`driveInches()` with `RUN_TO_POSITION`), and `goToPoint()` on the Pinpoint. TeleOp stick driving on `setPower()` does not count: the driver closes the loop by eye. The aim button counts: the camera bearing closes the loop. AUTO drive counts. [Likely]: our reading of Required 2, not manual text.
 
-Advancement: Control sits in one group with Innovate and Design. At small events the judges give only one award of the three (Table 6-1). [Certain] on the table text. [Verify] the size bracket of our event.
+Advancement: Control sits in one group with Innovate and Design. At events of 4 to 10 teams the judges give only one award of the three (Table 6-1). [Certain] on the table text. [Verify] the size bracket of our event.
 
 ### Portfolio rules
 
@@ -72,7 +72,7 @@ As the team reference doc (`docs/course/ftc-reference-2026-27.md`, section 4) st
 
 1. Open (5 min). Put Table 6-8 on the projector. Ask the room: which part runs with no external feedback while the driver steers with the sticks (aim button released)? A the launcher, B the drive, C the lift. Answer: B. Stick driving runs on `setPower()` and the driver closes the loop by eye. In AUTO the drive uses the drive encoders, so AUTO drive counts. One point per right team on the scoreboard.
 2. Sensor list (10 min). Each team fills in the sensor table on the template. Columns A, B and C match Required 1 (A), (B) and (C). The feedback column answers Required 2.
-3. Before run (10 min). Tab 7, your job, preset "P only". Pick one target and run one move. Pause. Press Save PNG above the "Target vs sensor" chart: one picture with both PID charts. Copy the gains next to the sliders and four rows of the Response markers table: rise time, overshoot, settling time, steady-state error. Team 6: tab 6, battery 12.5 V, Fire 3 fast. Save PNG. Copy the dip and the recovery time for open loop and closed loop.
+3. Before run (10 min). Tab 7, your job, preset "P only". Pick one target and run one move. Pause. Press Save PNG above the "Target vs sensor" chart: one picture with both PID charts. Copy the gains next to the sliders and four rows of the Response markers table: rise time, overshoot, settling time, steady-state error. Team 6: tab 6, battery 12.5 V, Fire 3 fast. Save PNG. Copy the closed-loop dip and recovery time from the markers. For open loop, read the lowest point of the setPower(0.8) line after a shot and the time until the line is back in the HIVE window.
 4. Tune, then the after run (15 min). Follow "How to tune" on tab 7. Try at least 3 gain sets. Write each set and the result in the gains table. Run the best set on the same target as the before run, or the comparison means nothing. Save PNG. Copy the markers again. Team 6 compares open loop (before) with closed loop (after).
 5. Build the page (12 min). Fill in the template: the before and after charts with units on both axes, the gains table, the markers table, 2 sentences on what you learned (Encouraged 5), 1 sentence on reliability (Encouraged 4).
 6. Pitch (8 min). Each team pitches the page in 60 seconds, as in a judge interview. Two students speak: the reference doc lists at least 2 students per interview (A204). The room votes for the clearest page. One point to the winner.

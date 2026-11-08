@@ -52,7 +52,7 @@ When those limits cost points, read Module 6.
 - [ ] `main` holds `Robot.java` with the Pinpoint methods below, `PIDController.java`, and a go-to-point AUTO. Deployed on the robot.
 - [ ] Tape on the practice field: the start mark, a 24 in square from the start mark, and the BIOBUZZ PARK zone and launch spot for your alliance side.
 - [ ] Fresh, charged batteries, at least 3. Write the voltage of each run in the results table.
-- [ ] A tape measure, painter's tape, one cardboard box (the blocker for Module 4).
+- [ ] A tape measure, painter's tape, one cardboard box weighted with about 10 kg (books or a full battery box), the blocker for Module 4. Test once: the robot must not move the box. If the box slides, add weight.
 - [ ] Print the results table at the end of this doc, one per pair.
 
 What `Robot.java` holds after the odometry session (`odometry.md`, Module 1). [Verify] the merged code still uses these names. If the team renamed one, rename the method in this doc before the day, not on the day.
@@ -298,7 +298,7 @@ Team rounds:
 
 ## Module 4: When the path goes wrong: timeout and STOP (15 min)
 
-- Put the cardboard box on waypoint 2. Before the run, teams predict: A the robot pushes the box forever, B the robot gives up on waypoint 2 after 3 s and drives on, C the OpMode crashes. Answer B. Read "Timeouts: 1" on the Driver Hub.
+- Put the weighted box on waypoint 2. Before the run, teams predict: A the robot pushes the box forever, B the robot gives up on waypoint 2 after 3 s and drives on, C the OpMode crashes. Answer B. Read "Timeouts: 1" on the Driver Hub.
 - Ask the room why the timeout matters in a match: AUTO lasts 30 s. A robot stuck on one point for 30 s scores nothing. A robot giving up after 3 s still reaches PARK.
 - Ask the room what the timeout costs: after a timeout the robot drives on from the wrong spot. The next segment starts off the path. For a match, pick the timeout from the slowest clean run in the table plus 1 s.
 - Press STOP mid-path on one run. The robot halts: `opModeIsActive()` sits in both loops. Point at both lines.
@@ -319,9 +319,19 @@ Measure on the practice field with the tape: the start tile, the launch spot, th
 
 ```java
 path.add(new Waypoint(20, 0, 0, false));     // off the start tile. LEAVE counts where the robot ends AUTO (Q&A 21)
-path.add(new Waypoint(30, 18, 45, true));    // launch spot, facing the HIVE
-// launch the 4 preloaded POLLEN here: the launcher state machine, in a blocking AUTO loop
+path.add(new Waypoint(30, 18, 45, true));    // waypoint 2: launch spot, facing the HIVE
 path.add(new Waypoint(10, 40, 90, true));    // PARK
+```
+
+The list holds only points. The launch goes in the for loop, after the robot stops on the launch spot:
+
+```java
+for (int i = 0; i < path.size() && opModeIsActive(); i++) {
+    driveTo(path.get(i), i + 1);
+    if (i == 1) {
+        launchPreloads();   // blocking: launcher state machine, opModeIsActive() and a timeout
+    }
+}
 ```
 
 [Verify] the LEAVE and PARK definitions and the PARK zone position in CM Section 10 before you pick the points. The PARK point must leave the robot touching no wall, or LEAVE is lost. [Verify] whether the field mirrors between the red and blue alliance. If the field mirrors, the other alliance path flips the sign of every Y and every heading.
