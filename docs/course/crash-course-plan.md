@@ -296,19 +296,19 @@ Team rounds:
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)
 
-Lab tab 3, parts A to D:
-- Open with the vote: "Your laptop dies before you push. Does your team have your code?" Reveal, then score.
-- A, where your code lives (6 min): press Edit, Commit, then "Your partner pushes", then Push. Stop before Push: teams predict A accepted, B rejected, C merged on the server. Press Push. The push gets rejected. Ask a team why, then Pull and Push.
-- B, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
-- C, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
-- D, merge conflict (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep, A Maya, B Leo, C both. Click the most popular side, then show why "both" wins for a roster line.
+Lab tab 3, parts 1 to 4:
+- Open with the vote: "You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?" Reveal, then score.
+- 1, where your code lives (6 min): press 1 Edit, 2 Commit, 3 Leo pushes first. Stop before 4 Push: teams predict A accepted, B rejected, C GitHub merges it. Press 4. The push gets rejected and the GitHub box turns red. Ask a team why, then press 5 Pull and 4 Push.
+- 2, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
+- 3, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
+- 4, merge conflict (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and test both on the robot. C scores: git does not pick, people do. Click the side the room picks.
 
 Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words.
 
 Team rounds:
 - Vote: laptop dies before push (1 point per right team).
 - Prediction: what happens at Push after the partner pushed (1 point).
-- Vote at conflict step 8: which side to keep (1 point for "both").
+- Vote at conflict step 8: which side to keep (1 point for C, ask and test).
 
 ## Module 4: Drive modes, robot-centric and field-centric (25 min)
 

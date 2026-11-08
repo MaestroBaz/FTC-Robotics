@@ -72,7 +72,7 @@ Use Android Studio's built-in Git tools (Git menu and the Commit tool window) an
 ```
 1. Start   : Git > Pull                          (get the latest main)
 2. Branch  : Git > New Branch  maya/slow-mode    (name/what-it-does)
-3. Code    : small change, build, test on robot   (Crash Course: build only)
+3. Code    : small change, build, test on robot
 4. Commit  : Ctrl+K (Cmd+K on Mac), message in the form "Add slow mode on left bumper"
 5. Push    : Ctrl+Shift+K
 6. PR      : github.com > Compare & pull request, fill the template, assign a reviewer
@@ -119,10 +119,10 @@ Reviewer job, in this order:
 4. Pull the branch and drive the robot if the change affects driving or auto.
 5. Approve, or request changes with one concrete fix per comment.
 
-## 7. Crash course drills (Module 4, 45 minutes)
+## 7. Follow-up Session drills (45 minutes)
 
 Drill A: first pull request (15 min)
-- Each pair pushes the Module 3 branches and opens PRs. Partners review each other with the checklist above. Mentor approves the first one live on the projector to show the flow.
+- Each pair pushes a branch and opens a PR. Partners review each other with the checklist above. Mentor approves the first one live on the projector to show the flow.
 
 Drill B: merge conflict (15 min)
 - Mentor setup: two students both edit the same line in `MainTeleOp.java`, for example the slow-mode value (0.4 vs 0.3).
@@ -142,7 +142,7 @@ Drill D: issues and the board (5 min)
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Push rejected | main moved since you pulled | Git > Pull, then push |
+| Push rejected | Your branch on GitHub has a commit you do not have | Git > Pull, then push |
 | "Protected branch" error | Pushing straight to main | Create a branch and open a PR |
 | Gradle sync fails after pull | SDK updated or old Android Studio | Update Android Studio to Narwhal 3 Feature Drop or later. Decline any AGP downgrade |
 | Crash at INIT after merge | Config name mismatch | Compare `hardwareMap.get` names with the Driver Hub config |

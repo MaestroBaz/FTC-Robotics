@@ -198,10 +198,10 @@ svg.diag{display:block; width:100%; height:auto; background:var(--field); border
 .place.flash{border-color:var(--pollen); box-shadow:0 0 0 4px color-mix(in srgb,var(--pollen) 35%,transparent);}
 .place.flash.reject, .place.reject{border-color:var(--red); box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 30%,transparent);}
 .pcol{display:flex; flex-direction:column; justify-content:center; gap:10px;}
-.parrow{white-space:nowrap; font:600 11px var(--mono); color:var(--accent); text-align:center; border:1px dashed var(--accent); border-radius:6px; padding:4px 2px;}
-.place .cm{font:12px var(--mono); border:1px solid var(--line); border-radius:6px; padding:4px 6px; background:var(--codebg); display:flex; gap:6px; align-items:baseline; flex-wrap:wrap;}
+.parrow{white-space:nowrap; font:600 13px var(--mono); color:var(--accent); text-align:center; border:1px dashed var(--accent); border-radius:6px; padding:4px 2px;}
+.place .cm{font:14px var(--mono); border:1px solid var(--line); border-radius:6px; padding:4px 6px; background:var(--codebg); display:flex; gap:6px; align-items:baseline; flex-wrap:wrap;}
 .place .cm code{color:var(--accent); font-weight:600;}
-.place .cm small{margin-left:auto; color:var(--muted); font-family:var(--body);}
+.place .cm small{font-size:12px; margin-left:auto; color:var(--muted); font-family:var(--body);}
 .place .cm.mod{border-color:var(--pollen); background:color-mix(in srgb,var(--pollen) 15%,var(--surface));}
 .statusbar{display:flex; flex-wrap:wrap; gap:8px;}
 .legendgrid{display:flex; flex-wrap:wrap; gap:6px;}
@@ -388,6 +388,9 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 #lc-code .ln::before{color:var(--ink); opacity:.7;}   /* line numbers carry the votes, so the back row needs to read them */
 @media (max-width: 600px){ #lab-lifecycle .lc-top{flex-wrap:wrap;} #lc-canvas{flex-basis:100%;} #lc-code{font-size:13px;} }
 /* ==== end area lifecycle ==== */
+/* ==== area gitflow: tab 3 GitHub teamwork ==== */
+.labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
+/* ==== end area gitflow ==== */
 </style>
 </head>
 <body>
@@ -1140,40 +1143,41 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <div class="labhead">
     <div>
       <h2>GitHub teamwork: how 30 people share one robot's code</h2>
+      <p class="goal">Goal: explain commit, push, pull, pull request and merge conflict. Team rule 3.</p>
       <p class="lede">Four pictures. Where your code lives, how the team's repos fit, one pull request from start to finish, and what happens when two people edit the same line.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">You press Ctrl+K and commit. Your laptop dies before you push. Does your team have your code?</span><span class="vote" data-right="1"><button class="opt" type="button">Yes, a commit goes to GitHub</button><button class="opt" type="button">No, a commit stays on your laptop until you push</button><button class="opt" type="button">Yes, Android Studio syncs on its own</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?</span><span class="vote" data-right="1"><button class="opt" type="button">Yes. Commit sends it to GitHub.</button><button class="opt" type="button">No. It sits on the dead laptop.</button><button class="opt" type="button">Yes. Android Studio saves it online on its own.</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">No. A commit saves history on your laptop only. Push sends the commits to GitHub, where the team and the reviewers see them. Commit often, push every time something works.</div>
     </details>
   </div>
 
-  <h3 class="parthead"><span>A</span> Where your code lives</h3>
+  <h3 class="parthead"><span>1</span> Where your code lives</h3>
   <div class="grid2" style="grid-template-columns:minmax(0,0.8fr) minmax(0,1.4fr)">
     <div class="stack">
       <div class="panel">
-        <p style="margin:0 0 10px">Your code lives in three places. Press the buttons in order, then try pushing while your partner has pushed first.</p>
+        <p style="margin:0 0 10px">Your code lives in three places. Press 1 to 5 in order. Before you press 4, each team predicts: A accepted, B rejected, C GitHub merges it.</p>
         <div class="stack" style="gap:8px">
           <button class="b" id="gx-edit">1. Edit MainTeleOp.java</button>
           <button class="b" id="gx-commit">2. Commit (Ctrl+K)</button>
-          <button class="b" id="gx-push">3. Push (Ctrl+Shift+K)</button>
-          <button class="b" id="gx-partner">Your partner pushes to your branch</button>
-          <button class="b" id="gx-pull">4. Pull (Git &gt; Pull)</button>
+          <button class="b" id="gx-partner">3. Leo pushes first</button>
+          <button class="b" id="gx-push">4. Push (Ctrl+Shift+K)</button>
+          <button class="b" id="gx-pull">5. Pull (Git &gt; Pull)</button>
           <button class="b" id="gx-reset">Reset</button>
         </div>
       </div>
-      <div class="msg" id="gx-msg">Press 1.</div>
-      <pre class="code term" id="gx-cmd">git status   # the terminal version of each button appears here</pre>
     </div>
     <div class="stack">
       <div class="places" id="gx-places"></div>
       <div class="statusbar" id="gx-status"></div>
+      <div class="msg" id="gx-msg">Press 1.</div>
+      <pre class="code term" id="gx-cmd">git status   # the terminal version of each button appears here</pre>
     </div>
   </div>
 
-  <h3 class="parthead"><span>B</span> How the team's repos fit together</h3>
+  <h3 class="parthead"><span>2</span> How the team's repos fit together</h3>
   <div class="panel"><svg class="diag" id="gx-org" role="img" aria-label="Organization, repos, laptops, robot and Onshape"></svg></div>
 
-  <h3 class="parthead"><span>C</span> One pull request, start to finish</h3>
+  <h3 class="parthead"><span>3</span> One pull request, start to finish</h3>
   <div class="grid2" style="grid-template-columns:minmax(0,1.9fr) minmax(0,0.8fr)">
     <div class="panel"><svg class="diag" id="gx-pr" role="img" aria-label="Pull request loop"></svg></div>
     <div class="stack">
@@ -1192,15 +1196,16 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
     </div>
   </div>
 
-  <h3 class="parthead"><span>D</span> Two people, one line: a merge conflict</h3>
+  <h3 class="parthead"><span>4</span> Two people, one line: a merge conflict</h3>
   <details class="ask" style="margin-bottom:12px"><summary><span class="tag">Ask the room</span><span class="q">Maya and Leo both changed the same line on different branches. Maya merged first. What does GitHub show on Leo's pull request?</span><span class="vote" data-right="1"><button class="opt" type="button">It merges, and Maya's line wins</button><button class="opt" type="button">This branch has conflicts that must be resolved</button><button class="opt" type="button">It merges, and Leo's line wins</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-    <div class="a">"This branch has conflicts that must be resolved." Git cannot guess which value is right. Leo merges main into his branch, picks the line he wants in the merge tool, builds, tests, and pushes. Nothing is lost.</div>
+    <div class="a">B. Git cannot guess which number is right, so it stops and asks. Leo talks to Maya, merges main into his branch, keeps the line the team agreed on, builds, tests, and pushes. Nothing is lost.</div>
   </details>
   <div class="grid2" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
     <div class="stack">
       <svg class="gitsvg" id="gt-svg" viewBox="0 0 720 270" role="img" aria-label="Commit graph"></svg>
       <div class="panel" id="gt-confpanel" hidden>
-        <h3>Merge tool in Android Studio</h3>
+        <h3>Fix the conflict</h3>
+        <p class="note" style="margin:0 0 6px">What git writes into MainTeleOp.java. Android Studio shows the same choice as the 3 boxes below.</p>
         <pre class="code" id="gt-markers"></pre>
         <div class="conf" style="margin-top:10px">
           <div class="side"><b>Yours (leo/precision)</b>speed = 0.3;<div style="margin-top:8px"><button class="b" id="gt-yours">Accept yours</button></div></div>
@@ -2906,17 +2911,16 @@ const PIDLAB = (function(){
 const GT = (function(){
   let step = 0, choice = null;
   const STEPS = [
-    {t: "main works on the robot", x: "main holds the code that runs in matches. Nobody pushes straight to main. A ruleset on GitHub blocks it.", as: "Android Studio: open the cloned team repo. Git > Pull to get the latest main.", cmd: "git clone https://github.com/<org>/robot-code-2026-biobuzz.git\ncd robot-code-2026-biobuzz\ngit pull"},
+    {t: "main works on the robot", x: "main holds the code that runs in matches. Nobody pushes straight to main. GitHub blocks it.", as: "Android Studio: open the cloned team repo. Git > Pull to get the latest main.", cmd: "git clone https://github.com/<org>/robot-code-2026-biobuzz.git\ncd robot-code-2026-biobuzz\ngit pull"},
     {t: "Maya makes a branch", x: "A branch is a safe copy. Maya's changes stay off main until a reviewer approves them.", as: "Git > New Branch > maya/slow-mode", cmd: "git switch -c maya/slow-mode"},
     {t: "Maya commits", x: "Maya sets slow mode to 0.4, deploys over USB-C, tests, and commits. A commit is a save point with a message.", as: "Ctrl+K (Cmd+K on Mac). Message: \"Add slow mode on left bumper\"", cmd: "git add TeamCode/src/main/java/org/firstinspires/ftc/teamcode/MainTeleOp.java\ngit commit -m \"Add slow mode on left bumper\""},
     {t: "Leo works at the same time", x: "Leo branches from the same main and changes the same line to 0.3. Neither one knows.", as: "Git > New Branch > leo/precision, then Ctrl+K: \"Set slow mode 0.3\"", cmd: "git switch main\ngit switch -c leo/precision\ngit commit -am \"Set slow mode 0.3\""},
-    {t: "Maya opens pull request #1", x: "Maya pushes and opens a PR. Leo reviews. He asks two questions: \"What does 0.4 do?\" and \"Why the left bumper?\" Maya answers without looking anything up.", as: "Ctrl+Shift+K to push. github.com > Compare & pull request. Fill the template.", cmd: "git push -u origin maya/slow-mode\n# then open the PR on github.com, or: gh pr create"},
-    {t: "PR #1 merged", x: "Leo approves. Maya clicks Squash and merge and deletes her branch. main now has slow mode 0.4.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "# on github.com. Then everyone:\ngit switch main\ngit pull"},
+    {t: "Maya opens pull request #1", x: "Maya pushes and opens a PR. Ava reviews. She asks two questions: \"What does 0.4 do?\" and \"Why the left bumper?\" Maya answers without looking anything up.", as: "Ctrl+Shift+K to push. github.com > Compare & pull request. Fill the template.", cmd: "git push -u origin maya/slow-mode\n# then open the PR on github.com"},
+    {t: "PR #1 merged", x: "Ava approves. Maya clicks Squash and merge and deletes her branch. main now has slow mode 0.4.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "# on github.com. Then everyone:\ngit switch main\ngit pull"},
     {t: "Leo opens PR #2: conflict", x: "GitHub says: This branch has conflicts that must be resolved. Maya and Leo changed the same line.", as: "github.com shows the conflict. Do not panic, and do not delete anything.", cmd: "git push -u origin leo/precision\n# github.com: This branch has conflicts that must be resolved"},
     {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Pick the line the team wants, build, test. Try it in the merge tool below.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
     {t: "Leo pushes the fix", x: "The merge commit holds the decision. The PR turns green. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
-    {t: "PR #2 merged", x: "Both changes are in main with a full history of who changed what and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -d leo/precision"},
-    {t: "Tag the event build", x: "Before the qualifier, tag the exact code that ran. If something breaks later, you know which version worked.", as: "Git > New Tag > event-2026-12-06-qualifier, then push tags.", cmd: "git tag event-2026-12-06-qualifier\ngit push origin event-2026-12-06-qualifier"}
+    {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. History keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -d leo/precision"}
   ];
   const LANES = [{n: "main", y: 50}, {n: "maya/slow-mode", y: 135}, {n: "leo/precision", y: 215}];
   const X = col => 150 + col * 88;
@@ -2959,11 +2963,6 @@ const GT = (function(){
       o += '<circle cx="' + x + '" cy="' + y + '" r="' + (isNew ? 11 : 9) + '" fill="' + (conflict ? P.red : n.lane === 0 ? P.accent : P.surface) + '" stroke="' + (conflict ? P.red : P.accent) + '" stroke-width="3"/>';
       o += '<text x="' + x + '" y="' + (y + 28) + '" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="' + P.ink + '">' + label + "</text>";
     });
-    if (s >= 10){
-      const x = X(6), y = LANES[0].y;
-      o += '<rect x="' + (x - 98) + '" y="' + (y - 40) + '" width="196" height="22" rx="11" fill="' + P.pollen + '"/>';
-      o += '<text x="' + x + '" y="' + (y - 25) + '" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1a1a1a">tag: event-2026-12-06-qualifier</text>';
-    }
     $("#gt-svg").innerHTML = o;
   }
   function prCard(num, title, from, status, cls, body){
@@ -2983,14 +2982,14 @@ const GT = (function(){
     let prs = "";
     if (s >= 4){
       const st1 = s === 4 ? ["Review: 2 questions", "warn"] : ["Merged", "ok"];
-      prs += prCard(1, "Add slow mode on left bumper", "maya/slow-mode", st1[0], st1[1], s === 4 ? "Leo: What does 0.4 do?<br>Maya: Multiplies every wheel power by 0.4 while the left bumper is held, for lining up shots." : "");
+      prs += prCard(1, "Add slow mode on left bumper", "maya/slow-mode", st1[0], st1[1], s === 4 ? "Ava: What does 0.4 do?<br>Maya: Multiplies every wheel power by 0.4 while the left bumper is held, for lining up shots." : "");
     }
     if (s >= 6){
       const st2 = s <= 7 ? ["Conflicts", "bad"] : s === 8 ? ["Review again", "warn"] : ["Merged", "ok"];
       prs += prCard(2, "Precision slow mode", "leo/precision", st2[0], st2[1], s <= 7 ? "This branch has conflicts that must be resolved.<br>MainTeleOp.java, line 23" : "");
     }
     $("#gt-prs").innerHTML = prs;
-    renderCode($("#gt-markers"), ["            double speed = 1.0;", "            if (gamepad1.left_bumper) {", "<<<<<<< HEAD (leo/precision)", "                speed = 0.3;", "=======", "                speed = 0.4;", ">>>>>>> origin/main", "            }"]);
+    renderCode($("#gt-markers"), ["            double speed = 1.0;", "            if (gamepad1.left_bumper) {", "<<<<<<< HEAD   (Leo's line)", "                speed = 0.3;", "=======", "                speed = 0.4;", ">>>>>>> origin/main", "            }"]);
     markLines($("#gt-markers"), [3], [5]);
     $("#gt-result").textContent = choice ? "speed = " + choice + ";" : "pick a side";
     svgDraw();
@@ -3493,7 +3492,7 @@ const GX = (function(){
   const MSGS = ["Add slow mode", "Tune slow mode to 0.4", "Show heading on telemetry", "Add launcher state machine", "Fix motor name"];
   let st;
   const hex = () => Math.random().toString(16).slice(2, 5);
-  function reset(){ st = {work: [], local: BASE.slice(), remote: BASE.slice(), n: 0, flash: ""}; render(); msg("Press 1.", ""); }
+  function reset(){ st = {work: [], local: BASE.slice(), remote: BASE.slice(), n: 0, flash: "", knows: false, rejected: false}; render(); msg("Press 1.", ""); }
   function msg(t, c){ const m = $("#gx-msg"); m.textContent = t; m.className = "msg " + (c || ""); }
   const cmd = t => { $("#gx-cmd").textContent = t; };
   const has = (list, c) => list.some(x => x.id === c.id);
@@ -3504,28 +3503,29 @@ const GX = (function(){
     if (!st.work.length){ msg("Nothing to commit. Edit a file first.", "bad"); return; }
     cmd("git add .\ngit commit -m \"" + MSGS[st.n % MSGS.length] + "\"");
     st.local.push({id: hex(), m: MSGS[st.n++ % MSGS.length], by: "you"}); st.work = []; st.flash = "local"; render();
-    msg("Saved in history on your laptop. GitHub does not have it yet: you are " + ahead().length + " commit(s) ahead.", "");
+    msg("Saved in history on your laptop. GitHub does not have it yet. " + ahead().length + " commit(s) wait to be pushed.", "");
   });
   $("#gx-push").addEventListener("click", () => {
-    if (behind().length){ st.flash = "reject"; render(); cmd("git push\n# ! [rejected]  main -> main (fetch first)"); msg("Push rejected: GitHub has a commit you do not have yet. Pull first, then push again.", "bad"); return; }
+    if (behind().length){ st.flash = "remote"; st.rejected = true; st.knows = true; render(); cmd("git push\n# ! [rejected]  maya/slow-mode -> maya/slow-mode (fetch first)"); msg("Push rejected. GitHub has Leo's commit and your laptop does not. Press 5 to pull, then press 4 again.", "bad"); return; }
     if (!ahead().length){ msg("Everything is already on GitHub. Nothing to push.", ""); return; }
     cmd("git push");
-    st.remote = st.local.slice(); st.flash = "remote"; render(); msg("GitHub now has your commits. Your partner and your reviewer see them.", "ok");
+    st.remote = st.local.slice(); st.flash = "remote"; st.rejected = false; render(); msg("GitHub now has your commits. Your partner and your reviewer see them.", "ok");
   });
-  $("#gx-partner").addEventListener("click", () => { st.remote.push({id: hex(), m: "Fix motor name", by: "Leo"}); st.flash = "remote"; render(); cmd("# on Leo's laptop:\ngit push"); msg("Your partner pushed. GitHub is now ahead of your laptop. You will not see the change until you pull.", ""); });
+  $("#gx-partner").addEventListener("click", () => { st.remote.push({id: hex(), m: "Fix motor name", by: "Leo"}); st.flash = "remote"; st.knows = false; render(); cmd("# on Leo's laptop:\ngit push"); msg("Leo pushed. GitHub now has a commit your laptop does not. You see it only after you pull.", ""); });
   $("#gx-pull").addEventListener("click", () => {
     const b = behind(), a = ahead();
     if (!b.length){ msg("You already have everything from GitHub.", ""); return; }
-    cmd("git pull");
+    cmd(a.length ? "git pull --no-rebase   # merge GitHub's commits into yours" : "git pull");
     b.forEach(c => st.local.push(c));
-    if (a.length) st.local.push({id: hex(), m: "Merge partner's changes", by: "you"});
-    st.flash = "local"; render();
-    msg(a.length ? "Pulled. Git merged your partner's commit with yours. Now push." : "Pulled. Your laptop matches GitHub again.", "ok");
+    if (a.length) st.local.push({id: hex(), m: "Merge Leo's work", by: "you"});
+    st.flash = "local"; st.knows = true; st.rejected = false; render();
+    msg(a.length ? "Pulled. Git merged Leo's commit with yours. Press 4 again." : "Pulled. Your laptop matches GitHub again.", "ok");
   });
   $("#gx-reset").addEventListener("click", reset);
   function col(title, sub, items, key, extra){
     const fl = st.flash === key ? " flash" : "";
-    return '<div class="place' + fl + '"><div class="ph"><b>' + esc(title) + "</b><span>" + esc(sub) + "</span></div>" + (extra || "") + items + "</div>";
+    const rj = (key === "remote" && st.rejected) ? " reject" : "";
+    return '<div class="place' + fl + rj + '"><div class="ph"><b>' + esc(title) + "</b><span>" + esc(sub) + "</span></div>" + (extra || "") + items + "</div>";
   }
   function chips(list){ return list.slice().reverse().map(c => '<div class="cm"><code>' + c.id + "</code> " + esc(c.m) + '<small>' + esc(c.by) + "</small></div>").join(""); }
   function render(){
@@ -3536,9 +3536,9 @@ const GX = (function(){
       '<div class="pcol">' + arrow("commit", "r") + "</div>" +
       col("Local repo", "your laptop: saved history", chips(st.local), "local") +
       '<div class="pcol">' + arrow("push", "r") + arrow("pull", "l") + "</div>" +
-      col("GitHub", "the team's copy, online", chips(st.remote), st.flash === "reject" ? "reject" : "remote");
+      col("GitHub", "the team's copy, online", chips(st.remote), "remote");
     const a = ahead().length, b = behind().length;
-    $("#gx-status").innerHTML = chip("branch: maya/slow-mode", "run") + chip(st.work.length + " uncommitted file(s)", st.work.length ? "warn" : "ok") + chip(a + " to push", a ? "warn" : "ok") + chip(b + " to pull", b ? "bad" : "ok");
+    $("#gx-status").innerHTML = chip("branch: maya/slow-mode", "run") + chip(st.work.length + " uncommitted file(s)", st.work.length ? "warn" : "ok") + chip(a + " to push", a ? "warn" : "ok") + ((b && !st.knows) ? chip("to pull: ? (laptop has not checked)", "") : chip(b + " to pull", b ? "bad" : "ok"));
     setTimeout(() => { st.flash = ""; $$("#gx-places .flash").forEach(e => e.classList.remove("flash")); }, 700);
   }
   reset();
@@ -3550,12 +3550,11 @@ const GX = (function(){
     s += SV.box(10, 20, 230, 64, ["FIRST-Tech-Challenge/", "FtcRobotController: the SDK"], {fill: P.codebg, mono: true, size: 12});
     s += '<rect x="280" y="8" width="610" height="250" rx="12" fill="' + alpha(P.accent, 0.06) + '" stroke="' + P.accent + '" stroke-width="2"/>';
     s += SV.tx(300, 30, "GitHub organization: ftc-XXXXX", {anchor: "start", weight: "700", size: 14, col: "acc"});
-    s += SV.box(300, 48, 270, 190, ["robot-code-2026-biobuzz", "fork of the SDK", "main is protected:", "no direct pushes", "every change = PR + 1 review"], {stroke: "acc", sw: 2, mono: true, size: 13});
-    s += SV.box(600, 48, 270, 190, ["cad-and-design", "links to Onshape Documents", "STL / DXF / STEP exports", "design decisions (Think Award)"], {stroke: "acc", sw: 2, mono: true, size: 13});
-    s += SV.tx(870, 30, "Students: Write   Mentors: Admin (2+)", {anchor: "end", size: 12, col: "mut", weight: "600"});
+    s += SV.box(300, 48, 270, 190, ["robot-code-2026-biobuzz", "a copy of FIRST's SDK", "main is protected:", "every change = PR + 1 review"], {stroke: "acc", sw: 2, mono: true, size: 15});
+    s += SV.box(600, 48, 270, 190, ["cad-and-design", "links to Onshape", "3D-print and laser-cut files", "design decisions"], {stroke: "acc", sw: 2, mono: true, size: 13});
     s += SV.ar(pre, [[240, 52], [298, 70]], {col: "mut"});
-    s += SV.tx(272, 100, "Sync fork", {size: 12, col: "mut", weight: "600", anchor: "end"});
-    s += SV.tx(272, 115, "(SDK update)", {size: 12, col: "mut", anchor: "end"});
+    s += SV.tx(272, 100, "Mentor updates", {size: 12, col: "mut", weight: "600", anchor: "end"});
+    s += SV.tx(272, 115, "the SDK", {size: 12, col: "mut", anchor: "end"});
     s += SV.box(640, 300, 230, 62, ["Onshape Documents", "real CAD history: versions, branches"], {fill: P.codebg});
     s += SV.ar(pre, [[735, 240], [755, 298]], {col: "mut"});
     s += SV.tx(812, 282, "links + exports", {size: 11, col: "mut", weight: "600"});
@@ -3576,15 +3575,15 @@ const GX = (function(){
   const PR = [
     {id: "pull", t: "Pull main", x: "Start from the newest main so you build on everyone's work.", as: "Git > Pull with main checked out", cmd: "git switch main\ngit pull"},
     {id: "branch", t: "New branch", x: "Name it yourname/what-it-does. Main stays safe while you work.", as: "Git > New Branch > maya/slow-mode", cmd: "git switch -c maya/slow-mode"},
-    {id: "code", t: "Code + test", x: "Small change. Build. Test on the robot or the lab.", as: "Build > Make Project", cmd: "./gradlew assembleDebug   # same as Build > Make Project"},
+    {id: "code", t: "Code + test", x: "Small change. Build. Test it on the robot.", as: "Build > Make Project", cmd: "./gradlew assembleDebug   # same as Build > Make Project"},
     {id: "commit", t: "Commit", x: "A save point with a message that starts with a verb.", as: "Ctrl+K: \"Add slow mode on left bumper\"", cmd: "git add .\ngit commit -m \"Add slow mode on left bumper\""},
     {id: "push", t: "Push", x: "Send your commits to GitHub.", as: "Ctrl+Shift+K", cmd: "git push -u origin maya/slow-mode"},
-    {id: "open", t: "Open PR", x: "Ask the team to merge your branch into main. Fill in the template: what, how tested, AI use.", as: "github.com > Compare & pull request", cmd: "gh pr create --fill   # or the button on github.com"},
-    {id: "review", t: "Review", x: "The reviewer picks 2 lines and asks: what does this do? You answer without looking anything up.", as: "github.com > Files changed > comment", cmd: "gh pr view --web   # read the diff, comment on lines"},
-    {id: "ok", t: "Approved?", x: "The reviewer approves, or asks for changes.", as: "Approve, or Request changes", cmd: "gh pr review --approve   # or --request-changes"},
+    {id: "open", t: "Open PR", x: "Ask the team to merge your branch into main. Fill in the template: what, how tested, AI use.", as: "github.com > Compare & pull request", cmd: "git push -u origin maya/slow-mode   # done. The PR opens on github.com"},
+    {id: "review", t: "Review", x: "The reviewer picks 2 lines and asks: what does this do? You answer without looking anything up.", as: "github.com > Files changed > comment", cmd: "# on github.com: Files changed, comment on a line"},
+    {id: "ok", t: "Approved?", x: "The reviewer approves, or asks for changes.", as: "Approve, or Request changes", cmd: "# on github.com: Review changes > Approve"},
     {id: "fix", t: "Fix + push", x: "Change what the reviewer asked, commit, push. The PR updates by itself. Back to review.", as: "Ctrl+K, Ctrl+Shift+K", cmd: "git commit -am \"Address review\"\ngit push"},
-    {id: "merge", t: "Squash and merge", x: "Your work joins main as one clean commit.", as: "github.com > Squash and merge", cmd: "gh pr merge --squash"},
-    {id: "del", t: "Delete branch", x: "The branch did its job. Start the next feature from step 1.", as: "github.com > Delete branch", cmd: "gh pr merge --squash --delete-branch   # does both"}
+    {id: "merge", t: "Squash and merge", x: "Your work joins main as one clean commit.", as: "github.com > Squash and merge", cmd: "# on github.com: Squash and merge"},
+    {id: "del", t: "Delete branch", x: "The branch did its job. Start the next feature from step 1.", as: "github.com > Delete branch", cmd: "git switch main\ngit pull"}
   ];
   let pi = 0, path = [0];
   function drawPR(){
@@ -3598,7 +3597,7 @@ const GX = (function(){
     s += SV.ar(pre, [[772, 80], [772, 138]], {});
     s += SV.ar(pre, [[772, 190], [772, 232]], {});
     s += SV.ar(pre, [[736, 270], [646, 275]], {col: "ok", label: "yes", at: [690, 264], lcol: "ok"});
-    s += SV.ar(pre, [[738, 262], [600, 192]], {col: "red", label: "changes requested", at: [662, 250], lcol: "red", anchor: "end", size: 13});
+    s += SV.ar(pre, [[738, 262], [600, 192]], {col: "red", label: "changes requested", at: [636, 226], lcol: "red", anchor: "end", size: 13});
     s += SV.ar(pre, [[582, 140], [582, 116], [700, 116], [740, 140]], {col: "red", dash: true});
     s += SV.ar(pre, [[518, 275], [426, 275]], {});
     s += SV.ar(pre, [[300, 275], [72, 275], [72, 82]], {col: "acc", dash: true, label: "next feature", at: [190, 293], lcol: "acc", size: 13});
