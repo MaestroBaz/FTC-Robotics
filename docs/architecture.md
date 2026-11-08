@@ -13,13 +13,13 @@ Line numbers drift. Grep for the names below.
 | 3 GitHub teamwork (`#gitflow`) | `lab-gitflow` | `GT` (git demo), `GX` (three places, org map, PR loop), wrapped as `GITTAB` | none |
 | 4 Drive modes (`#mecanum`) | `lab-mecanum` | `MC` (drive modes, wheel power chart) | `DG.driveVec()` |
 | 5 One loop, no sleep (`#oneloop`) | `lab-oneloop` | `OL` | `DG.stateMachine()` |
-| 6 Feedback: launcher (`#feedback`) | `lab-feedback` | `FB` | `DG.loops()` (block diagrams) |
+| 6 Closed loop: launcher (`#feedback`) | `lab-feedback` | `FB` | `DG.loops()` (block diagrams) |
 | 7 PID control (`#pid`) | `lab-pid` | `PIDLAB` | `PIDVIZ.loop()` + `PIDVIZ.minis()` |
-| 8 Encoders in auto (`#encoders`) | `lab-encoders` | `EN`, with `TT` inside (turnToHeading exercise) | `DG.encoder()` |
+| 8 Encoders (later) (`#encoders`) | `lab-encoders` | `EN`, with `TT` inside (turnToHeading exercise) | `DG.encoder()` |
 
 Element ids use the module prefix: `pid-*`, `fb-*`, `jv-*`, `mc-*`, `gx-*`, `gt-*`, `en-*`, `lc-*`, `ol-*`, `ts-*` (time bar).
 
-The `/* LAB n: ... */` banner comments in the script use an old numbering (for example "LAB 6: IMU TURN" sits above `PIDLAB`). Trust the module names, not those numbers.
+The banner comments in the script name the tab number, the tab title and the module, for example `/* TAB 7: PID CONTROL (PIDLAB: turn, aim, lift) */`. Grep `TAB 7:` to land on a tab's code.
 
 ## Module contract
 
@@ -47,6 +47,22 @@ function after(sec, fn)   // run fn after sec of SIMULATED time
 - if the theme changed (`P.ink` differs), calls `route(current)` to repaint.
 
 Speed control: `setScale(v)` clamps to 0.05..2 and snaps to the labels 0.05, 0.1, 0.25, 0.5, 1, 2 when within about 5%. The slider maps log10 linearly onto 0..1000. `setPause(p)` is also exposed as `window.__setPause` for the chart bars.
+
+## Rule exceptions
+
+`npm run check` (`tests/syntax-check.js`) enforces the time and color rules with a static scan. The exceptions below are the whole allowlist. Add to the list in the scan and here, with the reason, or fix the code.
+
+Time:
+- No `setTimeout` or `setInterval` anywhere in the script. Sim behavior uses `after(sec, fn)`. A UI effect uses CSS: the GitHub tab three-places flash is the `placeflash` keyframe animation, and `render()` clears `st.flash` so the next render draws no flash.
+- `performance.now()` sits in two places only. The frame loop reads it: real time is the source of `dt`. `throttle(ms)` reads it: it caps how often a diagram redraws, a CPU cost, not sim behavior. Pause and the speed slider still freeze the values the diagram draws.
+- Reset scores disarms on mouse leave and blur, not on a timer.
+- The ElapsedTime objects on Java card 1 count `TIME.sim`, so Pause and the speed slider apply.
+
+Color:
+- Hex colors sit only in the CSS token definitions (`--bg`, `--ink`, ...) and in two fixed-dark mock panels: `.dhub` (the Driver Hub screen) and `.ide-problems` (the Android Studio build output, classes `pe`, `pk`, `iok`, `iwarn`, `ix`). Both mocks look the same in either theme on purpose, as the real screens do.
+- Text on a token fill (primary and danger buttons, part numbers, the variable-box type labels) uses `--surface` / `P.surface`: white in light, dark on the brighter dark-theme fills.
+
+Fonts: the Google Fonts load from the network. Offline, the fallbacks take over: Arial Narrow for the display font (about 1.2x wider than Barlow Condensed, so some h2 titles wrap to two lines), the system sans and Menlo or Consolas (within 2% of the Google widths). The smoke test blocks the fonts and checks the 330 px fold and sideways scroll on every tab. Without Arial Narrow (Windows without Office) the display font falls to plain Arial, about 1.5x wider: with auto-hide off the tab row wraps to two rows and some tabs push the first block past 330 px. Auto-hide on (the default) keeps every tab under 330 px.
 
 ## Shared helpers
 

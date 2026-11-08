@@ -217,7 +217,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // ==== area java-a: Java card nav, card switching, cards 0 to 5 ====
   await pg.click('.jt[data-jt="inherit"]');
   await pg.click('#jv-ovbtns .b[data-ov="0"]');
-  check((await pg.$eval("#jv-ovprob div:last-child", d => d.style.color)) === "rgb(126, 226, 168)", "BUILD SUCCESSFUL. 0 errors. shows green, not red");
+  check((await pg.$eval("#jv-ovprob div:last-child", d => getComputedStyle(d).color)) === "rgb(126, 226, 168)", "BUILD SUCCESSFUL. 0 errors. shows green, not red");
   check(/^4\. extends/.test(await pg.textContent('.jpane[data-jp="inherit"] h3')), "the card heading carries the rail number");
   await pg.evaluate(() => window.scrollTo(0, 900)); await pg.waitForTimeout(100);
   await pg.click('.jt[data-jt="decide"]'); await pg.waitForTimeout(100);
@@ -259,7 +259,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.$$eval("pre.term", els => els.filter(e => e.textContent.trim()).length)) === 3, "all three terminal boxes hold a command");
 
   // ==== area gitflow: part 1 does not leak the prediction, a rejected push stays red ====
-  await pg.click("#gx-reset"); await pg.click("#gx-edit"); await pg.click("#gx-commit"); await pg.click("#gx-partner");
+  await pg.click("#gx-reset"); await pg.click("#gx-edit");
+  check(await pg.evaluate(() => { const f = document.querySelectorAll("#gx-places .flash"); return f.length === 1 && getComputedStyle(f[0]).animationName === "placeflash"; }), "#23: the three-places flash is a CSS animation, no real-time timer");
+  await pg.click("#gx-commit");
+  check(await pg.evaluate(() => { const f = document.querySelectorAll("#gx-places .flash"); return f.length === 1 && f[0] === document.querySelectorAll("#gx-places .place")[1]; }), "#23: each press flashes only the box it changed");
+  await pg.click("#gx-partner");
   check(/to pull: \?/.test(await pg.textContent("#gx-status")), "after Leo pushes, the laptop does not know the pull count yet");
   await pg.click("#gx-push"); await pg.waitForTimeout(900);
   check(await pg.evaluate(() => document.querySelectorAll("#gx-places .place")[2].classList.contains("reject")), "a rejected push keeps the GitHub box red");
@@ -686,6 +690,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     await jp.mouse.move(900, 500); await jp.click('.jt[data-jt="vars"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
     const qb = await jp.$$eval("#jv-compile .cmp", cs => cs.map(c => Math.round(c.getBoundingClientRect().bottom)));
     check(qb.length === 6 && qb.every(y => y > 0 && y <= 768), "java card 2: all 6 quiz items show without scrolling at 1366x768: " + qb.join(", "));
+    // #23: the ElapsedTime objects on card 1 count sim time, so Pause stops them
+    await jp.click('.jt[data-jt="classes"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(400);
+    const objT = () => jp.$$eval("#jv-objs [data-oi]", es => es.map(e => +e.textContent));
+    await jp.evaluate(() => window.__setPause(true)); await jp.waitForTimeout(100);
+    const t1 = await objT(); await jp.waitForTimeout(600); const t2 = await objT();
+    await jp.evaluate(() => window.__setPause(false)); await jp.waitForTimeout(600); const t3 = await objT();
+    check(t1.length === 2 && t1.join() === t2.join() && t3[0] > t2[0], "#23: the ElapsedTime card follows Pause: " + t1.join() + " / " + t2.join() + " / " + t3.join());
     await jp.click('.jt[data-jt="loops"]'); await jp.mouse.move(900, 500); await jp.waitForTimeout(150);
     check(/^6\. Loops/.test(await jp.textContent('.jpane[data-jp="loops"] h3')), "java loops: the card heading carries rail number 6");
     const vars = () => jp.$$eval("#jv-lpvars .vbox", vs => vs.map(v => { const n = v.querySelector("b").textContent; return n + "=" + v.textContent.slice(n.length); }).join(" "));
@@ -720,6 +731,29 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     check(!/feedOnce/.test(docsSrc + src) && (src.match(/robot\.feederOn\(\)/g) || []).length >= 3, "no feedOnce() left in the lab or the course docs, and the lab calls robot.feederOn()");
   }
   // ==== end area java ====
+
+  // ==== area fonts: #11 Google Fonts blocked (projector laptop offline), system fallbacks, auto-hide on ====
+  {
+    const TABS = ["java", "lifecycle", "gitflow", "mecanum", "oneloop", "feedback", "pid", "encoders"];
+    for (const [w, h, scheme] of [[1366, 768, "light"], [390, 844, "dark"]]) {
+      const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme });
+      let blocked = 0;
+      await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => { blocked++; return r.abort(); });
+      const fp = await ctx.newPage();
+      fp.on("pageerror", e => errs.push("fonts blocked: " + e.message));
+      const res = [];
+      for (const t of TABS) {
+        await fp.goto(URL + "#" + t); await fp.waitForTimeout(250);
+        res.push(await fp.evaluate(t => { const lh = document.querySelector("section.lab.on .labhead");
+          return { t, top: Math.round(lh.nextElementSibling.getBoundingClientRect().top), sw: document.documentElement.scrollWidth }; }, t));
+      }
+      if (w === 1366) await fp.screenshot({ path: path.join(SHOTS, "fonts-blocked-oneloop.png") });
+      const bad = res.filter(r => r.sw > w || (w === 1366 && r.top > 330));
+      check(blocked > 0 && bad.length === 0, "#11 fonts blocked, " + w + " px " + scheme + ": every tab " + (w === 1366 ? "starts its first block above 330 px and " : "") + "has no sideways scroll" + (bad.length ? ": " + JSON.stringify(bad) : ""));
+      await ctx.close();
+    }
+  }
+  // ==== end area fonts ====
 
   check(errs.length === 0, "no page errors" + (errs.length ? ": " + errs.join(" | ") : ""));
   await b.close();

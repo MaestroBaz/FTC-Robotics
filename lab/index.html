@@ -68,8 +68,8 @@ details.ask .a{margin-top:8px; padding-top:8px; border-top:1px dashed var(--line
 .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
 button.b{font:600 14px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:8px 12px; border-radius:8px; cursor:pointer;}
 button.b:hover{border-color:var(--accent);}
-button.b.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
-button.b.danger{background:var(--red); border-color:var(--red); color:#fff;}
+button.b.primary{background:var(--accent); border-color:var(--accent); color:var(--surface);}
+button.b.danger{background:var(--red); border-color:var(--red); color:var(--surface);}
 button.b:disabled{opacity:.4; cursor:not-allowed;}
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, .stick:focus-visible, summary:focus-visible{outline:3px solid var(--pollen); outline-offset:2px;}
 label.tg{display:flex; gap:8px; align-items:center; font-size:14px; cursor:pointer;}
@@ -188,14 +188,17 @@ table.resp td:nth-child(2){font-weight:700;}
 table.resp i{display:inline-block; width:18px; height:0; border-top:2px dashed currentColor; vertical-align:middle; margin-right:6px;}
 body.slowmo .topbar{box-shadow:inset 0 -3px 0 var(--pollen);}
 h3.parthead{font:700 22px/1.1 var(--display); text-transform:uppercase; letter-spacing:.02em; margin:26px 0 10px; display:flex; align-items:center; gap:10px;}
-h3.parthead span{display:inline-grid; place-items:center; width:30px; height:30px; border-radius:8px; background:var(--accent); color:#fff; font-size:18px;}
+h3.parthead span{display:inline-grid; place-items:center; width:30px; height:30px; border-radius:8px; background:var(--accent); color:var(--surface); font-size:18px;}
 svg.diag{display:block; width:100%; height:auto; background:var(--field); border:1px solid var(--line); border-radius:10px;}
 .places{display:grid; grid-template-columns:minmax(0,1fr) 78px minmax(0,1fr) 78px minmax(0,1fr); gap:6px; align-items:stretch;}
 .place{border:2px solid var(--line); border-radius:10px; background:var(--surface); padding:10px; display:flex; flex-direction:column; gap:6px; min-height:220px; transition:box-shadow .3s, border-color .3s;}
 .place .ph b{display:block; font:700 17px var(--display); text-transform:uppercase;}
 .place .ph span{font-size:12px; color:var(--muted);}
-.place.flash{border-color:var(--pollen); box-shadow:0 0 0 4px color-mix(in srgb,var(--pollen) 35%,transparent);}
-.place.flash.reject, .place.reject{border-color:var(--red); box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 30%,transparent);}
+/* the flash is a CSS animation: no JS timer, so no real-time setTimeout in the script */
+@keyframes placeflash{0%,70%{border-color:var(--pollen); box-shadow:0 0 0 4px color-mix(in srgb,var(--pollen) 35%,transparent);}}
+.place.flash{animation:placeflash .7s ease-out 1;}
+.place.flash.reject{animation:none;}
+.place.reject{border-color:var(--red); box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 30%,transparent);}
 .pcol{display:flex; flex-direction:column; justify-content:center; gap:10px;}
 .parrow{white-space:nowrap; font:600 13px var(--mono); color:var(--accent); text-align:center; border:1px dashed var(--accent); border-radius:6px; padding:4px 2px;}
 .place .cm{font:14px var(--mono); border:1px solid var(--line); border-radius:6px; padding:4px 6px; background:var(--codebg); display:flex; gap:6px; align-items:baseline; flex-wrap:wrap;}
@@ -215,6 +218,7 @@ svg.diag{display:block; width:100%; height:auto; background:var(--field); border
 .ide-path{font:11px var(--mono); color:var(--muted); padding:5px 12px; border-bottom:1px solid var(--line); overflow-x:auto; white-space:nowrap;}
 .ide pre.code{border:0; border-radius:0;}
 .ide-problems{background:#1d2229; color:#e6e9ee; font:12px/1.6 var(--mono); padding:8px 12px; min-height:64px;}
+.ide-problems .pe{color:#ff8a8a;} .ide-problems .pk{color:#7ee2a8;} .ide-problems .iok{color:#48c584;} .ide-problems .iwarn{color:#ffc928;} .ide-problems .ix{color:#ff7070;}
 .ide-problems .ph2{font:600 11px var(--body); text-transform:uppercase; letter-spacing:.06em; color:#9aa4b3; margin-bottom:4px;}
 pre.code .ln.fixok{background:color-mix(in srgb,var(--ok) 20%,transparent); border-left-color:var(--ok);}
 pre.code .ln.dim{opacity:.45;}
@@ -1450,7 +1454,7 @@ function text(ctx, s, x, y, o){
 }
 
 /* =====================================================================
-   LAB 1: LIFECYCLE
+   TAB 2: OPMODE LIFECYCLE (LC)
    ===================================================================== */
 const LC = (function(){
   const VERS = {
@@ -1601,7 +1605,7 @@ const LC = (function(){
 })();
 
 /* =====================================================================
-   LAB 2: MECANUM
+   TAB 4: DRIVE MODES (MC)
    ===================================================================== */
 function makeStick(el, onlyX, onChange){
   const knob = $(".knob", el);
@@ -1889,7 +1893,7 @@ const MC = (function(){
 })();
 
 /* =====================================================================
-   LAB 3: ONE LOOP
+   TAB 5: ONE LOOP, NO SLEEP (OL)
    ===================================================================== */
 const OL = (function(){
   const codeA = [
@@ -2029,7 +2033,7 @@ const OL = (function(){
 })();
 
 /* =====================================================================
-   LAB 4: FEEDBACK
+   TAB 6: CLOSED LOOP: LAUNCHER (FB, below the time charts)
    ===================================================================== */
 /* =====================================================================
    TIME CHARTS: full history, live window, show all, drag to zoom
@@ -2461,7 +2465,7 @@ const FB = (function(){
 })();
 
 /* =====================================================================
-   LAB 5: ENCODERS
+   TAB 8: ENCODERS (LATER) (EN, with the TT exercise)
    ===================================================================== */
 // turnToHeading() in Java: tab 7 (turn job) and the tab 8 exercise answer print these same lines
 function turnJava(ctor){
@@ -2770,7 +2774,7 @@ const EN = (function(){
 })();
 
 /* =====================================================================
-   LAB 6: IMU TURN
+   TAB 7: PID CONTROL (PIDLAB: turn, aim, lift)
    ===================================================================== */
 const PIDLAB = (function(){
   const wrapD = a => { while (a > 180) a -= 360; while (a <= -180) a += 360; return a; };
@@ -3404,7 +3408,7 @@ const PIDLAB = (function(){
 })();
 
 /* =====================================================================
-   LAB 7: GIT
+   TAB 3: GITHUB TEAMWORK (GT git demo, GX extras further down)
    ===================================================================== */
 const GT = (function(){
   let step = 0, choice = null;
@@ -3502,6 +3506,9 @@ const GT = (function(){
   return {tick: () => {}, show: render};
 })();
 
+/* =====================================================================
+   TAB 1: JAVA BASICS (JV: anatomy, cards, Loops, Decisions)
+   ===================================================================== */
 const JV = (function(){
   let topic = "modules";
   function showTopic(t){
@@ -3807,7 +3814,7 @@ const JV = (function(){
     renderCode($("#jv-ovcode"), v.code);
     $$(".ln", $("#jv-ovcode")).forEach((ln, k) => ln.classList.toggle(v.cls, v.mark.includes(k)));
     const p = $("#jv-ovprob");
-    p.innerHTML = '<div class="ph2">Build output</div>' + v.prob.map(t => '<div style="color:' + (/error:/.test(t) ? "#ff8a8a" : "#7ee2a8") + '">' + esc(t) + "</div>").join("");
+    p.innerHTML = '<div class="ph2">Build output</div>' + v.prob.map(t => '<div class="' + (/error:/.test(t) ? "pe" : "pk") + '">' + esc(t) + "</div>").join("");
     const m = $("#jv-ovmsg"); m.textContent = v.msg; m.className = "msg " + (v.ok ? "ok" : "bad");
     $$("#jv-ovbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.ov == i ? "true" : "false"));
   }
@@ -4083,7 +4090,7 @@ const SV = {
 function throttle(ms){ let last = 0; return () => { const n = performance.now(); if (n - last < ms) return false; last = n; return true; }; }
 
 /* =====================================================================
-   GITHUB EXTRAS: three places, org map, PR loop
+   TAB 3: GITHUB TEAMWORK, EXTRAS (GX): three places, org map, PR loop
    ===================================================================== */
 const GX = (function(){
   // ---- A: three places ----
@@ -4141,7 +4148,7 @@ const GX = (function(){
       col("GitHub", "the team's copy, online", chips(st.remote), "remote");
     const a = ahead().length, b = behind().length;
     $("#gx-status").innerHTML = chip("branch: maya/slow-mode", "run") + chip(st.work.length + " uncommitted file(s)", st.work.length ? "warn" : "ok") + chip(a + " to push", a ? "warn" : "ok") + ((b && !st.knows) ? chip("to pull: ? (laptop has not checked)", "") : chip(b + " to pull", b ? "bad" : "ok"));
-    setTimeout(() => { st.flash = ""; $$("#gx-places .flash").forEach(e => e.classList.remove("flash")); }, 700);
+    st.flash = "";   // flash once: the next render draws no flash class
   }
   reset();
 
@@ -4545,7 +4552,7 @@ const PIDVIZ = (function(){
 })();
 
 /* =====================================================================
-   JAVA: anatomy of a file
+   TAB 1: JAVA BASICS, anatomy of a file
    ===================================================================== */
 (function anatomy(){
   const LINES = [
@@ -4603,7 +4610,7 @@ const PIDVIZ = (function(){
 })();
 
 /* =====================================================================
-   JAVA TAB, PART 2: project map, zoom levels, import address,
+   TAB 1: JAVA BASICS, PART 2 (JV2): project map, zoom levels, import address,
    error clinic, inheritance tree, variable boxes, blueprint
    ===================================================================== */
 const JV2 = (function(){
@@ -4913,7 +4920,7 @@ const JV2 = (function(){
     $$("#jv-errlist [data-e]").forEach(b => b.addEventListener("click", () => { ei = +b.dataset.e; showErr(); }));
   }
   function setProb(lines, kind){
-    const icon = kind === "ok" ? '<b style="color:#48c584">OK</b>' : kind === "warn" ? '<b style="color:#ffc928">!</b>' : '<b style="color:#ff7070">X</b>';
+    const icon = kind === "ok" ? '<b class="iok">OK</b>' : kind === "warn" ? '<b class="iwarn">!</b>' : '<b class="ix">X</b>';
     $("#jv-eprob").innerHTML = '<div class="ph2">Problems / Build</div>' + lines.map(l => "<div>" + icon + " " + esc(l).split("   ").join("<br>&nbsp;&nbsp;&nbsp;&nbsp;") + "</div>").join("");
   }
   function paint(code, err, ok, dim, hl){
@@ -4997,7 +5004,7 @@ const JV2 = (function(){
     V.forEach((v, i) => {
       const x = 12 + i * 196, y = 30, col = SV.col(v[3]);
       s += '<rect x="' + x + '" y="' + y + '" width="180" height="26" rx="6" fill="' + col + '"/>';
-      s += SV.tx(x + 90, y + 18, v[0], {mono: true, weight: "700", size: 13, col: v[3] === "ink" ? P.surface : "#ffffff"});
+      s += SV.tx(x + 90, y + 18, v[0], {mono: true, weight: "700", size: 13, col: P.surface});
       s += '<rect x="' + x + '" y="' + (y + 26) + '" width="180" height="84" rx="6" fill="' + alpha(col, 0.1) + '" stroke="' + col + '" stroke-width="2"/>';
       s += SV.tx(x + 90, y + 62, v[2], {mono: true, weight: "700", size: 22});
       s += SV.tx(x + 90, y + 98, v[1], {mono: true, size: 12, col: "mut"});
@@ -5035,7 +5042,7 @@ const JV2 = (function(){
 })();
 
 /* =====================================================================
-   JAVA TAB, EVERY WORD EXPLAINED: three real files, every word clickable
+   TAB 1: JAVA BASICS, EVERY WORD EXPLAINED (JVW): three real files, every word clickable
    ===================================================================== */
 const JVW = (function(){
   const FILES = {
