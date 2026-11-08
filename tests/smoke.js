@@ -406,6 +406,23 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/loop ended: on target/.test(await chips()), "tuned PID ends the turn loop");
   await pg.click("#pid-bump"); await pg.waitForTimeout(1500);
   check(/nothing holds the heading/.test(await chips()), "a bump after the loop ended stays: nothing holds the heading");
+  // Hold heading: the TeleOp loop never breaks, so ticking it pulls the robot back, a bump gets fixed, and a slider moves the output live
+  const errAbs = s => Math.abs(+(s.match(/error (-?[\d.]+) deg/) || [0, 99])[1]);
+  await pg.check("#pid-keep"); await pg.waitForTimeout(3500);
+  const keepChips = await chips();
+  check(/hold on/.test(keepChips) && !/loop ended/.test(keepChips) && errAbs(keepChips) < 3 && (await pg.textContent("#pid-use")).includes("No break: every pass fixes the heading"), "Hold heading pulls the bumped robot back and shows the TeleOp code: " + keepChips);
+  await pg.click("#pid-bump"); await pg.waitForTimeout(300);
+  const midBump = errAbs(await chips());
+  await pg.waitForTimeout(3500);
+  const afterBump = await chips();
+  check(midBump > 5 && errAbs(afterBump) < 3, "Hold heading fixes a new bump: " + midBump + " deg, then " + afterBump);
+  await pg.click("#pid-bump"); await pg.waitForTimeout(150);
+  await pg.$eval("#pid-kp", el => { el.value = 0; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(100);
+  const o1 = Math.abs(+((await chips()).match(/output (-?[\d.]+)/) || [0, 9])[1]);
+  await pg.$eval("#pid-kp", el => { el.value = 0.1; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(100);
+  const o2 = Math.abs(+((await chips()).match(/output (-?[\d.]+)/) || [0, 0])[1]);
+  check(o2 > o1 + 0.1, "a kP slider move changes the output on the next loop pass: " + o1 + " to " + o2);
+  await pg.uncheck("#pid-keep");
   // the D caption reads shrinking from error and slope together: turning 90 to 0 deg, the error is negative and the slope positive
   await pg.click('[data-ps="PID (tuned)"]'); await pg.waitForTimeout(3000);
   await pg.evaluate(() => { window.__der = []; const f = CanvasRenderingContext2D.prototype.fillText; CanvasRenderingContext2D.prototype.fillText = function (s) { if (this.canvas.id === "pid-der") window.__der.push(String(s)); return f.apply(this, arguments); }; });

@@ -117,7 +117,7 @@ Three jobs in `APPS`: `turn` (IMU heading), `aim` (camera bearing), `lift` (enco
 
 Sim:
 - `controlPass(0.02)` runs at 50 Hz and mirrors the Java `PIDController` class shown in the lab: first pass P only, I-zone (integral builds only while `|kP * error| < 0.35`, reset to 0 outside), derivative on error, output clipped.
-- Turn: the Java loop breaks when on target and stopped (`S.done`), output 0.
+- Turn: the Java loop breaks when on target and stopped (`S.done`), output 0. Hold heading (`#pid-keep`, `S.keep`, off by default) skips the break: the TeleOp version, so bumps and slider moves act live. Ticking it after the loop ended restarts the loop, and the code panel swaps to the TeleOp lines.
 - Aim: `S.aim.mode` is `off` (button not held), `search` (no target seen: PID reset, fixed output 0.3 toward `lastB`, the last seen bearing sign), `track`, or `locked` (inside tol). The button starts held.
 - Aim, "PID only on new frames" (`#pid-frames`, `S.aim.perFrame`, default off): a frame arrival sets `S.aim.fresh`. With the box on, a pass without a fresh frame holds `c.out` and the terms, and the next update uses `dt` = time since the last update (`S.aim.wait`), as the Java class timer does. `renderUse()` swaps the aim code to the `if (newFrame)` version with `aimTurn` held between frames, the same code as `docs/course/follow-up/vision.md` Module 4.
 - Physics: rotation has a 0.05 power deadband (friction), `w` follows `u * 300` deg/s with a 0.18 s lag. Lift has gravity 0.18 (0.3 heavy), optional feedforward 0.18.

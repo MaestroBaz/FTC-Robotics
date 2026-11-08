@@ -2911,6 +2911,7 @@ const PIDLAB = (function(){
     steps: [],
     lift: {p: 0, v: 0, heavy: false, kf: 0},   // kf: the F in PIDF, a constant power that holds the lift against gravity
     stuck: 0,     // seconds the turn loop sits outside the break window, not moving
+    keep: false,  // turn job: Hold heading on = the TeleOp loop never breaks, so bumps and slider moves act live
     ghost: null}; // the last run with other gains: {name, e0, pts: [{dt, e}], r}, drawn faint on the chart
   function fmt(v, step){ const d = step < 0.001 ? 4 : step < 0.01 ? 3 : 2; return (+v).toFixed(d); }
   function setSliders(){
@@ -2970,13 +2971,17 @@ const PIDLAB = (function(){
       if (app === "aim"){ resetAim(); } else newTarget(app === "turn" ? (S.target === 90 ? 0 : 90) : (S.target === 14 ? 26 : 14));
     }));
     let ex = "";
-    if (app === "turn") ex = '<button class="b" id="pid-bump">Bump the robot</button>';
+    if (app === "turn") ex = '<button class="b" id="pid-bump">Bump the robot</button><label class="tg"><input type="checkbox" id="pid-keep"> Hold heading (TeleOp: the loop never ends)</label>';
     if (app === "aim") ex = '<button class="b" id="pid-hold" aria-pressed="false">Hold aim button (gamepad1 right bumper)</button><label class="tg"><input type="checkbox" id="pid-strafe"> Driver strafes side to side</label><label class="tg"><input type="checkbox" id="pid-noise" checked> Camera noise and delay</label><label class="tg"><input type="checkbox" id="pid-frames"> PID only on new frames</label><button class="b" id="pid-move">Move the target</button>';
     if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>kF, the hold power: <b id="pid-kfv"></b></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"><small class="note" style="display:block">Slide until the lift holds still with P, I and D off.</small></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
     $("#pid-extras").innerHTML = ex;
     const bump = $("#pid-bump");
     if (bump) bump.addEventListener("click", () => { const st = S.steps[S.steps.length - 1]; if (st && st.tEnd === undefined) st.tEnd = S.t;   // the markers measure the move up to the bump, not the bump
       if (app === "turn"){ S.turn.w += 220; if (S.done) S.bumped = true; } else S.lift.v -= 30; });   // a turn loop that ended stays ended: turnToHeading() already returned
+    if (app === "turn"){
+      const keep = $("#pid-keep"); keep.checked = S.keep;
+      keep.addEventListener("change", e => { S.keep = e.target.checked; if (S.keep && S.done){ S.done = false; S.bumped = false; S.stuck = 0; resetPID(); } renderUse(); });   // ticking it restarts the loop at once
+    }
     if (app === "aim"){
       const hold = $("#pid-hold");
       hold.addEventListener("click", () => { S.aim.held = !S.aim.held; setHoldLabel(); if (S.aim.held) newTarget(0); });
@@ -3083,7 +3088,16 @@ const PIDLAB = (function(){
     const g = gains().map((v, i) => fmt(v, APPS[app].range[["kp", "ki", "kd"][i]][2]));
     const ctor = "new PIDController(" + g.join(", ") + ");";
     let L;
-    if (app === "turn") L = turnJava(ctor);
+    if (app === "turn") L = S.keep ? [
+      "private final PIDController turnPID = " + ctor,
+      "// Robot.java needs headingDegrees(): the IMU yaw in degrees",
+      "private double targetHeading = 90;   // a button sets it, like the lift targets",
+      "",
+      "// Inside the TeleOp loop. No break: every pass fixes the heading again",
+      "double error = AngleUnit.normalizeDegrees(targetHeading - robot.headingDegrees());  // IMU",
+      "double power = Range.clip(turnPID.update(error), -0.6, 0.6);",
+      "robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, -power);  // driver strafes, PID turns"
+    ] : turnJava(ctor);
     if (app === "aim") L = S.aim.perFrame ? [
       "private final PIDController aimPID = " + ctor,
       "private double aimTurn = 0;       // last output, held between frames",
@@ -3177,7 +3191,7 @@ const PIDLAB = (function(){
         dt = A.wait; A.wait = 0;   // the class timer measures the time since the last update(): one frame, not one pass
       }
     }
-    if (app === "turn" && (S.done || (Math.abs(err) < APPS.turn.tol && Math.abs(S.turn.w) < 5))){ S.done = true; c.p = c.i = c.d = c.f = 0; c.out = 0; return; }   // the Java loop breaks: on target and stopped
+    if (app === "turn" && !S.keep && (S.done || (Math.abs(err) < APPS.turn.tol && Math.abs(S.turn.w) < 5))){ S.done = true; c.p = c.i = c.d = c.f = 0; c.out = 0; return; }   // the Java loop breaks: on target and stopped
     if (c.first){ c.first = false; c.last = err; c.p = P_ * err; c.i = 0; c.d = 0; }
     else {
       if (Math.abs(P_ * err) < 0.35) c.integral += err * dt; else c.integral = 0;   // I only near the target
@@ -3228,7 +3242,7 @@ const PIDLAB = (function(){
       S.loopAcc += h;
       if (S.loopAcc >= 0.02){ S.loopAcc -= 0.02; controlPass(0.02);
         const e = errorNow();
-        S.stuck = app === "turn" && !S.done && Math.abs(e) >= APPS.turn.tol && Math.abs(S.turn.w) < 5 ? S.stuck + 0.02 : 0;   // outside the break window and not moving: AUTO waits here forever
+        S.stuck = app === "turn" && !S.keep && !S.done &&Math.abs(e) >= APPS.turn.tol && Math.abs(S.turn.w) < 5 ? S.stuck + 0.02 : 0;   // outside the break window and not moving: AUTO waits here forever
         S.hist.push({e: e, t: S.t, sp: app === "aim" ? 0 : S.target, me: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), p: S.c.p, i: S.c.i, d: S.c.d, f: S.c.f, o: S.c.out, mv: app === "aim" && (S.aim.strafe || S.aim.drag)});
         capHist(S.hist);
       }
@@ -3245,6 +3259,7 @@ const PIDLAB = (function(){
     }
     if (e !== null) html += chip("error " + e.toFixed(1) + " " + A.unit, Math.abs(e) < A.tol ? "ok" : "warn");
     if (app === "turn" && S.done) html += S.bumped ? chip("loop ended before the bump: nothing holds the heading", "bad") : Math.abs(e) < APPS.turn.tol ? chip("loop ended: on target and stopped", "ok") : chip("loop ended, then the robot coasted to " + e.toFixed(1) + " deg", "warn");
+    if (app === "turn" && S.keep) html += chip("hold on: every pass fixes the heading", "ok");
     if (app === "turn" && !S.done && S.stuck > 1) html += chip("loop still running: stuck " + e.toFixed(1) + " deg away", "bad");
     if (app === "aim") html += chip("camera: " + (S.aim.found ? "target found" : "no target"), S.aim.found ? "ok" : "bad");
     html += chip("output " + S.c.out.toFixed(2), "run");

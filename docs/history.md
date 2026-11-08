@@ -208,3 +208,14 @@ Output:
 - Docs: run sheet, plan, architecture, writing style and CLAUDE.md name the button and key T. The run sheet says to pick Light on the projector.
 - Cheat sheet (same day): the PID loop diagram draws F as a 4th block fed by an always-on source, I turns pollen to match tab 7.
 - Smoke test: the button switches to dark, key T switches back, the pick survives a reload. A cheat sheet check guards the F block.
+
+## 27. Hold heading on the PID turn job (2026-11-08)
+
+Request: Baz saw Bump the robot fail to bring the turn back and asked for PID tuning to work in real time.
+
+Cause: by design, the turn job runs AUTO turnToHeading(). Once the loop breaks on target, the sim stops sending power, so a bump stays and slider moves do nothing. On the projector this reads as a broken PID.
+
+Output:
+- Lab: a "Hold heading (TeleOp: the loop never ends)" checkbox beside Bump, off by default. Ticked, the loop never breaks: the robot turns back at once, every bump gets fixed, and every slider move acts on the next pass. The code panel swaps to the TeleOp lines. A chip reads "hold on: every pass fixes the heading".
+- Plan Part A step 4: tick Hold heading after the "robot stays" bump, bump again, move kP live, then untick before tab 8.
+- Smoke test: Hold heading pulls the robot back, fixes a new bump, and a kP move changes the output on the next pass.
