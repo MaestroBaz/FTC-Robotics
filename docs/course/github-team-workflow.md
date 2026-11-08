@@ -109,7 +109,7 @@ Save as `.github/pull_request_template.md`:
 - [ ] No threads, no sleep() inside a TeleOp loop
 - [ ] Hardware lives in Robot.java, behavior lives in OpModes
 - [ ] Hardware names match the robot configuration
-- [ ] Robot does not move between INIT and START (team rule. G304.H asks for less: "fully motionless following completion of OpMode initialization")
+- [ ] Robot does not move between INIT and START (team rule. Rule G304.H asks for less: "fully motionless following completion of OpMode initialization")
 ```
 
 Reviewer job, in this order:
@@ -124,10 +124,11 @@ Reviewer job, in this order:
 The Crash Course day has no laptops and no robot. GitHub runs as Module 3 (20 min): you demo lab tab 3 on the projector and the teams vote. Nobody types. The laptop drills wait for the hands-on Follow-up Session.
 
 On the Crash Course day (Module 3, lab tab 3, 20 min):
-- Part 1, where your code lives: commit, a rejected push, pull, push again. Teams predict what happens at Push.
+- Ask the room vote first: your laptop dies after a commit, before the push. Does the team have your code? Right answer B: no.
+- Part 1, where your code lives: edit, commit, Leo pushes to your branch first, a rejected push, pull, push again. Teams predict what happens at Push.
 - Part 2, how the repos fit: the org, the two repos, the laptops, the robot, Onshape.
 - Part 3, one pull request: the review loop, with one "Reviewer asks for changes".
-- Part 4, two people, one line: Maya sets the slow-mode value to 0.4, Leo sets the same line to 0.3. Teams vote on which side to keep. Git does not pick, people do: ask Maya and test both on the robot.
+- Part 4, two people, one line: the second Ask the room vote first: what does GitHub show on Leo's pull request? Right answer A: this branch has conflicts that must be resolved. Then Maya sets the slow-mode value to 0.4, Leo sets the same line to 0.3. Teams vote on which side to keep. Git does not pick, people do: ask Maya and test both on the robot.
 - The room leaves with the words: commit, push, pull, pull request, review, conflict. Collect GitHub usernames.
 
 In the hands-on Follow-up Session (45 min, laptops, one robot): Drills A to D below. The prep list sits in `crash-course-plan.md`, Follow-up sessions, item 1.

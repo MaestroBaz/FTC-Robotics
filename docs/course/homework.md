@@ -4,7 +4,7 @@ Nov 6, 2026 - @Ahmed El-Baz
 
 ## Before you start
 
-Tonight takes about 3 hours. Do the must-do list in order. Tomorrow you need a GitHub account, so the GitHub items come first.
+Tonight takes about 3 hours. Do the must-do list in order. The hands-on session after the Crash Course needs a GitHub account, so the GitHub items come first.
 
 - [ ] Make a free GitHub account at [github.com](https://github.com/signup) (you must be 13 or older). Pick a username without your full name, and send it to your mentor.
 - [ ] Open a notebook or a notes file. Write down every question you get stuck on. Bring the list tomorrow.
@@ -24,18 +24,18 @@ Do these 9 items in order. Each one prepares a tab of tomorrow's lab.
 | 5 | [gm0: LinearOpMode vs OpMode](https://gm0.org/en/latest/docs/software/getting-started/linear-opmode-vs-opmode.html) | 5 min | Reading | Tab 2: OpMode lifecycle |
 | 6 | [gm0: Mecanum TeleOp](https://gm0.org/en/latest/docs/software/tutorials/mecanum-drive.html), read through the field-centric section | 12 min | Reading | Tab 4: Drive modes |
 | 7 | [gm0: Finite State Machines](https://gm0.org/en/latest/docs/software/concepts/finite-state-machines.html) | 10 min | Reading | Tab 5: One loop, no sleep |
-| 8 | [Understanding PID Control, Part 1](https://www.youtube.com/watch?v=wkfEZmsQqiA), MATLAB (Brian Douglas) | 12 min | Video | Tabs 6 and 7: Feedback, PID |
+| 8 | [Understanding PID Control, Part 1](https://www.youtube.com/watch?v=wkfEZmsQqiA), MATLAB (Brian Douglas) | 12 min | Video | Tabs 6 and 7: Closed loop: launcher, PID control |
 | 9 | [CTRL ALT FTC: The PID Controller](https://www.ctrlaltftc.com/the-pid-controller), main page only | 10 min | Reading | Tab 7: PID control |
 
 Total: 2 hours 56 minutes, plus breaks.
 
 ## Optional extras (pick 1 or 2)
 
-The first one helps the most, because tomorrow everyone fixes a merge conflict in the first hour.
+The first one helps the most, because tomorrow the GitHub module shows a merge conflict on the projector and the teams vote on the fix.
 
 | Item | Time | Why |
 | --- | --- | --- |
-| [GitHub Skills: Resolve merge conflicts](https://github.com/skills/resolve-merge-conflicts) | 25 min | You fix a real conflict, the same thing we do live tomorrow |
+| [GitHub Skills: Resolve merge conflicts](https://github.com/skills/resolve-merge-conflicts) | 25 min | You fix a real conflict, the same kind the lab shows tomorrow |
 | [How To Program a Mecanum Drivetrain](https://www.youtube.com/watch?v=sFCO4du5IZk), Brogan M. Pratt | 26 min | Robot-centric vs field-centric drive, and a reusable drive class |
 | [CTRL ALT FTC: Feedforward Control](https://www.ctrlaltftc.com/feedforward-control) | 10 min | Why a lift needs a little constant power to fight gravity |
 | [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC), free PDF book by Alan G. Smith: chapters on classes and methods | 30 min | Java explained with robot examples. Written for SDK 11.2, so small details differ from our 12.0 |

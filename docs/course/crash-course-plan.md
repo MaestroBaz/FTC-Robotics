@@ -2,19 +2,21 @@
 
 Audience: about 30 students with basic Java (variables, if, loops), in 6 teams of about 5. No student laptops and no robot in the room. The mentor runs the lab on the projector from the local file `lab/index.html`. Students do not type code on this day. Goal: every team reads a full OpMode, names each part, and predicts what the robot does before the demo shows the answer. A hands-on Follow-up Session covers cloning, building and pull requests.
 
-Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). On the day, open the same file from disk.
+Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHuUvCW (FTC Java Crash Course Lab, 8 tabs: 1 Java basics, 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes, 5 One loop, no sleep, 6 Closed loop: launcher, 7 PID control, 8 Encoders (later)). On the day, open the same file from disk.
 
 Homework for the night before: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S (FTC Crash Course: Homework for Tonight, about 3 hours, GitHub first).
 
 Slow motion: the slider under the tabs sets the simulation speed on a log scale from 0.05x to 2x. Click a label (0.05, 0.1, 0.25, 0.5, 1, 2) to jump to a speed, or press 1x. Pause, and Step 0.1 s. Keys: P pause, [ slower, ] faster, . step. Run each demo once at 1x so the room sees the real speed, then replay at 0.1x or 0.05x and pause on the moment you explain.
 
-Charts (tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live window (5 to 60 s), press Show all, drag across a chart to zoom into one part, or use the Scroll back slider. Double-click a chart to return to live. Each chart bar also has Pause, Play and Reset run.
+Charts (tab 4 wheel powers, tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live window (5 to 60 s), press Show all, drag across a chart to zoom into one part, or use the Scroll back slider. Double-click a chart to return to live. Each chart bar also has Pause, Play, Reset run and Save PNG. Save PNG saves the chart as drawn, with its title, time span and legend. Inside the published artifact some browsers block the download: right-click the picture under the bar, Save image as.
+
+The header: auto-hide is on by default. The whole header folds to one thin line with the tab name, the sim state and the scores. Point at the line, or tap it, to open the tabs, the sim speed and the scores. The pin button at the right end of the tab row, or key H, turns auto-hide off and on. With auto-hide on, the Java card list folds to a rail of numbers.
 
 ## Teaching format: demo-driven, teams score points
 
 Nobody types on this day. The lab replaces hands-on testing with visuals, and the team game replaces typing with predictions. Every module runs the same four moves:
 
-1. Ask the room (2 min). Each lab tab opens with a question and three answers, A, B and C. Teams talk for 30 seconds and hold up one printed card. You click the answer each team holds up, Team 1 first (right-click takes one back), then click Reveal answer. The lab gives one point to every team with the right answer. Keys 1 to 6 are for the other three games. A wrong prediction followed by the demo sticks better than a lecture.
+1. Ask the room (2 min). Each lab tab opens with a question and three answers, A, B and C. Teams talk for 30 seconds and hold up one printed card. You click the answer each team holds up, Team 1 first (right-click takes one back), then click Reveal answer. The answer opens only from Reveal, so a stray click on the question gives nothing away. The lab gives one point to every team with the right answer. The right answers are spread over A, B and C. Press Hide on the question after the reveal, so the demo gets the full width. The votes and points stay. Keys 1 to 6 are for the other three games. A wrong prediction followed by the demo sticks better than a lecture.
 2. Show the lab (5-10 min). Run the tab on the projector. Turn on the bug toggles. Let a student from the leading team drive the controls.
 3. Team round (3-5 min). One of four games, listed per module below: a vote, a word hunt, a spot-the-bug, or a prediction before a demo.
 4. Read the code aloud (2 min). Point at the real file on the Java tab and say what one line does. Teams listen for words to hunt later.
@@ -25,7 +27,7 @@ The four games:
 - Spot the bug: Java tab, "Error clinic: fix it" card. Put an error on the projector. The team whose turn comes picks a fix. Click the fix. The room sees the result. A right fix scores one point. A wrong fix passes the same error to the next team.
 - Prediction: before you press a lab button, each team holds up A, B or C for what the robot will do. Right prediction, one point.
 
-Scoreboard: the top bar of the lab holds 6 teams. Keys 1 to 6 give a point in the word hunt, spot the bug and prediction games. Click a name to rename a team. Click Reset scores twice to clear the board. The Teams button hides the bar when you need the screen.
+Scoreboard: the top bar of the lab holds 6 teams. Keys 1 to 6 give a point in the word hunt, spot the bug and prediction games. Click a name to rename a team. Reset scores takes two clicks: the first click arms the button (it reads "Click again to clear"), the second clears the board. The Teams button hides the bar when you need the screen.
 
 Design choices:
 - One working TeleOp with field-centric drive, a launcher state machine and auto-aim, shown in steps. The same three files (MainTeleOp.java, Robot.java, PIDController.java) come back in every module, so by the end the room has read them many times.
@@ -39,10 +41,11 @@ Design choices:
 The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fallbacks for the day.
 
 - [ ] Print `team-coding-standard.md`, one per student.
+- [ ] Print `cheatsheet.html` double sided, one set of 2 sheets per student.
 - [ ] Print `run-sheet.md`.
 - [ ] Print 6 sets of A, B and C cards, one set per team.
 - [ ] Test the projector with `lab/index.html` opened from disk at browser zoom 125%, not more. Check that the vote options and code read from the back row. Press Hide after each vote so the demo gets the screen.
-- [ ] On the morning of the course, copy `lab/index.html` to a USB stick.
+- [ ] On the morning of the course, copy `lab/index.html` to a USB stick. The git tag `crash-course-day` holds the lab reviewed on 2026-11-07, as a fallback copy (steps in `run-sheet.md`).
 - [ ] Send the homework link to the students.
 
 Laptops, GitHub org and invites, robot config and the archive branch moved to the hands-on Follow-up Session plan at the end of this doc.
@@ -57,7 +60,7 @@ Laptops, GitHub org and invites, robot config and the archive branch moved to th
 | 1:00-1:20 | 3. GitHub: how the team shares one robot's code | 3 GitHub teamwork | Teams explain commit, push, pull, PR and conflict |
 | 1:20-1:30 | Break | | |
 | 1:30-1:55 | 4. Drive modes, robot-centric and field-centric | 4 Drive modes | Teams predict where the robot goes in each mode |
-| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 5 One loop, 6 Closed loop | Teams explain why no sleep and why closed loop |
+| 1:55-2:25 | 5. One loop, no sleep, and the launcher across a match | 5 One loop, no sleep, 6 Closed loop: launcher | Teams explain why no sleep and why closed loop |
 | 2:25-2:50 | 6. PID control and auto-aim | 7 PID control | Teams name P, I and D on the chart |
 | 2:50-3:00 | Final round, scores, what comes next | 1 Java basics (Every word explained) | Winner named, next session dated |
 
@@ -76,15 +79,15 @@ Talking points (5 min):
   3. Every change goes through a pull request with a human reviewer.
 
 Teams and the game (5 min):
-- Press Reset scores. Click each team name in the top bar and type the name the team picks. Hand out one set of A, B and C cards per team.
-- Practice vote: the tab 2 Ask the room question about the AI version. Walk through the moves once: teams hold up a card, you click each team's answer, then Reveal answer. The lab pays the points. Press Reset scores after the practice, so the game starts at 0 and the tab 2 vote is fresh for Module 2. Explain the four games in one sentence each.
+- Press Reset scores twice. Click each team name in the top bar and type the name the team picks. Hand out one set of A, B and C cards per team.
+- Practice vote: the tab 2 Ask the room question about the AI version (right answer C: the arm moves right after INIT, and the thread keeps running after STOP). Walk through the moves once: teams hold up a card, you click each team's answer, then Reveal answer. The lab pays the points. Press Reset scores twice after the practice, so the game starts at 0 and the tab 2 vote is fresh for Module 2. Explain the four games in one sentence each.
 
 Team rounds:
-- Practice vote on tab 2 (Reset scores after it, shows the moves).
+- Practice vote on tab 2 (right answer C, then Reset scores twice, shows the moves).
 
 ## Module 1: Java basics, the robot way (35 min)
 
-Lab tab 1 has 12 cards. 35 minutes does not cover all of them in depth, so spend the time on Decisions and the two cards with the games: Every word explained and Error clinic: fix it.
+Lab tab 1 has 12 cards, numbered 0 to 11. Card 6, Loops and arithmetic, is for the hands-on Follow-up Session, not the 3 hours: skip it on the day. 35 minutes does not cover the other 11 in depth, so spend the time on Decisions and the two cards with the games: Every word explained and Error clinic: fix it.
 
 | Card | Time | What to click | The one sentence to remember |
 |---|---|---|---|
@@ -103,7 +106,7 @@ Lab tab 1 has 12 cards. 35 minutes does not cover all of them in depth, so spend
 
 The order follows the words a student meets reading MainTeleOp top to bottom: classes, types, private, extends and @Override, then the if and switch inside the loop, then loops and arithmetic (skipped on the day, taught in the hands-on Follow-up Session), then scope. The read-through card comes after them. The Lists card is off the nav for the day. Its pane stays in the lab for the Follow-up Session.
 
-Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (inside Robot.java) sets up the "Robot.java: public and private" card, 8 minutes in.
+Open the tab with the Ask the room vote: "Where does Java find the word `drive`?" Reveal after the cards hold up. The answer (A, inside the Robot class in Robot.java) sets up the "Robot.java: public and private" card, 8 minutes in.
 
 Word hunt routine ("Every word explained" card): say the job, not the word. Start with easy ones: the word before `class` so other files see the class, the word making a value fixed, the word giving us telemetry and gamepad1, the name of the method the Driver Hub runs at INIT. Give one point to the first team. Click each found word so the room reads the plain-words explanation. Save the word chips at the bottom for the final round.
 
@@ -281,7 +284,7 @@ public class MainTeleOp extends LinearOpMode {
 Problem to show with the two files: TeleOp and Auto both need the same motors. Copy-paste means two places to fix every bug. Solution: one `Robot.java` knows the hardware. OpModes decide behavior. Teach `public` and `private` with one rule: fields (motors, sensors) are `private`, methods other files call are `public`.
 
 Team rounds:
-- Vote: "Where does Java find the word drive?" (1 point per right team).
+- Vote: "Where does Java find the word drive?" Right answer A (1 point per right team).
 - Word hunt on the "Every word explained" card: 4 words (1 point each, first team).
 - Spot the bug on the "Error clinic: fix it" card: errors 1, 4, 6, 7, 3 and 8 (1 point per right fix).
 
@@ -309,21 +312,22 @@ Teach:
 
 Team rounds:
 - Prediction before INIT, START and STOP: which line runs next (1 point each).
-- Prediction at STOP on the AI version, replayed from Module 0: does the thread stop? (1 point). It does not: STOP ends `runOpMode()`, and the thread keeps running until the Robot Controller app restarts. A second INIT does not stop it either.
+- Prediction at STOP on the AI version, replayed from Module 0: does the thread stop? (1 point). The Ask the room vote on this tab was the Module 0 practice, right answer C. It does not: STOP ends `runOpMode()`, and the thread keeps running until the Robot Controller app restarts. A second INIT does not stop it either.
 
 ## Module 3: GitHub: how the team shares one robot's code (20 min)
 
 Lab tab 3, parts 1 to 4:
-- Open with the vote: "You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?" Reveal, then score.
+- Open with the vote: "You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?" Right answer B: no, the commit sits on the dead laptop. Reveal, then score.
 - 1, where your code lives (6 min): press 1 Edit, 2 Commit, 3 Leo pushes to your branch first. Stop before 4 Push: teams predict A accepted, B rejected, C GitHub merges it. Press 4. The push gets rejected and the GitHub box turns red. Ask a team why, then press 5 Pull and 4 Push.
 - 2, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
 - 3, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
-- 4, two people, one line (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and try both on the robot. C scores: git does not pick, people do. Click the side the room picks.
+- 4, two people, one line (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Right answer A: this branch has conflicts that must be resolved. Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and try both on the robot. C scores: git does not pick, people do. Click the side the room picks.
 
 Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words. The laptop drills for that session sit in `github-team-workflow.md` section 7.
 
 Team rounds:
-- Vote: laptop dies before push (1 point per right team).
+- Vote: laptop dies before push. Right answer B (1 point per right team).
+- Vote: Leo's pull request after Maya merged. Right answer A (1 point per right team).
 - Prediction: what happens at Push after the partner pushed (1 point).
 - Vote at conflict step 8: which side to keep (1 point for C, ask and test).
 
@@ -331,7 +335,7 @@ Team rounds:
 
 Lab tab 4, in this order:
 1. Robot-centric (6 min): press each preset. Read the wheel powers out loud. Press Forward + turn with Normalize on and let the robot draw a circle. Press Center sticks, then Reset robot: the old path stays as a dashed line. Turn Normalize off and press Forward + turn again. The new circle is wider: the left wheels asked for 1.60 and got cut to 1.00, so the turn shrank. Turn on the front_left bug and ask what the drivers would see. Before you turn the bug on, teams predict: A drives straight, B curves, C spins in place.
-2. Vote (3 min): field-centric, the robot faces the left wall, the driver pushes the stick up. Reveal, score. Pick Field-centric, press "Rotate robot 90 deg left (by hand)", then Forward: the robot slides away from the drivers and keeps facing the wall. Read the wheel powers out loud: +1, -1, -1, +1. Switch to Robot-centric and press Forward: the robot drives into the left wall. The "rotation in one picture" panel shows the stick and the robot at its IMU heading on the left, and what the robot receives on the right.
+2. Vote (3 min): field-centric, the robot faces the left wall, the driver pushes the stick up. Right answer C: slides away from the drivers, still facing the wall. Reveal, score. Pick Field-centric, press "Rotate robot 90 deg left (by hand)", then Forward: the robot slides away from the drivers and keeps facing the wall. Read the wheel powers out loud: +1, -1, -1, +1. Switch to Robot-centric and press Forward: the robot drives into the left wall. The "rotation in one picture" panel shows the stick and the robot at its IMU heading on the left, and what the robot receives on the right.
 3. Field-centric with a wrong zero (5 min): pick Field-centric and press Reset robot. Press "Rotate robot 90 deg left (by hand)", then press "Reset heading" while the robot faces the left wall. The mistake: a driver pressed A with the robot facing the wall. Teams predict: where does Forward go now? Press Forward: the robot drives into the left wall, like robot-centric. The IMU reads 0 deg, so the code thinks the robot faces away from the drivers. Fix: press Center sticks, press Rotate 3 more times until the front points away from the drivers, then press "Reset heading". Forward works again. Rule: press A only with the front pointing away from the drivers.
 4. AUTO (5 min): click points on the field, then tick "Turn to 90 deg while driving". The path stays nearly straight while the robot turns. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
 5. Read the three use-case cards together (3 min).
@@ -355,20 +359,20 @@ Wrong wheel direction on a real robot means fix `setDirection` in Robot.java, ne
 
 Team rounds:
 - Prediction before the front_left bug (1 point).
-- Vote: field-centric, left wall, stick up: slides, no turn (1 point per right team).
+- Vote: field-centric, left wall, stick up: slides, no turn. Right answer C (1 point per right team).
 - Prediction before the wrong-zero demo (1 point).
 
 ## Module 5: One loop, no sleep, and the launcher across a match (30 min)
 
 Part A, why no sleep (lab tab 5, 10 min):
-- Open with the vote: the driver is steering when the code reaches `sleep(1000)`. What does the robot do? Reveal, score.
+- Open with the vote: the driver is steering when the code reaches `sleep(1000)`. What does the robot do? Right answer A: it keeps driving at the old power and ignores the sticks. Reveal, score.
 - Set the speed to 0.25x. Press Launch as the yellow target starts a turn. The sleep() robot ignores the sticks for 1.3 seconds and keeps its old power, so it leaves the target. If the target runs straight, both robots stay close: sleep hurts most when the driver needs to steer. The state machine robot keeps following. Point at the gap in the loop passes, and at the yellow box moving through the state machine diagram.
 - Ask the room how to fire the launcher, wait for speed, then feed, without freezing the drive. Answer: a state machine.
 - Cite gm0: hardware calls share one lock per hub, so threads do not speed anything up and they hide crashes.
 - Key idea: each loop pass must finish fast. Anything waiting (sleep, a while loop inside the loop) freezes the drivers' sticks.
 
 Part B, feedback across a match (lab tab 6, 10 min):
-- Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)`? Reveal, score.
+- Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)`? Right answer B: slower wheel, shots fall short. Reveal, score.
 - Before you press "Run a 2-minute match", teams predict which robot wins on the scoreboard and by how much: A open loop, B closed loop by a little, C closed loop by a lot. Press, then compare hit rates.
 - Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
 - Ask: why does drive still use setPower? The driver closes that loop with their eyes.
@@ -420,8 +424,8 @@ Teach: each pass through the loop checks the state once and moves on. Driving ke
 Spot the bug on the whiteboard: cross out one `break`. Teams hold up A the launcher never spins, B two states run in one pass, C a compile error. Then ask where a cancel button (gamepad2 B returns to IDLE) would go. Teams answer A inside IDLE, B inside every case, C above the switch.
 
 Team rounds:
-- Vote: sleep and the sticks (1 point per right team).
-- Vote: battery and setPower (1 point per right team).
+- Vote: sleep and the sticks. Right answer A (1 point per right team).
+- Vote: battery and setPower. Right answer B (1 point per right team).
 - Prediction: who wins the 2-minute match (1 point).
 - Spot the bug: missing break, then the cancel button (1 point each).
 
@@ -429,7 +433,7 @@ Team rounds:
 
 Lab tab 7. The message for the room: one class, every sensor. The PID code never changes. Only the sensor, the error, and 3 numbers change (4 on a lift: F holds against gravity).
 
-Open (3 min): Ask the room vote. After Reveal, click "Lift to height", press P only (stops 1.8 in short, output 0.18), then PID (tuned) (I closes the gap). Then press P only again and slide kF to 0.18: the gap closes with no I. Name it: this is the F in PIDF from the launcher. On the launcher F is kF x target speed and the hub does it. On a lift F is a constant. On a turn there is no F. Then click "Turn to heading (IMU)" for Part A.
+Open (3 min): Ask the room vote: the lift stops about 2 inches short, which term fixes the gap? Right answer C: I adds up the leftover error. After Reveal, click "Lift to height", press P only (stops 1.8 in short, output 0.18), then PID (tuned) (I closes the gap). Then press P only again and slide kF to 0.18: the gap closes with no I. Name it: this is the F in PIDF from the launcher. On the launcher F is kF x target speed and the hub does it. On a lift F is a constant. On a turn there is no F. Then click "Turn to heading (IMU)" for Part A.
 
 Part A, what P, I and D do (12 min). Use "Turn to heading (IMU)" at 0.25x speed, and pause on the moments below:
 0. Start with the control loop diagram at the top: target, error, the 3 term boxes, power, drivetrain, IMU, and the arrow back. Trace one lap with your finger. Each term box shows the live math, for example `0.020 x -12.3 = -0.25`, so moving a slider changes the box at once. The two small charts under the diagram show what I and D mean: I is the shaded area under the error curve, D is the slope of the red line.
@@ -450,7 +454,7 @@ Tuning on the real robot: on a lift or arm, find F first (set kP, kI and kD to 0
 The HIVE AprilTags sit in clusters of 4 under each CELL, facing down (CM 9.9). [Verify] on the robot whether the team's camera sees them from the mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
 
 Team rounds:
-- Vote: which term fixes the lift gap (1 point per right team).
+- Vote: which term fixes the lift gap. Right answer C (1 point per right team).
 - Prediction: PD overshoot vs P only (1 point).
 - Prediction: what the bump does (1 point).
 - Prediction: "P too high" and overshoot on the aim job (1 point).
@@ -465,7 +469,7 @@ Team rounds:
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
-Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug. Set the sim speed to 0.25x first, then press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: your code thinks 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. With Ramp still ticked, type 3.27 for the diameter: the robot stops on the line. A measured constant soaks up steady slip. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
+Lab tab 8 opens with an Ask the room vote: wheel diameter typed as 3 instead of 4.09. Right answer A: the robot drives too far, about 33 in. Then run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug. Set the sim speed to 0.25x first, then press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: your code thinks 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. With Ramp still ticked, type 3.27 for the diameter: the robot stops on the line. A measured constant soaks up steady slip. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
 Then use `turnToHeading()` from lab tab 7 (the PID turn job) for turns.
 
 BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. LEAVE is judged at the end of AUTO, so a robot parked touching the wall loses LEAVE (Q&A 21): 8 points needs a park off the wall. PARK scores 5 again in TELEOP. A reliable 8-point auto beats a fancy auto failing 1 match in 3.

@@ -40,7 +40,7 @@
 
 - Classes: `MainTeleOp`, `LeaveAndPark`, `Robot`.
 - Methods and variables: `launcherOn`, `headingDegrees`.
-- Hardware config names: `front_left`, `launcher`, `imu`. Same string in code and on the Driver Hub.
+- Hardware config names: `front_left`, `launcher`, `feeder`, `imu`. Same string in code and on the Driver Hub.
 - Branches: `yourname/what-it-does`.
 
 ## Folder layout in TeamCode
@@ -78,5 +78,5 @@ Base the code on the official FTC SDK sample: <sample name>.
 - [ ] Builds without errors
 - [ ] Tested on the robot (in a mentor-led session, a clean build is enough: the mentor tests on the robot)
 - [ ] No threads, no sleep in TeleOp
-- [ ] Robot does not move between INIT and START (team rule. G304.H asks for "fully motionless following completion of OpMode initialization")
+- [ ] Robot does not move between INIT and START. This is the team rule. Rule G304.H asks for less: "fully motionless following completion of OpMode initialization". The team rule adds: nothing moves during INIT either.
 - [ ] I explain every line
