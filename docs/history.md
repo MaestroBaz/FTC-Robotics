@@ -172,3 +172,17 @@ Output:
 - PIDF: one rule, F = kF x what you already know (lift: hold power, arm: kF x cos, launcher: kF x target speed on the hub). Tab 6 and tab 7 diagrams show F as its own branch with no error arrow, plus a gravity arrow on the lift. Lift preset "PD + F (tuned)". kG dropped. Cheat sheet wording matched.
 - Encoders: Floor slip slider, Forward or Strafe right, a ramp option with its code, kv rows for encoder inches, tape inches and an odometry pod, and a "When AUTO misses: fix it in this order" ladder. Reference doc gained the same ladder and the BIOBUZZ AprilTag caveat.
 - Smoke test: checks for @Override, if/else branches, switch fall-through, Ask Hide and Show, auto-hide, one-loop Pause/Resume/Reset, encoder slip.
+
+## 24. Header fold, and a teaching review of every tab (2026-11-07)
+
+Request: Baz wanted the top navigation to auto-hide too, with the auto-hide button out of its bad spot, and every tab checked against its teaching goal until each one meets it.
+
+Finding: the old auto-hide only slid the bar away while scrolling, and its button sat in the control row among the sim controls. An audit of all 8 tabs found about 190 problems. The biggest: every Ask the room answer was B, several goal lines and ledes gave the vote away, the lifecycle diagram showed the answer before the vote, the PID "How to tune" panel answered both overshoot votes, and some diagrams pointed at the wrong words.
+
+Output:
+- Header: with auto-hide on, the header folds into one line with the tab name, the sim state and the scores. Hover, focus or a tap opens the full menu over the page. The pin sits at the right end of the tab row, key H toggles. The SDK and season text left the header to keep the folded line to one row.
+- Every tab has a one-line goal under its title. Tab labels: "6 Closed loop: launcher" and "8 Encoders (later)". The header shows the 3 team rules.
+- Votes: right answers spread over A, B and C. Answers open only from Reveal. Reset scores takes two clicks. A tab change scrolls to the top.
+- Per tab: the Java tab opens with the three places every word comes from (Robot, the SDK parent, Java), the error decoder brackets sit under the right words, @Override versions build honestly. Lifecycle shows each phase's text only after its vote. GitHub predicts before it shows. Mecanum starts the run clear of the walls. One loop counts the seconds the sticks were ignored. Launcher explains launcherReady(). PID folds How to tune until after the votes, reports "still swinging" instead of a fake offset, and keeps the D chart labels apart. Encoders shows what your code thinks against the tape.
+- Code ligatures off everywhere.
+- Process: an audit and a critic per tab, fixes in 10 branches, then three rounds of fresh reviewers at 1366x768, dark and 390 px. All 10 areas pass. Smoke test gained a check per fix.

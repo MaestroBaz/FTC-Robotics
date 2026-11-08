@@ -273,7 +273,7 @@ Team rounds:
 
 ## Module 2: What runs when you press INIT, START and STOP (15 min)
 
-Lab tab 2: press INIT, START, STOP with the team version. Before each press, the message under the Driver Hub asks the vote: teams hold up A, B or C for which lines run next. The highlight after the press is the reveal. The state diagram under the message lights up each state. The match timeline shows two OpModes, AUTO then TeleOp, each with its own INIT, START and STOP.
+Lab tab 2: press INIT, START, STOP with the team version. Before each press, the message under the Driver Hub asks the vote: teams hold up A, B or C for which lines run next. The highlight after the press is the reveal. The state diagram under the message lights up each state and shows a box's text only once the OpMode reaches it, so the diagram never gives away the next vote. The match timeline shows two OpModes, AUTO then TeleOp, each with its own INIT, START and STOP.
 
 Teach on the whiteboard:
 
@@ -298,10 +298,10 @@ Team rounds:
 
 Lab tab 3, parts 1 to 4:
 - Open with the vote: "You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?" Reveal, then score.
-- 1, where your code lives (6 min): press 1 Edit, 2 Commit, 3 Leo pushes first. Stop before 4 Push: teams predict A accepted, B rejected, C GitHub merges it. Press 4. The push gets rejected and the GitHub box turns red. Ask a team why, then press 5 Pull and 4 Push.
+- 1, where your code lives (6 min): press 1 Edit, 2 Commit, 3 Leo pushes to your branch first. Stop before 4 Push: teams predict A accepted, B rejected, C GitHub merges it. Press 4. The push gets rejected and the GitHub box turns red. Ask a team why, then press 5 Pull and 4 Push.
 - 2, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
 - 3, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
-- 4, merge conflict (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and test both on the robot. C scores: git does not pick, people do. Click the side the room picks.
+- 4, two people, one line (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and try both on the robot. C scores: git does not pick, people do. Click the side the room picks.
 
 Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words.
 
@@ -319,7 +319,7 @@ Lab tab 4, in this order:
 4. AUTO (5 min): click points on the field, then tick "Turn to 90 deg while driving". The path stays nearly straight while the robot turns. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
 5. Read the three use-case cards together (3 min).
 
-Correct a common belief: field-centric is a way to read the driver's sticks, so field-centric belongs in TeleOp. In the 30-second AUTO there are no sticks. What carries over to AUTO is the same rotation math, applied to field coordinates from odometry (Pinpoint or dead wheels) or AprilTag localization.
+Correct a common belief: field-centric is a way to read the driver's sticks, so field-centric belongs in TeleOp. In the 30-second AUTO there are no sticks. What carries over to AUTO is the same rotation math, applied to field coordinates from odometry (Pinpoint or dead wheels). The BIOBUZZ AprilTags move, so they aim the robot at the HIVE and give no field position.
 
 Mecanum math (3 min, from SDK sample BasicOmniOpMode_Linear). Draw the 4 wheels and the rollers. Show how forward, strafe and turn add up per wheel, then point at the same lines inside `robot.drive()` in Robot.java.
 
@@ -345,7 +345,7 @@ Team rounds:
 
 Part A, why no sleep (lab tab 5, 10 min):
 - Open with the vote: the driver is steering when the code reaches `sleep(1000)`. What does the robot do? Reveal, score.
-- Set the speed to 0.25x and press Launch. The sleep() robot drives blind for 1.3 seconds and leaves the target. The state machine robot keeps following. Point at the gap in the loop passes, and at the yellow box moving through the state machine diagram.
+- Set the speed to 0.25x. Press Launch as the yellow target starts a turn. The sleep() robot ignores the sticks for 1.3 seconds and keeps its old power, so it leaves the target. If the target runs straight, both robots stay close: sleep hurts most when the driver needs to steer. The state machine robot keeps following. Point at the gap in the loop passes, and at the yellow box moving through the state machine diagram.
 - Ask the room how to fire the launcher, wait for speed, then feed, without freezing the drive. Answer: a state machine.
 - Cite gm0: hardware calls share one lock per hub, so threads do not speed anything up and they hide crashes.
 - Key idea: each loop pass must finish fast. Anything waiting (sleep, a while loop inside the loop) freezes the drivers' sticks.
@@ -446,7 +446,7 @@ Team rounds:
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
-Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug. Set the sim speed to 0.25x first, then press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: the encoder reads 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. With Ramp still ticked, type 3.27 for the diameter: the robot stops on the line. A measured constant soaks up steady slip. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
+Lab tab 8: run once with the right numbers, then type 3 for the wheel diameter and run again. Then turn on the opModeIsActive() bug. Set the sim speed to 0.25x first, then press STOP mid-drive. Then set Floor slip to 8% and pick Strafe right: your code thinks 24 in and the tape reads less. Tick Ramp the power and run again: the gap shrinks. With Ramp still ticked, type 3.27 for the diameter: the robot stops on the line. A measured constant soaks up steady slip. Walk the "When AUTO misses" ladder on the same tab: tape-check, ramp, IMU heading hold, then odometry.
 Then use `turnToHeading()` from Module 6 for turns.
 
 BIOBUZZ AUTO: LEAVE = 3 points, PARK = 5 points. A reliable 8-point auto beats a fancy auto failing 1 match in 3.

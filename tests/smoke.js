@@ -72,19 +72,29 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.textContent("#tm-reset")) === "Reset scores", "moving away disarms Reset scores");
   await pg.click("#tm-reset"); await pg.click("#tm-reset");
   check((await pg.textContent('.team[data-i="1"] b')) === "0", "two clicks on Reset scores clear the board");
+  await pg.goto(URL + "#gitflow"); await pg.waitForTimeout(300);
+  await pg.mouse.wheel(0, 2000); await pg.waitForTimeout(300);
+  const scrolledDown = await pg.evaluate(() => scrollY);
+  await pg.evaluate(() => document.querySelector('nav.tabs a[data-tab="mecanum"]').click()); await pg.waitForTimeout(200);
+  check(scrolledDown > 500 && (await pg.evaluate(() => scrollY)) === 0, "a tab change opens the new tab at the top, on its goal line and vote (was " + scrolledDown + ")");
+  await pg.mouse.wheel(0, 600); await pg.waitForTimeout(200);
+  await pg.evaluate(() => document.documentElement.setAttribute("data-theme", document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark")); await pg.waitForTimeout(300);
+  check((await pg.evaluate(() => scrollY)) > 0, "a theme repaint keeps the scroll place");
+  await pg.evaluate(() => document.documentElement.removeAttribute("data-theme"));
+  await pg.goto(URL + "#java"); await pg.waitForTimeout(300);   // the checks below start on Java
   // ==== end area whole ====
 
   // ---- Ask the room votes: tally, undo, reveal ----
-  const optB = '#lab-java details.ask .opt:nth-child(2)';
+  const optB = '#lab-java details.ask .opt:nth-child(1)';   // the right answer, A
   await pg.click(optB); await pg.click(optB); await pg.click(optB, { button: "right" });
   check((await pg.textContent(optB + " b")) === "1" && !(await pg.$("#lab-java details.ask[open]")), "a vote click counts, right-click undoes, and the answer stays hidden");
   check((await pg.textContent("#lab-java details.ask .vnext")) === "Team 2 votes next", "after one vote the label says Team 2 votes next");
-  await pg.click("#lab-java details.ask .opt:nth-child(1)");   // team 2 picks A, the wrong one
+  await pg.click("#lab-java details.ask .opt:nth-child(2)");   // team 2 picks B, the wrong one
   await pg.click("#lab-java details.ask .reveal");
   await pg.waitForSelector("#lab-java details.ask[open]"); await pg.waitForTimeout(50);   // the toggle event that pays the points is queued, not synchronous
-  check(!!(await pg.$("#lab-java details.ask[open] .opt.right")) && (await pg.$eval(optB, o => o.classList.contains("right"))), "reveal marks option B as the right answer");
+  check(!!(await pg.$("#lab-java details.ask[open] .opt.right")) && (await pg.$eval(optB, o => o.classList.contains("right"))), "reveal marks option A as the right answer");
   check((await pg.textContent('.team[data-i="0"] b')) === "1" && (await pg.textContent('.team[data-i="1"] b')) === "0", "reveal pays team 1 (right) and not team 2 (wrong)");
-  await pg.click(optB);   // team 3 votes B after the reveal
+  await pg.click(optB);   // team 3 votes A after the reveal
   check((await pg.textContent('.team[data-i="2"] b')) === "1", "a vote after the reveal scores at once");
   await pg.click(optB, { button: "right" });
   check((await pg.textContent('.team[data-i="2"] b')) === "0" && (await pg.textContent(optB + " b")) === "1", "right-click refunds the last paid vote");
@@ -93,6 +103,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#tm-reset"); await pg.click("#tm-reset");
   check((await pg.textContent(optB + " b")) === "0" && (await pg.textContent('.team[data-i="0"] b')) === "0" && !(await pg.$("#lab-java details.ask[open]")), "Reset clears votes and scores together and hides the answer");
   check((await pg.$$("details.ask .vote")).length === 9, "every Ask the room has a vote");
+  check(new Set(await pg.$$eval("details.ask .vote", vs => vs.map(v => v.dataset.right))).size === 3, "Ask the room answers spread over A, B and C");
+  check(((await pg.$$eval("p.goal", ps => ps.map(p => p.textContent).join(" "))).match(/Team rule [123]: \w/g) || []).length === 4, "goal lines spell out the team rules they name");
   check((await pg.$$("details.ask .vote .reveal")).length === 9, "Reveal sits at the end of every vote row");
 
   // ---- the Ask the room block is compact: the first sim starts above the fold on a 1366x768 projector ----
@@ -106,18 +118,31 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const lcBottom = sel => fold.$eval(sel, e => Math.round(e.getBoundingClientRect().bottom));
   await fold.click("#lc-init"); await fold.waitForTimeout(2600);
   check(/Vote before START/.test(await fold.textContent("#lc-msg")), "lifecycle: the wait message asks the vote before START");
+  const lcSdWait = await fold.textContent("#lc-sd");
+  check(lcSdWait.includes("waitForStart()") && !/while loop|stopDrive|50 times/.test(lcSdWait), "lifecycle: in WAIT the state diagram hides the RUN and STOP text, so it does not answer the votes");
   const lcB = [await lcBottom("#lc-code"), await lcBottom("#lc-msg"), await lcBottom("#lc-sd")];
   check(lcB.every(y => y <= 768), "lifecycle at 1366x768: code, message and state diagram end above the fold: " + lcB.join(", "));
   await fold.click("#lc-start"); await fold.waitForTimeout(1200);
   await fold.click("#lc-stop"); await fold.waitForTimeout(200);
   check((await fold.$eval("#lc-code .ln.hl", e => e.dataset.n)) === "16", "lifecycle: STOP highlights line 16, robot.stopDrive()");
+  await fold.waitForTimeout(2400);
+  check(/^Line 16 ran once/.test(await fold.textContent("#lc-msg")), "lifecycle: the done message names line 16, the STOP vote's answer");
+  check(/stopDrive\(\)/.test(await fold.textContent("#lc-sd")), "lifecycle: after the run the state diagram shows every box's text for the recap");
+  const tlText = await fold.$eval("#lc-tl", e => e.textContent);
+  check(["START", "STOP: 30 s timer", "STOP: drivers press it", "8 s: pick TeleOp, press INIT"].every(t => tlText.includes(t)) && (tlText.match(/START/g) || []).length === 2, "lifecycle: the match timeline marks a START and a STOP for each OpMode");
   await fold.check('input[name="lcv"][value="bad"]');
   check((await fold.textContent("#lc-file")) === "MainTeleOpAI.java", "lifecycle: the file name follows the class name");
   await fold.click("#lc-init"); await fold.waitForTimeout(2600); await fold.click("#lc-start"); await fold.waitForTimeout(500);
-  await fold.click("#lc-stop"); await fold.waitForTimeout(1200);
+  await fold.click("#lc-stop"); await fold.waitForTimeout(2400);
   check(/nobody told the thread to stop/.test(await fold.textContent("#lc-msg")) && !(await fold.$eval("#lc-init", e => e.disabled)), "lifecycle: after STOP the thread runs on and INIT is free again");
   await fold.click("#lc-init"); await fold.waitForTimeout(200);
   check((await fold.$$("#lc-code .ln.hl2")).length === 2, "lifecycle: a new INIT does not stop the old thread");
+  const lcPhone = await b.newPage({ viewport: { width: 390, height: 844 } });
+  await lcPhone.goto(URL + "#lifecycle"); await lcPhone.waitForTimeout(400);
+  const lcN = await lcPhone.evaluate(() => [document.querySelector("#lc-sd").getAttribute("viewBox"), Math.round(document.querySelector("#lc-tl").getBoundingClientRect().width),
+    [...document.querySelectorAll("#lc-code .ln")].every(l => l.getBoundingClientRect().height < 24)]);
+  check(lcN[0].startsWith("0 0 360") && lcN[1] >= 700 && lcN[2], "lifecycle at 390 px: state diagram is a column, timeline keeps full size, every code line on one numbered row: " + lcN.join(", "));
+  await lcPhone.close();
   // ==== end area lifecycle ====
   await fold.close();
 
@@ -150,6 +175,16 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#jv-echoices .choice[data-c='2']");
   check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-eprob")) && (await pg.textContent("#jv-etitle")) === "1. Missing import", "the right fix builds and names the error");
   await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-errors.png") });
+  await pg.click("#jv-errlist [data-e='1']");
+  check(await pg.$eval("#jv-eprob", el => el.innerText.split("\n").some(l => /^\s+symbol: method clip/.test(l)) && el.innerText.split("\n").some(l => /^\s+location: class Range/.test(l))), "error 2 Build text puts symbol and location on their own indented lines");
+  check(await pg.$eval('.jpane[data-jp="modules"]', p => { const l = p.querySelector(".legend"), m = p.querySelector("#jv-map"); return !!l && !!(l.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_FOLLOWING); }), "project map legend sits above the map");
+  check(await pg.$eval("#jv-buildline", s => { const t = s.querySelectorAll("text"); return t[0].textContent.startsWith("MainTeleOp.java:14") && [...s.querySelectorAll("path")].every(p => +p.getAttribute("d").match(/L[\d.]+ ([\d.]+)/)[1] < +t[1].getAttribute("y") - 20); }), "build line brackets sit under line 1, above the symbol line");
+  check(await pg.$eval("#jv-implist", l => !l.closest(".panel").previousElementSibling), "imports list is the first panel, right under the address diagram");
+  const phB = await b.newPage({ viewport: { width: 390, height: 844 } });
+  await phB.goto(URL + "#java"); await phB.waitForTimeout(300);
+  await phB.click('.jt[data-jt="imports"]'); await phB.waitForTimeout(100);
+  check((await phB.evaluate(() => document.documentElement.scrollWidth)) <= 390, "390 px: the Imports card does not scroll sideways");
+  await phB.close();
   // ==== end area java-b ====
 
   // ---- @Override tried three ways, and the Decisions card ----
@@ -158,6 +193,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/does not override or implement/.test(await pg.textContent("#jv-ovprob")), "@Override on a typo fails the build with the javac message");
   await pg.click('#jv-ovbtns .b[data-ov="2"]');
   check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-ovprob")) && /never resets|nobody calls/.test(await pg.textContent("#jv-ovmsg")), "Start() without @Override builds and never runs");
+  check(/private final Robot robot = new Robot\(\);/.test(await pg.textContent("#jv-ovcode")) && !/matchTimer/.test(await pg.textContent("#jv-ovcode")), "the @Override versions declare robot, so BUILD SUCCESSFUL is true");
+  check(/three places/.test(await pg.textContent("#lab-java .lede")), "the Java lede names the three places a word comes from");
   await pg.click('.jt[data-jt="decide"]');
   const stick = async v => { await pg.$eval("#jv-dstick", (el, v) => { el.value = v; el.dispatchEvent(new Event("input")); }, v); return pg.textContent("#jv-dmsg"); };
   check(/FAST forward/.test(await stick(0.8)) && /skips every/.test(await pg.textContent("#jv-dmsg")), "stick 0.8 runs the first if and skips the rest");
@@ -167,6 +204,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.getAttribute("#jv-swmsg", "class")).includes("ok"), "switch with break stays in SPINNING_UP");
   await pg.check("#jv-swbrk");
   check(/falls into FEEDING/.test(await pg.textContent("#jv-swmsg")), "forgetting break falls through into FEEDING");
+  check(await pg.$$eval("#jv-swcode .ln", ls => { const f = ls.findIndex(l => /case FEEDING/.test(l.textContent)); const fell = ls.slice(f + 1, f + 4); return fell.every(l => l.classList.contains("err") && !l.classList.contains("run")); }), "fall-through lines show red, not green");
   await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-decide.png") });
 
   // ---- Ask the room: Hide folds the question, Show brings it back ----
@@ -227,6 +265,21 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#gx-pull");
   check(await pg.evaluate(() => !document.querySelector("#gx-places .reject")), "Pull clears the red GitHub box");
   check((await pg.$$eval("#gx-prsteps, #gt-steps", els => els[1].children.length)) === 10 && !(await pg.textContent("#gx-org")).includes("Sync fork"), "conflict story has 10 steps and the org map has no mentor jargon");
+  check(/your branch/.test(await pg.textContent("#gx-partner")), "button 3 says Leo pushes to your branch");
+  const gf = await b.newPage({ viewport: { width: 1366, height: 768 } });
+  await gf.goto(URL + "#gitflow"); await gf.waitForTimeout(300);
+  const bare = () => gf.$$eval("#gx-places .ph span, #gx-places .parrow", els => els.every(e => getComputedStyle(e).visibility === "hidden"));
+  check(await bare(), "before the first Reveal, the three places show titles only: no commit or push words answer the vote");
+  await gf.click("#lab-gitflow .labhead .reveal"); await gf.waitForTimeout(100);
+  check(!(await bare()) && (await gf.$$eval("#gx-places .place", els => els.every(e => e.getBoundingClientRect().height === 220))), "Reveal shows the subtitles and arrows, box heights unchanged");
+  check(!/conflict/i.test(await gf.$$eval("#lab-gitflow h3.parthead", hs => hs[3].textContent)), "part 4 heading does not answer the conflict vote");
+  for (let i = 0; i < 3; i++) await gf.click("#gt-next");
+  check(await gf.evaluate(() => { const svg = document.querySelector("#gt-svg"), leo = [...svg.querySelectorAll("path")].find(p => / L/.test(p.getAttribute("d")));
+    const m1 = [...svg.querySelectorAll("circle")][2], cx = +m1.getAttribute("cx"), cy = +m1.getAttribute("cy"); let d = 1e9;
+    for (let s = 0; s <= leo.getTotalLength(); s++){ const q = leo.getPointAtLength(s); d = Math.min(d, Math.hypot(q.x - cx, q.y - cy)); } return d > 30; }), "Leo's branch leaves main clear of Maya's commit, so it does not seem to grow out of it");
+  for (let i = 0; i < 4; i++) await gf.click("#gt-next");
+  check(/Teams vote/.test(await gf.textContent("#gt-text")) && !/test/.test(await gf.textContent("#gt-text")), "conflict step 8 asks the room and does not give away the answer");
+  await gf.close();
   // ==== end area gitflow ====
 
   // ---- every tab loads, at 1x and at 2x ----
@@ -277,6 +330,17 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/loop ended: on target/.test(await chips()), "tuned PID ends the turn loop");
   await pg.click("#pid-bump"); await pg.waitForTimeout(1500);
   check(/nothing holds the heading/.test(await chips()), "a bump after the loop ended stays: nothing holds the heading");
+  // the D caption reads shrinking from error and slope together: turning 90 to 0 deg, the error is negative and the slope positive
+  await pg.click('[data-ps="PID (tuned)"]'); await pg.waitForTimeout(3000);
+  await pg.evaluate(() => { window.__der = []; const f = CanvasRenderingContext2D.prototype.fillText; CanvasRenderingContext2D.prototype.fillText = function (s) { if (this.canvas.id === "pid-der") window.__der.push(String(s)); return f.apply(this, arguments); }; });
+  await pg.click('[data-tg="0"]'); await pg.waitForTimeout(400);
+  const derCap = await pg.evaluate(() => window.__der.filter(s => /^error /.test(s)).pop());
+  check(derCap === "error shrinking: D pushes back, a brake", "D caption says shrinking when a negative error moves to 0: " + derCap);
+  await pg.click('[data-ps="P only"]'); await pg.waitForTimeout(400);
+  const derOff = await pg.evaluate(() => window.__der.filter(s => /^(error |kD |D box)/.test(s)).pop());
+  check(derOff === "kD is 0: D adds nothing. Try a PD preset", "D caption says D adds nothing when kD is 0: " + derOff);
+  check(!(await pg.textContent("#pid-resp")).includes("Lower kP"), "Overshoot row gives no tuning advice before the votes");
+  check(!(await pg.$eval("#pid-howto", el => el.open)), "How to tune starts folded so it does not answer the overshoot votes");
   // ==== end area pid ====
 
   // ---- auto-aim: each preset, then search after dragging the HIVE out of view ----
@@ -284,6 +348,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   for (const ps of ["P only", "P too high", "PD (tuned: no I needed)", "PID: I makes it worse here"]) {
     await pg.click('[data-ps="' + ps + '"]'); await pg.waitForTimeout(3000);
     console.log("  aim " + ps + " | " + (await chips()) + " | " + (await respRows()));
+    if (ps === "P too high") check(/still swinging: no steady value/.test(await pg.textContent("#pid-resp")), "P too high reports no steady offset while it still swings");
   }
   const bb = await (await pg.$("#pid-view")).boundingBox();
   await pg.mouse.move(bb.x + bb.width * 0.62, bb.y + 40); await pg.mouse.down();
@@ -314,6 +379,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
 
   // ---- launcher chart ----
   await pg.goto(URL + "#feedback"); await pg.waitForTimeout(300);
+  check(!/setPower/.test(await pg.textContent("#lab-feedback .goal")), "launcher: the goal leaves the setPower() vote open");
   await pg.click("#fb-cbar .tc-reset");
   let peak = 0, low = Infinity;
   for (let i = 0; i < 30; i++) {
@@ -341,9 +407,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // ==== area oneloop: stuck line in the header, diagram and code B agree ====
   await pg.click("#ol-launch"); await pg.waitForTimeout(400);
   check(/^stuck on line 6: sleep\(1000\)$/.test(await pg.textContent("#ol-stA")), "one loop: the sleep panel names the stuck line during Launch");
+  await pg.waitForTimeout(1300);
+  check(/sticks ignored 1\.3 s/.test(await pg.textContent("#ol-errA")) && /\bbad\b/.test(await pg.getAttribute("#ol-errA", "class")) && /sticks ignored 0\.0 s/.test(await pg.textContent("#ol-errB")) && /\bok\b/.test(await pg.getAttribute("#ol-errB", "class")), "one loop: the chips score sticks ignored, sleep 1.3 s red, state machine 0.0 s green, at any Launch moment");
   await pg.click("#ol-reset"); await pg.waitForTimeout(100);
   const olIdle = await pg.evaluate(() => document.querySelector("#ol-codeB").textContent.split("case IDLE:")[1].split("break;")[0]);
   check(/robot\.launcherOff\(\)/.test(olIdle) && /launcherOff\(\)/.test(await pg.textContent("#ol-sm")), "one loop: code B IDLE and the diagram both call launcherOff()");
+  check(/state machine/.test(await pg.textContent("#lab-oneloop .goal")) && /stopwatch/.test(await pg.textContent("#lab-oneloop h3:has(+ #ol-codeB) small")), "one loop: the goal names the state machine and code B says what feedTimer is");
+  check(/feedTimer\.reset\(\)/.test(await pg.textContent("#jv-swcode")) && !(await pg.content()).includes("feedOnce"), "one loop: the tab 1 switch runs the same launcher machine as code B, no feedOnce()");
   // ==== end area oneloop ====
 
   // ---- encoders: perfect grip lands on the line, slip stops short while the encoder reads 24 in ----
@@ -352,7 +422,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/stopped on the line/.test(await enRun()), "encoders: perfect grip stops on the line");
   await pg.$eval("#en-slip", el => { el.value = 8; el.dispatchEvent(new Event("input")); });
   await pg.click("#en-strafe");
-  check(/wheels slipped/.test(await enRun()) && /encodersays23\.9/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: slip stops short while the encoder still reads 24 in");
+  check(/wheels slipped/.test(await enRun()) && /yourcodethinks23\.9/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: slip stops short while the code still thinks 24 in");
+  await pg.check("#en-ramp"); await pg.$eval("#en-dia", el => { el.value = "3.27"; el.dispatchEvent(new Event("input")); });
+  check(/STRAFE_COUNTS_PER_INCH/.test(await enRun()) && /yourcodethinks23\.9intapemeasure\(real\)2[34]\.\d/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: a measured 3.27 lands a ramped strafe on the line and names STRAFE_COUNTS_PER_INCH");
+  check(/opModeIsActive\(\)/.test(await pg.textContent("#lab-encoders .goal")) && !/wheels slipping/.test(await pg.textContent("#lab-encoders .lede")), "encoders: the goal names the STOP rule, the lede leaves the vote open");
+  await pg.$eval("#en-dia", el => { el.value = "4.09"; el.dispatchEvent(new Event("input")); });
   await pg.locator("#lab-encoders").screenshot({ path: path.join(SHOTS, "encoders.png") });
 
   // ==== area mecanum: Drive modes tab 4 ====
@@ -371,6 +445,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(800);
   check(/IMU zero is off/.test(await zeroNote()) && (await mcRow("IMU heading")) === "0 deg", "after a reset facing the wall, Forward shows the wrong-zero warning");
   await pg.locator("#lab-mecanum").screenshot({ path: path.join(SHOTS, "mecanum.png") });
+  // AUTO uses Pinpoint axes: +X away from the drivers, +Y toward the left wall
+  await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
+  await pg.check('#lab-mecanum input[value="auto"]'); await pg.waitForTimeout(200);
+  const fb = await pg.locator("#mc-field").boundingBox();
+  await pg.mouse.click(fb.x + fb.width * 0.35, fb.y + fb.height * 0.15); await pg.waitForTimeout(200);
+  const err = (await mcRow("error to point")).split(",").map(Number);
+  check(err[0] > 0 && err[1] > 0 && /\d deg/.test(await mcRow("direction angle")), "AUTO: a target ahead and to the left gives errX > 0 and errY > 0, row reads direction angle: " + err);
   // ==== end area mecanum ====
 
   // ==== area encoders: STOP demo booleans, layout on a 1366x768 projector, Robot.java ====
@@ -430,6 +511,13 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(fbUi.primary === "fb-match" && fbUi.resetGone, "feedback: the match is the primary button and Reset run is the only reset");
   check(fbUi.hitCell && /Yellow/.test(fbUi.lede) && /ticks per second/.test(fbUi.lede), "feedback: lede names the yellow line and defines ticks per second, IN HIVE reads green");
   check(/Robot\.java/.test(fbUi.code) && (fbUi.blocks.match(/battery/g) || []).length === 2 && /ticks\/s/.test(fbUi.blocks), "feedback: code panels name Robot.java, both block diagrams feel the battery");
+  const fbMore = await pg.evaluate(() => ({
+    codeA: document.querySelector("#fb-codeA").textContent,
+    note: (document.querySelector("#fb-ready-note") || {}).textContent || ""
+  }));
+  check(!/battery/i.test(fbMore.codeA) && /no sensor/.test(fbMore.codeA), "feedback: open-loop code comment does not answer the battery vote");
+  check(/launcherOn\(\)/.test(fbMore.note) && /launcherReady\(\)/.test(fbMore.note) && /40 ticks\/s of 1160/.test(fbMore.note) && /tab 5/.test(fbMore.note), "feedback: note under the chips ties launcherReady() to Robot.java and the tab 5 state machine");
+  check(src.includes("const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width)") && src.includes("ctx.strokeText(lab, lx, ly)"), "feedback: open-loop offset label has a halo and never clips at the y axis");
   // ==== end area feedback ====
 
   // ---- phone width ----

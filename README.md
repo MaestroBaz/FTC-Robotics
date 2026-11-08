@@ -11,9 +11,9 @@ Open `lab/index.html` in a browser. No install, no server. The lab opens on Java
 3. GitHub teamwork
 4. Drive modes (robot-centric, field-centric, AUTO)
 5. One loop, no sleep
-6. Feedback: launcher
+6. Closed loop: launcher
 7. PID control (turn, auto-aim, lift)
-8. Encoders in auto
+8. Encoders (later)
 
 The bar under the tabs sets the sim speed from 0.05x to 2x, pauses, and steps. Keys: P pause, [ slower, ] faster, . step.
 

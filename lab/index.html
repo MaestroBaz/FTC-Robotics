@@ -360,6 +360,7 @@ td.hit{color:var(--ok);}
 .ide-problems .ph2{font:600 13px var(--body);}
 #jv-wname{font:700 22px/1.2 var(--mono); text-transform:none; letter-spacing:0;}   /* Java names keep their real capitals */
 #jv-wmsg{font-size:18px; line-height:1.45;}
+.impitem span{overflow-wrap:anywhere;}   /* long import lines wrap at 390 px instead of pushing the page sideways */
 /* ==== end area java-b ==== */
 /* ==== area lifecycle: Driver Hub and robot side by side, then the message, then the state diagram, all above the fold at 1366x768 ==== */
 #lab-lifecycle .lc-right{gap:10px;}
@@ -369,10 +370,15 @@ td.hit{color:var(--ok);}
 #lc-canvas{flex:0 0 220px; width:220px;}
 #lc-code{font:14px/1.4 var(--mono);}   /* bigger for the back row, tighter rows so the team version ends above 768 px */
 #lc-code .ln::before{color:var(--ink); opacity:.7;}   /* line numbers carry the votes, so the back row needs to read them */
-@media (max-width: 600px){ #lab-lifecycle .lc-top{flex-wrap:wrap;} #lc-canvas{flex-basis:100%;} #lc-code{font-size:13px;} }
+#lc-msg{font-size:17px; line-height:1.35; white-space:pre-line;}   /* votes: one option per line, big enough for the back row */
+@media (max-width: 600px){ #lab-lifecycle .lc-top{flex-wrap:wrap;} #lc-canvas{flex-basis:100%;} #lc-code{font-size:13px;}
+  #lc-code .ln{white-space:pre; overflow-wrap:normal; min-width:max-content;}   /* one code line per numbered row, scroll sideways */
+  .lc-tlwrap{overflow-x:auto;} #lc-tl{min-width:700px;} }   /* timeline at full size, scroll sideways */
 /* ==== end area lifecycle ==== */
 /* ==== area gitflow: tab 3 GitHub teamwork ==== */
 .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
+/* before the first vote is revealed: titles only, so the subtitles and arrows do not answer it. Hidden, not removed, so the boxes keep their size */
+.places.bare .ph span, .places.bare .parrow{visibility:hidden;}
 /* ==== end area gitflow ==== */
 /* ==== area mecanum: Drive modes tab 4 ==== */
 /* goal line: same values as the whole-lab .labhead .goal rule, scoped so the tab renders before that rule merges */
@@ -435,10 +441,10 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>Java basics, the robot way</h2>
-      <p class="goal">Goal: read MainTeleOp top to bottom and say what each word does.</p>
-      <p class="lede">Eleven cards, in the order you meet the words in the file. Each card has something to click.</p>
+      <p class="goal">Goal: read MainTeleOp top to bottom and say what each word does. Team rule 2: Robot.java holds the hardware, OpModes hold the behavior.</p>
+      <p class="lede">Every word in MainTeleOp comes from one of three places: your Robot class, the SDK class you extend, or Java itself. Eleven cards, in the order you meet the words. Each card has something to click.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">In an import line at the top of MainTeleOp</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="0"><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">In an import line at the top of MainTeleOp</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns. No import needed: Robot.java sits in the same package as MainTeleOp.</div>
     </details>
   </div>
@@ -495,12 +501,12 @@ td.hit{color:var(--ok);}
       <div class="jpane" data-jp="modules">
         <div class="panel" style="margin-bottom:14px">
           <h3>The project map <small>click any file: arrows show every class it uses, and how it reaches each one</small></h3>
-          <svg class="diag" id="jv-map" role="img" aria-label="Project map with modules, packages, files and import arrows"></svg>
-          <div class="legend" style="margin-top:8px">
+          <div class="legend" style="margin:0 0 8px">
             <span><i style="background:var(--ok)"></i>same package: no import needed</span>
             <span><i style="background:var(--accent)"></i>other package: needs an import line</span>
             <span><i style="background:var(--pollen)"></i>the file you clicked</span>
           </div>
+          <svg class="diag" id="jv-map" role="img" aria-label="Project map with modules, packages, files and import arrows"></svg>
         </div>
         <div class="grid2">
           <div class="stack">
@@ -533,12 +539,12 @@ td.hit{color:var(--ok);}
         </div>
         <div class="grid2">
           <div class="stack">
+            <div class="panel"><h3>Imports in this file <small>tick = present, click the name to read its address</small></h3><div class="stack" id="jv-implist" style="gap:6px"></div></div>
             <div class="panel">
               <h3>Imports</h3>
               <p>A class lives in a package. To use a class from a different package, you <b>import</b> it: you give Java its full address. Classes in your own package need no import.</p>
               <p>Untick an import and watch which lines turn red. In Android Studio, click the red word and press Alt+Enter (Option+Enter on Mac), then pick <b>Import class</b>. Never pick <b>Create class</b>.</p>
             </div>
-            <div class="panel"><h3>Imports in this file <small>tick = present, click the name to read its address</small></h3><div class="stack" id="jv-implist" style="gap:6px"></div></div>
           </div>
           <div class="stack">
             <pre class="code" id="jv-impcode"></pre>
@@ -762,10 +768,10 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>What runs when you press INIT, START and STOP</h2>
-      <p class="goal">Goal: say which line runs after INIT, after START and after STOP. Team rule 1: no threads.</p>
+      <p class="goal">Goal: say which line runs after INIT, after START and after STOP. Team rule 1: one loop, no threads.</p>
       <p class="lede">Step through a LinearOpMode with the Driver Hub buttons. The highlighted line is running now. Switch to the AI-written version to see why a background thread breaks the rules.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init: a second piece of code running alongside yours. What does the robot do after INIT? After STOP?</span><span class="vote" data-right="1"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init: a second piece of code running alongside yours. What does the robot do after INIT? After STOP?</span><span class="vote" data-right="2"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">The thread starts moving the arm right after INIT, before the match starts. This breaks rule G304.H: the robot sits still after INIT. STOP ends <code>runOpMode()</code>, but nobody tells the thread to stop. Its <code>while (true)</code> loop keeps running until the app restarts.</div>
     </details>
   </div>
@@ -799,7 +805,7 @@ td.hit{color:var(--ok);}
     </div>
   </div>
   <div class="stack" style="margin-top:16px">
-    <div class="panel"><h3>A BIOBUZZ match <small>two OpModes, each with its own INIT, START, STOP. 158 s to scale, INIT before the match not timed</small></h3><svg class="diag" id="lc-tl" role="img" aria-label="Match timeline"></svg></div>
+    <div class="panel"><h3>A BIOBUZZ match <small>two OpModes, each with its own INIT, START, STOP. 158 s to scale, INIT before the match not timed</small></h3><div class="lc-tlwrap"><svg class="diag" id="lc-tl" role="img" aria-label="Match timeline"></svg></div></div>
   </div>
 </section>
 
@@ -811,8 +817,8 @@ td.hit{color:var(--ok);}
       <p class="goal">Goal: predict where the robot goes when you push the stick, in each drive mode.</p>
       <p class="lede">Same 4 wheels, same mecanum math, two drive modes. Field-centric needs the IMU heading. AUTO needs the robot's position too.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Field-centric mode. The robot faces the left wall. The driver pushes the left stick straight up. What does the robot do?</span><span class="vote" data-right="1"><button class="opt" type="button">Drives forward into the left wall</button><button class="opt" type="button">Slides away from the drivers, still facing the wall</button><button class="opt" type="button">Turns to face away from the drivers, then drives</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">B. Field-centric never turns the robot for you. The code turns the stick by the IMU heading (90 deg), so stick up becomes strafe right for the robot. Look at the wheel powers: +1, -1, -1, +1 is the strafe-right pattern. In robot-centric mode the same stick drives into the left wall (A). Same wheels, same math. The only difference is which way forward points.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Field-centric mode. The robot faces the left wall. The driver pushes the left stick straight up. What does the robot do?</span><span class="vote" data-right="2"><button class="opt" type="button">Drives forward into the left wall</button><button class="opt" type="button">Turns to face away from the drivers, then drives</button><button class="opt" type="button">Slides away from the drivers, still facing the wall</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">C. Field-centric never turns the robot for you. The code turns the stick by the IMU heading (90 deg), so stick up becomes strafe right for the robot. Look at the wheel powers: +1, -1, -1, +1 is the strafe-right pattern. In robot-centric mode the same stick drives into the left wall (A). Same wheels, same math. The only difference is which way forward points.</div>
     </details>
   </div>
   <div class="row" style="margin-bottom:14px; gap:18px" role="radiogroup" aria-label="Drive mode">
@@ -850,7 +856,7 @@ td.hit{color:var(--ok);}
         <h3>Wheel powers <small>rollers form an X seen from above</small></h3>
         <canvas id="mc-wheels" height="190"></canvas>
       </div>
-      <div class="panel"><h3>The rotation, in one picture <small>left: what the driver asks, right: what the robot gets</small></h3><canvas id="mc-vec" height="230"></canvas></div>
+      <div class="panel"><h3>The rotation, in one picture <small>left: the direction asked for, right: what the robot gets</small></h3><canvas id="mc-vec" height="230"></canvas></div>
     </div>
     <div class="stack">
       <div class="panel">
@@ -896,7 +902,7 @@ td.hit{color:var(--ok);}
       <ul class="tight">
         <li>The same rotation math turns "go toward field point (x, y)" into robot forward and strafe.</li>
         <li>The robot drives a nearly straight line to the point, even while turning to aim.</li>
-        <li>Needs position, not only heading: odometry pods, goBILDA Pinpoint, or AprilTag localization.</li>
+        <li>Needs position, not only heading: odometry pods or goBILDA Pinpoint. BIOBUZZ AprilTags move, so use them to aim at the HIVE, not to find the robot.</li>
       </ul>
     </div>
   </div>
@@ -907,18 +913,18 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>One loop, no sleep: never freeze the drivers</h2>
-      <p class="goal">Goal: explain why <code>sleep()</code> in TeleOp takes the robot away from the driver. Team rule 1.</p>
+      <p class="goal">Goal: explain why <code>sleep()</code> freezes the drivers, and how a state machine waits without it. Team rule 1: no <code>sleep()</code> in TeleOp.</p>
       <p class="lede">A driver steers each robot toward the moving yellow target. Press Launch: each robot spins up its launcher, then feeds one ball. The left robot waits with <code>sleep()</code>. The right robot uses a state machine: one variable, <code>launchState</code>, holds the step the launcher is on. That step is its state. The loop never waits. Watch the loop passes under each robot. Each bar is one trip through the while loop.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The driver is steering when the code reaches <code>sleep(1000)</code>. What does the robot do during that second?</span><span class="vote" data-right="1"><button class="opt" type="button">It steers as usual, sleep pauses only the launcher</button><button class="opt" type="button">It keeps driving at the old power and ignores the sticks</button><button class="opt" type="button">It stops dead until the sleep ends</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">B. <code>sleep()</code> pauses the whole loop, so nobody reads the sticks. The motors keep the last power you set, so the robot keeps going the old way. In the demo the freeze lasts 1.3 s: <code>sleep(1000)</code> plus <code>sleep(300)</code>. The state machine never waits, so the drivers keep control.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The driver is steering when the code reaches <code>sleep(1000)</code>. What does the robot do during that second?</span><span class="vote" data-right="0"><button class="opt" type="button">It keeps driving at the old power and ignores the sticks</button><button class="opt" type="button">It steers as usual, sleep pauses only the launcher</button><button class="opt" type="button">It stops dead until the sleep ends</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">A. <code>sleep()</code> pauses the whole loop, so nobody reads the sticks. The motors keep the last power you set, so the robot keeps going the old way. In the demo the freeze lasts 1.3 s: <code>sleep(1000)</code> plus <code>sleep(300)</code>. The state machine never waits, so the drivers keep control.</div>
     </details>
   </div>
   <div class="row tcbar" id="ol-bar" style="margin-bottom:12px">
     <button class="b primary" id="ol-launch">Launch (gamepad2 right bumper)</button>
     <span class="tcgrp"><button class="b" id="ol-pause" aria-pressed="false">Pause</button><button class="b" id="ol-reset">Reset run</button></span>
-    <span class="chip" id="ol-errA">sleep robot, worst miss during launch: 0 in</span>
-    <span class="chip" id="ol-errB">state machine robot, worst miss during launch: 0 in</span>
+    <span class="chip" id="ol-errA">sleep robot: sticks ignored 0.0 s, worst miss 0 in</span>
+    <span class="chip ok" id="ol-errB">state machine robot: sticks ignored 0.0 s, worst miss 0 in</span>
   </div>
   <div class="grid2 even">
     <div class="panel">
@@ -936,7 +942,7 @@ td.hit{color:var(--ok);}
   <div class="panel" style="margin-top:12px"><h3>The right robot's state machine <small>launchState holds one state at a time. Yellow = the state right now. Each loop pass checks the state once, follows an arrow only when its test is true, then keeps driving.</small></h3><svg class="diag" id="ol-sm" role="img" aria-label="Launcher state machine"></svg></div>
   <div class="grid2 even" style="margin-top:12px">
     <div class="panel"><h3>sleep() version: do not copy <small>the loop stops on the red line</small></h3><pre class="code" id="ol-codeA"></pre></div>
-    <div class="panel"><h3>State machine version <small>launchState, LaunchState and feedTimer are declared above runOpMode()</small></h3><pre class="code" id="ol-codeB"></pre></div>
+    <div class="panel"><h3>State machine version <small>launchState and feedTimer are fields above runOpMode(). feedTimer is an ElapsedTime, a stopwatch: reset() sets it to 0, seconds() reads it.</small></h3><pre class="code" id="ol-codeB"></pre></div>
   </div>
 </section>
 
@@ -945,7 +951,7 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>Open loop vs closed loop: the launcher across a match</h2>
-      <p class="goal">Goal: explain why setVelocity() hits the HIVE all match and setPower() does not.</p>
+      <p class="goal">Goal: explain open loop and closed loop, and why the launcher uses <code>setVelocity()</code>.</p>
       <p class="lede">Both launchers fire POLLEN at the HIVE. Yellow uses <code>setPower(0.8)</code> and never checks the speed. Blue uses <code>setVelocity(1160)</code>: the encoder measures the speed and the hub corrects the power. The encoder counts ticks as the wheel turns, so speed is ticks per second.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
@@ -986,6 +992,7 @@ td.hit{color:var(--ok);}
         <span><i style="background:none; border-top:2px dashed var(--muted); height:0"></i>dashed = markers: dip (the ball slows the wheel), recovery time, open-loop offset</span>
       </div>
       <div class="row" style="margin-top:10px" id="fb-ready"></div>
+      <p class="note" id="fb-ready-note" style="margin-top:8px">In Robot.java, <code>launcherOn()</code> calls <code>setVelocity(LAUNCH_VELOCITY)</code>. <code>launcherReady()</code> is true when the encoder reads within 40 ticks/s of 1160. The state machine from tab 5 feeds a ball only then.</p>
     </div>
   </div>
   <div class="panel" style="margin-top:16px"><h3>The two launchers as block diagrams <small>live numbers</small></h3><svg class="diag" id="fb-blocks" role="img" aria-label="Open and closed loop diagrams"></svg></div>
@@ -996,11 +1003,11 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>Encoders: drive 24 inches in AUTO, and why it misses</h2>
-      <p class="goal">Goal: turn inches into encoder ticks, and name two reasons the robot still misses.</p>
-      <p class="lede">Your code turns inches into encoder ticks, also called counts: one tick is one encoder step. The robot in the Field strip has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels. The robot misses the line for two reasons: a constant wrong for the hardware, or wheels slipping. An encoder counts wheel turns, not robot motion.</p>
+      <p class="goal">Goal: turn inches into encoder counts, name two reasons the robot still misses, and keep STOP working with opModeIsActive().</p>
+      <p class="lede">Your code turns inches into encoder counts. One count is one encoder step. The robot in the Field strip has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Someone typed the wheel diameter as 3 instead of 4.09. Does the robot stop short or drive too far?</span><span class="vote" data-right="1"><button class="opt" type="button">Stops short</button><button class="opt" type="button">Drives too far</button><button class="opt" type="button">Same distance, the encoder measures real inches</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Too far: about 33 in, 9 in past the line. A smaller diameter in code means more counts per inch, so the code asks for more counts than 24 real inches need. Always test: command 48 in, measure with a tape, fix the constant.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Someone typed the wheel diameter as 3 instead of 4.09. Does the robot stop short or drive too far?</span><span class="vote" data-right="0"><button class="opt" type="button">Drives too far</button><button class="opt" type="button">Stops short</button><button class="opt" type="button">Same distance, the encoder measures real inches</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">Too far: about 33 in, 9 in past the line. An encoder counts wheel turns, not robot motion. A smaller diameter in code means more counts per inch, so the code asks for more counts than 24 real inches need. A robot misses for two reasons: a wrong constant, or wheels slipping. Always test: command 48 in, measure with a tape, fix the constant.</div>
     </details>
   </div>
   <div class="grid2">
@@ -1071,7 +1078,7 @@ td.hit{color:var(--ok);}
       <p class="goal">Goal: point at P, I and D on the chart and say what each one does.</p>
       <p class="lede">A PID controller turns an error, how far you are from the target, into motor power. P pushes toward the target. D brakes before you overshoot. Pick a job below. The PID code stays the same. Only the sensor, the error and the numbers change.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift stops about 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift stops about 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="2"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">A bigger kP, as big as needed</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">I. Gravity needs 0.18 power to hold the lift. P gives power only from an error: kP x error = 0.18, so the lift stops 1.8 in short. D gives nothing here. The lift sits still, so the error does not change. A bigger kP shrinks the gap but never closes the gap, and the lift starts to bounce. I adds up the leftover error until the power reaches 0.18. Pick the lift job next: F sends the 0.18 from the first pass, before any error shows.</div>
     </details>
   </div>
@@ -1102,8 +1109,7 @@ td.hit{color:var(--ok);}
         <div class="row" style="margin-top:12px" id="pid-presets"></div>
         <div class="row" style="margin-top:12px; gap:14px" id="pid-extras"></div>
       </div>
-      <div class="panel">
-        <h3>How to tune <small>trial and error, in this order</small></h3>
+      <details class="panel" id="pid-howto"><summary style="cursor:pointer"><h3 style="display:inline">How to tune <small>open after the overshoot votes</small></h3></summary>
         <ol class="tight">
           <li>Lift or arm only: find F first. Set kP, kI and kD to 0. Raise kF until the lift holds still wherever you leave it. That number cancels gravity.</li>
           <li>Set kI and kD to 0. Raise kP until the robot reaches the target fast and overshoots a little.</li>
@@ -1111,7 +1117,7 @@ td.hit{color:var(--ok);}
           <li>If it still stops short (friction, a heavier load), add a small kI and watch the I line grow on the chart. The class builds I only near the target, so I cannot pile up during a long move and push past the target (windup).</li>
           <li>Test 5 times in a row. Write the numbers in the <code>new PIDController(...)</code> line and commit with what you tested.</li>
         </ol>
-      </div>
+      </details>
       <div class="panel">
         <h3>The class you reuse <small>PIDController.java: P, I and D from the error. F needs no error, so you add F in the OpMode</small></h3>
         <pre class="code" id="pid-class"></pre>
@@ -1156,7 +1162,7 @@ td.hit{color:var(--ok);}
   <div class="labhead">
     <div>
       <h2>GitHub teamwork: how 30 people share one robot's code</h2>
-      <p class="goal">Goal: explain commit, push, pull, pull request and merge conflict. Team rule 3.</p>
+      <p class="goal">Goal: explain commit, push, pull, pull request and merge conflict. Team rule 3: every change gets a reviewed pull request.</p>
       <p class="lede">Four pictures. Where your code lives, how the team's repos fit, one pull request from start to finish, and what happens when two people edit the same line.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?</span><span class="vote" data-right="1"><button class="opt" type="button">Yes. Commit sends it to GitHub.</button><button class="opt" type="button">No. It sits on the dead laptop.</button><button class="opt" type="button">Yes. Android Studio saves it online on its own.</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
@@ -1172,7 +1178,7 @@ td.hit{color:var(--ok);}
         <div class="stack" style="gap:8px">
           <button class="b" id="gx-edit">1. Edit MainTeleOp.java</button>
           <button class="b" id="gx-commit">2. Commit (Ctrl+K)</button>
-          <button class="b" id="gx-partner">3. Leo pushes first</button>
+          <button class="b" id="gx-partner">3. Leo pushes to your branch first</button>
           <button class="b" id="gx-push">4. Push (Ctrl+Shift+K)</button>
           <button class="b" id="gx-pull">5. Pull (Git &gt; Pull)</button>
           <button class="b" id="gx-reset">Reset</button>
@@ -1180,7 +1186,7 @@ td.hit{color:var(--ok);}
       </div>
     </div>
     <div class="stack">
-      <div class="places" id="gx-places"></div>
+      <div class="places bare" id="gx-places"></div>
       <div class="statusbar" id="gx-status"></div>
       <div class="msg" id="gx-msg">Press 1.</div>
       <pre class="code term" id="gx-cmd">git status   # the terminal version of each button appears here</pre>
@@ -1209,13 +1215,13 @@ td.hit{color:var(--ok);}
     </div>
   </div>
 
-  <h3 class="parthead"><span>4</span> Two people, one line: a merge conflict</h3>
-  <details class="ask" style="margin-bottom:12px"><summary><span class="tag">Ask the room</span><span class="q">Maya and Leo both changed the same line on different branches. Maya merged first. What does GitHub show on Leo's pull request?</span><span class="vote" data-right="1"><button class="opt" type="button">It merges, and Maya's line wins</button><button class="opt" type="button">This branch has conflicts that must be resolved</button><button class="opt" type="button">It merges, and Leo's line wins</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-    <div class="a">B. Git cannot guess which number is right, so it stops and asks. Leo talks to Maya, merges main into his branch, keeps the line the team agreed on, builds, tests, and pushes. Nothing is lost.</div>
+  <h3 class="parthead"><span>4</span> Two people, one line</h3>
+  <details class="ask" style="margin-bottom:12px"><summary><span class="tag">Ask the room</span><span class="q">Maya and Leo both changed the same line on different branches. Maya merged first. What does GitHub show on Leo's pull request?</span><span class="vote" data-right="0"><button class="opt" type="button">This branch has conflicts that must be resolved</button><button class="opt" type="button">It merges, and Maya's line wins</button><button class="opt" type="button">It merges, and Leo's line wins</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+    <div class="a">A. Git cannot guess which number is right, so it stops and asks. Nothing is lost. Steps 7 to 10 show how Leo fixes it.</div>
   </details>
   <div class="grid2" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
     <div class="stack">
-      <svg class="gitsvg" id="gt-svg" viewBox="0 0 720 270" role="img" aria-label="Commit graph"></svg>
+      <svg class="gitsvg" id="gt-svg" viewBox="0 0 760 280" role="img" aria-label="Commit graph"></svg>
       <div class="panel" id="gt-confpanel" hidden>
         <h3>Fix the conflict</h3>
         <p class="note" style="margin:0 0 6px">What git writes into MainTeleOp.java. Android Studio shows the same choice as the 3 boxes below.</p>
@@ -1437,7 +1443,7 @@ const LC = (function(){
     renderCode(code, v.lines);
     $("#lc-file").textContent = v.name.replace(/ /g, "") + ".java";
     bI.disabled = false; bS.disabled = true; bX.disabled = true;
-    setMsg(team() ? "Vote before INIT: which lines run when you press INIT? A: lines 6 to 8, then the code waits at line 9. B: every line, top to bottom, once. C: lines 10 to 14, the loop." : "Press INIT on the Driver Hub.", "");
+    setMsg(team() ? "Vote before INIT: which lines run when you press INIT?\nA: lines 6 to 8, then the code waits at line 9\nB: every line, top to bottom, once\nC: lines 10 to 14, the loop" : "Press INIT on the Driver Hub.", "");
     update();
   }
   function setMsg(t, cls){ msg.textContent = t; msg.className = "msg " + (cls || ""); }
@@ -1451,7 +1457,7 @@ const LC = (function(){
   });
   bS.addEventListener("click", () => {
     st.phase = "run"; st.idx = 0; st.t = 0; bS.disabled = true;
-    setMsg(team() ? "START pressed: waitForStart() returns. Lines 10 to 14 repeat about 50 times per second, slowed down here. Vote before STOP: what runs next? A: line 16, robot.stopDrive(), once. B: nothing, the program freezes. C: lines 6 to 8 again."
+    setMsg(team() ? "START pressed. Lines 10 to 14 repeat about 50 times per second.\nVote before STOP: what runs next?\nA: line 16, robot.stopDrive(), once\nB: nothing, the program freezes\nC: lines 6 to 8 again"
       : "START pressed: waitForStart() returns and the loop runs about 50 times per second (slowed down here).", st.violation ? "bad" : "");
   });
   bX.addEventListener("click", () => {
@@ -1473,17 +1479,17 @@ const LC = (function(){
         st.pc = v.initSeq[st.idx];
       } else { st.phase = "wait"; st.pc = v.wait; bS.disabled = false;
         if (v.threadAt >= 0){ st.violation = true; setMsg("Rule G304.H broken: the robot moves after INIT, before the match starts. Referees call this.", "bad"); }
-        else setMsg("Lines 6 to 8 ran once. A config name in robot.init() missing from the Driver Hub config crashes the OpMode here, at INIT. Now the code waits at line 9, robot still (rule G304.H). Vote before START: what runs next? A: lines 6 to 8 again. B: line 16, then the OpMode ends. C: lines 10 to 14, over and over.", "ok");
+        else setMsg("Lines 6 to 8 ran once. The code waits at line 9. The robot sits still (rule G304.H).\nVote before START: what runs next?\nA: lines 6 to 8 again\nB: line 16, then the OpMode ends\nC: lines 10 to 14, over and over", "ok");
       }
       if (st.pc === v.threadAt) st.thread = true;
     } else if (st.phase === "run"){
       st.loops += dt * 60;
       if (st.t > 0.35){ st.t = 0; st.idx = (st.idx + 1) % v.loop.length; }
       st.pc = v.loop[st.idx];
-    } else if (st.phase === "after" && st.t > 0.8){
+    } else if (st.phase === "after" && st.t > 2){   // 2 s of sim time: the line 16 highlight stays long enough to read
       st.phase = "done"; st.pc = -1; st.t = 0;
       if (st.thread) setMsg("runOpMode() ended, but nobody told the thread to stop. Its while (true) loop keeps running inside the Robot Controller app, even into the next OpMode. Only a restart of the app stops the thread.", "bad");
-      else { setMsg("OpMode finished cleanly. Press INIT to run again.", "ok"); st.loops = 0; }
+      else { setMsg("Line 16 ran once: robot.stopDrive(). The wheels stop. The OpMode finished cleanly. Press INIT to run again.", "ok"); st.loops = 0; }
       bI.disabled = false;
     }
     update();
@@ -1551,7 +1557,7 @@ function makeStick(el, onlyX, onChange){
 const MC = (function(){
   const ls = makeStick($("#mc-ls"), false), rs = makeStick($("#mc-rs"), true);
   const norm = $("#mc-norm"), bug = $("#mc-bug"), spinBox = $("#mc-spin");
-  const START = {x: 72, y: 110, h: 0, vx: 0, vy: 0, w: 0};
+  const START = {x: 60, y: 96, h: 0, vx: 0, vy: 0, w: 0};   // both Forward + turn circles, Normalize on and off, stay clear of the walls
   const robot = Object.assign({}, START);
   let yawOffset = 0, mode = "robot", goal = {x: 110, y: 72};
   const trail = [];
@@ -1583,11 +1589,12 @@ const MC = (function(){
     ],
     auto: [
       "// AUTO: drive toward a field point. Needs position from odometry (Pinpoint).",
-      "// pose = where odometry says the robot is, a Pose2D in field inches",
-      "double errX = targetX - pose.getX(DistanceUnit.INCH);  // toward the right wall",
-      "double errY = targetY - pose.getY(DistanceUnit.INCH);  // away from the drivers",
-      "double forward = errY * 0.05;                          // far away = more power",
-      "double right   = errX * 0.05;",
+      "// pose = where Pinpoint says the robot is, in inches from the start.",
+      "// Start facing away from the drivers: +X = away from the drivers, +Y = toward the left wall",
+      "double errX = targetX - pose.getX(DistanceUnit.INCH);  // away from the drivers",
+      "double errY = targetY - pose.getY(DistanceUnit.INCH);  // toward the left wall",
+      "double forward = errX * 0.05;                          // far away = more power",
+      "double right   = -errY * 0.05;                         // +Y is left, so flip the sign",
       "double speed = Math.hypot(forward, right);",
       "if (speed > 0.7) {                                     // cap the speed, keep the direction",
       "    forward = forward * 0.7 / speed;",
@@ -1675,9 +1682,9 @@ const MC = (function(){
     let html = "";
     if (m.rot){
       html += "<tr><th>Step</th><th>Math</th><th colspan=2>Value</th></tr>";
-      if (mode === "auto") html += "<tr><td>error to point</td><td>errX, errY (in)</td><td colspan=2>" + m.rot.ex.toFixed(1) + ", " + m.rot.ey.toFixed(1) + "</td></tr>";
+      if (mode === "auto") html += "<tr><td>error to point</td><td>errX, errY (in)</td><td colspan=2>" + m.rot.ey.toFixed(1) + ", " + (-m.rot.ex).toFixed(1) + "</td></tr>";
       else html += "<tr><td>stick</td><td>forward, right</td><td colspan=2>" + f2(m.sF) + ", " + f2(m.sR) + "</td></tr>";
-      html += "<tr><td>stick angle</td><td>theta = atan2(forward, right)</td><td colspan=2>" + deg(m.rot.th).toFixed(0) + " deg</td></tr>";
+      html += "<tr><td>" + (mode === "auto" ? "direction angle" : "stick angle") + "</td><td>theta = atan2(forward, right)</td><td colspan=2>" + deg(m.rot.th).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>IMU heading</td><td>getYaw()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>turn by heading</td><td>theta - heading</td><td colspan=2>" + deg(m.rot.t2).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>robot-centric</td><td>axial, lateral</td><td colspan=2>" + f2(m.axial) + ", " + f2(m.lateral) + "</td></tr>";
@@ -1740,7 +1747,7 @@ const MC = (function(){
       ctx.setLineDash([5, 5]); ctx.strokeStyle = P.ok; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ox + robot.x * sc, oy + robot.y * sc); ctx.lineTo(gx, gy); ctx.stroke(); ctx.setLineDash([]);
       ctx.strokeStyle = P.ok; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(gx, gy, 10, 0, Math.PI * 2); ctx.moveTo(gx - 15, gy); ctx.lineTo(gx + 15, gy); ctx.moveTo(gx, gy - 15); ctx.lineTo(gx, gy + 15); ctx.stroke();
       const lr = gx > ox + side - 160;   // near the right wall: put the label left of the target
-      text(ctx, "target (" + goal.x.toFixed(0) + ", " + (144 - goal.y).toFixed(0) + ")", lr ? gx - 16 : gx + 14, gy - 14, {color: P.ok, weight: "600", size: 14, align: lr ? "right" : "left"});
+      text(ctx, "target", lr ? gx - 16 : gx + 14, gy - 14, {color: P.ok, weight: "600", size: 14, align: lr ? "right" : "left"});
     }
     const rx = ox + robot.x * sc, ry = oy + robot.y * sc;
     // a thick bar on the front edge: which way the robot faces reads from the back row
@@ -1824,13 +1831,13 @@ const OL = (function(){
   ];
   renderCode($("#ol-codeA"), codeA); renderCode($("#ol-codeB"), codeB);
   let T = 0;
-  function mk(){ return {x: 0, y: 0, vx: 0, vy: 0, cx: 0, cy: 0, loops: [], block: 0, blockLine: -1, state: "IDLE", st: 0, maxErr: 0, nextLoop: 0}; }
+  function mk(){ return {x: 0, y: 0, vx: 0, vy: 0, cx: 0, cy: 0, loops: [], block: 0, blockLine: -1, state: "IDLE", st: 0, maxErr: 0, ign: 0, nextLoop: 0}; }
   let A = mk(), B = mk(), W = 300, H = 160, init = false;
   function target(t){ return {x: W / 2 + (W * 0.36) * Math.sin(t * 0.7), y: H / 2 + (H * 0.3) * Math.sin(t * 1.4)}; }
   $("#ol-launch").addEventListener("click", () => {
     if (A.block > 0 || B.state !== "IDLE") return;   // a click mid-launch would zero the error chips while the sleep robot is still locked out
     A.block = 1.3; B.state = "SPINNING_UP"; B.st = 0;
-    A.maxErr = 0; B.maxErr = 0;
+    A.maxErr = 0; B.maxErr = 0; A.ign = 0;
   });
   // Reset run clears this tab only: robots, loop ticks, states, error chips. Sim time, speed and Pause stay as they are, like Reset run on tabs 6 and 7.
   function reset(){ T = 0; A = mk(); B = mk(); init = false; tick(0); DG.stateMachine(true); }
@@ -1847,7 +1854,7 @@ const OL = (function(){
     const tg = target(T);
     // A: sleep version
     if (A.block > 0){
-      A.block -= dt;
+      A.block -= dt; A.ign += dt;   // the chip scores the time the sticks go unread, not only the miss
       A.blockLine = (1.3 - A.block) < 1.0 ? 5 : 7;   // the two sleep() lines in codeA
       if (A.block <= 0){ A.block = 0; A.blockLine = -1; }
     } else if (T >= A.nextLoop){ loopPass(A, tg); A.nextLoop = T + 0.02; }
@@ -1904,10 +1911,10 @@ const OL = (function(){
     $("#ol-stA").textContent = A.block > 0 ? (A.blockLine === 5 ? "stuck on line 6: sleep(1000)" : "stuck on line 8: sleep(300)") : "looping";   // renderCode numbers lines from 1
     $("#ol-stA").style.color = A.block > 0 ? "var(--red)" : "";
     $("#ol-stB").textContent = "launchState = " + B.state;
-    $("#ol-errA").textContent = "sleep robot, worst miss during launch: " + A.maxErr.toFixed(0) + " in";
-    $("#ol-errA").className = "chip " + (A.maxErr > 12 ? "bad" : "");
-    $("#ol-errB").textContent = "state machine robot, worst miss during launch: " + B.maxErr.toFixed(0) + " in";
-    $("#ol-errB").className = "chip " + (B.maxErr > 12 ? "bad" : "ok");
+    $("#ol-errA").textContent = "sleep robot: sticks ignored " + A.ign.toFixed(1) + " s, worst miss " + A.maxErr.toFixed(0) + " in";
+    $("#ol-errA").className = "chip " + (A.ign > 0 ? "bad" : "");
+    $("#ol-errB").textContent = "state machine robot: sticks ignored 0.0 s, worst miss " + B.maxErr.toFixed(0) + " in";
+    $("#ol-errB").className = "chip ok";
     const pb = $("#ol-pause"); pb.textContent = TIME.paused ? "Resume" : "Pause"; pb.setAttribute("aria-pressed", TIME.paused ? "true" : "false");
   }
   return {tick, reset, show: () => {}, get: () => ({state: B.state, blocked: A.block > 0})};
@@ -2101,7 +2108,7 @@ function TimeChart(o){
 }
 
 const FB = (function(){
-  renderCode($("#fb-codeA"), ["// open loop (Robot.java)", "launcher.setPower(0.8);", "// speed follows the battery"]);
+  renderCode($("#fb-codeA"), ["// open loop (Robot.java)", "launcher.setPower(0.8);", "// fixed power, no sensor"]);
   renderCode($("#fb-codeB"), ["// closed loop (Robot.java)", "launcher.setVelocity(1160);", "// hub reads the encoder", "// and fixes the speed"]);
   const KV = 116, TAU = 0.35, TARGET = 1160, LO = 1120, HI = 1200;
   let T = 0, V = 12.5, match = null, queue = [];
@@ -2192,7 +2199,13 @@ const FB = (function(){
       if (Math.abs(off) > 15){
         ctx.save(); ctx.strokeStyle = P.pollen; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(xr - 5, Y(TARGET)); ctx.lineTo(xr + 5, Y(TARGET)); ctx.moveTo(xr - 5, Y(steady)); ctx.lineTo(xr + 5, Y(steady)); ctx.moveTo(xr, Y(TARGET)); ctx.lineTo(xr, Y(steady)); ctx.stroke(); ctx.restore();
-        text(ctx, "open loop off by " + (off > 0 ? "+" : "") + Math.round(off), xr - 8, Y(steady) + (off < 0 ? 14 : -6), {color: P.pollen, size: 11, weight: "700", align: "right"});
+        // label on the far side of the steady line, outside the HIVE band. The halo in the chart color
+        // keeps the letters readable where the earlier, faster yellow curve or a shot dot runs behind them.
+        const lab = "open loop off by " + (off > 0 ? "+" : "") + Math.round(off), ly = Y(steady) + (off < 0 ? 15 : -7);
+        ctx.save(); ctx.font = "700 11px JetBrains Mono, monospace"; ctx.textAlign = "right";
+        const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width); // on a narrow chart, slide right instead of clipping at the y axis
+        ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = P.field; ctx.strokeText(lab, lx, ly); ctx.restore();
+        text(ctx, lab, lx, ly, {color: P.pollen, size: 11, weight: "700", align: "right"});
       }
     }
   }
@@ -2340,7 +2353,7 @@ const EN = (function(){
   function setMsg(t, cls){ msg.textContent = t; msg.className = "msg " + (cls || ""); }
   $("#en-run").addEventListener("click", () => {
     const c = cfg();
-    st = {phase: "drive", ticks: 0, target: c.target, power: 0, stopAt: -1, t: 0, posIn: 0, want: c.dist, strafe, ramp: $("#en-ramp").checked};
+    st = {phase: "drive", ticks: 0, target: c.target, cpi: c.cpi, power: 0, stopAt: -1, t: 0, posIn: 0, want: c.dist, strafe, ramp: $("#en-ramp").checked};
     setMsg("Driving: RUN_TO_POSITION runs the motors until the encoder reaches " + c.target + " counts.", "");
   });
   $("#en-stop").addEventListener("click", () => {
@@ -2371,7 +2384,9 @@ const EN = (function(){
         st.phase = "done"; st.power = 0;
         const encIn = st.ticks / REAL_CPI, constMiss = encIn - st.want, slipMiss = st.posIn - encIn, miss = st.posIn - st.want;
         const late = $("#en-bug").checked ? "Too late: the drive finished before STOP. Run again and press STOP while the robot moves. " : "";
-        if (Math.abs(miss) < 0.5) setMsg(late + "driveBusy() went false at " + Math.round(st.ticks) + " counts, within 5 counts of the target (the hub tolerance). The robot stopped on the line.", "ok");
+        // a wrong diameter that lands on the line: the measured constant soaks up steady slip
+        const fudge = Math.abs(st.cpi - REAL_CPI) > 0.5 ? " Your diameter in code no longer matches the wheel. A constant measured with a tape soaks up steady slip. " + (st.strafe ? "Keep the real diameter for forward moves and save this one as STRAFE_COUNTS_PER_INCH." : "Save it as COUNTS_PER_INCH and test again on the match floor.") : "";
+        if (Math.abs(miss) < 0.5) setMsg(late + "driveBusy() went false at " + Math.round(st.ticks) + " counts, within 5 counts of the target (the hub tolerance). The robot stopped on the line." + fudge, "ok");
         else if (Math.abs(slipMiss) >= 0.5 && Math.abs(constMiss) < 0.5) setMsg(late + "The encoder reached " + Math.round(st.ticks) + " counts, so driveBusy() went false. The tape says " + st.posIn.toFixed(1) + " in, not " + st.want + ". The wheels slipped" + (st.strafe ? " (strafing slips more)" : "") + (st.ramp ? ". Ramp helped. The rest is steady slip: measure a strafe with a tape and give strafing its own COUNTS_PER_INCH, or add odometry pods." : ". Try the ladder: tick Ramp and run again."), "bad");
         else setMsg(late + "The encoder hit its target, but the robot is " + Math.abs(miss).toFixed(1) + " in " + (miss > 0 ? "past" : "short of") + " the line. " + (Math.abs(constMiss) >= 0.5 ? "The constants in code do not match the real robot." : "") + (Math.abs(slipMiss) >= 0.5 ? " The wheels slipped too." : ""), "bad");
       }
@@ -2396,7 +2411,7 @@ const EN = (function(){
     const active = st.phase === "drive" || st.phase === "done";
     const bool = v => '<dd style="color:' + (v ? P.ok : P.red) + '">' + v + "</dd>";
     $("#en-kv").innerHTML =
-      "<dt><b>encoder says</b></dt><dd><b>" + (st.ticks / REAL_CPI).toFixed(1) + " in</b></dd>" +
+      "<dt><b>your code thinks</b></dt><dd><b>" + (st.cpi ? st.ticks / st.cpi : 0).toFixed(1) + " in</b></dd>" +
       "<dt><b>tape measure (real)</b></dt><dd><b>" + st.posIn.toFixed(1) + " in</b></dd>" +
       "<dt>driveBusy()</dt>" + bool(busy) +
       "<dt>opModeIsActive()</dt>" + bool(active) +
@@ -2865,14 +2880,16 @@ const PIDLAB = (function(){
     }
     const tLast = H[iE - 1].t;
     const ts = tLast - lastOut >= 0.4 ? lastOut : null;
-    let off = null;
+    let off = null, swing = false;
     if (tLast - tS > 1.5){
-      const j0 = bsearch(H, tLast - 0.5); let sum = 0, n = 0;
-      for (let k = j0; k < iE; k++) if (H[k].e !== null && H[k].e !== undefined){ sum += H[k].e; n++; }
+      const j0 = bsearch(H, tLast - 0.5); let sum = 0, n = 0, mn = Infinity, mx = -Infinity;
+      for (let k = j0; k < iE; k++) if (H[k].e !== null && H[k].e !== undefined){ sum += H[k].e; n++; mn = Math.min(mn, H[k].e); mx = Math.max(mx, H[k].e); }
       if (n) off = sum / n;
+      swing = n > 0 && mx - mn > 2 * band;   // still oscillating: a mean here is not an offset
+      if (swing) off = null;
     }
     const os = pmax > 1.005 ? (pmax - 1) : 0;
-    return {e0, tS, td, t10, t90, pmax, tp, os, band, ts, off, tLast};
+    return {e0, tS, td, t10, t90, pmax, tp, os, band, ts, off, swing, tLast};
   }
   const level = (st, e0, pr) => app === "aim" ? (1 - pr) * e0 : st.sp - (1 - pr) * e0;
   function respTable(r){
@@ -2884,10 +2901,10 @@ const PIDLAB = (function(){
     if (r.small){ $("#pid-resp").innerHTML = "<tr><td>This move is too small to measure (error " + r.e0.toFixed(1) + " " + u + "). Pick a bigger move.</td></tr>"; return; }
     row(P.muted, "Dead time (delay)", f(r.td === null ? null : r.td - r.tS), "Time before the sensor shows the robot moving (5% of the way). Camera lag and motor spin-up live here. Gains cannot remove it.");
     row(P.pollen, "Rise time (10% to 90%)", r.t10 !== null && r.t90 !== null ? f(r.t90 - r.t10) : "never reached 90%", "How snappy the move is. Raise kP to shrink it. 'Never reached 90%' means it stalled short.");
-    row(P.red, "Overshoot", r.os > 0 ? Math.round(r.os * 100) + "% (" + (r.os * Math.abs(r.e0)).toFixed(1) + " " + u + ")" : "none", "How far it went past the target, as a part of the whole move. Lower kP or raise kD to shrink it.");
+    row(P.red, "Overshoot", r.os > 0 ? Math.round(r.os * 100) + "% (" + (r.os * Math.abs(r.e0)).toFixed(1) + " " + u + ")" : "none", "How far it went past the target, as a part of the whole move.");
     row(P.red, "Peak time", r.os > 0 ? f(r.tp - r.tS) : "--", "When the overshoot was biggest.");
     row(P.ok, "Settling time (band +/-" + r.band.toFixed(1) + " " + u + ")", r.ts !== null ? f(r.ts - r.tS) : "not settled", "From the start until it enters the green band and stays there. This number decides how fast you score.");
-    row(P.ink, "Steady-state error (offset)", r.off !== null ? r.off.toFixed(2) + " " + u : "wait 1.5 s", "Where it ends up compared to the target (mean of the last 0.5 s). Friction or gravity cause it. kI or F fixes it.");
+    row(P.ink, "Steady-state error (offset)", r.swing ? "still swinging: no steady value" : r.off !== null ? r.off.toFixed(2) + " " + u : "wait 1.5 s", "Where it ends up compared to the target (mean of the last 0.5 s). Friction or gravity cause it. kI or F fixes it.");
     $("#pid-resp").innerHTML = "<tr><th>Marker</th><th>This move</th><th>What it means</th></tr>" + rows.join("");
   }
   const tRT = throttle(150);
@@ -3008,12 +3025,12 @@ const GT = (function(){
     {t: "Maya opens pull request #1", x: "Maya pushes and opens a PR. Ava reviews. She asks two questions: \"What does 0.4 do?\" and \"Why the left bumper?\" Maya answers without looking anything up.", as: "Ctrl+Shift+K to push. github.com > Compare & pull request. Fill the template.", cmd: "git push -u origin maya/slow-mode\n# then open the PR on github.com"},
     {t: "PR #1 merged", x: "Ava approves. Maya clicks Squash and merge and deletes her branch. main now has slow mode 0.4.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "# on github.com. Then everyone:\ngit switch main\ngit pull"},
     {t: "Leo opens PR #2: conflict", x: "GitHub says: This branch has conflicts that must be resolved. Maya and Leo changed the same line.", as: "github.com shows the conflict. Do not panic, and do not delete anything.", cmd: "git push -u origin leo/precision\n# github.com: This branch has conflicts that must be resolved"},
-    {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Pick the line the team wants, build, test. Try it in the merge tool below.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
-    {t: "Leo pushes the fix", x: "The merge commit holds the decision. The PR turns green. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
+    {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Which line stays? Teams vote: A keep Maya's 0.4. B keep Leo's 0.3. C ask Maya and try both on the robot. Then click a side below.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
+    {t: "Leo pushes the fix", x: "Leo asked Maya and tested both on the robot. Git does not pick. People do. The merge commit holds the decision. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
     {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. History keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -d leo/precision"}
   ];
   const LANES = [{n: "main", y: 50}, {n: "maya/slow-mode", y: 135}, {n: "leo/precision", y: 215}];
-  const X = col => 150 + col * 88;
+  const X = col => 130 + col * 96;
   const NODES = [
     {id: "c1", lane: 0, col: 0, l: "SDK v12.0", s: 0},
     {id: "c2", lane: 0, col: 1, l: "Add Robot.java", s: 0},
@@ -3033,15 +3050,17 @@ const GT = (function(){
     LANES.forEach((L, i) => {
       if (!laneOn[i]) return;
       const op = laneFade[i] ? 0.35 : 1;
-      o += '<g opacity="' + op + '"><line x1="140" x2="700" y1="' + L.y + '" y2="' + L.y + '" stroke="' + P.line + '" stroke-dasharray="4 6"/>';
-      o += '<text x="12" y="' + (L.y + 4) + '" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="' + (i === 0 ? P.accent : P.ink) + '">' + L.n + (laneFade[i] ? " (deleted)" : "") + "</text></g>";
+      o += '<g opacity="' + op + '"><line x1="120" x2="750" y1="' + L.y + '" y2="' + L.y + '" stroke="' + P.line + '" stroke-dasharray="4 6"/>';
+      o += '<text x="12" y="' + (L.y - 8) + '" font-family="JetBrains Mono, monospace" font-size="15" font-weight="600" fill="' + (i === 0 ? P.accent : P.ink) + '">' + L.n + (laneFade[i] ? " (deleted)" : "") + "</text></g>";
     });
     EDGES.forEach(e => {
       if (s < e[2]) return;
       const a = nd(e[0]), b = nd(e[1]);
       const x1 = X(a.col), y1 = LANES[a.lane].y, x2 = X(b.col), y2 = LANES[b.lane].y;
-      const mx = (x1 + x2) / 2;
-      o += '<path d="M' + x1 + " " + y1 + " C" + mx + " " + y1 + " " + mx + " " + y2 + " " + x2 + " " + y2 + '" fill="none" stroke="' + (e[3] ? P.muted : P.ink) + '" stroke-width="2.5"' + (e[3] ? ' stroke-dasharray="5 5"' : "") + "/>";
+      // a branch two lanes down drops early, so Leo's line leaves main left of Maya's commit and never seems to grow out of it
+      const drop = b.lane - a.lane === 2;
+      const mx = drop ? x1 + 30 : (x1 + x2) / 2, ex = drop ? x1 + 60 : x2;
+      o += '<path d="M' + x1 + " " + y1 + " C" + mx + " " + y1 + " " + mx + " " + y2 + " " + ex + " " + y2 + (drop ? " L" + x2 + " " + y2 : "") + '" fill="none" stroke="' + (e[3] ? P.muted : P.ink) + '" stroke-width="2.5"' + (e[3] ? ' stroke-dasharray="5 5"' : "") + "/>";
     });
     NODES.forEach(n => {
       if (s < n.s) return;
@@ -3051,7 +3070,7 @@ const GT = (function(){
       if (n.id === "l2" && choice) label = "keep " + choice;
       const conflict = (n.id === "l1" && (s === 6 || s === 7));
       o += '<circle cx="' + x + '" cy="' + y + '" r="' + (isNew ? 11 : 9) + '" fill="' + (conflict ? P.red : n.lane === 0 ? P.accent : P.surface) + '" stroke="' + (conflict ? P.red : P.accent) + '" stroke-width="3"/>';
-      o += '<text x="' + x + '" y="' + (y + 28) + '" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="' + P.ink + '">' + label + "</text>";
+      o += '<text x="' + x + '" y="' + (n.lane === 0 ? y - 18 : y + 30) + '" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="15" fill="' + P.ink + '">' + label + "</text>";
     });
     $("#gt-svg").innerHTML = o;
   }
@@ -3304,11 +3323,12 @@ const JV = (function(){
     text(ctx, "has a Robot", lx + 10, 72, {color: P.muted, size: fz(13), mono: false});
     ctx.fillStyle = P.surface; ctx.beginPath(); ctx.roundRect(rx, 30, rw, h - 60, 10); ctx.fill(); ctx.strokeStyle = P.accent; ctx.stroke();
     text(ctx, "Robot", rx + 10, 52, {weight: "700", size: fz(16), mono: false});
-    const pub = ["drive()", "headingDegrees()", "launcherOn()"], prv = ["frontLeft", "frontRight", "backLeft", "backRight", "imu"];
+    const pub = ["drive()", "headingDegrees()", "resetHeading()", "launcherOn()"], prv = ["frontLeft", "frontRight", "backLeft", "backRight", "imu"];
+    const bw = rw * 0.45;   // public box width: leaves a gap before the private wall for the red arrow
     const pos = {};
     text(ctx, "public", rx + 10, 88, {color: P.ok, weight: "700", size: fz(14)});
     pub.forEach((n, i) => { const y = 98 + i * 38; pos[n] = [rx + 6, y + 14];
-      ctx.fillStyle = alpha(P.ok, 0.15); ctx.strokeStyle = P.ok; ctx.beginPath(); ctx.roundRect(rx + 6, y, rw * 0.5, 28, 6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = alpha(P.ok, 0.15); ctx.strokeStyle = P.ok; ctx.beginPath(); ctx.roundRect(rx + 6, y, bw, 28, 6); ctx.fill(); ctx.stroke();
       text(ctx, n, rx + 14, y + 18, {size: fz(13), weight: "600"}); });
     // private vault
     const vx = rx + rw * 0.55, vw = rw * 0.4;
@@ -3321,11 +3341,12 @@ const JV = (function(){
       const end = pos[c.tgt];
       if (c.ok){
         arrow(ctx, start[0], start[1], end[0] - 10, end[1], P.ok, 3);
-        if (c.tgt === "drive()") ["frontLeft", "frontRight", "backLeft", "backRight"].forEach(n => { ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + 6 + rw * 0.5, end[1]); ctx.lineTo(pos[n][0], pos[n][1]); ctx.stroke(); });
-        if (c.tgt === "headingDegrees()"){ ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + 6 + rw * 0.5, end[1]); ctx.lineTo(pos.imu[0], pos.imu[1]); ctx.stroke(); }
+        if (c.tgt === "drive()") ["frontLeft", "frontRight", "backLeft", "backRight"].forEach(n => { ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + 6 + bw, end[1]); ctx.lineTo(pos[n][0], pos[n][1]); ctx.stroke(); });
+        if (c.tgt === "headingDegrees()"){ ctx.strokeStyle = alpha(P.ok, 0.7); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(rx + 6 + bw, end[1]); ctx.lineTo(pos.imu[0], pos.imu[1]); ctx.stroke(); }
       } else {
-        const ey = end[1];   // the X sits on the private wall, not on the public boxes
-        arrow(ctx, start[0], start[1], vx - 12, ey, P.red, 3);
+        const ey = end[1], gx = (rx + 6 + bw + vx) / 2;   // over the public boxes, then down the gap: no public method looks blocked
+        ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(start[0], start[1]); ctx.lineTo(lx + lw, 62); ctx.lineTo(gx, 62); ctx.stroke();
+        arrow(ctx, gx, 62, gx, ey - 10, P.red, 3);
         ctx.strokeStyle = P.red; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(vx - 9, ey - 9); ctx.lineTo(vx + 9, ey + 9); ctx.moveTo(vx + 9, ey - 9); ctx.lineTo(vx - 9, ey + 9); ctx.stroke();
       }
     }
@@ -3380,15 +3401,15 @@ const JV = (function(){
 
   /* ---- 7b @Override, tried three ways ---- */
   const OV = [
-    {code: ["public class MainTeleOp extends LinearOpMode {", "", "    @Override", "    public void runOpMode() {", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
+    {code: ["public class MainTeleOp extends LinearOpMode {", "    private final Robot robot = new Robot();","    @Override", "    public void runOpMode() {", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
      mark: [2, 3], cls: "run", prob: ["BUILD SUCCESSFUL. 0 errors."], ok: true,
      msg: "The name matches LinearOpMode's runOpMode() exactly, so @Override is happy. Press INIT on the Driver Hub and the SDK runs your version."},
-    {code: ["public class MainTeleOp extends LinearOpMode {", "", "    @Override", "    public void runOpmode() {      // small m: a typo", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
+    {code: ["public class MainTeleOp extends LinearOpMode {", "    private final Robot robot = new Robot();","    @Override", "    public void runOpmode() {      // small m: a typo", "        robot.init(hardwareMap);", "        waitForStart();", "        while (opModeIsActive()) {", "            robot.drive(-gamepad1.left_stick_y, 0, 0);", "        }", "    }", "}"],
      mark: [2, 3], cls: "err", prob: ["MainTeleOp.java:1: error: MainTeleOp is not abstract and does not override abstract method runOpMode() in LinearOpMode", "MainTeleOp.java:3: error: method does not override or implement a method from a supertype"], ok: false,
      msg: "Two errors, both on your laptop. Line 1: LinearOpMode needs a runOpMode() and your file has none (abstract means: the parent left it for you to write). Line 3: @Override found no runOpmode() in the parent. Fix the spelling: runOpMode, capital M."},
-    {code: ["public class MainTeleOp extends OpMode {     // the loop() style OpMode", "", "    public void init() { robot.init(hardwareMap); }", "", "    public void Start() {          // capital S, no @Override", "        matchTimer.reset();", "    }", "", "    public void loop() {", "        robot.drive(-gamepad1.left_stick_y, 0, 0);", "    }", "}"],
+    {code: ["public class MainTeleOp extends OpMode {     // the loop() style OpMode", "    private final Robot robot = new Robot();","    public void init() { robot.init(hardwareMap); }", "", "    public void Start() {          // capital S, no @Override", "        robot.resetHeading();", "    }", "", "    public void loop() {", "        robot.drive(-gamepad1.left_stick_y, 0, 0);", "    }", "}"],
      mark: [4, 5], cls: "err", prob: ["BUILD SUCCESSFUL. 0 errors."], ok: false,
-     msg: "Here only @Override would save you, because start() is optional. The dangerous one. It builds and it runs. But the SDK calls start(), small s, and Start() is just a new method nobody calls. Your timer never resets and nothing tells you. Put @Override on it and the build fails at once, pointing at the typo. Rule: @Override on every method you replace."}
+     msg: "Here only @Override would save you, because start() is optional. The dangerous one. It builds and it runs. But the SDK calls start(), small s, and Start() is just a new method nobody calls. Your heading never resets and nothing tells you. Put @Override on it and the build fails at once, pointing at the typo. Rule: @Override on every method you replace."}
   ];
   function showOv(i){
     const v = OV[i];
@@ -3452,8 +3473,8 @@ const JV = (function(){
   $("#jv-da").addEventListener("click", () => { LG.a = !LG.a; logic(); });
   $("#jv-dready").addEventListener("click", () => { LG.ready = !LG.ready; logic(); });
   logic();
-  const SW = ["switch (launchState) {", "    case IDLE:", "        if (gamepad2.rightBumperWasPressed()) {   // true once per press", "            launchState = LaunchState.SPINNING_UP;", "        }", "        break;", "    case SPINNING_UP:", "        robot.launcherOn();", "        if (robot.launcherReady()) {", "            launchState = LaunchState.FEEDING;", "        }", "        break;", "    case FEEDING:", "        robot.feedOnce();", "        launchState = LaunchState.IDLE;", "        break;", "}"];
-  const SW_BREAK = 11;   // the break after SPINNING_UP
+  const SW = ["switch (launchState) {", "    case IDLE:", "        robot.launcherOff();", "        if (gamepad2.rightBumperWasPressed()) {   // true once per press", "            launchState = LaunchState.SPINNING_UP;", "        }", "        break;", "    case SPINNING_UP:", "        robot.launcherOn();", "        if (robot.launcherReady()) {", "            feedTimer.reset();", "            launchState = LaunchState.FEEDING;", "        }", "        break;", "    case FEEDING:", "        robot.launcherOn();", "        robot.feederOn();", "        if (feedTimer.seconds() > 0.3) {", "            robot.feederOff();", "            launchState = LaunchState.IDLE;", "        }", "        break;", "}"];
+  const SW_BREAK = SW.indexOf("        break;", SW.indexOf("    case SPINNING_UP:"));   // the break after SPINNING_UP
   let swState = "SPINNING_UP";
   function sw(){
     const noBrk = $("#jv-swbrk").checked;
@@ -3467,7 +3488,10 @@ const JV = (function(){
       run.push(k);
       if (/break;/.test(code[k])) break;
     }
-    $$(".ln", $("#jv-swcode")).forEach((ln, k) => { ln.classList.toggle("test", k === start); ln.classList.toggle("run", run.includes(k)); ln.classList.toggle("err", noBrk && swState === "SPINNING_UP" && k >= idx("    case FEEDING:") && run.includes(k)); });
+    $$(".ln", $("#jv-swcode")).forEach((ln, k) => {
+      const bad = noBrk && swState === "SPINNING_UP" && k >= idx("    case FEEDING:") && run.includes(k);   // fell through: red, not green
+      ln.classList.toggle("test", k === start); ln.classList.toggle("run", run.includes(k) && !bad); ln.classList.toggle("err", bad);
+    });
     $$("#jv-swbtns .b").forEach(b => b.setAttribute("aria-pressed", b.dataset.s === swState ? "true" : "false"));
     const m = $("#jv-swmsg");
     const fell = noBrk && swState === "SPINNING_UP";
@@ -3588,7 +3612,10 @@ const GX = (function(){
   const has = (list, c) => list.some(x => x.id === c.id);
   function ahead(){ return st.local.filter(c => !has(st.remote, c)); }
   function behind(){ return st.remote.filter(c => !has(st.local, c)); }
-  $("#gx-edit").addEventListener("click", () => { if (!st.work.includes("MainTeleOp.java")) st.work.push("MainTeleOp.java"); st.flash = "work"; render(); cmd("git status\n#   modified:   MainTeleOp.java"); msg("Changed on your laptop only. Git sees 1 changed file, but it is not in history yet. Ctrl+Z is your only undo.", ""); });
+  // the first Ask the room vote: commit and push labels stay hidden until Reveal or button 1
+  const unbare = () => $("#gx-places").classList.remove("bare");
+  $("#lab-gitflow .labhead details.ask").addEventListener("toggle", e => { if (e.target.open) unbare(); });
+  $("#gx-edit").addEventListener("click", () => { unbare(); if (!st.work.includes("MainTeleOp.java")) st.work.push("MainTeleOp.java"); st.flash = "work"; render(); cmd("git status\n#   modified:   MainTeleOp.java"); msg("Changed on your laptop only. Git sees 1 changed file, but it is not in history yet. Ctrl+Z is your only undo.", ""); });
   $("#gx-commit").addEventListener("click", () => {
     if (!st.work.length){ msg("Nothing to commit. Edit a file first.", "bad"); return; }
     cmd("git add .\ngit commit -m \"" + MSGS[st.n % MSGS.length] + "\"");
@@ -3601,7 +3628,7 @@ const GX = (function(){
     cmd("git push");
     st.remote = st.local.slice(); st.flash = "remote"; st.rejected = false; render(); msg("GitHub now has your commits. Your partner and your reviewer see them.", "ok");
   });
-  $("#gx-partner").addEventListener("click", () => { st.remote.push({id: hex(), m: "Fix motor name", by: "Leo"}); st.flash = "remote"; st.knows = false; render(); cmd("# on Leo's laptop:\ngit push"); msg("Leo pushed. GitHub now has a commit your laptop does not. You see it only after you pull.", ""); });
+  $("#gx-partner").addEventListener("click", () => { st.remote.push({id: hex(), m: "Fix motor name", by: "Leo"}); st.flash = "remote"; st.knows = false; render(); cmd("# on Leo's laptop, same branch maya/slow-mode:\ngit push"); msg("Leo pushed to your branch. GitHub now has a commit your laptop does not. You see it only after you pull.", ""); });
   $("#gx-pull").addEventListener("click", () => {
     const b = behind(), a = ahead();
     if (!b.length){ msg("You already have everything from GitHub.", ""); return; }
@@ -3732,34 +3759,51 @@ const DG = (function(){
     const pre = "lc";
     const cur = {off: "OFF", init: "INIT", wait: "WAIT", run: "RUN", after: "STOP", done: "STOP"}[g.phase];
     let s = SV.defs(pre);
-    const B = [["OFF", 10, "OpMode selected", "nothing runs"], ["INIT", 150, "init code runs", "set up hardware"], ["WAIT", 290, "waitForStart()", "robot must not move"], ["RUN", 430, "while loop", "drive, launch, aim"], ["STOP", 570, "after the loop", "stopDrive()"]];
-    // Compact: the diagram sits under the Driver Hub, so the lit box stays on screen while you press the buttons
+    const B = [["OFF", "OpMode selected", "nothing runs"], ["INIT", "init code runs", "set up hardware"], ["WAIT", "waitForStart()", "robot must not move"], ["RUN", "while loop", "drive, launch, aim"], ["STOP", "after the loop", "stopDrive()"]];
+    const AR = [["INIT", "acc"], ["by itself", "mut"], ["START", "ok"], ["STOP", "red"]];
+    // Reveal box text one state at a time: a box shows only its title until the OpMode reaches it, so the diagram never answers the next vote.
+    const at = ["OFF", "INIT", "WAIT", "RUN", "STOP"].indexOf(cur), txt = (b, i) => i <= at ? b : [b[0]];
+    // Compact: the diagram sits under the Driver Hub, so the lit box stays on screen while you press the buttons.
+    // Two layouts, like DG.stateMachine(): a row on wide screens, a column on phones. Measure the parent: the svg's own width follows its max-width.
+    const narrow = ($("#lc-sd").parentNode.clientWidth || 1000) < 600;
     s += SV.tx(10, 16, "State diagram", {size: 13, weight: "700", anchor: "start"});
-    B.forEach(b => { s += SV.box(b[1], 44, 120, 62, [b[0], b[2], b[3]], {hot: cur === b[0], size: 14}); });
-    s += SV.ar(pre, [[130, 75], [148, 75]], {label: "INIT", at: [139, 36], lcol: "acc"});
-    s += SV.ar(pre, [[270, 75], [288, 75]], {label: "by itself", at: [279, 36]});
-    s += SV.ar(pre, [[410, 75], [428, 75]], {label: "START", at: [419, 36], lcol: "ok"});
-    s += SV.ar(pre, [[550, 75], [568, 75]], {label: "STOP", at: [559, 36], lcol: "red"});
-    s += SV.ar(pre, [[470, 44], [470, 16], [510, 16], [510, 42]], {col: "acc", label: "about 50 times per second", at: [490, 10], lcol: "acc"});
+    if (narrow){
+      const x = 20, bw = 200, bh = 58, gap = 34, y = i => 28 + i * (bh + gap), yEnd = y(5) - gap;
+      B.forEach((b, i) => { s += SV.box(x, y(i), bw, bh, txt(b, i), {hot: cur === b[0], size: 14}); });
+      AR.forEach((a, i) => { s += SV.ar(pre, [[x + bw / 2, y(i) + bh], [x + bw / 2, y(i + 1) - 2]], {label: a[0], at: [x + bw / 2 + 10, y(i) + bh + gap / 2 + 5], anchor: "start", lcol: a[1], size: 12}); });
+      if (at >= 3) s += SV.ar(pre, [[x + bw, y(3) + 14], [x + bw + 24, y(3) + 14], [x + bw + 24, y(3) + bh - 14], [x + bw + 2, y(3) + bh - 14]], {col: "acc"})
+        + SV.tx(x + bw + 30, y(3) + 24, "about 50 times", {size: 12, col: "acc", weight: "600", anchor: "start"}) + SV.tx(x + bw + 30, y(3) + 40, "per second", {size: 12, col: "acc", weight: "600", anchor: "start"});
+      if (g.violation) s += SV.box(x, yEnd + 12, 220, 32, ["G304.H: robot moved"], {stroke: "red", sw: 2, tcol: "red"});
+      if (g.thread) s += SV.box(x, yEnd + 52, 220, 32, ["AI thread still running"], {stroke: "red", sw: 2, tcol: "red"});
+      SV.set($("#lc-sd"), 360, yEnd + 90, s);
+      return;
+    }
+    B.forEach((b, i) => { s += SV.box(10 + i * 140, 44, 120, 62, txt(b, i), {hot: cur === b[0], size: 14}); });
+    AR.forEach((a, i) => { s += SV.ar(pre, [[130 + i * 140, 75], [148 + i * 140, 75]], {label: a[0], at: [139 + i * 140, 36], lcol: a[1]}); });
+    if (at >= 3) s += SV.ar(pre, [[470, 44], [470, 16], [510, 16], [510, 42]], {col: "acc", label: "about 50 times per second", at: [490, 10], lcol: "acc"});
     if (g.thread) s += SV.box(470, 116, 220, 32, ["AI thread still running"], {stroke: "red", sw: 2, tcol: "red"});
     if (g.violation) s += SV.box(250, 116, 200, 32, ["G304.H: robot moved"], {stroke: "red", sw: 2, tcol: "red"});
     SV.set($("#lc-sd"), 700, 152, s);
   }
   function timeline(){
     let s = "";
-    const L = 20, W = 660, total = 20 + 30 + 8 + 120, sc = W / total;
+    const L = 20, W = 660, total = 20 + 30 + 8 + 120, sc = W / total, Y = 44;
     // INIT happens before the match and is not timed: a dashed block, 20 units wide, in front of the to-scale 158 s
     const segs = [["INIT", 20, P.muted], ["AUTO 0:30", 30, P.accent], ["8 s", 8, P.line], ["TELEOP 2:00", 120, P.ok]];
     let x = L;
-    const xt = L + (20 + 30 + 8 + 60) * sc;
-    segs.forEach((sg, i) => { const w = sg[1] * sc; s += '<rect x="' + x + '" y="20" width="' + w + '" height="34" fill="' + alpha(sg[2], i ? 0.35 : 0.15) + '" stroke="' + sg[2] + '"' + (i ? "" : ' stroke-dasharray="4 3"') + "/>"; s += SV.tx(sg[0] === "TELEOP 2:00" ? (x + xt) / 2 : x + w / 2, 42, sg[0], {weight: "700", size: 12}); x += w; });
-    s += '<line x1="' + xt + '" y1="14" x2="' + xt + '" y2="60" stroke="' + P.pollen + '" stroke-width="2" stroke-dasharray="4 3"/>';
-    s += SV.tx(L, 74, "Before the match: INIT the AUTO OpMode, robot still (G304.H)", {size: 12, col: "mut", anchor: "start"});
-    s += SV.tx(L + 20 * sc, 92, "AUTO: no drivers. The 30 s timer on the Driver Hub ends the OpMode.", {size: 12, col: "acc", anchor: "start"});
-    s += SV.tx(L + 118 * sc, 74, "drivers in control", {size: 12, col: "ok"});
-    s += SV.tx(L + (50 + 4) * sc, 110, "8 s: INIT the TeleOp OpMode", {size: 12, col: "mut"});
-    s += SV.tx(xt, 12, "last 60 s: NECTAR into FLOWERS", {size: 12, col: "pol"});
-    SV.set($("#lc-tl"), 700, 120, s);
+    const xt = L + (20 + 30 + 8 + 60) * sc, xa = L + 20 * sc, xb = L + 50 * sc, xc = L + 58 * sc, xd = L + total * sc;
+    segs.forEach((sg, i) => { const w = sg[1] * sc; s += '<rect x="' + x + '" y="' + Y + '" width="' + w + '" height="34" fill="' + alpha(sg[2], i ? 0.35 : 0.15) + '" stroke="' + sg[2] + '"' + (i ? "" : ' stroke-dasharray="4 3"') + "/>"; s += SV.tx(sg[0] === "TELEOP 2:00" ? (x + xt) / 2 : x + w / 2, Y + 22, sg[0], {weight: "700", size: 12}); x += w; });
+    // Each OpMode gets its own START (row 1, green) and STOP (row 2, red), with a tick down to the bar edge
+    const tick = (xx, y, t, col, anchor) => '<line x1="' + xx + '" y1="' + (y + 3) + '" x2="' + xx + '" y2="' + (Y + 34) + '" stroke="' + SV.col(col) + '" stroke-width="2"/>' + SV.tx(anchor === "end" ? xx - 4 : xx + 4, y, t, {size: 12, col: col, weight: "700", anchor: anchor});
+    s += tick(xa, 16, "START", "ok", "start") + tick(xc, 16, "START", "ok", "start");
+    s += tick(xb, 34, "STOP: 30 s timer", "red", "end") + tick(xd, 34, "STOP: drivers press it", "red", "end");
+    s += '<line x1="' + xt + '" y1="4" x2="' + xt + '" y2="' + (Y + 40) + '" stroke="' + P.pollen + '" stroke-width="2" stroke-dasharray="4 3"/>';
+    s += SV.tx(xt + 6, 16, "last 60 s: NECTAR into FLOWERS", {size: 12, col: "pol", anchor: "start", weight: "600"});
+    s += SV.tx(L, Y + 52, "Before the match: INIT the AUTO OpMode, robot still (G304.H)", {size: 12, col: "mut", anchor: "start"});
+    s += SV.tx(xa, Y + 70, "AUTO: no drivers. The 30 s timer on the Driver Hub ends the OpMode.", {size: 12, col: "acc", anchor: "start"});
+    s += SV.tx(L + 118 * sc, Y + 52, "drivers in control", {size: 12, col: "ok"});
+    s += SV.tx(L + (50 + 4) * sc, Y + 88, "8 s: pick TeleOp, press INIT", {size: 12, col: "mut"});
+    SV.set($("#lc-tl"), 700, Y + 96, s);
   }
   /* ---- drive modes: rotation picture ---- */
   function driveVec(){
@@ -3772,18 +3816,21 @@ const DG = (function(){
       text(ctx, label, cx, 16, {align: "center", weight: "700", size: 12, mono: false});
     };
     const cxL = half / 2, cxR = half + half / 2, cy = h / 2 + 8, narrow = w < 500, rot = g.mode !== "robot";
-    panel(cxL, !rot ? "Driver's view (field)" : narrow ? "Stick, robot at heading" : "Stick on the field, robot at IMU heading");
-    panel(cxR, !rot ? "Robot gets (no rotation)" : narrow ? "Robot gets: front up" : "Robot gets: picture turned so the front is up");
+    const auto = g.mode === "auto";
+    panel(cxL, !rot ? (narrow ? "Stick: up = front" : "Stick: up = robot front") : auto ? (narrow ? "Target, robot at heading" : "To the target, robot at IMU heading") : narrow ? "Stick, robot at heading" : "Stick on the field, robot at IMU heading");
+    panel(cxR, !rot ? (narrow ? "Robot gets the same" : "Robot gets the same (no rotation)") : narrow ? "Robot gets: front up" : "Robot gets: picture turned so the front is up");
     // field axes
     arrow(ctx, cxL, cy, cxL, cy - R - 6, P.muted, 1.5); text(ctx, "F", cxL + 6, cy - R, {color: P.muted, size: 11});
     arrow(ctx, cxL, cy, cxL + R + 6, cy, P.muted, 1.5); text(ctx, "R", cxL + R + 6, cy + 14, {color: P.muted, size: 11});
     const m = g.m, sF = g.mode === "auto" ? (m.rot ? m.rot.r * Math.sin(m.rot.th) : 0) : m.sF, sR = g.mode === "auto" ? (m.rot ? m.rot.r * Math.cos(m.rot.th) : 0) : m.sR;
     const hd = g.heading;
     // the left robot faces where the IMU says, not where the field robot faces: in the wrong-zero demo the two differ
-    if (rot) drawRobot(ctx, cxL, cy, hd, R * 0.55, {body: alpha(P.accent, 0.12)});
+    // robot-centric: the stick lives in the robot's frame, so the left robot faces up too
+    drawRobot(ctx, cxL, cy, rot ? hd : 0, R * 0.55, {body: alpha(P.accent, 0.12)});
     arrow(ctx, cxL, cy, cxL + sR * R, cy - sF * R, P.pollen, 4);
     const bs = narrow ? 10 : 11;
-    text(ctx, (narrow ? "fwd " : "stick: fwd ") + sF.toFixed(2) + ", right " + sR.toFixed(2), cxL, h - 6, {align: "center", size: bs, color: P.pollen, weight: "600"});
+    // narrow: the panel title already names the stick or the target
+    text(ctx, (narrow ? "fwd " : auto ? "to target: fwd " : "stick: fwd ") + sF.toFixed(2) + ", right " + sR.toFixed(2), cxL, h - 6, {align: "center", size: bs, color: P.pollen, weight: "600"});
     // robot view: robot drawn facing up, vector in robot frame
     drawRobot(ctx, cxR, cy, 0, R * 0.55, {body: alpha(P.accent, 0.12)});
     arrow(ctx, cxR, cy, cxR + m.lateral * R, cy - m.axial * R, P.accent, 4);
@@ -3872,7 +3919,7 @@ const DG = (function(){
     text(ctx, (g.ticks / g.realCpr).toFixed(2) + " turns", cx, cy + R + 34, {align: "center", color: P.muted, size: 11});
     // unrolled circumference
     const x0 = cx + R + 40, x1 = w - 16, yb = cy;
-    const circ = Math.PI * g.realDia, inches = Math.max(24, g.posIn + 4), sc = (x1 - x0) / inches;
+    const circ = Math.PI * g.realDia, wheelIn = (g.ticks / g.realCpr) * circ, inches = Math.max(24, g.posIn + 4, wheelIn + 4), sc = (x1 - x0) / inches;
     ctx.strokeStyle = P.line; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0, yb); ctx.lineTo(x1, yb); ctx.stroke();
     ctx.strokeStyle = P.accent; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0, yb); ctx.lineTo(x0 + g.posIn * sc, yb); ctx.stroke();
     // with slip the wheel turns further than the robot moves: the red bar (encoder) runs ahead of the accent bar (robot)
@@ -3880,10 +3927,10 @@ const DG = (function(){
     ctx.strokeStyle = P.red; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, yr); ctx.lineTo(xe, yr); ctx.stroke();
     if (g.ticks > 0){
       const at = x => x > w - 60 ? "right" : x < x0 + 50 ? "left" : "center";
-      text(ctx, "encoder says", xe, yr - 6, {align: at(xe), size: 11, weight: "600", color: P.red});
+      text(ctx, "wheel turned", xe, yr - 6, {align: at(xe), size: 11, weight: "600", color: P.red});
       text(ctx, "robot moved", xr, yb + 20, {align: at(xr), size: 11, weight: "600", color: P.accent});
     }
-    for (let k = 1; k * circ <= inches; k++){ const x = x0 + k * circ * sc; ctx.strokeStyle = P.red; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb - 12); ctx.lineTo(x, yb + 12); ctx.stroke(); text(ctx, k + " turn" + (k > 1 ? "s" : ""), x, yb - 16, {align: x > w - 50 ? "right" : "center", size: 11, color: P.red}); }
+    for (let k = 1; k * circ <= inches; k++){ const x = x0 + k * circ * sc; ctx.strokeStyle = P.red; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb - 12); ctx.lineTo(x, yb + 12); ctx.stroke(); text(ctx, k + (narrow ? "" : " turn" + (k > 1 ? "s" : "")), x, yb - 16, {align: x > w - 50 ? "right" : "center", size: 11, color: P.red}); }
     const cx0 = narrow ? 16 : x0, cy0 = narrow ? h - 28 : yb + 40;
     text(ctx, "1 turn = " + g.realCpr + " counts = " + (narrow ? "" : "PI x " + g.realDia + " in = ") + circ.toFixed(2) + " in" + (narrow ? "" : " of floor"), cx0, cy0, {size: 12, weight: "600"});
     text(ctx, "so 1 inch = " + (g.realCpr / circ).toFixed(1) + " counts on the real robot", cx0, cy0 + 18, {size: 12, color: P.muted});
@@ -3993,16 +4040,20 @@ const PIDVIZ = (function(){
       slope = (b.e - a.e) / Math.max(0.001, b.t - a.t);
       const xb = X2(b.t), yb = Y2(b.e), run = 0.5;
       const xa = X2(b.t - run), ya = Y2(b.e - slope * run);
+      ctx.save(); ctx.beginPath(); ctx.rect(L, T, pw, ph); ctx.clip();
       ctx.strokeStyle = P.red; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(xb, yb); ctx.stroke();
       ctx.setLineDash([4, 3]); ctx.strokeStyle = alpha(P.red, 0.8); ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(xb, ya); ctx.lineTo(xb, yb); ctx.stroke(); ctx.setLineDash([]);
       text(ctx, "run 0.5 s", (xa + xb) / 2, ya + (ya > h - 30 ? -6 : 14), {size: 12, color: P.red, align: "center"});
-      text(ctx, "rise", xb - 4, (ya + yb) / 2, {size: 12, color: P.red, align: "right"});
+      text(ctx, "change", xb - 4, clamp((ya + yb) / 2, T + 12, h - 22), {size: 12, color: P.red, align: "right"});
       ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(xb, yb, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
     }
-    text(ctx, "red line = slope of the error right now", 8, 14, {size: 12, color: P.muted, mono: false});
+    text(ctx, "red line = slope now", 8, 14, {size: 12, color: P.muted, mono: false});
     text(ctx, "slope " + slope.toFixed(1) + " " + NAMES[g.app].unit + "/s", w - 8, 14, {size: 12, weight: "700", align: "right", color: P.red});
-    text(ctx, slope < -0.5 ? "error shrinking: D pushes back, a brake" : slope > 0.5 ? "error growing: D pushes harder" : "error steady: D is near 0", 8, h - 4, {size: 12, color: P.muted, mono: false});
+    const eNow = rec.length ? rec[rec.length - 1].e : 0;   // shrinking = slope and error point opposite ways, for either sign of error
+    const dCap = !g.on[2] ? "D box off: D adds nothing" : g.gains[2] === 0 ? "kD is 0: D adds nothing. Try a PD preset" : null;   // never claim D pushes while D is 0
+    text(ctx, dCap || (Math.abs(slope) <= 0.5 ? "error steady: D is near 0" : slope * eNow < 0 ? "error shrinking: D pushes back, a brake" : "error growing: D pushes harder"), 8, h - 4, {size: 12, color: P.muted, mono: false});
   }
   return {loop, minis};
 })();
@@ -4041,7 +4092,7 @@ const PIDVIZ = (function(){
     {k: "imports", c: "--accent", l: [2, 3], t: "Imports: classes from other packages. See the Imports card."},
     {k: "annotation", c: "--pollen", l: [5], t: "Annotation: @TeleOp puts this OpMode on the Driver Hub list."},
     {k: "class", c: "--ok", l: [6, 22], t: "Class: the blueprint, from { to }. See Classes and objects, and extends LinearOpMode."},
-    {k: "fields", c: "--red", l: [7, 8], t: "Fields: belong to the object for its whole life. SLOW is a constant (final). See Types, final and static, and public and private."},
+    {k: "fields", c: "--red", l: [7, 8], t: "Fields: data the class keeps. robot belongs to this object. SLOW is static final: one locked number for the whole class. See Types, final and static, and public and private."},
     {k: "method", c: "--accent", l: [10, 11, 21], t: "Method: runOpMode() is a named block of code. The SDK calls it when you press INIT."},
     {k: "locals", c: "--pollen", l: [15, 17], t: "Local variable: speed lives only inside the while block. See the Scope card."},
     {k: "calls", c: "--ok", l: [12, 13, 14, 19], t: "Method calls: ask an object to do something, with the dot: robot.drive(...)."}
@@ -4278,17 +4329,18 @@ const JV2 = (function(){
     const line = "MainTeleOp.java:14: error: cannot find symbol";
     const cw = 9.6, x0 = 20, y0 = 34;
     let t = SV.tx(x0, y0, line, {anchor: "start", mono: true, size: 16, weight: "600"});
-    t += SV.tx(x0, y0 + 26, "    symbol:   class DcMotor", {anchor: "start", mono: true, size: 16});
-    t += SV.tx(x0, y0 + 52, "    location: class MainTeleOp", {anchor: "start", mono: true, size: 16});
+    t += SV.tx(x0, y0 + 62, "    symbol:   class DcMotor", {anchor: "start", mono: true, size: 16});
+    t += SV.tx(x0, y0 + 88, "    location: class MainTeleOp", {anchor: "start", mono: true, size: 16});
     const brace = (from, to, label, col, yy) => { const a = x0 + from * cw, b = x0 + to * cw; return '<path d="M' + a + " " + (yy - 8) + " L" + a + " " + yy + " L" + b + " " + yy + " L" + b + " " + (yy - 8) + '" fill="none" stroke="' + SV.col(col) + '" stroke-width="2"/>' + SV.tx((a + b) / 2, yy + 16, label, {size: 12, col: col, weight: "700"}); };
-    t += brace(0, 15, "which file", "acc", 104);
-    t += brace(16, 18, "line 14", "pol", 104);
-    t += brace(21, 26, "kind", "red", 104);
-    t += brace(27, 45, "what went wrong", "red", 104);
-    t += SV.tx(560, 60, "<- the class Java could not find", {anchor: "start", size: 12, col: "mut"});
-    t += SV.tx(560, 86, "<- the file it was looking in", {anchor: "start", size: 12, col: "mut"});
-    t += SV.tx(x0, 150, "Build window (bottom of Android Studio): click the blue file link to jump to the line. Fix the FIRST error first: one missing import often causes 10 red lines.", {anchor: "start", size: 12, col: "mut"});
-    SV.set($("#jv-buildline"), 1000, 162, t);
+    // brackets sit right under line 1, the line the card asks the room to read
+    t += brace(0, 15, "which file", "acc", 48);
+    t += brace(16, 18, "line 14", "pol", 48);
+    t += brace(20, 25, "kind", "red", 48);
+    t += brace(27, 45, "what went wrong", "red", 48);
+    t += SV.tx(560, 96, "<- the class Java could not find", {anchor: "start", size: 12, col: "mut"});
+    t += SV.tx(560, 122, "<- the file it was looking in", {anchor: "start", size: 12, col: "mut"});
+    t += SV.tx(x0, 156, "Build window (bottom of Android Studio): click the blue file link to jump to the line. Fix the FIRST error first: one missing import often causes 10 red lines.", {anchor: "start", size: 12, col: "mut"});
+    SV.set($("#jv-buildline"), 1000, 168, t);
   }
 
   /* ---------------- error clinic ---------------- */
@@ -4376,7 +4428,7 @@ const JV2 = (function(){
   }
   function setProb(lines, kind){
     const icon = kind === "ok" ? '<b style="color:#48c584">OK</b>' : kind === "warn" ? '<b style="color:#ffc928">!</b>' : '<b style="color:#ff7070">X</b>';
-    $("#jv-eprob").innerHTML = '<div class="ph2">Problems / Build</div>' + lines.map(l => "<div>" + icon + " " + esc(l) + "</div>").join("");
+    $("#jv-eprob").innerHTML = '<div class="ph2">Problems / Build</div>' + lines.map(l => "<div>" + icon + " " + esc(l).split("   ").join("<br>&nbsp;&nbsp;&nbsp;&nbsp;") + "</div>").join("");
   }
   function paint(code, err, ok, dim, hl){
     renderCode($("#jv-ecode"), code);
@@ -4506,12 +4558,14 @@ const JVW = (function(){
       "",
       "import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;",
       "import com.qualcomm.robotcore.eventloop.opmode.TeleOp;",
+      "import com.qualcomm.robotcore.util.ElapsedTime;",
       "",
       "@TeleOp(name = \"Main TeleOp\")",
       "public class MainTeleOp extends LinearOpMode {",
       "",
       "    private final Robot robot = new Robot();   // one Robot object, built once",
       "    private LaunchState launchState = LaunchState.IDLE;",
+      "    private final ElapsedTime feedTimer = new ElapsedTime();",
       "",
       "    enum LaunchState { IDLE, SPINNING_UP, FEEDING }",
       "",
@@ -4531,19 +4585,25 @@ const JVW = (function(){
       "",
       "            switch (launchState) {",
       "                case IDLE:",
+      "                    robot.launcherOff();",
       "                    if (gamepad2.rightBumperWasPressed()) {",
-      "                        robot.launcherOn();",
       "                        launchState = LaunchState.SPINNING_UP;",
       "                    }",
       "                    break;",
       "                case SPINNING_UP:",
+      "                    robot.launcherOn();",
       "                    if (robot.launcherReady()) {",
+      "                        feedTimer.reset();",
       "                        launchState = LaunchState.FEEDING;",
       "                    }",
       "                    break;",
       "                case FEEDING:",
-      "                    robot.feedOnce();",
-      "                    launchState = LaunchState.IDLE;",
+      "                    robot.launcherOn();",
+      "                    robot.feederOn();",
+      "                    if (feedTimer.seconds() > 0.3) {",
+      "                        robot.feederOff();",
+      "                        launchState = LaunchState.IDLE;",
+      "                    }",
       "                    break;",
       "            }",
       "            telemetry.addData(\"Heading\", \"%.1f deg\", robot.headingDegrees());",
@@ -4592,7 +4652,7 @@ const JVW = (function(){
       "        return Math.abs(error) < VELOCITY_TOLERANCE;",
       "    }",
       "",
-      "    // launcherOn(), feedOnce(), headingDegrees() and stopDrive() are left out to keep this short",
+      "    // launcherOn(), launcherOff(), feederOn(), feederOff(), headingDegrees() and stopDrive() are left out to keep this short",
       "}"
     ],
     "PIDController.java": [
@@ -4649,7 +4709,7 @@ const JVW = (function(){
     ["params", "double axial, double lateral, double yaw", "kw", "parameters", "The inputs a method needs, each with a type and a name. The caller fills them in order: robot.drive(0.5, 0, 0) puts 0.5 in axial, 0 in lateral and 0 in yaw."],
     ["ctor", "PIDController\\(double kP, double kI, double kD\\)", "kw", "constructor", "A method with the class name and no return type: the constructor. It runs once, inside new PIDController(0.02, 0, 0.003), to fill in the boxes of the new object."],
     ["hwget", "hardwareMap\\.get\\(DcMotorE?x?\\.class, \"[a-z_]+\"\\)", "str", "hardwareMap.get(...)", "Finds one device in the robot configuration. DcMotor.class says which kind of device. The text in quotes is the name typed on the Driver Hub, and it must match letter for letter."],
-    ["robotcall", "\\brobot\\.(?:init|drive|launcherOn|launcherReady|feedOnce|headingDegrees|stopDrive)\\b", "kw", "robot.method()", "A call on your Robot object. Java follows the dot: robot is the object, and the word after the dot is a public method inside Robot.java. Click Robot.java above to find drive()."],
+    ["robotcall", "\\brobot\\.(?:init|drive|launcherOn|launcherOff|launcherReady|feederOn|feederOff|headingDegrees|stopDrive)\\b", "kw", "robot.method()", "A call on your Robot object. Java follows the dot: robot is the object, and the word after the dot is a public method inside Robot.java. Click Robot.java above to find drive()."],
     ["hwmap", "\\bhardwareMap\\b", "kw", "hardwareMap", "The list of every device in the robot configuration. The SDK fills in hardwareMap before runOpMode() starts. MainTeleOp hands hardwareMap to robot.init(), so Robot.java finds the motors."],
     ["runop", "\\brunOpMode\\(\\)", "kw", "runOpMode()", "The method the SDK runs when the driver presses INIT. Your whole OpMode lives inside runOpMode(), from INIT to STOP."],
     ["stick", "-gamepad1\\.left_stick_y", "kw", "-gamepad1.left_stick_y", "Pushing the stick up reads negative in the SDK. The minus sign flips it, so up means forward. The x axes need no flip. Both y axes do."],
@@ -4743,8 +4803,10 @@ const VIZ = {
 let current = "java";
 function route(id){
   id = id || (location.hash || "#java").slice(1);
+  const prev = current;
   current = LABS[id] ? id : "java";
   $$("section.lab").forEach(s => s.classList.toggle("on", s.id === "lab-" + current));
+  if (current !== prev) window.scrollTo(0, 0);   // a new tab opens on its goal line and vote, a theme repaint keeps the place
   $$("nav.tabs a").forEach(a => { if (a.dataset.tab === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   readPalette();
   if (LABS[current].show) LABS[current].show();

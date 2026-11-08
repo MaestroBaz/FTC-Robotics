@@ -73,14 +73,15 @@ Until these issues close:
 - After any lab change, republish and update the version id above (issue 8 decides where the lab lives).
 - After any course doc change, sync the copy in the claude.ai Project (issue 29 decides whether the sync continues).
 
-## Current state (2026-11-07)
+## Current state (2026-11-08)
 
 Done and tested:
-- 8 tabs in the plan's teaching order: 1 Java basics (11 cards in reading order: anatomy, classes, types, public/private, extends and @Override, Decisions (if, else, switch), scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Feedback launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders in auto (wheel slip, ramp, and a tracking fix ladder). The lab opens on Java.
-- Auto-hide (key H): the top bar slides away while scrolling down and the Java card list folds to a rail. Every Ask the room has a Hide button.
+- 8 tabs in the plan's teaching order: 1 Java basics (11 cards in reading order: anatomy, classes, types, public/private, extends and @Override, Decisions (if, else, switch), scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Closed loop: launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders (later) (wheel slip, ramp, and a tracking fix ladder). The lab opens on Java.
+- Auto-hide (pin at the right end of the tab row, or key H, default on): the header folds into one 34 px line with the tab, the sim state and the scores. Hover, focus or a tap opens the full menu over the page. The Java card list folds to a rail. Every Ask the room has a Hide button, and its answer opens only from Reveal.
+- Every tab has a one-line goal under its title. Ask the room right answers are spread over A, B and C. A teaching review (2026-11-07) passed all 10 areas at 1366x768, dark and 390 px.
 - Diagram text: `SV.MIN` 12 and `SV.MAXSCALE` 1.25 keep every SVG label between 12 and 20 px.
-- Sticky header is 78 px: one row of tabs, one row with the sim speed and the six team chips, hints behind the ? button. The Ask the room block is compact (140 to 177 px), so the first sim of every tab starts above 330 px on a 1366x768 projector. The smoke test enforces both.
-- Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser). Ask the room votes come in team order, Team 1 first; Reveal pays a point to every team that chose the right answer; right-click takes the last vote back. Word hunt chips on the Every word explained card.
+- Pinned header: one row of tabs, one row with the sim speed and the six team chips, hints behind the ? button. The Ask the room block is compact (140 to 177 px), so the first sim of every tab starts above 330 px on a 1366x768 projector. The smoke test enforces both.
+- Team game: 6-team scoreboard in the top bar (keys 1 to 6, saved in the browser). Ask the room votes come in team order, Team 1 first; Reveal pays a point to every team that chose the right answer; right-click takes the last vote back. Reset scores takes two clicks. Word hunt chips on the Every word explained card.
 - Every Java snippet audited against the SDK v12.0 javadoc (2026-11-07): all compile as shown.
 - Sim speed slider, log scale 0.05x to 2x, plus Pause, Step 0.1 s, keys P [ ] .
 - Tabs 6 and 7 charts keep the full history: live window 5-60 s, Show all, drag to zoom, scroll back, zoom buttons, Pause / Play / Reset run.
