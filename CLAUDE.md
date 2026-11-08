@@ -76,7 +76,7 @@ Until these issues close:
 
 ## Current state (2026-11-08)
 
-The `crash-course-day` git tag marks the final lab for the day (with the theme button), pushed to GitHub on 2026-11-08. `lab-fallback.html` (untracked, repo root) is the same file, made from the tag for the USB stick. Robot and manual checks left from the follow-up docs sit in issue 48.
+The `crash-course-day` git tag marks the final lab for the day (with the theme button, Hold heading on the PID turn job, enums on Java card 5 and annotations on Java card 4), pushed to GitHub on 2026-11-08. `lab-fallback.html` (untracked, repo root) is the same file, made from the tag for the USB stick. Robot and manual checks left from the follow-up docs sit in issue 48.
 
 Done and tested:
 - 8 tabs in the plan's teaching order: 1 Java basics (12 cards in reading order: anatomy, classes, types, public/private, extends and @Override, Decisions (if, else, switch), Loops (for the hands-on session), scope, Every word explained, imports, error clinic, project map; Lists off the nav), 2 OpMode lifecycle, 3 GitHub teamwork, 4 Drive modes (robot-centric and field-centric, compass, AUTO), 5 One loop no sleep, 6 Closed loop: launcher, 7 PID control (turn, auto-aim, lift with F: PIDF), 8 Encoders (later) (wheel slip, ramp, a tracking fix ladder, and the turnToHeading exercise). The lab opens on Java.
