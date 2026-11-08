@@ -254,6 +254,28 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/wheels slipped/.test(await enRun()) && /encodersays23\.9/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: slip stops short while the encoder still reads 24 in");
   await pg.locator("#lab-encoders").screenshot({ path: path.join(SHOTS, "encoders.png") });
 
+  // ==== area encoders: STOP demo booleans, layout on a 1366x768 projector, Robot.java ====
+  {
+    const en = await b.newPage({ viewport: { width: 1366, height: 768 } });
+    en.on("pageerror", e => errs.push("encoders: " + e.message));
+    await en.goto(URL + "#encoders"); await en.waitForTimeout(300);
+    const kv = async () => (await en.textContent("#en-kv")).replace(/\s+/g, "");
+    await en.click("#en-run"); await en.waitForTimeout(300); await en.click("#en-stop"); await en.waitForTimeout(200);
+    check(/Clean stop/.test(await en.textContent("#en-msg")) && /driveBusy\(\)trueopModeIsActive\(\)false/.test(await kv()), "encoders: clean STOP shows driveBusy() true, opModeIsActive() false");
+    await en.check("#en-bug");
+    check(/0\.25x/.test(await en.textContent("#en-msg")), "encoders: the bug toggle tells the mentor to slow the sim");
+    await en.click("#en-run"); await en.waitForTimeout(300); await en.click("#en-stop"); await en.waitForTimeout(200);
+    const lay = await en.evaluate(() => {
+      const wl = [...document.querySelectorAll("#en-code .ln")].find(n => n.textContent.includes("while ("));
+      return { msg: document.querySelector("#en-msg").getBoundingClientRect().bottom, span: wl.getBoundingClientRect().bottom - document.querySelector("#en-canvas").getBoundingClientRect().top, room: innerHeight - document.querySelector(".topbar").getBoundingClientRect().bottom };
+    });
+    check(/driveBusy\(\) stays true/.test(await en.textContent("#en-msg")) && lay.msg <= 768, "encoders: the bug message sits above the fold at 1366x768 (" + Math.round(lay.msg) + " px)");
+    check(lay.span <= lay.room, "encoders: robot, booleans and the red while line fit on one screen (" + Math.round(lay.span) + " of " + Math.round(lay.room) + " px)");
+    check(/setTargetPosition/.test(await en.textContent("#en-robot-code")) && !src.includes("rampTimer.reset"), "encoders: Robot.java shows setTargetPosition, the ramp code compiles as shown");
+    await en.close();
+  }
+  // ==== end area encoders ====
+
   // ---- cheat sheets: two double-sided letter sheets (4 pages), diagram-led, nothing clipped ----
   const cs = await b.newPage();
   await cs.emulateMedia({ media: "print" });
