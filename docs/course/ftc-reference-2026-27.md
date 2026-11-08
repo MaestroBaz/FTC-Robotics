@@ -35,7 +35,7 @@ Source: https://ftc-resources.firstinspires.org/ftc/game/manual-12
 
 ## 3. Awards that reward software
 
-- Control Award: "a team that uses sensors and software to solve game challenges in a creative way." The portfolio lists (A) the control components, (B) the challenge each one solves, (C) the function of each, and shows at least one solution using external feedback (encoders, IMU, vision, color sensor). Full code not required (CM 6.3.7).
+- Control Award: "a team that uses sensors and software to solve game challenges in a creative way." The portfolio lists (A) the control components, (B) the challenge each one solves, (C) the function of each, and shows at least one solution using external feedback (encoders, IMU, vision, color sensor). Full code not required (CM 6.3.7). Session plan for the portfolio page: `follow-up/control-award.md`.
 - Think Award: portfolio covers engineering process, lessons learned, comparing choices, or math used in decisions.
 - Portfolio (A201): cover page + max 15 pages, US Letter or A4, under 15 MB, content from 2026-01-01 onward, first names and last initials only, no fonts under 10 pt. Judges do not click links or watch videos.
 - Judging: at least 2 students in the interview. Coaches do not coach during interviews (A204, A208).
@@ -132,11 +132,11 @@ Tracking in AUTO, cheapest fix first (lab tab 8 shows the ladder):
 1. Tape-check COUNTS_PER_INCH: command 48 in, measure, fix. Strafing slips more and needs its own constant.
 2. Ramp the drive power. A hard start spins the wheels and the encoders count turns the robot never made.
 3. Hold heading with the IMU and the team PIDController (SDK sample `RobotAutoDriveByGyro_Linear`).
-4. Odometry: goBILDA Pinpoint (driver since SDK 10.3, about $80 alone or $280 with two pods) or SparkFun OTOS (about $85, R702 allows it).
+4. Odometry: goBILDA Pinpoint (driver since SDK 10.3, about $80 alone or $280 with two pods) or SparkFun OTOS (about $85, R702 allows it). Session plan: `follow-up/odometry.md`.
 
 AprilTag localization (`robotPose`, since SDK 10.0) does not fit BIOBUZZ: the SDK 12.0 notes say the tags move this season, so they are not an absolute field reference. Use them for aiming at the HIVE.
 
-Road Runner and Pedro Pathing: not this season. LEAVE + PARK needs two moves and a turn.
+Path following: a waypoint list on the go-to-point loop, no library, after the odometry session. Session plan: `follow-up/path-following.md`. Road Runner and Pedro Pathing only when the switch rule in that plan passes. LEAVE + PARK needs two moves and a turn.
 
 REV sensor docs: https://docs.revrobotics.com/duo-control/sensors/i2c/imu
 
@@ -145,7 +145,7 @@ REV sensor docs: https://docs.revrobotics.com/duo-control/sensors/i2c/imu
 - VisionPortal hosts processors: AprilTagProcessor, ColorBlobLocatorProcessor (Color Locator), PredominantColorProcessor (Color Sensor).
 - Webcams: UVC only. Built-in calibration for Logitech C270 (640x480 only), C920 (several resolutions), C310, LifeCam HD-3000, goBILDA USB camera. Other cameras need calibration for AprilTag pose.
 - Limelight 3A: class `Limelight3A`, plugs into Control Hub USB. `getLatestResult()` never returns null, so check `isValid()`.
-- This season: the camera helps with targeting the HIVE, not with randomization. Lower priority for the crash course.
+- This season: the camera helps with targeting the HIVE, not with randomization. Lower priority for the crash course. Session plan: `follow-up/vision.md`.
 
 Links:
 - Vision overview: https://ftc-docs.firstinspires.org/en/latest/programming_resources/vision/vision_overview/vision-overview.html
@@ -168,7 +168,7 @@ Links:
 |---|---|
 | Game Manual 0, https://gm0.org/en/latest/docs/software/index.html | Main reference. Mecanum, encoders, bulk reads, state machines, control loops |
 | FTC Dashboard | Tuning tool for the lab at school. Off at the whole venue, pits included (R704.D, Q&A 26) |
-| Road Runner, Pedro Pathing | Path following. Not for this course. Revisit after the team writes clean basic auto |
+| Road Runner, Pedro Pathing | Path following. Not for this course. Revisit when the switch rule in `follow-up/path-following.md` passes |
 | FTCLib | Unmaintained since 2024 and adds command-based abstraction. Avoid |
 
 ## 12. Why no threads

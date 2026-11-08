@@ -55,7 +55,7 @@ As the team reference doc (`docs/course/ftc-reference-2026-27.md`, section 4) st
 
 ## Before the session (mentor)
 
-- [Verify] each lab chart shows a Save PNG button in the lab version you open (issue 26, built in this round of work). Fallback: a screenshot, Cmd+Shift+4 on macOS or Win+Shift+S on Windows.
+- Save PNG sits at the right end of the control bar above each time chart: tab 4 wheel powers, tab 6 launcher speed, tab 7 PID. The picture holds the chart as shown on screen (the same zoom and time window), its legend, a title line with the job name, and the sim time span. On tab 7 one picture holds both charts, "Target vs sensor" and "What each term asks for". The file name starts with `ftc-`. Inside the published artifact the browser sometimes blocks the download without a message, so the bar also shows the picture: right-click the picture, then Save image as. Fallback: a screenshot, Cmd+Shift+4 on macOS or Win+Shift+S on Windows.
 - One laptop per team with the lab open, from `lab/index.html` or the published artifact.
 - Print the template below, one per team, or give each team a copy of this file.
 - Fill in the robot sensor list before the session. [Guessing] on the hardware: the lab assumes the Control Hub IMU, drive motor encoders, a lift encoder, a launcher encoder and a webcam. Check against the robot configuration.
@@ -72,7 +72,7 @@ As the team reference doc (`docs/course/ftc-reference-2026-27.md`, section 4) st
 
 1. Open (5 min). Put Table 6-8 on the projector. Ask the room: which part of our robot uses no external feedback? A the launcher, B the drive, C the lift. Answer: B. Drive runs on `setPower()` and the driver closes the loop by eye. One point per right team on the scoreboard.
 2. Sensor list (10 min). Each team fills in the sensor table on the template. Columns A, B and C match Required 1 (A), (B) and (C). The feedback column answers Required 2.
-3. Before run (10 min). Tab 7, your job, preset "P only". Pick one target and run one move. Pause. Save PNG of the "Target vs sensor" chart. Copy the gains next to the sliders and four rows of the Response markers table: rise time, overshoot, settling time, steady-state error. Team 6: tab 6, battery 12.5 V, Fire 3. Save PNG. Copy the dip and the recovery time for open loop and closed loop.
+3. Before run (10 min). Tab 7, your job, preset "P only". Pick one target and run one move. Pause. Press Save PNG above the "Target vs sensor" chart: one picture with both PID charts. Copy the gains next to the sliders and four rows of the Response markers table: rise time, overshoot, settling time, steady-state error. Team 6: tab 6, battery 12.5 V, Fire 3. Save PNG. Copy the dip and the recovery time for open loop and closed loop.
 4. Tune, then the after run (15 min). Follow "How to tune" on tab 7. Try at least 3 gain sets. Write each set and the result in the gains table. Run the best set on the same target as the before run, or the comparison means nothing. Save PNG. Copy the markers again. Team 6 compares open loop (before) with closed loop (after).
 5. Build the page (12 min). Fill in the template: the before and after charts with units on both axes, the gains table, the markers table, 2 sentences on what you learned (Encouraged 5), 1 sentence on reliability (Encouraged 4).
 6. Pitch (8 min). Each team pitches the page in 60 seconds, as in a judge interview. Two students speak: the reference doc lists at least 2 students per interview (A204). The room votes for the clearest page. One point to the winner.
@@ -82,7 +82,7 @@ The mentor stays silent during pitches, the way judging works: A208 names the ad
 ## After the session
 
 - Robot data: when PIDController runs on the robot, repeat steps 3 and 4 there. Two ways to get the numbers, both untested on our setup [Guessing]:
-  - FTC Dashboard graphs in practice only. R704 bars third-party tools in matches, so the code needs a way to turn Dashboard off at events.
+  - FTC Dashboard graphs at school only. R704.D names FTC Dashboard with no match-only limit, so Dashboard stays off at the whole venue, pits and practice fields included (`ftc-reference-2026-27.md`, section 2, [Likely] on the Dashboard reading). The code needs a switch to turn Dashboard off before the robot goes to an event.
   - Write time, target and sensor reading to a CSV file on the Control Hub each loop pass, then plot the file in a spreadsheet.
 - Pick the best of the 6 pages for the real portfolio. Merge the sensor tables into one table for the whole robot.
 - Store the page and the PNGs in the team repo next to the other portfolio material, for example `cad-and-design/photos/` from `github-team-workflow.md`, or a new `portfolio/` folder. [Guessing] on the folder: pick one with the team.

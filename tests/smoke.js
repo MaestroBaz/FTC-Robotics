@@ -453,6 +453,9 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.mouse.click(fb.x + fb.width * 0.35, fb.y + fb.height * 0.15); await pg.waitForTimeout(200);
   const err = (await mcRow("error to point")).split(",").map(Number);
   check(err[0] > 0 && err[1] > 0 && /\d deg/.test(await mcRow("direction angle")), "AUTO: a target ahead and to the left gives errX > 0 and errY > 0, row reads direction angle: " + err);
+  // one heading source: the AUTO code, card and math table name the Pinpoint heading, the same one the pose uses
+  const mcAuto = (await pg.textContent("#mc-code")) + (await pg.textContent('#mc-uses [data-m="auto"]'));
+  check(/One heading source/.test(mcAuto) && /robot\.getPose\(\)/.test(mcAuto) && /deg$/.test(await mcRow("Pinpoint heading")) && (await mcRow("IMU heading")) === "", "AUTO: code, card and math table use one heading source, the Pinpoint heading");
   // ==== end area mecanum ====
 
   // ==== area encoders: STOP demo booleans, layout on a 1366x768 projector, Robot.java ====
@@ -635,6 +638,17 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(await pg.$eval("#pid-dnote", e => e.hidden), "pid: the D spike note hides on the turn job");
   await pg.click('.appbtn[data-app="aim"]'); await pg.waitForTimeout(300);
   check(await pg.$eval("#pid-dnote", e => !e.hidden && /30 new frames/.test(e.textContent) && /50 times/.test(e.textContent)), "pid: on aim, the note under the D chart explains the 30 fps camera vs the 50 Hz loop");
+  // PID only on new frames: off by default (the D spike demo), on swaps the code to the vision-session version and still locks on
+  const useTxt = () => pg.textContent("#pid-use");
+  check(!(await pg.isChecked("#pid-frames")) && !/newFrame/.test(await useTxt()) && /PID only on new frames/.test(await pg.textContent("#pid-dnote")), "pid aim: PID only on new frames starts off, the note names the fix");
+  await pg.check("#pid-frames"); await pg.waitForTimeout(200);
+  check(/if \(newFrame\)/.test(await useTxt()) && /turn = aimTurn;/.test(await useTxt()), "pid aim: ticked, the code runs update() only on a new frame and holds aimTurn");
+  await pg.click('[data-ps="PD (tuned: no I needed)"]');
+  let lockedPF = false;
+  for (let i = 0; i < 30 && !lockedPF; i++){ await pg.waitForTimeout(200); lockedPF = /LOCKED ON/.test(await chips()); }
+  check(lockedPF, "pid aim: with PID only on new frames, PD still locks on");
+  await pg.uncheck("#pid-frames"); await pg.waitForTimeout(200);
+  check(!/newFrame/.test(await useTxt()), "pid aim: unticked, the every-pass code comes back");
   await pg.click('.appbtn[data-app="lift"]'); await pg.waitForTimeout(300);
   check(await pg.$eval("#pid-ghostkey", e => e.hidden), "pid: no last run before the gains change");
   await pg.click('[data-ps="PD"]'); await pg.waitForTimeout(3500);
@@ -695,6 +709,14 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     const plan = fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8");
     check(plan.includes('feeder = hardwareMap.get(CRServo.class, "feeder");') && plan.includes("public void feederOn() {") && plan.includes("public void feederOff() {") && !plan.includes("// robot.feederOn()") && !plan.includes("// robot.feederOff()"), "plan: Robot.java has the feeder and the state machine calls feederOn() and feederOff()");
     const docsSrc = ["cheatsheet.html", "homework.md", "team-coding-standard.md", "crash-course-plan.md"].map(f => fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", f), "utf8")).join("\n");
+    // follow-up docs: linked from the plan and the reference, one set of Robot.java names, one heading source, R704.D as the reference reads
+    const course = f => fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", f), "utf8");
+    const refDoc = course("ftc-reference-2026-27.md"), odo = course("follow-up/odometry.md"), pathDoc = course("follow-up/path-following.md"), ctrl = course("follow-up/control-award.md"), vis = course("follow-up/vision.md");
+    check(["vision", "odometry", "path-following", "control-award"].every(n => plan.includes("follow-up/" + n + ".md")) && refDoc.includes("follow-up/path-following.md") && refDoc.includes("follow-up/vision.md"), "docs: the plan and the reference link the 4 follow-up docs");
+    check(!/poseX\(|poseY\(|poseHeadingDegrees|driveFieldPinpoint/.test(odo + pathDoc) && pathDoc.includes("robot.getPose()") && odo.includes("return pinpoint.getHeading(AngleUnit.DEGREES);"), "docs: odometry and path following share Robot.java names and one heading source");
+    check(!/R704 bars third-party tools in matches/.test(ctrl) && !/\[Verify\] each lab chart shows a Save PNG/.test(ctrl) && ctrl.includes("R704.D") && pathDoc.includes("R704.D"), "docs: control award and path following read R704.D as the reference does, Save PNG described as built");
+    check(vis.includes("if (newFrame)") && vis.includes("PID only on new frames") && src.includes("PID only on new frames"), "docs: vision and the lab teach the same aim code, PID only on new frames");
+    check(course("team-coding-standard.md").includes("`DcMotor[] wheels") && src.includes("DcMotor[] wheels"), "docs: the team standard allows the array the Loops card uses");
     check(!/feedOnce/.test(docsSrc + src) && (src.match(/robot\.feederOn\(\)/g) || []).length >= 3, "no feedOnce() left in the lab or the course docs, and the lab calls robot.feederOn()");
   }
   // ==== end area java ====

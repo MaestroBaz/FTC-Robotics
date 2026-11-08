@@ -18,6 +18,7 @@
 | `enum` | States in a state machine |
 | `ElapsedTime` | Timing without sleep |
 | `extends LinearOpMode` | The one inheritance we use. It makes an OpMode |
+| Arrays: `Type[]` | A fixed set you know before the loop starts: `DcMotor[] wheels = {frontLeft, frontRight, backLeft, backRight};`. Indexes run 0 to `wheels.length - 1`. The size never changes: a set that grows needs a `List` |
 | `List<Type>` and `ArrayList` | Many values in order, such as camera detections. You fill in the type: `List<Double> shots = new ArrayList<>();` |
 | `? :` to pick one of two values | One choice, one line: `turn = lastBearing > 0 ? -0.3 : 0.3;` reads "if lastBearing is above 0, use -0.3, else 0.3". Never nest one inside another. More than a value to pick: use `if / else` |
 | Our own small helper classes: `Robot`, `PIDController` | One job per class, used by many OpModes |

@@ -55,44 +55,18 @@ When those limits cost points, read Module 6.
 - [ ] A tape measure, painter's tape, one cardboard box (the blocker for Module 4).
 - [ ] Print the results table at the end of this doc, one per pair.
 
-What `Robot.java` holds after the odometry session. [Verify] the method names against the merged code. If the team picked other names, rename them in this doc before the day, not on the day.
+What `Robot.java` holds after the odometry session (`odometry.md`, Module 1). [Verify] the merged code still uses these names. If the team renamed one, rename the method in this doc before the day, not on the day.
 
-```java
-// New imports in Robot.java
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+| Method | What the method does |
+|---|---|
+| `updatePose()` | Reads the Pinpoint. Call once per loop pass, before any pose or heading read |
+| `getPose()` | Returns a `Pose2D`: `pose.getX(DistanceUnit.INCH)`, `pose.getY(DistanceUnit.INCH)` |
+| `headingDegrees()` | The Pinpoint heading, + = turned left. The same heading the pose uses |
+| `driveFieldCentric(forward, right, yaw)` | Field-centric drive, rotated by the Pinpoint heading |
+| `resetPose()` | Back to 0, 0, 0. Robot standing still |
+| `pinpointStatus()` | `READY` when the Pinpoint works |
 
-// New fields
-private GoBildaPinpointDriver pinpoint;
-private Pose2D pose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-
-// Inside init(), after the IMU lines. Same calls as the SDK sample SensorGoBildaPinpoint.
-pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-pinpoint.setOffsets(-84.0, -168.0, DistanceUnit.MM);   // measure these on our robot
-pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                              GoBildaPinpointDriver.EncoderDirection.FORWARD);
-pinpoint.resetPosAndIMU();   // robot must sit still: INIT is the right time
-
-// New methods
-public void updatePose() {           // call once per loop pass, before reading the pose
-    pinpoint.update();
-    pose = pinpoint.getPosition();
-}
-
-public double poseX() {              // inches, + = away from the drivers
-    return pose.getX(DistanceUnit.INCH);
-}
-
-public double poseY() {              // inches, + = toward the left wall
-    return pose.getY(DistanceUnit.INCH);
-}
-
-public double poseHeadingDegrees() { // Pinpoint heading, + = turned left
-    return pose.getHeading(AngleUnit.DEGREES);
-}
-```
+One heading source (team rule from the odometry session): the pose, `headingDegrees()` and `driveFieldCentric()` all read the Pinpoint heading. The path never mixes two gyros.
 
 Coordinates match lab tab 4 AUTO: the robot starts on the start mark facing away from the drivers, +X points away from the drivers, +Y points toward the left wall, heading 0 faces away from the drivers.
 
@@ -158,6 +132,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -204,12 +180,12 @@ public class PracticePathSquare extends LinearOpMode {
         double pathSeconds = pathTimer.seconds();
         while (opModeIsActive()) {
             robot.updatePose();
+            Pose2D pose = robot.getPose();
             telemetry.addData("Path time", "%.1f s", pathSeconds);
             telemetry.addData("Timeouts", timeouts);
-            telemetry.addData("End X", "%.1f in", robot.poseX());
-            telemetry.addData("End Y", "%.1f in", robot.poseY());
-            telemetry.addData("End heading (IMU)", "%.1f deg", robot.headingDegrees());
-            telemetry.addData("End heading (Pinpoint)", "%.1f deg", robot.poseHeadingDegrees());
+            telemetry.addData("End X", "%.1f in", pose.getX(DistanceUnit.INCH));
+            telemetry.addData("End Y", "%.1f in", pose.getY(DistanceUnit.INCH));
+            telemetry.addData("End heading", "%.1f deg", robot.headingDegrees());
             telemetry.update();
         }
     }
@@ -220,8 +196,9 @@ public class PracticePathSquare extends LinearOpMode {
         waypointTimer.reset();
         while (opModeIsActive()) {
             robot.updatePose();                                   // read the Pinpoint once per pass
-            double errX = wp.x - robot.poseX();                   // away from the drivers
-            double errY = wp.y - robot.poseY();                   // toward the left wall
+            Pose2D pose = robot.getPose();
+            double errX = wp.x - pose.getX(DistanceUnit.INCH);    // away from the drivers
+            double errY = wp.y - pose.getY(DistanceUnit.INCH);    // toward the left wall
             double distance = Math.hypot(errX, errY);             // inches left to go
             double headingError = AngleUnit.normalizeDegrees(wp.heading - robot.headingDegrees());
 
@@ -276,7 +253,7 @@ Read aloud, in this order:
 
 First run: all 4 waypoints stop (`true`). Before the first run, teams predict where the robot ends: A on the start mark within 1 in, B within 3 in, C more than 3 in off. Run 5 times. Fill the results table for each run. Then reveal the Module 0 vote with the path time.
 
-Check the two heading lines at the end. [Likely] the hub IMU and the Pinpoint IMU agree within 1 deg after a 30 s path. If they differ by more than 2 deg, the path uses two headings: `driveFieldCentric()` turns the sticks by the hub IMU, and the Pinpoint X and Y follow the Pinpoint heading. Pick one source for both (the Pinpoint, since the pose comes from the Pinpoint) and change `headingDegrees()` in one place in `Robot.java`.
+Check the end heading against the tape: the robot faces away from the drivers within 2 deg. The heading, the pose and the drive rotation all come from the Pinpoint (one heading source), so a heading error here is a Pinpoint error. Rerun the gate 2 spin test before you blame the path code.
 
 Team rounds:
 - Prediction: end error after the square (1 point).
@@ -363,7 +340,7 @@ What a library costs the students:
 - The team standard. [Certain] Pedro's recommended style is a command framework, and Road Runner's is an interface (`Action`). Both sit on the "avoid until a mentor approves a design" list. Both add a subfolder to the flat `teamcode` folder.
 - Rule 3. Students explain their own OpMode and the path numbers, not the follower inside the library. Treat the library like the SDK: a black box with a contract. The team needs two students who explain the tuning numbers at judging (the Control Award asks how the sensors and software solve the game).
 - Robot time. [Guessing] 2 to 4 robot sessions to tune either library on a new drivetrain, longer if a pod or the drivetrain changes after tuning. Every hardware change means a partial retune.
-- Event rules. [Likely] CM R704 does not allow FTC Dashboard or Panels in matches (season reference, [Verify wording]). Road Runner tuning uses FTC Dashboard. [Verify] whether the Pedro AutoTune page counts as a third-party tool under R704, and turn both off at events.
+- Event rules. R704.D names FTC Dashboard and FTControl Panels with no match-only limit: both stay off at the whole venue, pits and practice fields included (season reference, section 2, [Likely] on the Dashboard reading). Road Runner tuning uses FTC Dashboard, so the team tunes at school and never at an event. [Verify] whether the Pedro AutoTune page, served over the robot Wi-Fi, falls under R704 the same way.
 - Help on the internet. [Likely] Most examples online and most AI answers show Pedro 1 or 2 and Road Runner 0.5. Copied code fails to build against Pedro 3 or Road Runner 1.0, and a beginner does not know why. [Verify] whether Pedro 3 keeps a `followPath()` and `isBusy()` style for a plain state machine without Ivy: the path-following page names direct use of the Follower and gives no example.
 
 The switch rule. Move to a library only when all four hold:
@@ -394,7 +371,7 @@ Team round:
 1. Robot drives a mirror path to the right: the sign of `right` in `driveTo()`. Compare with lab tab 4.
 2. Robot stops 1 to 2 in short of the last point and times out: P alone stalls near the target (lab tab 7, P only). Raise DRIVE_GAIN a little, or add a small minimum power for the stop point.
 3. Robot ends in the right spot on the first run and drifts on later runs: the Pinpoint resets at INIT. Put the robot on the start mark before INIT, not after.
-4. Path bends more each run: the two heading sources disagree. See the heading check in Module 2.
+4. Path bends more each run: `Robot.java` mixes two headings. `headingDegrees()` or `driveFieldCentric()` still reads the Control Hub IMU. Both read the Pinpoint (`odometry.md`, Module 1).
 5. Robot wobbles at a pass point: the pass radius sits too small for the speed. Raise PASS_RADIUS or lower MAX_POWER.
 
 ## Sources (checked 2026-11-08)

@@ -962,6 +962,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
         <li>The same rotation math turns "go toward field point (x, y)" into robot forward and strafe.</li>
         <li>The robot drives a nearly straight line to the point, even while turning to aim.</li>
         <li>Needs position, not only heading: odometry pods or goBILDA Pinpoint. BIOBUZZ AprilTags move, so use them to aim at the HIVE, not to find the robot.</li>
+        <li>One heading source: once Pinpoint is fitted, the pose, the drive and every turn read the Pinpoint heading, not the hub IMU.</li>
       </ul>
     </div>
   </div>
@@ -1168,7 +1169,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
     <div class="grid2" style="grid-template-columns:1fr 1fr; gap:12px; margin-top:12px">
       <div><h3 style="font-size:16px">I: the integral is the area under the error</h3><canvas id="pid-int" height="150"></canvas></div>
       <div><h3 style="font-size:16px">D: the derivative is the slope of the error</h3><canvas id="pid-der" height="150"></canvas>
-        <p class="note aim-only" id="pid-dnote" hidden>Why D spikes on aim: the camera sends 30 new frames per second, but the loop runs 50 times per second. Each dot is one loop pass. On some passes a new frame arrives and the error jumps. On the others the old frame repeats and the error holds still. D divides each jump by 0.02 s, so D spikes, then drops to 0. Camera noise adds more. Real robots do this too, so keep kD small on a camera.</p></div>
+        <p class="note aim-only" id="pid-dnote" hidden>Why D spikes on aim: the camera sends 30 new frames per second, but the loop runs 50 times per second. Each dot is one loop pass. On some passes a new frame arrives and the error jumps. On the others the old frame repeats and the error holds still. D divides each jump by 0.02 s, so D spikes, then drops to 0. Camera noise adds more. Real robots do this too. The fix: tick "PID only on new frames". The PID then runs once per frame and holds its output in between. D divides each jump by the time since the last frame, not by one pass, so D stops dropping to 0 between frames. Noise still makes D jumpy, so keep kD small on a camera.</p></div>
     </div>
   </div>
   <div class="grid2">
@@ -1669,7 +1670,7 @@ const MC = (function(){
     ],
     auto: [
       "// AUTO: drive toward a field point. Needs position from odometry (Pinpoint).",
-      "// pose = where Pinpoint says the robot is, in inches from the start.",
+      "// pose = where Pinpoint says the robot is, in inches from the start: robot.getPose()",
       "// Start facing away from the drivers: +X = away from the drivers, +Y = toward the left wall",
       "double errX = targetX - pose.getX(DistanceUnit.INCH);  // away from the drivers",
       "double errY = targetY - pose.getY(DistanceUnit.INCH);  // toward the left wall",
@@ -1680,6 +1681,8 @@ const MC = (function(){
       "    forward = forward * 0.7 / speed;",
       "    right   = right * 0.7 / speed;",
       "}",
+      "// One heading source: with Pinpoint fitted, headingDegrees() and driveFieldCentric()",
+      "// read the Pinpoint heading, the same heading the pose uses. No second gyro.",
       "double turn = headingPID.update(AngleUnit.normalizeDegrees(targetHeading - robot.headingDegrees()));",
       "robot.driveFieldCentric(forward, right, -turn);        // + turn power turns left, so flip the sign"
     ]
@@ -1787,7 +1790,8 @@ const MC = (function(){
       if (mode === "auto") html += "<tr><td>error to point</td><td>errX, errY (in)</td><td colspan=2>" + m.rot.ey.toFixed(1) + ", " + (-m.rot.ex).toFixed(1) + "</td></tr>";
       else html += "<tr><td>stick</td><td>forward, right</td><td colspan=2>" + f2(m.sF) + ", " + f2(m.sR) + "</td></tr>";
       html += "<tr><td>" + (mode === "auto" ? "direction angle" : "stick angle") + "</td><td>theta = atan2(forward, right)</td><td colspan=2>" + deg(m.rot.th).toFixed(0) + " deg</td></tr>";
-      html += "<tr><td>IMU heading</td><td>getYaw()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>";
+      html += mode === "auto" ? "<tr><td>Pinpoint heading</td><td>headingDegrees()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>"
+        : "<tr><td>IMU heading</td><td>getYaw()</td><td colspan=2>" + deg(m.rot.hd).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>turn by heading</td><td>theta - heading</td><td colspan=2>" + deg(m.rot.t2).toFixed(0) + " deg</td></tr>";
       html += "<tr><td>robot-centric</td><td>axial, lateral</td><td colspan=2>" + f2(m.axial) + ", " + f2(m.lateral) + "</td></tr>";
     }
@@ -2803,7 +2807,7 @@ const PIDLAB = (function(){
   // ---- sim state ----
   const S = {t: 0, loopAcc: 0, target: 90, hist: [], c: {integral: 0, last: 0, first: true, p: 0, i: 0, d: 0, f: 0, out: 0},
     turn: {h: 0, w: 0},
-    aim: {rx: 50, ry: 52, base: 50, h: 0, w: 0, tx: 74, ty: 10, held: true, strafe: false, noise: true, frames: [], meas: null, found: false, nextFrame: 0, lastB: 0, mode: "off", drag: false},
+    aim: {rx: 50, ry: 52, base: 50, h: 0, w: 0, tx: 74, ty: 10, held: true, strafe: false, noise: true, frames: [], meas: null, found: false, nextFrame: 0, lastB: 0, mode: "off", drag: false, perFrame: false, fresh: false, wait: 0},   // perFrame: run the PID only on a new camera frame
     steps: [],
     lift: {p: 0, v: 0, heavy: false, kf: 0},   // kf: the F in PIDF, a constant power that holds the lift against gravity
     stuck: 0,     // seconds the turn loop sits outside the break window, not moving
@@ -2867,7 +2871,7 @@ const PIDLAB = (function(){
     }));
     let ex = "";
     if (app === "turn") ex = '<button class="b" id="pid-bump">Bump the robot</button>';
-    if (app === "aim") ex = '<button class="b" id="pid-hold" aria-pressed="false">Hold aim button (gamepad1 right bumper)</button><label class="tg"><input type="checkbox" id="pid-strafe"> Driver strafes side to side</label><label class="tg"><input type="checkbox" id="pid-noise" checked> Camera noise and delay</label><button class="b" id="pid-move">Move the target</button>';
+    if (app === "aim") ex = '<button class="b" id="pid-hold" aria-pressed="false">Hold aim button (gamepad1 right bumper)</button><label class="tg"><input type="checkbox" id="pid-strafe"> Driver strafes side to side</label><label class="tg"><input type="checkbox" id="pid-noise" checked> Camera noise and delay</label><label class="tg"><input type="checkbox" id="pid-frames"> PID only on new frames</label><button class="b" id="pid-move">Move the target</button>';
     if (app === "lift") ex = '<label class="field" style="min-width:220px"><span>kF, the hold power: <b id="pid-kfv"></b></span><input type="range" id="pid-kf" min="0" max="0.4" step="0.01"><small class="note" style="display:block">Slide until the lift holds still with P, I and D off.</small></label><label class="tg"><input type="checkbox" id="pid-heavy"> Carrying 3 balls (heavier)</label><button class="b" id="pid-bump">Push the lift down</button>';
     $("#pid-extras").innerHTML = ex;
     const bump = $("#pid-bump");
@@ -2879,6 +2883,8 @@ const PIDLAB = (function(){
       $("#pid-strafe").checked = S.aim.strafe; $("#pid-noise").checked = S.aim.noise;
       $("#pid-strafe").addEventListener("change", e => { S.aim.strafe = e.target.checked; });
       $("#pid-noise").addEventListener("change", e => { S.aim.noise = e.target.checked; });
+      $("#pid-frames").checked = S.aim.perFrame;
+      $("#pid-frames").addEventListener("change", e => { S.aim.perFrame = e.target.checked; S.aim.wait = 0; renderUse(); });
       $("#pid-move").addEventListener("click", () => { S.aim.tx = 8 + Math.random() * 84; S.aim.ty = 6 + Math.random() * 20; if (S.aim.held) newTarget(0); });
       setHoldLabel();
     }
@@ -2978,13 +2984,41 @@ const PIDLAB = (function(){
     const ctor = "new PIDController(" + g.join(", ") + ");";
     let L;
     if (app === "turn") L = turnJava(ctor);
-    if (app === "aim") L = [
+    if (app === "aim") L = S.aim.perFrame ? [
+      "private final PIDController aimPID = " + ctor,
+      "private double aimTurn = 0;       // last output, held between frames",
+      "private double lastBearing = 0;",
+      "",
+      "// Inside the TeleOp loop. newFrame, targetFound and targetBearing come from",
+      "// the AprilTag code: newFrame = true when getFreshDetections() is not null,",
+      "// targetBearing = detection.ftcPose.bearing",
+      "double turn = gamepad1.right_stick_x;            // driver turns by default",
+      "if (gamepad1.rightBumperWasPressed()) {",
+      "    aimPID.reset();                              // fresh start on each press",
+      "    aimTurn = 0;",
+      "}",
+      "if (gamepad1.right_bumper) {",
+      "    if (targetFound) {",
+      "        lastBearing = targetBearing;             // remember which side it was on",
+      "        if (newFrame) {                          // once per camera frame",
+      "            // + bearing = left, + yaw turns right: flip the sign",
+      "            aimTurn = -Range.clip(aimPID.update(targetBearing), -0.6, 0.6);",
+      "        }",
+      "        turn = aimTurn;                          // hold it between frames",
+      "    } else {",
+      "        aimPID.reset();                          // no target: search for it",
+      "        turn = lastBearing > 0 ? -0.3 : 0.3;     // spin toward where we last saw it",
+      "    }",
+      "}",
+      "robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, turn);  // driver still strafes"
+    ] : [
       "private final PIDController aimPID = " + ctor,
       "private double lastBearing = 0;",
       "",
       "// Inside the TeleOp loop. targetFound and targetBearing come from",
       "// the AprilTag loop: targetBearing = detection.ftcPose.bearing",
       "// (Limelight: targetBearing = -result.getTx(); check the sign on your robot)",
+      "// update() runs every pass, new camera frame or not, so D spikes (see the D chart)",
       "double turn = gamepad1.right_stick_x;            // driver turns by default",
       "if (gamepad1.rightBumperWasPressed()) aimPID.reset();",
       "if (gamepad1.right_bumper) {",
@@ -3030,13 +3064,18 @@ const PIDLAB = (function(){
   function controlPass(dt){
     const err = errorNow();
     const [P_, I_, D_] = gains();
-    const c = S.c;
+    const c = S.c, lastDer = c.der;
     c.der = 0;
     if (app === "aim"){
       const A = S.aim;
       if (!A.held){ A.mode = "off"; c.p = c.i = c.d = c.f = 0; c.out = 0; resetPID(); return; }
       if (err === null){ A.mode = "search"; c.p = c.i = c.d = c.f = 0; resetPID(); c.out = A.lastB > 0 ? 0.3 : -0.3; return; }
       A.lastB = err; A.mode = Math.abs(err) < APPS.aim.tol ? "locked" : "track";
+      if (A.perFrame){   // the Java: if (newFrame) aimTurn = ...; turn = aimTurn;
+        const fresh = A.fresh; A.fresh = false; A.wait += dt;
+        if (!fresh && !c.first){ c.der = lastDer; return; }   // same frame as last pass: hold the last output
+        dt = A.wait; A.wait = 0;   // the class timer measures the time since the last update(): one frame, not one pass
+      }
     }
     if (app === "turn" && (S.done || (Math.abs(err) < APPS.turn.tol && Math.abs(S.turn.w) < 5))){ S.done = true; c.p = c.i = c.d = c.f = 0; c.out = 0; return; }   // the Java loop breaks: on target and stopped
     if (c.first){ c.first = false; c.last = err; c.p = P_ * err; c.i = 0; c.d = 0; }
@@ -3068,7 +3107,7 @@ const PIDLAB = (function(){
         const vis = Math.abs(b) <= 35;
         A.frames.push({arrive: S.t + (A.noise ? 0.06 : 0), b: vis ? b + (A.noise ? (Math.random() - 0.5) * 1.6 : 0) : null});
       }
-      while (A.frames.length && A.frames[0].arrive <= S.t){ const f = A.frames.shift(); A.found = f.b !== null; A.meas = f.b; }
+      while (A.frames.length && A.frames[0].arrive <= S.t){ const f = A.frames.shift(); A.found = f.b !== null; A.meas = f.b; A.fresh = true; }
     }
     if (app === "lift"){
       const L = S.lift, g = L.heavy ? 0.3 : 0.18;

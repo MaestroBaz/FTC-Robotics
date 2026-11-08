@@ -143,10 +143,12 @@ Inside `init()`, after the IMU lines:
         pinpoint.resetPosAndIMU();
 ```
 
-New methods. The field-centric math moves into one private helper, so TeleOp and AUTO share one copy:
+The team rule for heading: one heading source. Once the Pinpoint is fitted, every heading in the code comes from the Pinpoint: the pose, field-centric drive in TeleOp and AUTO, and `turnToHeading()`. The Pinpoint computes X and Y with its own heading. Rotate the drive by a second gyro and the two headings drift apart, so the robot drives at a slant. `turnRateDegrees()` stays on the Control Hub IMU: a turn rate, not a heading, so nothing drifts apart. [Likely]
+
+New methods:
 
 ```java
-    // Call once per loop pass, before you read the pose.
+    // Call once per loop pass, before you read the pose or the heading.
     public void updatePose() {
         pinpoint.update();
     }
@@ -165,37 +167,46 @@ New methods. The field-centric math moves into one private helper, so TeleOp and
     public void resetPose() {
         pinpoint.resetPosAndIMU();
     }
+```
 
-    // TeleOp: field-centric with the Control Hub IMU (same as before).
+Three old methods change. Each one now reads or sets the Pinpoint heading in place of the IMU:
+
+```java
+    // The one heading for the whole robot: the Pinpoint heading, the same one the pose uses.
+    public double headingDegrees() {
+        return pinpoint.getHeading(AngleUnit.DEGREES);
+    }
+
+    // Driver presses A with the front away from the drivers: heading back to 0, X and Y stay.
+    public void resetHeading() {
+        Pose2D pose = pinpoint.getPosition();
+        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,
+                pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), AngleUnit.DEGREES, 0));
+    }
+
+    // Field-centric, TeleOp and AUTO (lab tab 4, SDK sample RobotTeleopMecanumFieldRelativeDrive).
     public void driveFieldCentric(double forward, double right, double yaw) {
-        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        driveRotated(forward, right, yaw, heading);
-    }
-
-    // AUTO: field-centric with the Pinpoint heading, the same heading as the pose.
-    public void driveFieldPinpoint(double forward, double right, double yaw) {
-        double heading = pinpoint.getHeading(AngleUnit.RADIANS);
-        driveRotated(forward, right, yaw, heading);
-    }
-
-    // The rotation from lab tab 4 (SDK sample RobotTeleopMecanumFieldRelativeDrive).
-    private void driveRotated(double forward, double right, double yaw, double heading) {
-        double theta = Math.atan2(forward, right);           // direction asked for
-        double r = Math.hypot(right, forward);               // how hard
-        theta = AngleUnit.normalizeRadians(theta - heading); // turn by the heading
+        double theta = Math.atan2(forward, right);                // direction asked for
+        double r = Math.hypot(right, forward);                    // how hard
+        double heading = pinpoint.getHeading(AngleUnit.RADIANS);  // the one changed line: Pinpoint, not imu
+        theta = AngleUnit.normalizeRadians(theta - heading);      // turn by the heading
         drive(r * Math.sin(theta), r * Math.cos(theta), yaw);
     }
 ```
 
-Delete the old body of `driveFieldCentric()`. The new one does the same thing through `driveRotated()`.
+Every Pinpoint getter returns the values from the last `update()`. So `MainTeleOp` needs one new line, the first line inside the while loop:
 
-Why AUTO uses the Pinpoint heading and not the Control Hub IMU: the pose X and Y come from the Pinpoint heading. Rotate with a second gyro and the two headings drift apart, so the robot drives at a slant.
+```java
+            robot.updatePose();   // fresh Pinpoint heading for driveFieldCentric()
+```
+
+Without the line the heading freezes at the INIT value, and field-centric drive turns into robot-centric drive.
 
 Check for done:
 - The project builds.
 - The PR description lists the measured offsets and the pod type.
 - The reviewer asks the author to explain 2 lines, for example the sign of the X offset and why `updatePose()` comes first.
-- The mentor deploys merged `main`. MainTeleOp still drives field-centric as before.
+- The mentor deploys merged `main`. MainTeleOp still drives field-centric as before, now on the Pinpoint heading. Turn the robot 90 deg by hand: stick up still drives away from the drivers. Press A: the heading reads 0 again.
 
 ## Module 2: Check the signs and the offsets (25 min)
 
@@ -323,7 +334,7 @@ public class LeaveAndParkPinpoint extends LinearOpMode {
             double errY = targetY - pose.getY(DistanceUnit.INCH);   // toward the left wall
             double distance = Math.hypot(errX, errY);               // straight-line inches to go
             double headingError = AngleUnit.normalizeDegrees(
-                    targetHeading - pose.getHeading(AngleUnit.DEGREES));
+                    targetHeading - robot.headingDegrees());        // the Pinpoint heading, same as the pose
 
             // 2. Stop window: close enough AND facing right, for SETTLE_TIME in a row
             boolean inWindow = distance < POSITION_TOLERANCE
@@ -346,8 +357,8 @@ public class LeaveAndParkPinpoint extends LinearOpMode {
             // 4. Heading PID gives the turn, as in turnToHeading() on lab tab 7
             double turn = Range.clip(headingPID.update(headingError), -MAX_TURN_POWER, MAX_TURN_POWER);
 
-            // 5. Field-centric drive with the Pinpoint heading
-            robot.driveFieldPinpoint(forward, right, -turn);   // + turn power turns left, so flip
+            // 5. Field-centric drive, rotated by the same Pinpoint heading
+            robot.driveFieldCentric(forward, right, -turn);    // + turn power turns left, so flip
 
             telemetry.addData("Target", "%.0f, %.0f, %.0f deg", targetX, targetY, targetHeading);
             telemetry.addData("Distance (in)", "%.1f", distance);
@@ -410,9 +421,10 @@ Check for done: 5 runs in a row from the start box, robot ends inside the PARK z
 | X and Y drift in a circle when the robot spins in place | Wrong offset sign or mm | Recheck: X pod left of center is +, Y pod forward of center is + |
 | Numbers 25 times too big | Reading `DistanceUnit.MM` and calling them inches | `pose.getX(DistanceUnit.INCH)` |
 | Heading jumps from 179 to -179 and the robot spins the long way | Heading error not normalized | `AngleUnit.normalizeDegrees(target - heading)` |
-| Robot drives at a slant on the second move | Field-centric rotation with the Control Hub IMU heading, pose from the Pinpoint heading | `driveFieldPinpoint()` in AUTO |
+| Robot drives at a slant on the second move | Two headings: `driveFieldCentric()` or `headingDegrees()` still reads the Control Hub IMU, the pose reads the Pinpoint | Both methods read `pinpoint.getHeading()`. One heading source |
+| Field-centric TeleOp acts robot-centric after the merge | `updatePose()` missing in MainTeleOp, so the heading freezes | `robot.updatePose()` as the first line inside the while loop |
 | Robot drives sideways toward the right wall instead of left | `right = speed * errY / distance` without the minus | `right = -speed * errY / distance` |
-| Robot turns the wrong way and keeps spinning | `turn` passed without the minus | `driveFieldPinpoint(forward, right, -turn)` |
+| Robot turns the wrong way and keeps spinning | `turn` passed without the minus | `driveFieldCentric(forward, right, -turn)` |
 | Status reads `CALIBRATING` or the heading drifts from the first second | Robot moved during `resetPosAndIMU()` | Hands off the robot during INIT. Restart the OpMode |
 | LED purple, blue or orange | No pods, no X pod, or no Y pod detected | Check the pod cables at the Pinpoint |
 | Robot stops 1 to 2 in short, then times out | P alone gives too little power near the point (lab tab 7 "P only") | Small kI in `drivePID`, or a wider `POSITION_TOLERANCE` if 2 in is good enough for PARK |
@@ -426,4 +438,5 @@ Check for done: 5 runs in a row from the start box, robot ends inside the PARK z
 - Heading goes up on a left turn (Module 2 sign test). The lab and this plan assume counterclockwise positive.
 - Calling `setPosition()` right after `resetPosAndIMU()`: does the running reset overwrite the new pose? Today the start pose is 0, 0, 0, so this session does not need `setPosition()`.
 - The BIOBUZZ PARK zone, start tiles and field axes in the game manual.
-- Lab tab 4 AUTO code panel reads the heading from `robot.headingDegrees()` (Control Hub IMU). This plan uses the Pinpoint heading for the same line. Align the lab or keep the difference and say why.
+- `resetHeading()` through `setPosition()`: the heading reads 0 on the next `updatePose()`, and X and Y stay put.
+- Drivers feel no change in field-centric TeleOp after the switch from the Control Hub IMU to the Pinpoint heading.

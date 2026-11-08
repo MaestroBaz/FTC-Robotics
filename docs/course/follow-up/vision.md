@@ -247,7 +247,9 @@ Vote first:
 - B: zero, then a big jump on the next frame.
 - C: double the change.
 
-Answer B. Same bearing twice in a row = zero change = D reads zero. Then a new frame arrives, the bearing jumps, and D kicks. The robot shakes. Lab tab 7 warns "Camera data is late and noisy". Fix: run the PID only on passes with a new frame, and hold the last output in between. The PID timer then measures the time between frames, so D reads the true rate.
+Answer B. Same bearing twice in a row = zero change = D reads zero. Then a new frame arrives, the bearing jumps, and D kicks. The robot shakes. Fix: run the PID only on passes with a new frame, and hold the last output in between. The `PIDController` timer then measures the time since the last frame, not one loop pass, so D divides each change by the real time between frames.
+
+Show both on the projector, lab tab 7, aim job, preset "PD (tuned: no I needed)". Read the note under the D chart: the red D line spikes, then drops to 0. Tick "PID only on new frames": D stops dropping to 0, and the "Using it for this job" panel switches to the code below.
 
 Students type (pairs, branch `yourname/camera-aim`). In `MainTeleOp`, add `import com.qualcomm.robotcore.util.Range;` if the file lacks the import. Above `runOpMode()`, replace the placeholder fields from the last session:
 
@@ -304,11 +306,7 @@ Inside the while loop, replace the old aim block and the `robot.drive(...)` line
                     turn = aimTurn;                          // hold the last output between frames
                 } else {
                     aimPID.reset();                          // no target: search for it
-                    if (lastBearing > 0) {
-                        turn = -0.3;                         // last seen on the left: spin left
-                    } else {
-                        turn = 0.3;                          // last seen on the right: spin right
-                    }
+                    turn = lastBearing > 0 ? -0.3 : 0.3;     // spin toward where we last saw it
                 }
             }
             robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, turn);  // driver still strafes
@@ -327,7 +325,7 @@ After the while loop, next to `robot.stopDrive();`, add:
         robot.closeVision();
 ```
 
-Compare with lab tab 7, "Using it for this job" panel. Same shape. Two changes: the bearing comes from `robot`, and the PID runs only on new frames.
+Compare with lab tab 7, aim job, "Using it for this job" panel, with "PID only on new frames" ticked. Same code. One change: `newFrame`, `targetFound` and `targetBearing` come from `robot.updateVision()`, `robot.hiveFound()` and `robot.hiveBearingDegrees()`.
 
 Check for done: builds, PR open, reviewed, one PR merged and deployed. On the robot:
 1. Sign test first, with the robot on blocks or with low gains: hold the bumper with the tag on the left. The robot turns left. Turns right instead: the sign flipped. Fix the sign in one place, the `-Range.clip` line.

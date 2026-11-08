@@ -8,14 +8,14 @@ Line numbers drift. Grep for the names below.
 
 | Tab (hash) | Section id | Module(s) | Viz hook (redrawn each frame) |
 |---|---|---|---|
-| 1 Java basics (`#java`) | `lab-java` | `JV` (anatomy, cards), `JV2` (project map `#jv-map`, import address `#jv-addr`, decoder, build line, error clinic, variable boxes `#jv-vbox`, blueprint `#jv-blueprint`, @Override demo `OV` in `#jv-ovcode`, Decisions card: if/else `DCODE` on `#jv-dstick`, logic toggles, `SW` switch with the break toggle `#jv-swbrk`), wrapped as `JAVATAB` | none |
+| 1 Java basics (`#java`) | `lab-java` | `JV` (anatomy, cards, Loops card: `LP` steps a `for` over `DcMotor[] wheels` or a `while` over balls, `#jv-lpforget` drops the line that changes the loop variable), `JV2` (project map `#jv-map`, import address `#jv-addr`, decoder, build line, error clinic, variable boxes `#jv-vbox`, blueprint `#jv-blueprint`, @Override demo `OV` in `#jv-ovcode`, Decisions card: if/else `DCODE` on `#jv-dstick`, logic toggles, `SW` switch with the break toggle `#jv-swbrk`), wrapped as `JAVATAB` | none |
 | 2 OpMode lifecycle (`#lifecycle`) | `lab-lifecycle` | `LC` | `DG.lifecycle()`, plus `DG.timeline()` on show |
 | 3 GitHub teamwork (`#gitflow`) | `lab-gitflow` | `GT` (git demo), `GX` (three places, org map, PR loop), wrapped as `GITTAB` | none |
-| 4 Drive modes (`#mecanum`) | `lab-mecanum` | `MC` | `DG.driveVec()` |
+| 4 Drive modes (`#mecanum`) | `lab-mecanum` | `MC` (drive modes, wheel power chart) | `DG.driveVec()` |
 | 5 One loop, no sleep (`#oneloop`) | `lab-oneloop` | `OL` | `DG.stateMachine()` |
 | 6 Feedback: launcher (`#feedback`) | `lab-feedback` | `FB` | `DG.loops()` (block diagrams) |
 | 7 PID control (`#pid`) | `lab-pid` | `PIDLAB` | `PIDVIZ.loop()` + `PIDVIZ.minis()` |
-| 8 Encoders in auto (`#encoders`) | `lab-encoders` | `EN` | `DG.encoder()` |
+| 8 Encoders in auto (`#encoders`) | `lab-encoders` | `EN`, with `TT` inside (turnToHeading exercise) | `DG.encoder()` |
 
 Element ids use the module prefix: `pid-*`, `fb-*`, `jv-*`, `mc-*`, `gx-*`, `gt-*`, `en-*`, `lc-*`, `ol-*`, `ts-*` (time bar).
 
@@ -59,7 +59,7 @@ Speed control: `setScale(v)` clamps to 0.05..2 and snaps to the labels 0.05, 0.1
 - Diagram type scale: `SV.tx` never writes a font size under `SV.MIN` (12 viewBox units), and `SV.set` caps the rendered width at `w * SV.MAXSCALE` (1.25), centered. A diagram never scales its text past 1.25x, so text on every tab lands between 12 and 20 px. Draw boxes before their labels, so a label never hides under a box.
 - `P`: palette read from CSS tokens by `readPalette()`.
 
-## TimeChart (charts on tabs 6 and 7)
+## TimeChart (charts on tabs 4, 6 and 7)
 
 Defined just above `const FB`. Helpers next to it:
 - `HIST_CAP = 30000`, `capHist(arr)`: history arrays keep up to 30k samples (PID samples at 50 Hz, about 10 min).
@@ -67,10 +67,14 @@ Defined just above `const FB`. Helpers next to it:
 - `drawSeries(ctx, arr, t0, t1, X, Y, get, color, width, dash, jump)`: draws one series with min/max decimation per pixel column. `get(p)` returns a number or null (null breaks the line). `jump` breaks the line on big steps (angle wrap).
 - `extentOf`, `niceTicks`, `tickLabel`, `dashed`, `bracketH` (time bracket with label).
 
-`TimeChart({bar, canvases, tMin, tNow, onReset, win, wins, fitY, fitToggle, markToggle})` builds the control bar into `bar` and returns:
+`TimeChart({bar, canvases, title, tMin, tNow, onReset, win, wins, fitY, fitToggle, markToggle})` builds the control bar into `bar` and returns:
 - `map(canvas, L, pw)` returns `{t0, t1, X}` for the current view and records the layout for mouse hit tests.
 - `xaxis(ctx, m, L, pw, top, bot, labelY)`, `overlay(ctx, canvas, top, bot)` (drag selection), `update()` (button states, scrubber).
 - `fitY()`, `marks()`, `live()`, `V` (view state: `mode` live / all / fixed, `win`, `t0`, `t1`).
+
+Save PNG: the last button in every bar. `title` is a string or a function (PID: "PID: " + the job title, tab 4: the drive mode). `savePng()` calls `chartPng(title, sub, canvases)`: one picture on the `P.surface` color with the title, the sim time span of the view, each canvas as drawn (same zoom), and the `.legend` row right after each canvas, read by `legendItems()`. PID saves plot1 and plot2 in one picture. The file name is `ftc-` + the title as a slug. Inside a frame (the published artifact) some browsers block the download without an error, so the bar also shows the picture in `.tc-pngbox` for right-click, Save image as.
+
+Labels on charts: `plate(ctx, s, x, y, o)` paints a block in `P.field` behind a label, `plateText()` draws the plate and the text. Draw both after the curves, so a curve never cuts the letters. `bracketH()` uses `plateText()`.
 
 Interaction: drag on any chart canvas zooms to the selection. Double-click returns to live. Shift + wheel or a horizontal trackpad scroll pans. Ctrl or Alt + wheel zooms at the pointer. Plain wheel scrolls the page on purpose. Canvases sharing one TimeChart share one view (PID plot1 and plot2).
 
@@ -90,14 +94,15 @@ Three jobs in `APPS`: `turn` (IMU heading), `aim` (camera bearing), `lift` (enco
 
 | Job | tol | Presets (kP, kI, kD) |
 |---|---|---|
-| turn | 1.5 deg | P only 0.02/0/0, P too high 0.07/0/0, PD 0.02/0/0.002, PID (tuned) 0.02/0.04/0.002 |
-| aim | 3 deg | P only 0.02/0/0, P too high 0.06/0/0, PD (tuned) 0.02/0/0.002, PID worse 0.02/0.04/0.002 |
+| turn | 1.5 deg | P only 0.02/0/0, PD 0.02/0/0.002, PID (tuned) 0.02/0.04/0.002 |
+| aim | 3 deg | P only 0.02/0/0, P too high 0.06/0/0, PD (tuned: no I needed) 0.02/0/0.002, PID: I makes it worse here 0.02/0.04/0.002 |
 | lift | 0.3 in | P only 0.1/0/0, P too high 0.35/0/0, PD 0.1/0/0.012, PID (tuned) 0.12/0.25/0.015, PD + F (tuned) 0.12/0/0.015 with kF 0.18. Lift presets carry a 4th value, kF, and every other lift preset sets kF to 0. |
 
 Sim:
 - `controlPass(0.02)` runs at 50 Hz and mirrors the Java `PIDController` class shown in the lab: first pass P only, I-zone (integral builds only while `|kP * error| < 0.35`, reset to 0 outside), derivative on error, output clipped.
 - Turn: the Java loop breaks when on target and stopped (`S.done`), output 0.
 - Aim: `S.aim.mode` is `off` (button not held), `search` (no target seen: PID reset, fixed output 0.3 toward `lastB`, the last seen bearing sign), `track`, or `locked` (inside tol). The button starts held.
+- Aim, "PID only on new frames" (`#pid-frames`, `S.aim.perFrame`, default off): a frame arrival sets `S.aim.fresh`. With the box on, a pass without a fresh frame holds `c.out` and the terms, and the next update uses `dt` = time since the last update (`S.aim.wait`), as the Java class timer does. `renderUse()` swaps the aim code to the `if (newFrame)` version with `aimTurn` held between frames, the same code as `docs/course/follow-up/vision.md` Module 4.
 - Physics: rotation has a 0.05 power deadband (friction), `w` follows `u * 300` deg/s with a 0.18 s lag. Lift has gravity 0.18 (0.3 heavy), optional feedforward 0.18.
 - Camera: 30 fps frames, 60 ms latency and +/-0.8 deg noise when "Camera noise and delay" is on, 35 deg half field of view. `trueBearing()` uses `atan2(-dx, -dy)`. Positive bearing = target to the left = positive output turns left. In the Java panel the drive call takes `-power` because the drive's turn input is positive to the right.
 - `S.hist` entries every 0.02 s: `{t, e, sp, me, p, i, d, o, mv}`. `mv` marks samples where the target moved (strafing or dragging), which disables markers.
@@ -113,6 +118,14 @@ On aim, the D mini chart draws one dot per loop pass and `#pid-dnote` (class `ai
 
 `PIDVIZ.loop()` draws the control loop SVG `#pid-loop` (viewBox 1040 x 280). Term boxes show `gain x input = term` live, dashed when a term is switched off, "not running" when the PID is skipped. `PIDVIZ.minis()` draws the integral (area under error since the last reset, last 6 s) and derivative (slope over the last 2 s) mini charts.
 
+`turnJava(ctor)` (above `const EN`) returns the `turnToHeading()` lines. The tab 7 turn job panel and the tab 8 exercise answer print the same lines, so the two never drift apart.
+
+## MC (tab 4, drive modes)
+
+- Modes: `robot`, `field`, `auto` (radio `mcmode`). `CODE[mode]` fills `#mc-code`. The usecards in `#mc-uses` light up for the current mode.
+- AUTO: a click on `#mc-field` sets `goal`. The go-to-point code panel and the AUTO card state the team heading rule: one heading source, the Pinpoint heading once fitted (`docs/course/follow-up/odometry.md`).
+- Wheel power chart: `hist` samples `{t, fl, fr, bl, br}` every 0.03 s (the sent powers, bug included). `plot()` draws `#mc-plot` through a TimeChart on `#mc-cbar`. Colors come from `WCOL()` (`P.accent`, `P.red`, `P.pollen`, `P.ok`), and line widths step down (7, 5, 3, 1.5) so four equal powers read as one striped band.
+
 ## OL (tab 5, one loop)
 
 `#ol-bar` holds Launch, Pause (calls `window.__setPause`, label synced each draw) and Reset run. `reset()` clears only this tab: both robots, loop ticks, states and error chips. Sim speed and Pause stay. Launch is ignored while either robot is mid-launch. `DG.stateMachine()` picks a wide (1000 x 130) or narrow (360 x 380) layout from the SVG's width.
@@ -120,6 +133,8 @@ On aim, the D mini chart draws one dot per loop pass and `#pid-dnote` (class `ai
 ## EN (tab 8, encoders)
 
 `tick()` adds wheel counts at `power * 2400` ticks/s and moves the robot by those counts times `(1 - slip)`. Slip = Floor slip slider (`#en-slip`, 0 to 15%) times 2.5 when strafing, plus 0.35 for the first 0.3 s of an unramped start. Teaching numbers, not measured ones. `#en-ramp` swaps the code panel to the ramped loop and caps power at `0.5 * t / 0.5`. The kv list shows encoder inches next to tape inches and an odometry pod that reads the tape value. The end message names the cause: constants, slip, or both.
+
+`TT` (panel `#en-tt`): the turnToHeading exercise. Run drives 24 in, then turns to 90 deg with the tab 7 turn gains (0.02, 0.04, 0.002), the same I-zone, a 0.6 clip and the break line (error under 1.5 deg AND rate under 5 deg/s). `#en-tt-canvas` draws the top view and the heading error with the break window, stacked on a narrow screen. `#en-tt-chips` shows both halves of the break test. Show the answer reveals `#en-tt-code`: LeaveAndPark plus `turnJava()`, with the running lines marked. `EN.tick()` calls `TT.tick()`.
 
 ## GitHub tab terminal boxes
 
