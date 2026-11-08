@@ -32,12 +32,12 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg); color:var(--ink); font:16px/1.5 var(--body);}
-.wrap{max-width:1320px; margin:0 auto; padding:0 20px 48px;}
-header.top{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 18px; padding:22px 0 12px;}
-header.top h1{font:700 34px/1 var(--display); letter-spacing:.01em; margin:0; text-transform:uppercase;}
-header.top p{margin:0; color:var(--muted); font-size:14px;}
-nav.tabs{display:flex; flex-wrap:wrap; gap:4px; padding:6px 0 14px; border-bottom:1px solid var(--line); margin-bottom:18px;}
-nav.tabs a{flex:0 0 auto; text-decoration:none; color:var(--muted); font:600 17px/1 var(--display); text-transform:uppercase; letter-spacing:.02em; padding:9px 11px; border-radius:8px; border:1px solid transparent;}
+.wrap{max-width:1400px; margin:0 auto; padding:0 20px 48px;}
+header.top{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 18px; padding:10px 0 4px;}
+header.top h1{font:700 24px/1 var(--display); letter-spacing:.01em; margin:0; text-transform:uppercase;}
+header.top p{margin:0; color:var(--muted); font-size:13px;}
+nav.tabs{display:flex; flex-wrap:wrap; gap:3px; padding:4px 0 10px; border-bottom:1px solid var(--line); margin-bottom:18px;}
+nav.tabs a{flex:0 0 auto; text-decoration:none; color:var(--muted); font:600 13px/1 var(--display); text-transform:uppercase; letter-spacing:.02em; padding:6px 8px; border-radius:8px; border:1px solid transparent;}
 nav.tabs a .n{display:inline-block; min-width:20px; color:var(--accent);}
 nav.tabs a:hover{color:var(--ink); border-color:var(--line);}
 nav.tabs a[aria-current="page"]{background:var(--surface); color:var(--ink); border-color:var(--line); box-shadow:inset 0 -3px 0 var(--accent);}
@@ -133,20 +133,20 @@ td.pos{color:var(--accent);} td.neg{color:var(--red);}
 .legend i{display:inline-block; width:14px; height:4px; border-radius:2px; vertical-align:middle; margin-right:6px;}
 table.math.left th, table.math.left td{text-align:left; white-space:normal; vertical-align:top;}
 .grid2 > *, .grid3 > *, .jlayout > *, .stack > *, .labhead > *{min-width:0;}
-.topbar{position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--line); margin-bottom:18px; padding-top:4px;}
-.topbar nav.tabs{border-bottom:0; margin-bottom:0; padding-bottom:6px;}
-.timebar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:4px 0 10px;}
-.timebar .b{padding:5px 10px; font-size:13px;}
-.timebar .tlbl{font:700 15px var(--display); text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin-right:4px;}
-.timebar .tkeys{margin-left:6px;}
-.teambar{display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; padding:0 0 10px;}
+.topbar{position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--line); margin-bottom:12px; padding-top:2px;}
+.topbar nav.tabs{border-bottom:0; margin-bottom:0; padding:2px 0 3px;}
+/* one row: sim speed, then the 6 team chips. Hints live in the ? button's tooltip. */
+.ctlbar{display:flex; flex-wrap:wrap; gap:3px 5px; align-items:center; padding:2px 0 5px;}
+.ctlbar .b{padding:4px 8px; font-size:12px;}
+.ctlbar .tlbl{font:700 12px var(--display); text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+.ctlbar .help{width:24px; padding:4px 0; text-align:center; border-radius:50%; font-weight:700;}
+.ctlbar .chip{display:none;}   /* the speed value and the Pause button already say it; the chip costs the one-row layout */
+.teambar{display:inline-flex; flex-wrap:wrap; gap:3px 5px; align-items:center;}
 .teambar.hide{display:none;}
-.teambar .tlbl{font:700 15px var(--display); text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin-right:4px;}
-.teambar .b{padding:5px 10px; font-size:13px;}
-.team{display:inline-flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:999px; padding:3px 5px 3px 10px; background:var(--surface);}
-.team input{font:600 14px var(--body); color:var(--ink); background:transparent; border:0; width:76px; padding:0; min-width:0;}
-.team b{font:700 16px var(--mono); min-width:24px; text-align:center;}
-.team button{font:700 15px var(--mono); border:1px solid var(--line); background:var(--codebg); color:var(--ink); border-radius:50%; width:24px; height:24px; cursor:pointer; padding:0; line-height:1;}
+.team{display:inline-flex; align-items:center; gap:3px; border:1px solid var(--line); border-radius:999px; padding:2px 4px 2px 8px; background:var(--surface);}
+.team input{font:600 13px var(--body); color:var(--ink); background:transparent; border:0; width:50px; padding:0; min-width:0;}
+.team b{font:700 14px var(--mono); min-width:18px; text-align:center;}
+.team button{font:700 14px var(--mono); border:1px solid var(--line); background:var(--codebg); color:var(--ink); border-radius:50%; width:20px; height:20px; cursor:pointer; padding:0; line-height:1;}
 .team button:hover{border-color:var(--accent);}
 .team.lead{border-color:var(--pollen); box-shadow:inset 0 0 0 1px var(--pollen);}
 .team.lead b{color:var(--pollen);}
@@ -158,17 +158,18 @@ details.ask .opt b{font:700 13px var(--mono); min-width:18px; padding:1px 7px; b
 details.ask[open] .opt.right{border-color:var(--ok); background:color-mix(in srgb,var(--ok) 18%,transparent);}
 details.ask[open] .opt:not(.right){opacity:.45;}
 details.ask .vhint{display:block; font-size:12px; color:var(--muted); margin-top:6px;}
+details.ask .vnext{font:600 12px var(--mono); color:var(--accent); align-self:center; white-space:nowrap;}
 pre.code .w{border-bottom:1px dotted var(--muted); cursor:pointer; border-radius:3px;}
 pre.code .w:hover{background:color-mix(in srgb,var(--accent) 15%,transparent);}
 pre.code .w.on{background:color-mix(in srgb,var(--pollen) 35%,transparent); border-bottom:2px solid var(--pollen);}
 .wchips{display:flex; flex-wrap:wrap; gap:6px;}
 .wchips button{font:600 13px var(--mono); border:1px solid var(--line); background:var(--codebg); color:var(--ink); border-radius:999px; padding:4px 10px; cursor:pointer;}
 .wchips button.on{border-color:var(--pollen); background:color-mix(in srgb,var(--pollen) 30%,transparent);}
-.tsl{position:relative; display:inline-block; width:240px; padding-bottom:14px; margin:0 4px;}
+.tsl{position:relative; display:inline-block; width:150px; padding-bottom:12px; margin:0 2px;}
 .tsl input{width:100%; margin:0; accent-color:var(--accent);}
 .tsl-ticks{position:absolute; left:8px; right:8px; bottom:0; height:12px;}
 .tsl-ticks span{position:absolute; transform:translateX(-50%); font:500 10px var(--mono); color:var(--muted); cursor:pointer;}
-.tsv{font:700 16px var(--mono); min-width:58px; display:inline-block; text-align:right;}
+.tsv{font:700 14px var(--mono); min-width:40px; display:inline-block; text-align:right;}
 .tcbar{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; margin:2px 0 8px;}
 .tcbar .b{padding:4px 9px; font-size:13px;}
 .tcbar select{font:500 13px var(--mono); color:var(--ink); background:var(--codebg); border:1px solid var(--line); border-radius:6px; padding:4px 6px;}
@@ -292,22 +293,16 @@ ul.tree .ro{color:var(--muted);}
   <a href="#pid" data-tab="pid"><span class="n">7</span> PID control</a>
   <a href="#encoders" data-tab="encoders"><span class="n">8</span> Encoders in auto</a>
 </nav>
-<div class="timebar" role="group" aria-label="Simulation speed">
-  <span class="tlbl">Sim speed</span>
+<div class="ctlbar" role="group" aria-label="Simulation speed and team scores">
+  <span class="tlbl">Sim</span>
   <span class="tsl"><input type="range" id="ts-slider" min="0" max="1000" step="1" value="0" aria-label="Simulation speed, 0.05x to 2x"><span class="tsl-ticks" id="ts-ticks"></span></span>
   <b class="tsv" id="ts-val">1x</b>
-  <button class="b" id="ts-1x">1x</button>
   <button class="b" id="ts-pause" aria-pressed="false">Pause</button>
-  <button class="b" id="ts-step">Step 0.1 s</button>
+  <button class="b" id="ts-step" title="Step 0.1 s of sim time">Step</button>
   <span class="chip" id="ts-chip">real time</span>
-  <span class="note tkeys">Keys: P pause, [ slower, ] faster, . step</span>
+  <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right." aria-label="Keyboard shortcuts and voting rules">?</button>
   <button class="b" id="tm-toggle" aria-pressed="true" aria-controls="teambar">Teams</button>
-</div>
-<div class="teambar" id="teambar" role="group" aria-label="Team scores">
-  <span class="tlbl">Teams</span>
-  <span id="tm-list"></span>
-  <button class="b" id="tm-reset">Reset scores</button>
-  <span class="note">Keys 1 to 6: a point for that team. Click a name to rename it.</span>
+  <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset</button></span>
 </div>
 </div>
 
@@ -318,7 +313,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>Java basics, the robot way</h2>
       <p class="lede">Eleven cards cover almost every line in an FTC OpMode. Each card has something to click. Every example comes from real robot code, not from a textbook.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Java guesses from the name</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Your code says <code>robot.drive(0.5, 0, 0);</code> Where does Java find the word <code>drive</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Inside the SDK, in LinearOpMode</button><button class="opt" type="button">Inside the Robot class, in Robot.java</button><button class="opt" type="button">Java guesses from the name</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a"><code>robot</code> is an object made from the <code>Robot</code> class in Robot.java. <code>drive</code> is a public method inside that class. Java follows the dot: object, then something the object owns.</div>
     </details>
   </div>
@@ -582,7 +577,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>What runs when you press INIT, START and STOP</h2>
       <p class="lede">Step through a LinearOpMode with the Driver Hub buttons. The highlighted line is running now. Switch to the AI-written version to see why a background thread breaks the rules.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init. What does the robot do between INIT and START? What happens after STOP?</span><span class="vote" data-right="1"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init. What does the robot do between INIT and START? What happens after STOP?</span><span class="vote" data-right="1"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">The thread starts moving the arm right after INIT, before the match starts. That breaks rule G304.H (robot motionless after INIT). After STOP the <code>while (true)</code> loop never ends, so the thread keeps running until the Robot Controller app gives up and restarts.</div>
     </details>
   </div>
@@ -629,7 +624,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>Drive modes: robot-centric, field-centric, and AUTO</h2>
       <p class="lede">Same 4 wheels, same mecanum math. The only difference is which way "forward" points. Drag the sticks, rotate the robot by hand, and watch the compass. Then switch to AUTO and click the field to send the robot to a point.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The robot faces the left wall. The driver pushes the left stick straight up. Where does the robot go in robot-centric mode? In field-centric mode?</span><span class="vote" data-right="0"><button class="opt" type="button">Robot-centric: toward the left wall. Field-centric: away from the drivers</button><button class="opt" type="button">Both modes: toward the left wall</button><button class="opt" type="button">Both modes: away from the drivers</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The robot faces the left wall. The driver pushes the left stick straight up. Where does the robot go in robot-centric mode? In field-centric mode?</span><span class="vote" data-right="0"><button class="opt" type="button">Robot-centric: toward the left wall. Field-centric: away from the drivers</button><button class="opt" type="button">Both modes: toward the left wall</button><button class="opt" type="button">Both modes: away from the drivers</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">Robot-centric: toward the left wall, because "up" means "the robot's front". Field-centric: away from the drivers, because "up" means "away from the driver wall" no matter where the robot faces. The IMU heading makes the difference.</div>
     </details>
   </div>
@@ -727,7 +722,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>One loop, no sleep: why state machines beat sleep() and threads</h2>
       <p class="lede">Both robots follow the moving yellow target. Press Launch. The left robot uses <code>sleep()</code> inside the TeleOp loop. The right robot uses a state machine. Watch the loop ticks under each robot.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">During <code>sleep(1000)</code>, the motors keep the last power you set. What happens to the robot while the driver is steering?</span><span class="vote" data-right="1"><button class="opt" type="button">It steers as usual, sleep pauses only the launcher</button><button class="opt" type="button">It keeps driving at the old power and ignores the sticks</button><button class="opt" type="button">It stops dead until the sleep ends</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">During <code>sleep(1000)</code>, the motors keep the last power you set. What happens to the robot while the driver is steering?</span><span class="vote" data-right="1"><button class="opt" type="button">It steers as usual, sleep pauses only the launcher</button><button class="opt" type="button">It keeps driving at the old power and ignores the sticks</button><button class="opt" type="button">It stops dead until the sleep ends</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">The loop stops reading the gamepad. The robot keeps driving at the old power for 1.3 seconds and the drivers cannot steer. The state machine checks the launcher once per loop and moves on, so driving never stops.</div>
     </details>
   </div>
@@ -765,7 +760,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>Open loop vs closed loop: the launcher across a match</h2>
       <p class="lede">Both launchers fire POLLEN at the HIVE. Orange uses <code>setPower(0.8)</code>. Blue uses <code>setVelocity(1160)</code>, which reads the encoder and corrects. Drag the battery voltage or run a whole match.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. The hub firmware runs a PIDF loop for it: P, I and D as on tab 7, plus F, a feedforward that sizes the power for the target before any error shows up. Your own <code>PIDController</code> is for positions, where F does nothing.</div>
     </details>
   </div>
@@ -814,7 +809,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>Encoders: drive exactly 24 inches in AUTO</h2>
       <p class="lede">The code turns inches into encoder counts. The real robot below has goBILDA 312 rpm motors (537.7 counts per rev) and 104 mm (4.09 in) mecanum wheels. If the numbers in your code do not match the hardware, the robot misses the line.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Someone typed the wheel diameter as 3 instead of 4.09. Does the robot stop short or drive too far?</span><span class="vote" data-right="1"><button class="opt" type="button">Stops short</button><button class="opt" type="button">Drives too far</button><button class="opt" type="button">Same distance, the encoder measures real inches</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">Someone typed the wheel diameter as 3 instead of 4.09. Does the robot stop short or drive too far?</span><span class="vote" data-right="1"><button class="opt" type="button">Stops short</button><button class="opt" type="button">Drives too far</button><button class="opt" type="button">Same distance, the encoder measures real inches</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">Too far. A smaller diameter in code means more counts per inch, so the code asks for more counts than 24 real inches need. Always test: command 48 in, measure with a tape, fix the constant.</div>
     </details>
   </div>
@@ -863,7 +858,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>PID control: one class, every sensor</h2>
       <p class="lede">A PID controller turns an error (how far you are from the target) into motor power. P pushes toward the target, D brakes before you overshoot, I fixes what is left over. Pick a job below: the PID code stays the same. Only the sensor, the error, and the 3 numbers change.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift holds 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The lift holds 2 inches below its target and never gets there, even though kP is set. Which term fixes this, and why does P alone fail?</span><span class="vote" data-right="1"><button class="opt" type="button">D: it reacts to the error faster</button><button class="opt" type="button">I: it adds up the leftover error until the power is enough</button><button class="opt" type="button">A bigger kP, as big as needed</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">Gravity needs about 18% power just to hold the lift. With P only, the motor gets that power only when the error is big enough: error x kP = 0.18. So the lift settles where the error makes exactly enough power, below the target. The I term adds up the leftover error over time and supplies the missing power. A gravity feedforward (a constant power) also fixes it.</div>
     </details>
   </div>
@@ -947,7 +942,7 @@ ul.tree .ro{color:var(--muted);}
       <h2>GitHub teamwork: how 30 people share one robot's code</h2>
       <p class="lede">Four pictures. Where your code lives, how the team's repos fit, one pull request from start to finish, and what happens when two people edit the same line.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">You press Ctrl+K and commit. Your laptop dies before you push. Does your team have your code?</span><span class="vote" data-right="1"><button class="opt" type="button">Yes, a commit goes to GitHub</button><button class="opt" type="button">No, a commit stays on your laptop until you push</button><button class="opt" type="button">Yes, Android Studio syncs on its own</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">You press Ctrl+K and commit. Your laptop dies before you push. Does your team have your code?</span><span class="vote" data-right="1"><button class="opt" type="button">Yes, a commit goes to GitHub</button><button class="opt" type="button">No, a commit stays on your laptop until you push</button><button class="opt" type="button">Yes, Android Studio syncs on its own</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
       <div class="a">No. A commit saves history on your laptop only. Push sends the commits to GitHub, where the team and the reviewers see them. Commit often, push every time something works.</div>
     </details>
   </div>
@@ -998,7 +993,7 @@ ul.tree .ro{color:var(--muted);}
   </div>
 
   <h3 class="parthead"><span>D</span> Two people, one line: a merge conflict</h3>
-  <details class="ask" style="margin-bottom:12px"><summary><span class="tag">Ask the room</span><span class="q">Maya and Leo both changed the same line on different branches. Maya merged first. What does GitHub show on Leo's pull request?</span><span class="vote" data-right="1"><button class="opt" type="button">It merges, and Maya's line wins</button><button class="opt" type="button">This branch has conflicts that must be resolved</button><button class="opt" type="button">It merges, and Leo's line wins</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
+  <details class="ask" style="margin-bottom:12px"><summary><span class="tag">Ask the room</span><span class="q">Maya and Leo both changed the same line on different branches. Maya merged first. What does GitHub show on Leo's pull request?</span><span class="vote" data-right="1"><button class="opt" type="button">It merges, and Maya's line wins</button><button class="opt" type="button">This branch has conflicts that must be resolved</button><button class="opt" type="button">It merges, and Leo's line wins</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
     <div class="a">"This branch has conflicts that must be resolved." Git cannot guess which value is right. Leo merges main into his branch, picks the line he wants in the merge tool, builds, tests, and pushes. Nothing is lost.</div>
   </details>
   <div class="grid2" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
@@ -4231,13 +4226,11 @@ function setScale(v, fromSlider){
   TIME.scale = v;
   if (!fromSlider) $("#ts-slider").value = Math.round(tsPos(v));
   $("#ts-val").textContent = tsFmt(v);
-  $("#ts-1x").setAttribute("aria-pressed", v === 1 ? "true" : "false");
   timeChip();
 }
 function setPause(p){ TIME.paused = p; const b = $("#ts-pause"); b.setAttribute("aria-pressed", p ? "true" : "false"); b.textContent = p ? "Resume" : "Pause"; timeChip(); }
 window.__setPause = setPause;
 $("#ts-slider").addEventListener("input", e => setScale(tsVal(+e.target.value), true));
-$("#ts-1x").addEventListener("click", () => setScale(1));
 $("#ts-pause").addEventListener("click", () => setPause(!TIME.paused));
 $("#ts-step").addEventListener("click", () => { if (!TIME.paused) setPause(true); TIME.step += 0.1; });
 setScale(1);
@@ -4278,25 +4271,46 @@ const TEAMS = (function(){
     const i = +inp.closest(".team").dataset.i, name = inp.value.trim().slice(0, 16) || "Team " + (i + 1);
     teams = teams.map((t, k) => k === i ? {name, pts: t.pts} : t); save(); render();
   });
-  $("#tm-reset").addEventListener("click", () => { teams = teams.map(t => ({name: t.name, pts: 0})); save(); render(); });
+  const resetFns = [];
+  $("#tm-reset").addEventListener("click", () => { teams = teams.map(t => ({name: t.name, pts: 0})); save(); render(); resetFns.forEach(f => f()); });
   $("#tm-toggle").addEventListener("click", () => {
     const on = $("#teambar").classList.toggle("hide");
     $("#tm-toggle").setAttribute("aria-pressed", String(!on));
   });
   render();
-  return {add, get: () => teams.slice()};
+  return {add, get: () => teams.slice(), onReset: f => resetFns.push(f)};
 })();
-/* ---------- Ask the room: one click per team, reveal marks the right answer ---------- */
-$$("details.ask .vote").forEach(v => {
-  const right = +v.dataset.right;
-  const bump = (o, d) => { const b = o.querySelector("b"); b.textContent = Math.max(0, +b.textContent + d); };
+/* ---------- Ask the room: votes come in team order, Team 1 first. Reveal pays a point to every team that chose the right answer. ---------- */
+$$("details.ask").forEach(d => {
+  const v = $(".vote", d); if (!v) return;
+  const right = +v.dataset.right, N = TEAMS.get().length;
+  let picks = [], paid = 0;   // picks[k] = option chosen by team k; the first `paid` picks are already scored
+  v.insertAdjacentHTML("beforeend", '<span class="vnext"></span>');
+  const next = $(".vnext", v);
+  const show = () => { next.textContent = picks.length < N ? TEAMS.get()[picks.length].name + " votes next" : "all " + N + " teams voted"; };
+  const tally = () => $$(".opt", v).forEach((o, i) => { $("b", o).textContent = picks.filter(p => p === i).length; });
+  const pay = () => { for (; paid < picks.length; paid++) if (picks[paid] === right) TEAMS.add(paid, 1); };
   $$(".opt", v).forEach((o, i) => {
     o.insertAdjacentHTML("afterbegin", "<i>" + "ABCD"[i] + "</i>");
     o.insertAdjacentHTML("beforeend", "<b>0</b>");
     if (i === right) o.classList.add("right");
-    o.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); bump(o, 1); });
-    o.addEventListener("contextmenu", e => { e.preventDefault(); e.stopPropagation(); bump(o, -1); });
+    o.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      if (picks.length >= N) return;                      // a 7th click is ignored: every team has voted
+      picks = picks.concat(i); tally(); show();
+      if (d.open) pay();                                  // a vote after the reveal still scores
+    });
+    o.addEventListener("contextmenu", e => {              // right-click: take the last vote back, whichever option it was
+      e.preventDefault(); e.stopPropagation();
+      if (!picks.length) return;
+      const k = picks.length - 1;
+      if (paid > k){ if (picks[k] === right) TEAMS.add(k, -1); paid = k; }
+      picks = picks.slice(0, k); tally(); show();
+    });
   });
+  d.addEventListener("toggle", () => { if (d.open) pay(); });
+  TEAMS.onReset(() => { picks = []; paid = 0; tally(); show(); });
+  show();
 });
 LC.reset();
 route();

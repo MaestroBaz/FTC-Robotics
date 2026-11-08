@@ -53,8 +53,19 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const optB = '#lab-java details.ask .opt:nth-child(2)';
   await pg.click(optB); await pg.click(optB); await pg.click(optB, { button: "right" });
   check((await pg.textContent(optB + " b")) === "1" && !(await pg.$("#lab-java details.ask[open]")), "a vote click counts, right-click undoes, and the answer stays hidden");
+  check((await pg.textContent("#lab-java details.ask .vnext")) === "Team 2 votes next", "after one vote the label says Team 2 votes next");
+  await pg.click("#lab-java details.ask .opt:nth-child(1)");   // team 2 picks A, the wrong one
   await pg.click("#lab-java details.ask .reveal");
   check(!!(await pg.$("#lab-java details.ask[open] .opt.right")) && (await pg.$eval(optB, o => o.classList.contains("right"))), "reveal marks option B as the right answer");
+  check((await pg.textContent('.team[data-i="0"] b')) === "1" && (await pg.textContent('.team[data-i="1"] b')) === "0", "reveal pays team 1 (right) and not team 2 (wrong)");
+  await pg.click(optB);   // team 3 votes B after the reveal
+  check((await pg.textContent('.team[data-i="2"] b')) === "1", "a vote after the reveal scores at once");
+  await pg.click(optB, { button: "right" });
+  check((await pg.textContent('.team[data-i="2"] b')) === "0" && (await pg.textContent(optB + " b")) === "1", "right-click refunds the last paid vote");
+  for (let i = 0; i < 5; i++) await pg.click(optB);
+  check((await pg.textContent("#lab-java details.ask .vnext")) === "all 6 teams voted" && (await pg.textContent(optB + " b")) === "5", "a 7th vote is ignored");
+  await pg.click("#tm-reset");
+  check((await pg.textContent(optB + " b")) === "0" && (await pg.textContent('.team[data-i="0"] b')) === "0", "Reset clears votes and scores together");
   check((await pg.$$("details.ask .vote")).length === 9, "every Ask the room has a vote");
 
   // ---- Every word explained ----
@@ -94,7 +105,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.textContent("#ts-val")) === "2x", "slider maximum reads 2x");
   await pg.keyboard.press("["); check((await pg.textContent("#ts-val")) === "1x", "[ steps 2x down to 1x");
   await pg.keyboard.press("["); check((await pg.textContent("#ts-val")) === "0.5x", "[ steps 1x down to 0.5x");
-  await pg.click("#ts-1x");
+  await pg.click('#ts-ticks span[data-v="1"]'); check((await pg.textContent("#ts-val")) === "1x", "clicking the 1 tick returns to 1x");
 
   // ---- PID turn: markers appear ----
   await pg.waitForTimeout(3500);
