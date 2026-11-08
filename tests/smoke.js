@@ -30,6 +30,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   // ---- tab order: opens on Java, digits read 1 to 8 in the plan's order ----
   await pg.goto(URL); await pg.waitForTimeout(300);
   check((await pg.$eval("section.lab.on", s => s.id)) === "lab-java", "the lab opens on Java basics");
+  check(await pg.evaluate(() => document.body.classList.contains("autohide")), "auto-hide is on by default");
+  await pg.evaluate(() => localStorage.setItem("ftc-lab-autohide", "off")); await pg.reload(); await pg.waitForTimeout(300);   // the checks below click the full menu
   const nav = await pg.$$eval("nav.tabs a", as => as.map(a => a.querySelector(".n").textContent + ":" + a.dataset.tab).join(" "));
   check(nav === "1:java 2:lifecycle 3:gitflow 4:mecanum 5:oneloop 6:feedback 7:pid 8:encoders", "tab bar reads 1 Java ... 8 Encoders in the teaching order: " + nav);
   const cards = await pg.$$eval("nav.jtopics .jt", bs => bs.map(b => b.dataset.jt).join(" "));
@@ -40,7 +42,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const dp = await b.newPage();
   dp.on("pageerror", e => errs.push(e.message));
   await dp.goto("data:text/html;charset=utf-8," + encodeURIComponent(src));
-  await dp.click('nav.tabs a[data-tab="pid"]'); await dp.waitForTimeout(200);
+  await dp.mouse.move(600, 12); await dp.waitForTimeout(200); await dp.click('nav.tabs a[data-tab="pid"]'); await dp.waitForTimeout(200);   // auto-hide on: point at the folded line, then pick a tab
   check((await dp.$eval("section.lab.on", s => s.id)) === "lab-pid", "tab button switches tabs on a data: URL page");
   await dp.close();
 
@@ -121,16 +123,19 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#lab-java .ask-show");
   check(await pg.isVisible("#lab-java details.ask"), "Show the question brings it back");
 
-  // ---- Auto-hide: H toggles, scrolling down hides the bar ----
+  // ---- Auto-hide: the menu folds to one line, opens on hover, H toggles it ----
   const ahOn = () => pg.evaluate(() => document.body.classList.contains("autohide"));
-  const was = await ahOn();
-  await pg.keyboard.press("h"); check((await ahOn()) !== was, "key H toggles auto-hide");
-  if (!(await ahOn())) await pg.click("#ah-toggle");
-  await pg.mouse.move(600, 500); await pg.evaluate(() => document.activeElement && document.activeElement.blur());   // focus inside the bar keeps it shown
-  await pg.evaluate(() => window.scrollTo(0, 0)); await pg.waitForTimeout(100);
-  await pg.mouse.wheel(0, 900); await pg.waitForTimeout(400);
-  check(await pg.evaluate(() => document.querySelector(".topbar").classList.contains("away")), "scrolling down hides the top bar");
-  await pg.evaluate(() => window.scrollTo(0, 0)); await pg.waitForTimeout(200);
+  const menuOpen = () => pg.evaluate(() => getComputedStyle(document.querySelector(".tbfull")).visibility === "visible");
+  if (!(await ahOn())) await pg.keyboard.press("h");
+  await pg.mouse.move(600, 600); await pg.waitForTimeout(250);
+  check(!(await menuOpen()) && /Java basics/i.test(await pg.textContent("#pk-tab")), "auto-hide folds the menu to one line naming the tab");
+  await pg.mouse.move(600, 12); await pg.waitForTimeout(250);
+  check(await menuOpen(), "pointing at the folded line opens the menu");
+  await pg.click("#ah-toggle"); await pg.mouse.move(600, 600); await pg.waitForTimeout(250);
+  check(!(await ahOn()) && (await menuOpen()), "the Auto-hide pin turns it off and the menu stays open");
+  await pg.keyboard.press("h"); await pg.waitForTimeout(250);
+  check((await ahOn()) && !(await menuOpen()), "key H turns auto-hide back on");
+  await pg.keyboard.press("h");   // back to the full menu for the clicks below
 
   // ---- GitHub tab: terminal commands next to the Android Studio steps ----
   await pg.goto(URL + "#gitflow"); await pg.waitForTimeout(300);

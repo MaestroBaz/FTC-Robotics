@@ -230,7 +230,7 @@ pre.code .ln.err{background:color-mix(in srgb,var(--red) 18%,transparent); borde
 pre.code .tok{cursor:pointer; border-bottom:2px dotted var(--accent); border-radius:2px;}
 pre.code .tok:hover, pre.code .tok.sel{background:color-mix(in srgb,var(--pollen) 35%,transparent);}
 .jlayout{display:grid; grid-template-columns:230px minmax(0,1fr); gap:18px; align-items:start;}
-.jtopics{display:flex; flex-direction:column; gap:4px; position:sticky; top:8px;}
+.jtopics{display:flex; flex-direction:column; gap:4px; position:sticky; top:calc(var(--tbh, 0px) + 8px);}
 .jt{text-align:left; font:600 15px var(--body); color:var(--muted); background:transparent; border:1px solid transparent; border-radius:8px; padding:9px 10px; cursor:pointer;}
 .jt span{display:inline-block; width:22px; font:700 16px var(--display); color:var(--accent);}
 .jt:hover{border-color:var(--line); color:var(--ink);}
@@ -279,9 +279,24 @@ ul.tree .ro{color:var(--muted);}
   .grid3{grid-template-columns:1fr;}
   .conf{grid-template-columns:1fr;}
 }
-/* ---- auto-hide: the top bar slides away while you scroll down and comes back when you scroll up or point at the top edge; the Java card list folds to a rail of numbers and opens on hover ---- */
-.topbar{transition:transform .2s ease;}
-body.autohide .topbar.away{transform:translateY(calc(-100% - 2px));}
+/* ---- auto-hide: the title, tabs and controls fold into one 34 px line (tab, sim state, scores). Pointing at it, or keyboard focus, opens the full menu over the page; the Java card list folds to a rail of numbers ---- */
+nav.tabs .pin{margin-left:auto; align-self:center; display:inline-flex; gap:5px; align-items:center; padding:4px 9px; font-size:12px; color:var(--muted); background:transparent;}
+nav.tabs .pin[aria-pressed="true"]{color:var(--surface); background:var(--ink);}
+.peek{display:none;}
+body.autohide header.top{display:none;}
+body.autohide .topbar{padding:0;}
+body.autohide .peek{display:flex; align-items:center; gap:12px; height:34px; cursor:pointer; white-space:nowrap; overflow:hidden;}
+body.autohide .peek #pk-tab{font:700 15px var(--display); text-transform:uppercase; letter-spacing:.03em;}
+body.autohide .peek #pk-time:empty{display:none;}
+body.autohide .peek #pk-score{display:flex; gap:10px; overflow:hidden; font-size:13px; color:var(--muted);}
+body.autohide .peek .pk-team b{font:700 14px var(--mono); color:var(--ink);}
+body.autohide .peek .pk-team.lead b{color:var(--pollen);}
+body.autohide .peek .pk-hint{margin-left:auto; display:inline-flex; gap:4px; align-items:center; font-size:12px; color:var(--muted);}
+body.autohide .tbfull{position:absolute; left:0; right:0; top:0; z-index:2; background:var(--bg); border-bottom:1px solid var(--line); box-shadow:0 10px 28px rgba(0,0,0,.2); padding-top:2px; visibility:hidden; opacity:0; transform:translateY(-8px); transition:opacity .12s ease, transform .12s ease, visibility 0s linear .12s;}
+body.autohide .topbar:focus-within .tbfull, body.autohide .topbar.open .tbfull{visibility:visible; opacity:1; transform:none; transition:opacity .12s ease, transform .12s ease;}
+@media (hover: hover){ body.autohide .topbar:hover .tbfull{visibility:visible; opacity:1; transform:none; transition:opacity .12s ease, transform .12s ease;} }   /* touch screens open it with a tap on the line */
+@media (max-width: 700px){ body.autohide .peek #pk-score{display:none;} }
+@media (prefers-reduced-motion: reduce){ body.autohide .tbfull{transition:none;} }
 body.autohide .jlayout{grid-template-columns:44px minmax(0,1fr);}
 body.autohide .jtopics{width:44px; z-index:15; background:var(--bg); border-radius:10px; transition:width .15s ease, box-shadow .15s ease; overflow:hidden;}
 body.autohide .jtopics .jt{white-space:nowrap; overflow:hidden; padding:9px 8px;}
@@ -317,7 +332,7 @@ table.ops td code{font:13px var(--mono);}
 .cond span.f{border-color:var(--red); background:color-mix(in srgb,var(--red) 10%,var(--surface)); color:var(--muted);}
 .cond span.skip{opacity:.4;}
 .stickval{font:700 28px/1 var(--mono); font-variant-numeric:tabular-nums; min-width:80px; display:inline-block;}
-.jpane[data-jp="words"] .grid2 > .stack:last-child{position:sticky; top:12px;}
+.jpane[data-jp="words"] .grid2 > .stack:last-child{position:sticky; top:calc(var(--tbh, 0px) + 12px);}
 pre.code .ln.run{background:color-mix(in srgb,var(--ok) 22%,transparent); border-left-color:var(--ok);}
 pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); border-left-color:var(--pollen);}
 .mistakes{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px;}
@@ -335,6 +350,11 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <p>BIOBUZZ 2026-27 | FTC SDK v12.0 | Ask the room first, then run the demo.</p>
 </header>
 <div class="topbar">
+<div class="peek" id="peek" title="Point here, or press Tab, to open the menu">
+  <b id="pk-tab"></b><span id="pk-time"></span><span id="pk-score"></span>
+  <span class="pk-hint">Menu <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+</div>
+<div class="tbfull">
 <nav class="tabs" aria-label="Labs">
   <a href="#java" data-tab="java"><span class="n">1</span> Java basics</a>
   <a href="#lifecycle" data-tab="lifecycle"><span class="n">2</span> OpMode lifecycle</a>
@@ -344,6 +364,7 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <a href="#feedback" data-tab="feedback"><span class="n">6</span> Feedback: launcher</a>
   <a href="#pid" data-tab="pid"><span class="n">7</span> PID control</a>
   <a href="#encoders" data-tab="encoders"><span class="n">8</span> Encoders in auto</a>
+  <button class="b pin" id="ah-toggle" type="button" aria-pressed="true" title="Auto-hide: the menu folds to one thin line until you point at it, and the Java card list folds to numbers. Key H."><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 1.5h6M6 1.5v5L3.5 9.5h9L10 6.5v-5M8 9.5V15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Auto-hide</span></button>
 </nav>
 <div class="ctlbar" role="group" aria-label="Simulation speed and team scores">
   <span class="tlbl">Sim</span>
@@ -353,9 +374,9 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <button class="b" id="ts-step" title="Step 0.1 s of sim time">Step</button>
   <span class="chip" id="ts-chip">real time</span>
   <button class="b help" id="ts-help" type="button" title="Keys: P pause, [ slower, ] faster, . step, click a tick for that speed. Keys 1 to 6: a point for that team. H: auto-hide on or off. Click a team name to rename it. Votes: click the answer each team holds up, Team 1 first; right-click takes the last vote back; Reveal pays a point to every team that got it right." aria-label="Keyboard shortcuts and voting rules">?</button>
-  <button class="b" id="ah-toggle" aria-pressed="true" title="Auto-hide the top bar while you scroll down, and fold the Java card list to numbers. Key H.">Auto-hide</button>
   <button class="b" id="tm-toggle" aria-pressed="true" aria-controls="teambar">Teams</button>
   <span class="teambar" id="teambar" role="group" aria-label="Team scores"><span id="tm-list"></span><button class="b" id="tm-reset">Reset</button></span>
+</div>
 </div>
 </div>
 
@@ -4546,6 +4567,7 @@ function route(id){
   if (current === "feedback") DG.loops(true);
   if (current === "pid") PIDVIZ.loop(true);
   if (current === "java" && window.__anatomyPaint) window.__anatomyPaint();
+  peekPaint();
 }
 window.addEventListener("hashchange", () => route());
 // Tabs switch without navigating: a page opened as a data: URL (some previews) blocks hash navigation.
@@ -4569,6 +4591,16 @@ function timeChip(){
   else if (TIME.scale > 1.005){ c.textContent = "FAST " + tsFmt(TIME.scale); c.className = "chip run"; }
   else { c.textContent = "real time"; c.className = "chip"; }
   document.body.classList.toggle("slowmo", TIME.paused || TIME.scale < 0.995);
+  peekPaint();
+}
+// the folded menu line: current tab, sim state when not real time, team scores
+function peekPaint(){
+  if (!document.getElementById("peek")) return;
+  const a = $('nav.tabs a[aria-current="page"]'), c = $("#ts-chip"), t = $("#pk-time");
+  $("#pk-tab").textContent = a ? a.textContent.replace(/\s+/g, " ").trim() : "";
+  t.textContent = c.textContent === "real time" ? "" : c.textContent; t.className = c.className;
+  $("#pk-score").innerHTML = $("#teambar").classList.contains("hide") ? "" : $$("#tm-list .team").map(s =>
+    '<span class="pk-team' + (s.classList.contains("lead") ? " lead" : "") + '">' + esc(s.querySelector("input").value) + " <b>" + esc(s.querySelector("b").textContent) + "</b></span>").join("");
 }
 function setScale(v, fromSlider){
   v = clamp(v, 0.05, 2);
@@ -4594,27 +4626,27 @@ document.addEventListener("keydown", e => {
   else if (/^[1-6]$/.test(e.key)) TEAMS.add(+e.key - 1, 1);
   else if (e.key === "h" || e.key === "H") AUTOHIDE.toggle();
 });
-/* ---------- auto-hide: top bar away while scrolling down, back on scroll up or at the top edge; Java card list folds to a rail ---------- */
+/* ---------- auto-hide: the whole menu folds to one line and opens over the page on hover, focus or tap; Java card list folds to a rail ---------- */
 const AUTOHIDE = (function(){
   const KEY = "ftc-lab-autohide", bar = $(".topbar"), btn = $("#ah-toggle");
-  let on = true, lastY = window.scrollY;
+  let on = true;
   try { on = localStorage.getItem(KEY) !== "off"; } catch(e){ /* storage blocked: default on */ }
-  const away = gone => bar.classList.toggle("away", on && gone);
+  // sticky panels below the menu (Java card list, word explainer) sit under its folded or full height
+  const tbh = () => document.documentElement.style.setProperty("--tbh", Math.round(bar.getBoundingClientRect().height) + "px");
+  const shut = () => { bar.classList.toggle("open", false); if (bar.contains(document.activeElement)) document.activeElement.blur(); };
   function set(v){
     on = v; document.body.classList.toggle("autohide", on);
     btn.setAttribute("aria-pressed", on ? "true" : "false");
-    if (!on) away(false);
+    bar.classList.toggle("open", false);
+    tbh();
     try { localStorage.setItem(KEY, on ? "on" : "off"); } catch(e){ /* per-page only */ }
   }
-  window.addEventListener("scroll", () => {
-    const y = window.scrollY;
-    if (y < 90 || y < lastY - 4) away(false);
-    else if (y > lastY + 4 && !bar.matches(":hover, :focus-within")) away(true);
-    lastY = y;
-  }, {passive: true});
-  document.addEventListener("mousemove", e => { if (e.clientY < 16) away(false); }, {passive: true});
-  bar.addEventListener("focusin", () => away(false));
-  btn.addEventListener("click", () => set(!on));
+  $("#peek").addEventListener("click", () => bar.classList.toggle("open"));   // touch screens have no hover
+  $$("nav.tabs a").forEach(a => a.addEventListener("click", () => { if (on) shut(); }));
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && on) shut(); });
+  document.addEventListener("click", e => { if (on && !bar.contains(e.target)) bar.classList.toggle("open", false); });
+  window.addEventListener("resize", tbh);
+  btn.addEventListener("click", e => { set(!on); if (e.detail > 0) btn.blur(); });   // a mouse click must not hold the menu open through focus
   set(on);
   return {toggle: () => set(!on), get on(){ return on; }};
 })();
@@ -4635,6 +4667,7 @@ const TEAMS = (function(){
       '<input value="' + esc(t.name) + '" maxlength="16" aria-label="Team ' + (i + 1) + ' name">' +
       '<button data-d="-1" aria-label="' + esc(t.name) + ' minus one">-</button><b>' + t.pts + "</b>" +
       '<button data-d="1" aria-label="' + esc(t.name) + ' plus one">+</button></span>').join("");
+    peekPaint();
   }
   function add(i, d){ teams = teams.map((t, k) => k === i ? {name: t.name, pts: Math.max(0, t.pts + d)} : t); save(); render(); }
   $("#tm-list").addEventListener("click", e => {
@@ -4651,6 +4684,7 @@ const TEAMS = (function(){
   $("#tm-toggle").addEventListener("click", () => {
     const on = $("#teambar").classList.toggle("hide");
     $("#tm-toggle").setAttribute("aria-pressed", String(!on));
+    peekPaint();
   });
   render();
   return {add, get: () => teams.slice(), onReset: f => resetFns.push(f)};
