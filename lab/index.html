@@ -1248,7 +1248,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
   <div class="labhead">
     <div>
       <h2>GitHub teamwork: how 30 people share one robot's code</h2>
-      <p class="goal">Goal: explain commit, push, pull, pull request and merge conflict. Team rule 3: every change gets a reviewed pull request.</p>
+      <p class="goal">Goal: explain commit, push, pull, pull request, and what happens when two people change the same line. Team rule 3: every change gets a reviewed pull request.</p>
       <p class="lede">Four pictures. Where your code lives, how the team's repos fit, one pull request from start to finish, and what happens when two people edit the same line.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">You commit your change in Android Studio. Your laptop dies before you push. Does your team have your code?</span><span class="vote" data-right="1"><button class="opt" type="button">Yes. Commit sends it to GitHub.</button><button class="opt" type="button">No. It sits on the dead laptop.</button><button class="opt" type="button">Yes. Android Studio saves it online on its own.</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
@@ -3508,7 +3508,7 @@ const GT = (function(){
     {t: "Leo works at the same time", x: "Leo branches from the same main and changes the same line to 0.3. Neither one knows.", as: "Git > New Branch > leo/precision, then Ctrl+K: \"Set slow mode 0.3\"", cmd: "git switch main\ngit switch -c leo/precision\ngit commit -am \"Set slow mode 0.3\""},
     {t: "Maya opens pull request #1", x: "Maya pushes and opens a PR. Ava reviews. She asks two questions: \"What does 0.4 do?\" and \"Why the left bumper?\" Maya answers without looking anything up.", as: "Ctrl+Shift+K to push. github.com > Compare & pull request. Fill the template.", cmd: "git push -u origin maya/slow-mode\n# then open the PR on github.com"},
     {t: "PR #1 merged", x: "Ava approves. Maya clicks Squash and merge and deletes her branch. main now has slow mode 0.4.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "# on github.com. Then everyone:\ngit switch main\ngit pull"},
-    {t: "Leo opens PR #2: conflict", x: "GitHub says: This branch has conflicts that must be resolved. Maya and Leo changed the same line.", as: "github.com shows the conflict. Do not panic, and do not delete anything.", cmd: "git push -u origin leo/precision\n# github.com: This branch has conflicts that must be resolved"},
+    {t: "Leo opens PR #2: conflict", x: "GitHub says: This branch has conflicts that must be resolved. Maya and Leo changed the same line.", as: "Git > Branches > leo/precision > Checkout, then Ctrl+Shift+K. github.com shows the conflict. Do not panic, and do not delete anything.", cmd: "git switch leo/precision\ngit push -u origin leo/precision\n# github.com: This branch has conflicts that must be resolved"},
     {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Which line stays? Teams vote: A keep Maya's 0.4. B keep Leo's 0.3. C ask Maya and try both on the robot. Score the votes with the team keys. Then click a side in Fix the conflict.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
     {t: "Leo pushes the fix", x: "Leo asked Maya and tested both on the robot. Git does not pick. People do. The merge commit records the decision. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
     {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. Squash put it on main as one commit. Pull request #2 on github.com keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -D leo/precision   # squash merge needs -D"}
@@ -4287,7 +4287,7 @@ const GX = (function(){
     {id: "ok", t: "Approved?", x: "The reviewer approves, or asks for changes.", as: "Approve, or Request changes", cmd: "# on github.com: Review changes > Approve"},
     {id: "fix", t: "Fix + push", x: "Change what the reviewer asked, commit, push. The PR updates by itself. Back to review.", as: "Ctrl+K, Ctrl+Shift+K", cmd: "git commit -am \"Address review\"\ngit push"},
     {id: "merge", t: "Squash and merge", x: "Your work joins main as one clean commit.", as: "github.com > Squash and merge", cmd: "# on github.com: Squash and merge"},
-    {id: "del", t: "Delete branch", x: "The branch did its job. Start the next feature from step 1.", as: "github.com > Delete branch", cmd: "git switch main\ngit pull"}
+    {id: "del", t: "Delete branch", x: "The branch did its job. Start the next feature from step 1.", as: "github.com > Delete branch", cmd: "git switch main\ngit pull\n# squash merge needs -D\ngit branch -D maya/slow-mode"}
   ];
   let pi = 0, path = [0];
   function drawPR(){

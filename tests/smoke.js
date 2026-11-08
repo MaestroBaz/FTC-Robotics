@@ -311,7 +311,9 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(await gf.evaluate(() => { const svg = document.querySelector("#gt-svg"), leo = [...svg.querySelectorAll("path")].find(p => / L/.test(p.getAttribute("d")));
     const m1 = [...svg.querySelectorAll("circle")][2], cx = +m1.getAttribute("cx"), cy = +m1.getAttribute("cy"); let d = 1e9;
     for (let s = 0; s <= leo.getTotalLength(); s++){ const q = leo.getPointAtLength(s); d = Math.min(d, Math.hypot(q.x - cx, q.y - cy)); } return d > 30; }), "Leo's branch leaves main clear of Maya's commit, so it does not seem to grow out of it");
-  for (let i = 0; i < 4; i++) await gf.click("#gt-next");
+  for (let i = 0; i < 3; i++) await gf.click("#gt-next");
+  check(/^git switch leo\/precision\n/.test(await gf.textContent("#gt-cmd")) && /leo\/precision > Checkout/.test(await gf.textContent("#gt-as")), "conflict step 7 puts Leo back on his branch before the push, so step 8 merges into leo/precision, not main");
+  await gf.click("#gt-next");
   check(/Teams vote/.test(await gf.textContent("#gt-text")) && !/test/.test(await gf.textContent("#gt-text")), "conflict step 8 asks the room and does not give away the answer");
   check(/team keys/.test(await gf.textContent("#gt-text")) && /Fix the conflict/.test(await gf.textContent("#gt-text")), "step 8 says to score with the team keys and where the sides sit");
   check((await gf.$$eval("#gt-markers .ln", els => els.map(e => e.textContent.trim()))).includes("<<<<<<< HEAD"), "the conflict markers read <<<<<<< HEAD as git writes them");
@@ -323,6 +325,9 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   for (let i = 0; i < 5; i++) await gf.click("#gx-prnext");
   check(/Open PR/.test(await gf.textContent("#lab-gitflow")) && /Compare & pull request/.test(await gf.textContent("#gx-prcmd")), "the PR loop reaches Open PR after 5 steps");
   check(!/git push/.test(await gf.textContent("#gx-prcmd")), "the Open PR step does not suggest that push opens the PR");
+  for (let i = 0; i < 4; i++) await gf.click("#gx-prnext");
+  check(/Delete branch/.test(await gf.textContent("#lab-gitflow")) && /git branch -D maya\/slow-mode/.test(await gf.textContent("#gx-prcmd")), "the PR loop Delete branch step also deletes the local branch with -D");
+  check(!/merge conflict/i.test(await gf.textContent("#lab-gitflow p.goal")), "the tab 3 goal line does not answer the conflict vote");
   await gf.close();
   check(/no Reveal/.test(fs.readFileSync(path.join(__dirname, "..", "docs/course/crash-course-plan.md"), "utf8")) && /no Reveal/.test(fs.readFileSync(path.join(__dirname, "..", "docs/course/run-sheet.md"), "utf8")), "docs: the step 8 conflict vote scores with keys, no Reveal");
   // ==== end area gitflow ====
