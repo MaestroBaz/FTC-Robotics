@@ -20,7 +20,8 @@ No internet and no robot do not block the day. See Fallbacks.
 2. [ ] Print `cheatsheet.html` double sided, 4 pages = 2 sheets per student (30 sets, color if you have it: the diagrams use blue, green and red fills), `team-coding-standard.md` (30), this sheet (2), and 6 copies of `vote-cards.html` (3 pages: A, B, C).
 3. [ ] Decide the 6 team names, or let teams name themselves in Module 0 (click a name in the scores to rename).
 4. [ ] Test the projector (gate 1) and the header, scores and votes (gate 2) on the laptop you bring.
-5. [ ] Tomorrow morning, not tonight: copy the final `lab/index.html` to the USB stick and to the projector laptop. Put a second copy on the stick from the git tag `crash-course-day`: the tag holds the lab reviewed on 2026-11-07. In the repo, run `git show crash-course-day:lab/index.html > lab-fallback.html` and copy `lab-fallback.html` to the stick. Open it from disk once to check it loads.
+5. [ ] Tomorrow morning, not tonight: copy the final `lab/index.html` to the USB stick and to the projector laptop. Put a second copy on the stick from the git tag `crash-course-day`. The tag and GitHub (origin/main) still hold the lab of 2026-11-07: 11 Java cards, no Loops and arithmetic card, no Save PNG, Clear last run or PID only on new frames. Move both to the final lab first. In the repo, once `npm test` passes on the final commit, run `git tag -f crash-course-day HEAD`, `git push origin main` and `git push -f origin crash-course-day`. Then run `git show crash-course-day:lab/index.html > lab-fallback.html` and copy `lab-fallback.html` to the stick. Open it from disk once and check tab 1 shows 12 cards.
+6. [ ] Put the old AI-written code on the projector laptop (a local folder or an editor tab) for the 2-minute show in Module 0. No internet needed.
 
 Laptops, GitHub org, invites, robot config and the archive branch moved to the hands-on Follow-up Session. Nothing on that list blocks tomorrow.
 
@@ -55,7 +56,7 @@ Controls to remember:
 | Projector down | Gather the 6 teams around your laptop in two rows. Run the same modules with the browser zoom at 100%. |
 | Laptop down | Open `lab/index.html` from the USB stick on any laptop in the room. Scores restart at 0, so write the old scores on the whiteboard. |
 | No internet | Nothing on the day needs internet. The lab runs from disk and the fonts fall back to system fonts. |
-| Lab file broken on the projector laptop | Copy it again from the USB stick. If the copy fails too, open `lab-fallback.html` from the stick: the `crash-course-day` version. If every copy fails, open the repo on GitHub from a phone hotspot, download `lab/index.html` (Download raw file), and open the download from disk. |
+| Lab file broken on the projector laptop | Copy it again from the USB stick. If the copy fails too, open `lab-fallback.html` from the stick: the `crash-course-day` version. If you skipped the tag move in prep step 5, this copy has 11 Java cards: from card 6 on, the plan's card numbers run one higher than the screen, and Save PNG, Clear last run and PID only on new frames are missing. If every copy fails, open the repo on GitHub from a phone hotspot, download `lab/index.html` (Download raw file), and open the download from disk. |
 | Teams stop paying attention | Call a word hunt on the Every word explained card. First team to find the word on the projector scores. |
 
 ## Issues

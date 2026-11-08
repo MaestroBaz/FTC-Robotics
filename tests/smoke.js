@@ -591,6 +591,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(csSrc.includes(">rightBumperWasPressed()</text>") && csSrc.includes(">then feedTimer.reset()</text>") && csSrc.includes(">then feederOff()</text>") && csSrc.includes(">launcherOff()</text>") && !/cancel, back to IDLE/.test(csSrc), "cheat sheet: launcher state machine matches tab 5 code B, no cancel arc");
   check(/fully motionless: rule G304\.H/.test(csSrc) && /team rule, stricter: nothing moves in INIT/.test(csSrc), "cheat sheet: G304.H and the stricter team rule labeled apart");
   check(fit.every(f => f.overflow.length === 0), "no diagram label runs past its figure: " + fit.flatMap(f => f.overflow).join(" | "));
+  // day-of docs match the lab: the 8 parts of card 0, the conflict markers of tab 3, colored labels print in color, the PR flowchart arrows stay off the boxes
+  const regKeys = [...src.matchAll(/\{k: "(\w+)", c: "--\w+", l: \[/g)].map(m => m[1]);
+  const csParts = await cs.evaluate(() => [...document.querySelector(".fig svg").querySelectorAll("text.b")].map(t => t.textContent).filter(t => !/^\d$/.test(t)));
+  check(regKeys.slice(0, 8).join() === "package,imports,annotation,class,fields,method,locals,calls" && csParts.join() === regKeys.slice(0, 8).join(), "cheat sheet: the 8 parts carry the names of lab card 0: " + csParts.join());
+  check(src.includes('"<<<<<<< HEAD"') && src.includes('">>>>>>> origin/main"') && csSrc.includes("&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD") && csSrc.includes("&gt;&gt;&gt;&gt;&gt;&gt;&gt; origin/main</text>"), "cheat sheet: conflict markers read HEAD and origin/main, as tab 3 and git show them");
+  const csLook = await cs.evaluate(() => {
+    const red = document.querySelector('svg text[fill="#cf3535"]'), svg = [...document.querySelectorAll("svg")].find(s => /Approved\?/.test(s.textContent));
+    const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    const fix = svg.querySelector("rect.rd").getBoundingClientRect(), arrows = [...svg.querySelectorAll("path.ag, path.ar")].filter(p => !p.getAttribute("d").startsWith("M298"));
+    return { red: getComputedStyle(red).fill, crossed: arrows.filter(p => hit(p.getBoundingClientRect(), fix)).map(p => p.getAttribute("d")) };
+  });
+  check(csLook.red === "rgb(207, 53, 53)" && csLook.crossed.length === 0, "cheat sheet: red labels print red, no arrow runs through the Fix, commit, push box: " + JSON.stringify(csLook));
   await cs.close();
 
   // ==== area feedback: smoke checks for the feedback teaching fixes go below this line ====
@@ -651,6 +663,9 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     await both("after the match");
     await pg.click("#fb-cbar .tc-all"); await pg.waitForTimeout(100);
     await both("after the match, Show all");
+    // the plan's answer key for the match prediction: C, closed loop by a lot (near 50% vs 100%)
+    const rates = await pg.$$eval("#fb-score tr", trs => trs.slice(1).map(tr => parseInt(tr.lastElementChild.textContent, 10)));
+    check(rates[0] >= 40 && rates[0] <= 60 && rates[1] === 100 && /Right answer C: the lab ends near 50%/.test(fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8")), "feedback: the 2-minute match ends near 50% vs 100%, as the plan's answer key says: " + rates.join(" vs "));
     // P + I + D box: F and the fix add up to the motor power on screen
     const sum = (await pg.textContent("#fb-blocks")).match(/F = kF x target([\d.]+) power.*fixes error: ([+-][\d.]+).*?power ([\d.]+)/);
     check(sum && Math.abs(+sum[1] + +sum[2] - +sum[3]) < 1e-9, "feedback: block diagram F + fix = motor power: " + (sum ? sum.slice(1).join(" ") : "no match"));

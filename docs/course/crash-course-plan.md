@@ -45,7 +45,7 @@ The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fal
 - [ ] Print `run-sheet.md`.
 - [ ] Print 6 sets of A, B and C cards, one set per team.
 - [ ] Test the projector with `lab/index.html` opened from disk at browser zoom 125%, not more. Check that the vote options and code read from the back row. Press Hide after each vote so the demo gets the screen.
-- [ ] On the morning of the course, copy `lab/index.html` to a USB stick. The git tag `crash-course-day` holds the lab reviewed on 2026-11-07, as a fallback copy (steps in `run-sheet.md`).
+- [ ] On the morning of the course, copy `lab/index.html` to a USB stick. The git tag `crash-course-day` holds the fallback copy. The tag and GitHub still hold the lab of 2026-11-07, with 11 Java cards: move the tag and push first (steps in `run-sheet.md`).
 - [ ] Send the homework link to the students.
 
 Laptops, GitHub org and invites, robot config and the archive branch moved to the hands-on Follow-up Session plan at the end of this doc.
@@ -72,7 +72,7 @@ Talking points (5 min):
 - Judges interview students, not code. A robot the team cannot explain loses Control and Inspire contention.
 - FIRST allows AI and asks for credit. The team rule: you merge only code you explain line by line to a reviewer. "The AI wrote it" does not pass review.
 - Show the old code for 2 minutes. Ask: "Who tells me what this thread does at STOP?" Silence makes the point. Do not shame anyone.
-- Then open lab tab 2, pick "AI version with thread", press INIT. The arm moves during INIT, and once init finishes the robot breaks rule G304.H before the match starts. Press START, then STOP: the thread keeps running until the Robot Controller app restarts. Two minutes, no lecture needed.
+- Then open lab tab 2 and pick "AI version with thread". Run the practice vote below first, so the demo does not give the answer away. Then press INIT, START and STOP: the arm moves right after INIT, and once init finishes the robot breaks rule G304.H before the match starts. After STOP the thread keeps running until the Robot Controller app restarts. Two minutes, no lecture needed.
 - Show the 3 rules on the wall:
   1. One loop. No threads. No `sleep()` inside TeleOp.
   2. Two kinds of files: `Robot.java` (hardware) and OpModes (behavior).
@@ -93,9 +93,9 @@ Lab tab 1 has 12 cards, numbered 0 to 11. Card 6, Loops and arithmetic, is for t
 |---|---|---|---|
 | 0 Anatomy of a file | 1 min | Each part in the legend | Every OpMode has the same 8 parts, top to bottom. |
 | 1 Classes and objects | 2 min | Reset one ElapsedTime, add a third | A class is a blueprint. `new` builds an object. Each object keeps its own data. |
-| 2 Types, final and static | 3 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
+| 2 Types, final and static | 2 min | Guess, then Compile each line | Every box has a type. `final` locks a tuned number in one place. |
 | 3 Robot.java: public and private | 3 min | Teams guess which two calls build, then press each of the 4 calls | Motors are private in Robot.java. OpModes call public actions. |
-| 4 extends and @Override | 4 min | Click telemetry and @Override, then the three @Override versions | `extends LinearOpMode` is why telemetry and gamepad1 exist. `@Override` is a spelling check: a typo fails the build instead of never running. |
+| 4 extends and @Override | 3 min | Click telemetry and @Override, then the three @Override versions | `extends LinearOpMode` is why telemetry and gamepad1 exist. `@Override` is a spelling check: a typo fails the build instead of never running. |
 | 5 Decisions: if, else, switch | 6 min | Move the stick slider to 0.8, 0.3, -0.4 and 0. Then the switch states, then tick Forget the break | Java asks the questions top to bottom and runs only the first true one. Every `case` ends with `break`. `==` compares, `=` stores. |
 | 6 Loops and arithmetic | hands-on session | for: Next step through the 4 wheels. while: count the balls, then tick Forget the line. Run the two 5 / 2 lines | `for` counts, `while` repeats until its question says false. Something inside must move it toward false. `5 / 2` is 2 in Java. |
 | 7 Scope | 2 min | Next line, 10 times | A variable lives until the `}` of its block. |
@@ -373,7 +373,7 @@ Part A, why no sleep (lab tab 5, 10 min):
 
 Part B, feedback across a match (lab tab 6, 10 min):
 - Open with the vote: a fresh battery reads 13.6 V, at the end 11.8 V. What happens to `setPower(0.8)`? Right answer B: slower wheel, shots fall short. Reveal, score.
-- Before you press "Run a 2-minute match", teams predict which robot wins on the scoreboard and by how much: A open loop, B closed loop by a little, C closed loop by a lot. Press, then compare hit rates.
+- Before you press "Run a 2-minute match", teams predict which robot wins on the scoreboard and by how much: A open loop, B closed loop by a little, C closed loop by a lot. Press, then compare hit rates. Right answer C: the lab ends near 50% for `setPower(0.8)` and 100% for `setVelocity(1160)`.
 - Open loop: `setPower(0.8)` gives a different speed as the battery drains. Closed loop: `setVelocity(1160)` uses the encoder to hold the speed. Point at the block diagrams under the chart: the open loop has no arrow coming back, the closed loop does. This is the external-feedback story the Control Award asks for.
 - Ask: why does drive still use setPower? The driver closes that loop with their eyes.
 - Markers: dip, recovery time, open-loop offset. Pause on the dip after a shot and name each one.
@@ -421,7 +421,7 @@ Teach: each pass through the loop checks the state once and moves on. Driving ke
 
 `feederOn()` and `feederOff()` live in Robot.java next to the launcher. The plan assumes a continuous servo named `"feeder"` in the robot configuration [Verify]. If the team's feeder is a motor or a standard servo, only those two method bodies change. MainTeleOp stays the same: that is rule 2 at work. Lab tab 5 (code B), the Decisions card switch and the Every word explained card call the same two methods.
 
-Spot the bug on the whiteboard: cross out one `break`. Teams hold up A the launcher never spins, B two states run in one pass, C a compile error. Then ask where a cancel button (gamepad2 B returns to IDLE) would go. Teams answer A inside IDLE, B inside every case, C above the switch.
+Spot the bug on the whiteboard: cross out the `break` after `case SPINNING_UP`. Teams hold up A the launcher never spins, B two states run in one pass, C a compile error. Right answer B: SPINNING_UP falls into FEEDING, so the feeder pushes a ball before the wheel is up to speed. A missing break builds fine: the Decisions card shows it with "Forget the break after SPINNING_UP". Then ask where a cancel button (gamepad2 B returns to IDLE) goes. Teams answer A inside IDLE, B inside every case, C above the switch. Right answer C: one `if` above the switch works in every state. The IDLE case turns off only the launcher, so the cancel turns off the feeder too: `if (gamepad2.b) { robot.feederOff(); launchState = LaunchState.IDLE; }`.
 
 Team rounds:
 - Vote: sleep and the sticks. Right answer A (1 point per right team).
@@ -447,7 +447,7 @@ Part B, same class, other sensors (7 min):
 - "Lift to height (encoder)": tick "Carrying 3 balls": kF 0.18 is no longer enough, gravity now needs 0.30.
 - "Auto-aim at the HIVE (camera)": the aim button starts held. Drag the HIVE to a new spot and release: the robot turns to face the HIVE. Drag the HIVE outside the yellow camera cone: the banner reads SEARCHING and the robot spins toward the side where the camera last saw the target, then the PID takes over. This is why the code has an `else` branch with `lastBearing`. Without the branch the robot sits still when the camera loses the target. Then tick "Driver strafes side to side". The robot keeps facing the target while sliding. Before you switch presets, teams predict what "P too high" does to overshoot in the markers table: A smaller, B the same, C bigger. Compare "P only" and "P too high": overshoot grows from about half the move to about two thirds, so too much P overshoots. Then compare the PD and PID presets: I adds overshoot here, so not every job needs all three terms. If someone asks why the red D line spikes on aim, point at the note under the D chart: the camera sends 30 frames per second, the loop runs 50 times, so the error jumps on some passes and holds on the rest. The fix sits one tick away: "PID only on new frames" runs the PID once per frame and holds the output in between. The vision session (`follow-up/vision.md`) types that code.
 
-Part C, the class in words (3 min): open the Java tab, "Every word explained" card, PIDController.java. Word hunt for 3 words: the number multiplied by the error, the stored error from the last loop pass, the method the OpMode calls every loop. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is about 10 lines in MainTeleOp. The code builds without a camera attached.
+Part C, the class in words (3 min): open the Java tab, "Every word explained" card, PIDController.java. Word hunt for 3 words, pointed at on the projector (these three have no pop-up in the lab): the number multiplied by the error (kP), the stored error from the last loop pass (lastError), the method the OpMode calls every loop (update). Then click this. and return so the room reads their pop-ups. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is about 10 lines in MainTeleOp. The code builds without a camera attached.
 
 Tuning on the real robot: on a lift or arm, find F first (set kP, kI and kD to 0, raise kF until the lift holds still). Then kP until the robot overshoots a little, then kD until the overshoot stops, then a small kI if it stops short from friction. Test 5 times. Commit the numbers with a message saying what you tested.
 
