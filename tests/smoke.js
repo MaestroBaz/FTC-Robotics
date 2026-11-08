@@ -73,10 +73,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#tm-reset"); await pg.click("#tm-reset");
   check((await pg.textContent('.team[data-i="1"] b')) === "0", "two clicks on Reset scores clear the board");
   await pg.goto(URL + "#gitflow"); await pg.waitForTimeout(300);
-  await pg.mouse.wheel(0, 2000); await pg.waitForTimeout(300);
+  await pg.evaluate(() => window.scrollTo(0, 1500)); await pg.waitForTimeout(100);   // an instant jump: a wheel scroll animation keeps moving the page after the click
   const scrolledDown = await pg.evaluate(() => scrollY);
   await pg.evaluate(() => document.querySelector('nav.tabs a[data-tab="mecanum"]').click()); await pg.waitForTimeout(200);
-  check(scrolledDown > 500 && (await pg.evaluate(() => scrollY)) === 0, "a tab change opens the new tab at the top, on its goal line and vote (was " + scrolledDown + ")");
+  const afterTab = await pg.evaluate(() => [scrollY, document.querySelector("section.lab.on").id]);
+  check(scrolledDown > 500 && afterTab[0] === 0, "a tab change opens the new tab at the top, on its goal line and vote (was " + scrolledDown + ", now " + afterTab + ")");
   await pg.mouse.wheel(0, 600); await pg.waitForTimeout(200);
   await pg.evaluate(() => document.documentElement.setAttribute("data-theme", document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark")); await pg.waitForTimeout(300);
   check((await pg.evaluate(() => scrollY)) > 0, "a theme repaint keeps the scroll place");
