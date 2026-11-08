@@ -40,7 +40,7 @@ Times follow the plan's agenda (`crash-course-plan.md`).
 | 2:50 | Module 6, PID control, done. The final round starts on time, even if PID runs short. Cut the lift job first, then auto-aim. |
 | 3:00 | Final round done, winner named. |
 
-Scoring: Reveal answer pays one point to every team that voted right, so votes need no keys. Word hunt, Spot the bug and predictions: press the team's number key (1 to 6) or click +. The final round doubles points: press the key twice.
+Scoring: Reveal answer pays one point to every team that voted right, so votes need no keys. One exception: the step 8 conflict vote on tab 3 has no Reveal. Press the number key of each team holding C. Word hunt, Spot the bug and predictions: press the team's number key (1 to 6) or click +. The final round doubles points: press the key twice.
 
 Controls to remember:
 - Ask the room: click the answer each team holds up, Team 1 first. Right-click takes the last vote back. Only Reveal answer opens the answer. The right answers are spread over A, B and C. Press Hide after the reveal, so the demo gets the full width.

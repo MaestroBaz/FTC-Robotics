@@ -321,7 +321,7 @@ Lab tab 3, parts 1 to 4:
 - 1, where your code lives (6 min): press 1 Edit, 2 Commit, 3 Leo pushes to your branch first. Stop before 4 Push: teams predict A accepted, B rejected, C GitHub merges it. Press 4. The push gets rejected and the GitHub box turns red. Ask a team why, then press 5 Pull and 4 Push.
 - 2, how the repos fit (3 min): point at the organization, the two repos, the laptops, the robot, and Onshape. CAD history stays in Onshape.
 - 3, one pull request (5 min): step through the loop. At "Approved?", press "Reviewer asks for changes" once, so the room sees the loop back. Ask the room which of the 3 wall rules this picture enforces.
-- 4, two people, one line (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Right answer A: this branch has conflicts that must be resolved. Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and try both on the robot. C scores: git does not pick, people do. Click the side the room picks.
+- 4, two people, one line (5 min): run the second vote on the tab first: "What does GitHub show on Leo's pull request?" Right answer A: this branch has conflicts that must be resolved. Then step through Maya and Leo. At step 8, teams vote on which side to keep: A Maya's 0.4, B Leo's 0.3, C ask Maya and try both on the robot. C scores (press each C team's number key, there is no Reveal): git does not pick, people do. Then say the robot test liked 0.4 and click Accept theirs.
 
 Say in one line: every student clones this repo, commits and opens a pull request in the hands-on Follow-up Session. On this day the room learns the words. The laptop drills for that session sit in `github-team-workflow.md` section 7.
 
@@ -329,7 +329,7 @@ Team rounds:
 - Vote: laptop dies before push. Right answer B (1 point per right team).
 - Vote: Leo's pull request after Maya merged. Right answer A (1 point per right team).
 - Prediction: what happens at Push after the partner pushed (1 point).
-- Vote at conflict step 8: which side to keep (1 point for C, ask and test).
+- Vote at conflict step 8: which side to keep (1 point for C, ask and test, keys, no Reveal).
 
 ## Module 4: Drive modes, robot-centric and field-centric (25 min)
 

@@ -1305,7 +1305,7 @@ table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 va
       <svg class="gitsvg" id="gt-svg" viewBox="0 0 760 280" role="img" aria-label="Commit graph"></svg>
       <div class="panel" id="gt-confpanel" hidden>
         <h3>Fix the conflict</h3>
-        <p class="note" style="margin:0 0 6px">What git writes into MainTeleOp.java. Android Studio shows the same choice as the 3 boxes below.</p>
+        <p class="note" style="margin:0 0 6px">What git writes into MainTeleOp.java (HEAD = Leo's branch). Android Studio shows the same choice as the 3 boxes below.</p>
         <pre class="code" id="gt-markers"></pre>
         <div class="conf" style="margin-top:10px">
           <div class="side"><b>Yours (leo/precision)</b>speed = 0.3;<div style="margin-top:8px"><button class="b" id="gt-yours">Accept yours</button></div></div>
@@ -3426,9 +3426,9 @@ const GT = (function(){
     {t: "Maya opens pull request #1", x: "Maya pushes and opens a PR. Ava reviews. She asks two questions: \"What does 0.4 do?\" and \"Why the left bumper?\" Maya answers without looking anything up.", as: "Ctrl+Shift+K to push. github.com > Compare & pull request. Fill the template.", cmd: "git push -u origin maya/slow-mode\n# then open the PR on github.com"},
     {t: "PR #1 merged", x: "Ava approves. Maya clicks Squash and merge and deletes her branch. main now has slow mode 0.4.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "# on github.com. Then everyone:\ngit switch main\ngit pull"},
     {t: "Leo opens PR #2: conflict", x: "GitHub says: This branch has conflicts that must be resolved. Maya and Leo changed the same line.", as: "github.com shows the conflict. Do not panic, and do not delete anything.", cmd: "git push -u origin leo/precision\n# github.com: This branch has conflicts that must be resolved"},
-    {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Which line stays? Teams vote: A keep Maya's 0.4. B keep Leo's 0.3. C ask Maya and try both on the robot. Then click a side below.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
-    {t: "Leo pushes the fix", x: "Leo asked Maya and tested both on the robot. Git does not pick. People do. The merge commit holds the decision. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
-    {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. History keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -d leo/precision"}
+    {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Which line stays? Teams vote: A keep Maya's 0.4. B keep Leo's 0.3. C ask Maya and try both on the robot. Score the votes with the team keys. Then click a side in Fix the conflict.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
+    {t: "Leo pushes the fix", x: "Leo asked Maya and tested both on the robot. Git does not pick. People do. The merge commit records the decision. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
+    {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. Squash put it on main as one commit. Pull request #2 on github.com keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -d leo/precision"}
   ];
   const LANES = [{n: "main", y: 50}, {n: "maya/slow-mode", y: 135}, {n: "leo/precision", y: 215}];
   const X = col => 130 + col * 96;
@@ -3499,7 +3499,7 @@ const GT = (function(){
       prs += prCard(2, "Precision slow mode", "leo/precision", st2[0], st2[1], s <= 7 ? "This branch has conflicts that must be resolved.<br>MainTeleOp.java, line 23" : "");
     }
     $("#gt-prs").innerHTML = prs;
-    renderCode($("#gt-markers"), ["            double speed = 1.0;", "            if (gamepad1.left_bumper) {", "<<<<<<< HEAD   (Leo's line)", "                speed = 0.3;", "=======", "                speed = 0.4;", ">>>>>>> origin/main", "            }"]);
+    renderCode($("#gt-markers"), ["            double speed = 1.0;", "            if (gamepad1.left_bumper) {", "<<<<<<< HEAD", "                speed = 0.3;", "=======", "                speed = 0.4;", ">>>>>>> origin/main", "            }"]);
     markLines($("#gt-markers"), [3], [5]);
     $("#gt-result").textContent = choice ? "speed = " + choice + ";" : "pick a side";
     svgDraw();
@@ -4171,7 +4171,7 @@ const GX = (function(){
     s += SV.tx(272, 100, "Mentor updates", {size: 12, col: "mut", weight: "600", anchor: "end"});
     s += SV.tx(272, 115, "the SDK", {size: 12, col: "mut", anchor: "end"});
     s += SV.box(640, 300, 230, 62, ["Onshape Documents", "real CAD history: versions, branches"], {fill: P.codebg});
-    s += SV.ar(pre, [[735, 240], [755, 298]], {col: "mut"});
+    s += SV.ar(pre, [[755, 298], [735, 242]], {col: "mut"});
     s += SV.tx(812, 282, "links + exports", {size: 11, col: "mut", weight: "600"});
     ["Maya", "Leo", "Ava"].forEach((n, i) => {
       const x = 330 + i * 106;
@@ -4193,7 +4193,7 @@ const GX = (function(){
     {id: "code", t: "Code + test", x: "Small change. Build. Test it on the robot.", as: "Build > Make Project", cmd: "./gradlew assembleDebug   # same as Build > Make Project"},
     {id: "commit", t: "Commit", x: "A save point with a message that starts with a verb.", as: "Ctrl+K: \"Add slow mode on left bumper\"", cmd: "git add .\ngit commit -m \"Add slow mode on left bumper\""},
     {id: "push", t: "Push", x: "Send your commits to GitHub.", as: "Ctrl+Shift+K", cmd: "git push -u origin maya/slow-mode"},
-    {id: "open", t: "Open PR", x: "Ask the team to merge your branch into main. Fill in the template: what, how tested, AI use.", as: "github.com > Compare & pull request", cmd: "git push -u origin maya/slow-mode   # done. The PR opens on github.com"},
+    {id: "open", t: "Open PR", x: "Ask the team to merge your branch into main. Fill in the template: what, how tested, AI use.", as: "github.com > Compare & pull request", cmd: "# on github.com: Compare & pull request, fill the template"},
     {id: "review", t: "Review", x: "The reviewer picks 2 lines and asks: what does this do? You answer without looking anything up.", as: "github.com > Files changed > comment", cmd: "# on github.com: Files changed, comment on a line"},
     {id: "ok", t: "Approved?", x: "The reviewer approves, or asks for changes.", as: "Approve, or Request changes", cmd: "# on github.com: Review changes > Approve"},
     {id: "fix", t: "Fix + push", x: "Change what the reviewer asked, commit, push. The PR updates by itself. Back to review.", as: "Ctrl+K, Ctrl+Shift+K", cmd: "git commit -am \"Address review\"\ngit push"},
