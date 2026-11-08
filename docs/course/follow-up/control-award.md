@@ -26,7 +26,7 @@ Table 6-8, in our words: [Certain]
 | Encouraged 4 | The team explains how reliable the solution is: show the solution working, or say how to improve the solution. |
 | Encouraged 5 | The team describes what they learned using the engineering process on the control solution. |
 
-Our candidates for Required 2: the launcher on `setVelocity()` (motor encoder), the turn to heading (IMU), the lift to height (lift encoder), the auto-aim (camera bearing), the AUTO drive on the drive encoders (`driveInches()` with `RUN_TO_POSITION`), and `goToPoint()` on the Pinpoint. TeleOp stick driving on `setPower()` does not count: the driver closes the loop by eye. The aim button counts: the camera bearing closes the loop. AUTO drive counts. [Certain]
+Our candidates for Required 2: the launcher on `setVelocity()` (motor encoder), the turn to heading (IMU), the lift to height (lift encoder), the auto-aim (camera bearing), the AUTO drive on the drive encoders (`driveInches()` with `RUN_TO_POSITION`), and `goToPoint()` on the Pinpoint. TeleOp stick driving on `setPower()` does not count: the driver closes the loop by eye. The aim button counts: the camera bearing closes the loop. AUTO drive counts. [Likely]: our reading of Required 2, not manual text.
 
 Advancement: Control sits in one group with Innovate and Design. At small events the judges give only one award of the three (Table 6-1). [Certain] on the table text. [Verify] the size bracket of our event.
 

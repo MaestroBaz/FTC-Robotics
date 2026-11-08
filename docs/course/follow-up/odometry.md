@@ -65,6 +65,7 @@ Sample offsets in the SDK sample: `setOffsets(-84.0, -168.0, DistanceUnit.MM)`, 
 - [ ] Tape on the floor: a start box, a line 48 in long away from the drivers, a line 24 in long toward the left wall. A tape measure at the robot station.
 - [ ] Lab open on the projector at tab 4, AUTO mode. A, B and C cards for each team.
 - [ ] Mentor branch `mentor/pinpoint-demo` with the Module 1 Robot.java changes and `PracticePinpoint.java` from Module 2, built and deployed, so the opener demo runs on the real robot. `PracticePinpoint` compiles only with the Module 1 methods.
+- [ ] On `mentor/pinpoint-demo`, with the measured offsets, run PracticePinpoint: push forward, X goes up. Push left, Y goes up. Turn left, heading goes up. Fix the directions on the mentor branch before the session. Students still run the Module 2 tests on their own PR.
 
 ## Agenda
 
@@ -80,7 +81,7 @@ Sample offsets in the SDK sample: `setOffsets(-84.0, -168.0, DistanceUnit.MM)`, 
 
 ## Module 0: Opener, where is the robot? (10 min)
 
-Demo first (4 min). Lab tab 4, pick "AUTO: go to point". Click a point near the top right. The robot drives a nearly straight line to the point. Click a point in the far corner and tick "Turn to 90 deg while driving" while the robot still moves: the path stays straight while the robot turns. Read the code panel under the field out loud: error to the point, times a gain, capped, then field-centric drive. Say: "Today the pose in line 2 comes from a real sensor."
+Demo first (4 min). Lab tab 4, pick "AUTO: go to point". Click a point near the top right. The robot drives a nearly straight line to the point. Click a point in the far corner and tick "Turn to 90 deg while driving" while the robot still moves: the path stays nearly straight while the robot turns. Read the code panel under the field out loud: error to the point, times a gain, capped, then field-centric drive. Say: "Today the pose in line 2 comes from a real sensor."
 
 Then the real robot (2 min). The mentor runs `PracticePinpoint` and pushes the robot 24 in along the tape, away from the drivers. A student reads X out loud from the Driver Hub.
 
@@ -181,9 +182,7 @@ Three old methods change. Each one now reads or sets the Pinpoint heading in pla
 
     // Front away from the drivers: heading back to 0, X and Y stay.
     public void resetHeading() {
-        Pose2D pose = pinpoint.getPosition();
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,
-                pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), AngleUnit.DEGREES, 0));
+        pinpoint.setHeading(0, AngleUnit.DEGREES);   // heading only, X and Y untouched
     }
 
     // Field-centric drive (lab tab 4, SDK sample RobotTeleopMecanumFieldRelativeDrive).
@@ -328,7 +327,7 @@ public class LeaveAndParkPinpoint extends LinearOpMode {
         }
         waitForStart();   // START is pressed already, so this returns at once
 
-        goToPoint(24, 0, 0);     // LEAVE: 24 in away from the drivers
+        goToPoint(24, 0, 0);     // off the start spot, 24 in away from the drivers
         // Module 4 adds the PARK point here.
     }
 
@@ -406,13 +405,13 @@ Check for done: `goToPoint(24, 0, 0)` stops within 1 in of the tape mark 3 runs 
 Add the PARK move after LEAVE:
 
 ```java
-        goToPoint(24, 0, 0);      // LEAVE: 24 in away from the drivers
+        goToPoint(24, 0, 0);      // off the start spot. LEAVE itself is judged where the robot ends
         goToPoint(24, 24, 90);    // PARK: [Verify] the real PARK spot, measured from our start tile
 ```
 
-The second move strafes toward the left wall and turns 90 deg left in one go. In the lab, tab 4 AUTO with "Turn to 90 deg while driving" ticked shows the same path. Before the run, teams predict: A the robot turns first, then drives, B the robot drives a curve, C the robot drives a straight line while turning. Answer C: field-centric drive with the Pinpoint heading keeps the direction fixed on the field while the robot turns.
+The second move strafes toward the left wall and turns 90 deg left in one go. In the lab, tab 4 AUTO with "Turn to 90 deg while driving" ticked shows the same path. Before the run, teams predict: A the robot turns first, then drives, B the robot drives a curve, C the robot drives a straight line while turning. Answer C: a nearly straight line while turning. Field-centric drive with the Pinpoint heading keeps the direction fixed on the field. Strafing slips more than driving forward, so a real robot bends a little.
 
-[Verify] in the BIOBUZZ game manual: where PARK counts, how much of the robot must be inside, and which start tiles the team uses. BIOBUZZ AUTO pays LEAVE 3 points and PARK 5 points. Replace `(24, 24, 90)` with measured numbers for each start tile.
+[Verify] in the BIOBUZZ game manual: where PARK counts, how much of the robot must be inside, and which start tiles the team uses. BIOBUZZ AUTO pays LEAVE 3 points and PARK 5 points. LEAVE counts at the end of AUTO (Q&A 21): pick a PARK point where the robot touches no wall, or the run scores 5, not 8. Replace `(24, 24, 90)` with measured numbers for each start tile.
 
 Check for done: 5 runs in a row from the start box, robot ends inside the PARK zone every time, total time under 10 s. Commit with a message naming the 5 runs, for example "test: Pinpoint leave and park, 5 of 5 inside PARK, kI 0.02".
 
@@ -451,7 +450,6 @@ Check for done: 5 runs in a row from the start box, robot ends inside the PARK z
 - The team owns a Pinpoint and 2 pods, and which pod type.
 - Which Control Hub I2C bus goBILDA recommends for the Pinpoint.
 - Heading goes up on a left turn (Module 2 sign test). The lab and this plan assume counterclockwise positive.
-- Calling `setPosition()` right after `resetPosAndIMU()`: does the running reset overwrite the new pose? Today the start pose is 0, 0, 0, so this session does not need `setPosition()`.
+- Calling `setPosition()` right after `resetPosAndIMU()`: does the running reset overwrite the new pose? Today the start pose is 0, 0, 0, so this session does not need `setPosition()`. The SDK sample SensorGoBildaPinpoint does exactly this in init().
 - The BIOBUZZ PARK zone, start tiles and field axes in the game manual.
-- `resetHeading()` through `setPosition()`: the heading reads 0 on the next `updatePose()`, and X and Y stay put.
 - A TeleOp on `driveFieldCentric()` (lab tab 4, field-centric) drives the same after the switch from the Control Hub IMU to the Pinpoint heading.

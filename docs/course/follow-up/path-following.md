@@ -15,8 +15,8 @@ Do not schedule this session until all three gates pass on the real robot. Path 
 | # | Gate | Test | Pass |
 |---|---|---|---|
 | 1 | Clean encoder AUTO (lab tab 8 session) | Run `LeaveAndPark` 5 times in a row: drive 24 in, then `turnToHeading(90)`. After the odometry merge, `turnToHeading()` calls `robot.updatePose()` first (`odometry.md`, Module 1). Press STOP mid-drive once. Watch the robot between INIT and START. | Every run stops within 1 in of the tape mark and within 2 deg of 90 deg. STOP halts the robot at once. No motion between INIT and START (G304.H). |
-| 2 | Odometry within a stated error (issue 31 session) | Push the robot by hand along a tape line, 96 in forward and back. Then 48 in strafe left and back. Then 5 full turns by hand, back onto the start mark. Read X, Y and heading on telemetry. | Forward: X reads 96 in within 1 in, Y stays within 1 in. Strafe: Y reads 48 in within 1 in. Back on the start mark: X and Y within 1 in, heading within 2 deg. |
-| 3 | Go-to-point lands (issue 31 session) | Drive to one point 36 in forward and 24 in left, heading 90 deg, 5 runs from the same start mark. | Every run ends within 1 in and 2 deg of the target, with no timeout. |
+| 2 | Odometry within a stated error (odometry session, `odometry.md`) | Push the robot by hand along a tape line, 96 in forward and back. Then 48 in strafe left and back. Then 5 full turns by hand, back onto the start mark. Read X, Y and heading on telemetry. | Forward: X reads 96 in within 1 in, Y stays within 1 in. Strafe: Y reads 48 in within 1 in. Back on the start mark: X and Y within 1 in, heading within 2 deg. |
+| 3 | Go-to-point lands (odometry session, `odometry.md`) | Drive to one point 36 in forward and 24 in left, heading 90 deg, 5 runs from the same start mark. | Every run ends within 1 in and 2 deg of the target, with no timeout. |
 
 Why these numbers: [Guessing] 1 in per 96 in of travel is about 1%. A BIOBUZZ AUTO path covers about 100 in, so the pose error at the end stays near 1 in, small next to a tile (24 in). Tighten the numbers after the first session if the robot beats them. [Verify] the PARK zone size in the CM before you call 1 in good enough.
 
@@ -318,13 +318,13 @@ Copy `PracticePathSquare.java` to `PathAuto.java`. Change the annotation:
 Measure on the practice field with the tape: the start tile, the launch spot, the PARK zone. Write each point in inches from the start mark. Example shape (the numbers are placeholders, measure your own):
 
 ```java
-path.add(new Waypoint(20, 0, 0, false));     // LEAVE: off the start tile
+path.add(new Waypoint(20, 0, 0, false));     // off the start tile. LEAVE counts where the robot ends AUTO (Q&A 21)
 path.add(new Waypoint(30, 18, 45, true));    // launch spot, facing the HIVE
 // launch the 4 preloaded POLLEN here: the launcher state machine, in a blocking AUTO loop
 path.add(new Waypoint(10, 40, 90, true));    // PARK
 ```
 
-[Verify] the LEAVE and PARK definitions and the PARK zone position in CM Section 10 before you pick the points. [Verify] whether the field mirrors between the red and blue alliance. If the field mirrors, the other alliance path flips the sign of every Y and every heading.
+[Verify] the LEAVE and PARK definitions and the PARK zone position in CM Section 10 before you pick the points. The PARK point must leave the robot touching no wall, or LEAVE is lost. [Verify] whether the field mirrors between the red and blue alliance. If the field mirrors, the other alliance path flips the sign of every Y and every heading.
 
 Run the path 5 times. The path passes when all 5 runs park and the slowest run finishes under 25 s, which leaves 5 s of margin in the 30 s AUTO. Open a PR with the results table in the description. A reviewer asks the author to explain 2 lines, as always.
 

@@ -133,7 +133,7 @@ public class Robot {
     public static final double LAUNCH_VELOCITY = 1160;   // encoder ticks per second
     public static final double VELOCITY_TOLERANCE = 40;  // ticks per second
     public static final double FEED_POWER = 1.0;         // [Verify] direction and speed on the real feeder
-    public static final double COUNTS_PER_INCH = 42.8;   // example: 537.7 counts/rev, 4 in wheel. Formula in the encoders session
+    public static final double COUNTS_PER_INCH = 41.85;  // example: 537.7 counts/rev, 4.09 in (104 mm) wheel. Formula in the encoders session
 
     private DcMotor frontLeft;
     private DcMotor frontRight;

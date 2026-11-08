@@ -9,10 +9,10 @@ Format: the Crash Course moves, cut down for typing. Each module opens with a vo
 ## What this season changes
 
 - BIOBUZZ has no randomization (CM 10.3.1). The camera aims. The camera does not find the robot's field position: the tags sit on the HIVE CELLS and move when the HIVE tips (SDK 12.0 notes, `ftc-reference-2026-27.md` section 8).
-- AprilTags (CM 9.9): 36h11 family, 3.25 in, clusters of 4 on the bottom of each CELL, facing down toward the tiles. [Verify] the ID map in CM Figure 9-17.
+- AprilTags (CM 9.9): 36h11 family, 3.25 in, clusters of 4 on the bottom of each CELL, facing down toward the tiles. IDs (SDK AprilTagGameDatabase, CM Figure 9-17): RED SCORING 30-33, RED AUDIENCE 34-37, BLUE AUDIENCE 38-41, BLUE SCORING 42-45.
 - SDK v12.0 groups tags into clusters. FTC Docs: BIOBUZZ defines 4 clusters and no single tags. One visible tag of a cluster is enough to detect the whole cluster.
 - A cluster reports one pose. The origin sits near the center of the CELL opening, not on a tag. Aim at bearing 0 and the camera points at the opening.
-- Cluster names start with the alliance letter: "R" for red, "B" for blue. FTC Docs names two: "RED SCORING" and "RED AUDIENCE". [Verify] all 4 names on the robot in Module 2.
+- Cluster names start with the alliance letter: "R" for red, "B" for blue. The SDK names all 4: RED SCORING, RED AUDIENCE, BLUE AUDIENCE, BLUE SCORING.
 - A tipped HIVE turns some CELLS upside down. FTC Docs: if `Math.abs(ftcPose.roll) < 90`, the cluster sits right-side up and the CELL scores. Otherwise the CELL does not score.
 - Breaking change: code looping over `AprilTagDetection` and reading `detection.id` or `detection.metadata` no longer compiles. Check `instanceof AprilTagSingleDetection` or `instanceof AprilTagClusterDetection`, then cast. Pose fields (`ftcPose`) stay on the parent class and need no cast.
 
@@ -21,7 +21,7 @@ Format: the Crash Course moves, cut down for typing. Each module opens with a vo
 - [ ] Webcam on the robot, plugged into the Control Hub USB port. [Verify] the model. The SDK has a built-in calibration for the Logitech C270 at 640x480 only, and for the C920, C310, LifeCam HD-3000 and goBILDA USB camera. Another camera needs a calibration for range to read true.
 - [ ] Robot configuration on the Driver Hub: add the webcam with the name `Webcam 1`, same string as in the code.
 - [ ] Camera mount: on the robot centerline, tilted up toward the CELLS, no sideways roll. The tags face down, so a level camera at bumper height sees them only from far away. [Verify] the tilt angle from the launch spot: the robot must see at least one tag of a cluster where the drivers launch.
-- [ ] Print test tags at 3.25 in, black square edge to black square edge, IDs from CM Figure 9-17. [Verify] the IDs. Tape each on stiff card. A wrong print size makes range wrong.
+- [ ] Print test tags at 3.25 in, black square edge to black square edge, one tag from each cluster, for example IDs 30, 34, 38 and 42. Tape each on stiff card. A wrong print size makes range wrong.
 - [ ] Mentor branch `mentor/vision-demo` with the finished code from this doc, built and deployed for the opener.
 - [ ] Lab open on the projector at tab 7, "Auto-aim at the HIVE (camera)".
 - [ ] Clear floor space for the robot to turn in place. A student holds the robot's E-stop role: the Driver Hub STOP button.
@@ -117,7 +117,7 @@ On the robot (mentor drives, the room reads the Driver Hub):
 - Hold the tag on a tape mark and read `range`. Move the tag 12 in farther along the tape. `range` grows by 12 in, within 1.5 in. The number itself points at the CELL opening, not at the card, so never compare `range` with the tape directly. The 12 in step reads wrong by a fixed factor: check the print size, then the camera calibration. [Verify] on the robot.
 - Move the tag to the robot's left. Bearing goes positive. Move the tag right: negative.
 - Flip the tag upside down. Roll jumps near 180 and Scores reads false.
-- Hold one tag of each cluster in turn. Write all 4 cluster names on the whiteboard. [Verify] these names against the robot, then use them in Module 3.
+- Hold one tag of each cluster in turn. Write all 4 cluster names on the whiteboard and check them against the SDK list above, then use them in Module 3.
 
 ## Break (10 min)
 
@@ -224,6 +224,10 @@ New methods, inside the class:
         return hivePercent;
     }
 
+    public double cameraFps() {
+        return visionPortal.getFps();
+    }
+
     // Call after the loop ends. Frees the camera for the next OpMode.
     public void closeVision() {
         visionPortal.close();
@@ -231,11 +235,11 @@ New methods, inside the class:
 ```
 
 Read aloud, then ask each pair to explain 2 lines to the pair next to them:
-- `getFreshDetections()` returns `null` when no new frame arrived. The camera delivers about 30 frames per second [Verify on your camera with the telemetry below] and the loop runs faster, so most passes get `null`.
+- `getFreshDetections()` returns `null` when no new frame arrived. The camera delivers about 30 frames per second [Verify] on your camera with the Camera FPS line in Module 4 and the loop runs faster, so most passes get `null`.
 - `instanceof` plus the cast: the v12.0 pattern. A single tag would skip this branch. BIOBUZZ has none.
 - `startsWith(ourLetter)`: the alliance filter. FTC Docs uses the first letter of the name.
 - `sinceSeen`: one timer replaces a `found` boolean. A lost target, a blurred frame and an unplugged camera all end the same way: 0.2 s later, `hiveFound()` turns false.
-- `break`: stop at the first good cluster. [Verify] with Figure 9-17 whether a robot sees two of our clusters at once, and which one to prefer.
+- `break`: stop at the first good cluster. FTC Docs shows a red robot seeing RED SCORING and RED AUDIENCE at once. The roll filter drops the tipped one. If both sit upright, the first in the list wins. [Verify] on the field which one the drivers want.
 
 Check for done: `Robot.java` builds. Leave and Park still builds without changes. Open a PR. The reviewer asks for 2 lines explained. The mentor merges one PR.
 
@@ -315,6 +319,7 @@ Inside the while loop, replace the old aim block and the `robot.drive(...)` line
             telemetry.addData("Found", robot.hiveFound());
             telemetry.addData("Bearing", "%.1f deg (+ = left)", robot.hiveBearingDegrees());
             telemetry.addData("Range", "%.1f in", robot.hiveRangeInches());
+            telemetry.addData("Camera FPS", "%.0f", robot.cameraFps());
 ```
 
 Slow mode on `gamepad1.left_bumper`: multiply both left stick values and the default `turn = gamepad1.right_stick_x` by `speed`. Leave `aimTurn` and the search spin unscaled.
@@ -395,8 +400,8 @@ Aim in AUTO before the preloads launch. In AUTO a blocking loop is fine, with `o
         double turn = 0;
         while (opModeIsActive() && timer.seconds() < timeoutSeconds) {
             boolean newFrame = robot.updateVision(redAlliance);
-            if (robot.hiveFound() && Math.abs(robot.hiveBearingDegrees()) < 2) {
-                break;                                       // on target
+            if (robot.hiveFound() && Math.abs(robot.hiveBearingDegrees()) < 2 && Math.abs(robot.turnRateDegrees()) < 5) {
+                break;                                       // on target AND stopped, the same exit as turnToHeading() on lab tab 7
             }
             if (!robot.hiveFound()) {
                 turn = 0;                                    // AUTO: no search spin, wait for the timeout
