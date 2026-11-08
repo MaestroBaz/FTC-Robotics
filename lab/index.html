@@ -397,6 +397,15 @@ td.hit{color:var(--ok);}
 #en-kv{font-size:16px;}
 #en-robot summary{cursor:pointer;}
 /* ==== end area encoders ==== */
+/* ==== area pid ==== */
+table.resp td.ghost{font-weight:700; color:var(--muted); font-family:var(--mono); text-align:right;}
+table.resp td:nth-child(4){white-space:normal; text-align:left; font-family:var(--body); color:var(--muted);}
+table.resp td{white-space:normal;}   /* with the last-run column, long values wrap instead of squeezing the explanation */
+table.resp td:last-child{min-width:190px;}
+table.resp td.cutnote{white-space:normal; text-align:left; font:600 14px/1.35 var(--body); color:var(--ink); border-left:4px solid var(--pollen);}
+#pid-ghostkey .b{padding:2px 8px; font-size:12px; margin-left:6px;}
+#pid-dnote{margin:6px 0 0; font-size:14px; line-height:1.4;}
+/* ==== end area pid ==== */
 </style>
 </head>
 <body>
@@ -1092,7 +1101,8 @@ td.hit{color:var(--ok);}
     <div style="overflow-x:auto"><svg class="diag" id="pid-loop" role="img" aria-label="PID control loop diagram"></svg></div>
     <div class="grid2" style="grid-template-columns:1fr 1fr; gap:12px; margin-top:12px">
       <div><h3 style="font-size:16px">I: the integral is the area under the error</h3><canvas id="pid-int" height="150"></canvas></div>
-      <div><h3 style="font-size:16px">D: the derivative is the slope of the error</h3><canvas id="pid-der" height="150"></canvas></div>
+      <div><h3 style="font-size:16px">D: the derivative is the slope of the error</h3><canvas id="pid-der" height="150"></canvas>
+        <p class="note aim-only" id="pid-dnote" hidden>Why D spikes on aim: the camera sends 30 new frames per second, but the loop runs 50 times per second. Each dot is one loop pass. On some passes a new frame arrives and the error jumps. On the others the old frame repeats and the error holds still. D divides each jump by 0.02 s, so D spikes, then drops to 0. Camera noise adds more. Real robots do this too, so keep kD small on a camera.</p></div>
     </div>
   </div>
   <div class="grid2">
@@ -1133,7 +1143,7 @@ td.hit{color:var(--ok);}
         <h3>Target vs sensor <small>full history: live, scroll back, or drag to zoom</small></h3>
         <div id="pid-cbar"></div>
         <canvas id="pid-plot1" height="300"></canvas>
-        <div class="legend" style="margin-top:6px"><span><i style="background:var(--ok)"></i>target</span><span><i style="background:var(--accent)"></i>sensor reading</span><span><i style="background:color-mix(in srgb,var(--ok) 30%,transparent); height:10px"></i>settling band</span></div>
+        <div class="legend" style="margin-top:6px"><span><i style="background:var(--ok)"></i>target</span><span><i style="background:var(--accent)"></i>sensor reading</span><span><i style="background:color-mix(in srgb,var(--ok) 30%,transparent); height:10px"></i>settling band</span><span id="pid-ghostkey" hidden><i style="background:color-mix(in srgb,var(--ink) 30%,transparent); height:5px"></i><span id="pid-ghostname"></span><button class="b" id="pid-ghostclr" type="button">Clear last run</button></span></div>
       </div>
       <div class="panel">
         <h3>What each term asks for <small>power, -1 to 1: P + I + D, plus F on the lift. Same time window as above</small></h3>
@@ -2470,7 +2480,8 @@ const PIDLAB = (function(){
     aim: {rx: 50, ry: 52, base: 50, h: 0, w: 0, tx: 74, ty: 10, held: true, strafe: false, noise: true, frames: [], meas: null, found: false, nextFrame: 0, lastB: 0, mode: "off", drag: false},
     steps: [],
     lift: {p: 0, v: 0, heavy: false, kf: 0},   // kf: the F in PIDF, a constant power that holds the lift against gravity
-    m: {t0: 0, start: 0, over: 0, settledAt: -1, inTol: 0, stuck: 0}};
+    stuck: 0,     // seconds the turn loop sits outside the break window, not moving
+    ghost: null}; // the last run with other gains: {name, e0, pts: [{dt, e}], r}, drawn faint on the chart
   function fmt(v, step){ const d = step < 0.001 ? 4 : step < 0.01 ? 3 : 2; return (+v).toFixed(d); }
   function setSliders(){
     const A = APPS[app];
@@ -2492,9 +2503,9 @@ const PIDLAB = (function(){
   function gains(){ return [pOn.checked ? +kp.value : 0, iOn.checked ? +ki.value : 0, dOn.checked ? +kd.value : 0]; }
   function resetPID(){ S.c.integral = 0; S.c.first = true; }
   function newTarget(v){
-    S.target = v; resetPID(); S.done = false; S.bumped = false;
-    S.m = {t0: S.t, start: measure(), over: 0, settledAt: -1, inTol: 0, stuck: 0};
-    S.steps.push({t0: S.t, sp: v, start: measure(), app});
+    S.target = v; resetPID(); S.done = false; S.bumped = false; S.stuck = 0;
+    keepGhost();
+    S.steps.push({t0: S.t, sp: v, start: measure(), app, cfg: cfgNow()});
     if (S.steps.length > 400) S.steps.shift();
   }
   function measure(){
@@ -2515,6 +2526,8 @@ const PIDLAB = (function(){
     $("#pid-appdesc").textContent = A.desc;
     $("#pid-viewtitle").textContent = A.view;
     $$("#lab-pid .lift-only").forEach(el => el.hidden = app !== "lift");
+    $$("#lab-pid .aim-only").forEach(el => el.hidden = app !== "aim");
+    S.ghost = null; showGhostKey();   // a last run from another job does not compare
     let t = "";
     if (A.targets.length){ t = '<span class="note">Target:</span>' + A.targets.map(v => '<button class="b" data-tg="' + v + '">' + v + " " + A.unit + "</button>").join(""); }
     $("#pid-targets").innerHTML = t;
@@ -2533,7 +2546,7 @@ const PIDLAB = (function(){
     $("#pid-extras").innerHTML = ex;
     const bump = $("#pid-bump");
     if (bump) bump.addEventListener("click", () => { const st = S.steps[S.steps.length - 1]; if (st && st.tEnd === undefined) st.tEnd = S.t;   // the markers measure the move up to the bump, not the bump
-      if (app === "turn"){ S.turn.w += 220; if (S.done) S.bumped = true; else S.m.settledAt = -1; } else S.lift.v -= 30; });   // a turn loop that ended stays ended: turnToHeading() already returned
+      if (app === "turn"){ S.turn.w += 220; if (S.done) S.bumped = true; } else S.lift.v -= 30; });   // a turn loop that ended stays ended: turnToHeading() already returned
     if (app === "aim"){
       const hold = $("#pid-hold");
       hold.addEventListener("click", () => { S.aim.held = !S.aim.held; setHoldLabel(); if (S.aim.held) newTarget(0); });
@@ -2758,25 +2771,13 @@ const PIDLAB = (function(){
     const phi = Math.atan2(-dx, -dy) * 180 / Math.PI;
     return wrapD(phi - A.h);
   }
-  function metrics(){
-    const A = APPS[app];
-    const e = app === "aim" ? (S.aim.found ? S.aim.meas : null) : errorNow();
-    const m = S.m;
-    if (e !== null){
-      const sign0 = Math.sign(app === "aim" ? (S.aim.meas || 0) : (S.target - m.start)) || 1;
-      if (app === "aim" && !m.start && S.aim.found) m.start = S.aim.meas;
-      const dir = app === "aim" ? Math.sign(m.start || 1) : Math.sign((app === "turn" ? wrapD(S.target - m.start) : S.target - m.start) || 1);
-      const past = -e * dir; if (past > m.over) m.over = past;
-      if (Math.abs(e) < A.tol){ m.inTol += 1 / 50; if (m.inTol > 0.3 && m.settledAt < 0) m.settledAt = S.t - m.t0 - 0.3; } else { m.inTol = 0; if (m.settledAt >= 0) m.settledAt = -1; }
-      if (app === "turn" && !S.done && Math.abs(e) >= A.tol && Math.abs(S.turn.w) < 5) m.stuck += 1 / 50; else m.stuck = 0;   // outside the break window and not moving: AUTO waits here forever
-    }
-  }
   function tick(dt){
     const n = Math.max(1, Math.round(dt / 0.004)), h = dt / n;
     for (let i = 0; i < n; i++){
       S.loopAcc += h;
-      if (S.loopAcc >= 0.02){ S.loopAcc -= 0.02; controlPass(0.02); metrics();
+      if (S.loopAcc >= 0.02){ S.loopAcc -= 0.02; controlPass(0.02);
         const e = errorNow();
+        S.stuck = app === "turn" && !S.done && Math.abs(e) >= APPS.turn.tol && Math.abs(S.turn.w) < 5 ? S.stuck + 0.02 : 0;   // outside the break window and not moving: AUTO waits here forever
         S.hist.push({e: e, t: S.t, sp: app === "aim" ? 0 : S.target, me: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), p: S.c.p, i: S.c.i, d: S.c.d, f: S.c.f, o: S.c.out, mv: app === "aim" && (S.aim.strafe || S.aim.drag)});
         capHist(S.hist);
       }
@@ -2793,7 +2794,7 @@ const PIDLAB = (function(){
     }
     if (e !== null) html += chip("error " + e.toFixed(1) + " " + A.unit, Math.abs(e) < A.tol ? "ok" : "warn");
     if (app === "turn" && S.done) html += S.bumped ? chip("loop ended before the bump: nothing holds the heading", "bad") : Math.abs(e) < APPS.turn.tol ? chip("loop ended: on target and stopped", "ok") : chip("loop ended, then the robot coasted to " + e.toFixed(1) + " deg", "warn");
-    if (app === "turn" && !S.done && S.m.stuck > 1) html += chip("loop still running: stuck " + e.toFixed(1) + " deg away", "bad");
+    if (app === "turn" && !S.done && S.stuck > 1) html += chip("loop still running: stuck " + e.toFixed(1) + " deg away", "bad");
     if (app === "aim") html += chip("camera: " + (S.aim.found ? "target found" : "no target"), S.aim.found ? "ok" : "bad");
     html += chip("output " + S.c.out.toFixed(2), "run");
     $("#pid-chips").innerHTML = html;
@@ -2889,23 +2890,57 @@ const PIDLAB = (function(){
       if (swing) off = null;
     }
     const os = pmax > 1.005 ? (pmax - 1) : 0;
-    return {e0, tS, td, t10, t90, pmax, tp, os, band, ts, off, swing, tLast};
+    const ended = isFinite(tEnd), cutBy = ended && ts === null ? (st.tEnd !== undefined && st.tEnd <= tEnd ? "the bump" : "the next move") : null;   // cut: ended before it settled, so the values are partial
+    return {e0, tS, td, t10, t90, pmax, tp, os, band, ts, off, swing, tLast, ended, cutBy};
   }
+  function cfgNow(){   // the gains a move starts with, and a name for them
+    const A = APPS[app], g = gains(), kf = app === "lift" ? S.lift.kf : 0, all = g.concat(kf);
+    const name = Object.keys(A.presets).find(n => A.presets[n].every((v, i) => v === all[i]) && (A.presets[n][3] === undefined ? kf === 0 : true));
+    return {key: all.join(","), name: name || "kP " + g[0] + ", kI " + g[1] + ", kD " + g[2] + (app === "lift" ? ", kF " + kf.toFixed(2) : "")};
+  }
+  function keepGhost(){   // a move with other gains starts: the move before becomes the faint "last run"
+    const st = S.steps[S.steps.length - 1];
+    if (!st || st.cfg.key === cfgNow().key) return;   // ponytail: a gain changed mid-move still files the move under its starting gains
+    const tEnd = Math.min(S.t, st.tEnd === undefined ? Infinity : st.tEnd), r = response(st, tEnd);
+    if (!r || r.small || r.moving) return;
+    const H = S.hist, pts = [];
+    for (let k = bsearch(H, r.tS), kE = bsearch(H, Math.min(tEnd, r.tS + 20)); k < kE; k++) if (H[k].e !== null && H[k].e !== undefined) pts.push({dt: H[k].t - r.tS, e: H[k].e});
+    S.ghost = {name: st.cfg.name, e0: r.e0, pts, r};
+    showGhostKey();
+  }
+  function showGhostKey(){
+    $("#pid-ghostkey").hidden = !S.ghost;
+    $("#pid-ghostname").textContent = S.ghost ? "last run: " + S.ghost.name : "";
+  }
+  $("#pid-ghostclr").addEventListener("click", () => { S.ghost = null; showGhostKey(); respTable(lastR); });
   const level = (st, e0, pr) => app === "aim" ? (1 - pr) * e0 : st.sp - (1 - pr) * e0;
+  function respVals(r){   // the 6 marker values of one move, in table order. A cut move says what the cut hid
+    const u = APPS[app].unit, f = v => v === null || v === undefined ? "--" : v.toFixed(2) + " s";
+    if (!r || r.moving || r.small) return null;
+    return [f(r.td === null ? null : r.td - r.tS),
+      r.t10 !== null && r.t90 !== null ? f(r.t90 - r.t10) : r.cutBy ? "cut before 90%" : "never reached 90%",
+      r.os > 0 ? Math.round(r.os * 100) + "% (" + (r.os * Math.abs(r.e0)).toFixed(1) + " " + u + ")" : "none",
+      r.os > 0 ? f(r.tp - r.tS) : "--",
+      r.ts !== null ? f(r.ts - r.tS) : r.cutBy ? "cut before settling" : "not settled",
+      r.swing ? "still swinging: no steady value" : r.off !== null ? r.off.toFixed(2) + " " + u : r.ended ? "ended before 1.5 s" : "wait 1.5 s"];
+  }
+  let lastR = null;
   function respTable(r){
-    const A = APPS[app], u = A.unit, f = v => v === null || v === undefined ? "--" : v.toFixed(2) + " s";
-    const rows = [];
-    const row = (col, name, val, what) => rows.push('<tr><td><i style="color:' + col + '"></i>' + esc(name) + "</td><td>" + esc(val) + "</td><td>" + esc(what) + "</td></tr>");
+    const A = APPS[app], u = A.unit;
     if (!r){ $("#pid-resp").innerHTML = "<tr><td>Start a move (pick a target, press a preset, or hold the aim button) to see the markers.</td></tr>"; return; }
     if (r.moving){ $("#pid-resp").innerHTML = "<tr><td>The target is moving (strafing or dragging), so there is no single move to measure. Stop strafing to see the markers.</td></tr>"; return; }
     if (r.small){ $("#pid-resp").innerHTML = "<tr><td>This move is too small to measure (error " + r.e0.toFixed(1) + " " + u + "). Pick a bigger move.</td></tr>"; return; }
-    row(P.muted, "Dead time (delay)", f(r.td === null ? null : r.td - r.tS), "Time before the sensor shows the robot moving (5% of the way). Camera lag and motor spin-up live here. Gains cannot remove it.");
-    row(P.pollen, "Rise time (10% to 90%)", r.t10 !== null && r.t90 !== null ? f(r.t90 - r.t10) : "never reached 90%", "How snappy the move is. Raise kP to shrink it. 'Never reached 90%' means it stalled short.");
-    row(P.red, "Overshoot", r.os > 0 ? Math.round(r.os * 100) + "% (" + (r.os * Math.abs(r.e0)).toFixed(1) + " " + u + ")" : "none", "How far it went past the target, as a part of the whole move.");
-    row(P.red, "Peak time", r.os > 0 ? f(r.tp - r.tS) : "--", "When the overshoot was biggest.");
-    row(P.ok, "Settling time (band +/-" + r.band.toFixed(1) + " " + u + ")", r.ts !== null ? f(r.ts - r.tS) : "not settled", "From the start until it enters the green band and stays there. This number decides how fast you score.");
-    row(P.ink, "Steady-state error (offset)", r.swing ? "still swinging: no steady value" : r.off !== null ? r.off.toFixed(2) + " " + u : "wait 1.5 s", "Where it ends up compared to the target (mean of the last 0.5 s). Friction or gravity cause it. kI or F fixes it.");
-    $("#pid-resp").innerHTML = "<tr><th>Marker</th><th>This move</th><th>What it means</th></tr>" + rows.join("");
+    const v = respVals(r), G = S.ghost, gv = G ? respVals(G.r) : null;
+    const M = [[P.muted, "Dead time (delay)", "Time before the sensor shows the robot moving (5% of the way). Camera lag and motor spin-up live here. Gains cannot remove it."],
+      [P.pollen, "Rise time (10% to 90%)", "How snappy the move is. Raise kP to shrink it. 'Never reached 90%' means it stalled short."],
+      [P.red, "Overshoot", "How far it went past the target, as a part of the whole move."],
+      [P.red, "Peak time", "When the overshoot was biggest."],
+      [P.ok, "Settling time (band +/-" + r.band.toFixed(1) + " " + u + ")", "From the start until it enters the green band and stays there. This number decides how fast you score."],
+      [P.ink, "Steady-state error (offset)", "Where it ends up compared to the target (mean of the last 0.5 s). Friction or gravity cause it. kI or F fixes it."]];
+    const n = gv ? 4 : 3;
+    const head = "<tr><th>Marker</th><th>" + (r.cutBy ? "This move (cut)" : "This move") + "</th>" + (gv ? '<th class="ghost">Last run: ' + esc(G.name) + "</th>" : "") + "<th>What it means</th></tr>";
+    const cut = r.cutBy ? '<tr><td class="cutnote" colspan="' + n + '">' + esc((r.cutBy === "the bump" ? "The bump" : "The next move") + " cut this move " + (r.tLast - r.tS).toFixed(2) + " s in, before it settled. The values cover only the part before the cut.") + "</td></tr>" : "";
+    $("#pid-resp").innerHTML = head + cut + M.map((m, k) => '<tr><td><i style="color:' + m[0] + '"></i>' + esc(m[1]) + "</td><td>" + esc(v[k]) + "</td>" + (gv ? '<td class="ghost">' + esc(gv[k]) + "</td>" : "") + "<td>" + esc(m[2]) + "</td></tr>").join("");
   }
   const tRT = throttle(150);
   function plot1(){
@@ -2918,12 +2953,17 @@ const PIDLAB = (function(){
     let si = -1; for (let k = S.steps.length - 1; k >= 0; k--){ if (S.steps[k].t0 <= m.t1){ si = k; break; } }
     const st = si >= 0 ? S.steps[si] : null;
     const r = st ? response(st, Math.min(si + 1 < S.steps.length ? S.steps[si + 1].t0 : Infinity, st.tEnd === undefined ? Infinity : st.tEnd)) : null;
+    lastR = r;
+    const okR = r && !r.small && !r.moving, G = S.ghost;
+    // last run, scaled onto this move: same start, same target, so the two shapes compare
+    const gh = G && okR ? G.pts.map(q => ({t: r.tS + q.dt, v: level(st, r.e0, 1 - q.e / G.e0)})) : null;
     let [lo, hi] = A.yr;
     if (CH.fitY()){
       const ex = extentOf(S.hist, m.t0, m.t1, [p => p.me, p => p.sp]);
       if (ex){
         let a = ex[0], b = ex[1];
         if (r && r.band && showM){ const c = app === "aim" ? 0 : st.sp; a = Math.min(a, c - r.band); b = Math.max(b, c + r.band); }
+        const gx = gh && extentOf(gh, m.t0, m.t1, [q => q.v]); if (gx){ a = Math.min(a, gx[0]); b = Math.max(b, gx[1]); }
         const minSpan = app === "lift" ? 2 : 8, mid = (a + b) / 2;
         if (b - a < minSpan){ a = mid - minSpan / 2; b = mid + minSpan / 2; }
         const pad = (b - a) * 0.12; lo = a - pad; hi = b + pad;
@@ -2935,12 +2975,12 @@ const PIDLAB = (function(){
     CH.xaxis(ctx, m, L, pw, Tt, Tt + ph, Tt + ph + 14);
     ctx.save(); ctx.beginPath(); ctx.rect(L, Tt, pw, ph); ctx.clip();
     const R = L + pw;
-    const okR = r && !r.small && !r.moving;
     if (showM && okR){
       const c = app === "aim" ? 0 : st.sp, xa = Math.max(L, X(r.tS));
       ctx.fillStyle = alpha(P.ok, 0.14); ctx.fillRect(xa, Y(c + r.band), R - xa, Y(c - r.band) - Y(c + r.band));
       dashed(ctx, xa, Y(c + r.band), R, Y(c + r.band), P.ok, 1, [3, 3]); dashed(ctx, xa, Y(c - r.band), R, Y(c - r.band), P.ok, 1, [3, 3]);
     }
+    if (gh) drawSeries(ctx, gh, m.t0, m.t1, X, Y, q => q.v, alpha(P.ink, 0.3), 4, null, 180);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, p => p.sp, P.ok, 2, [6, 4], 180);
     drawSeries(ctx, S.hist, m.t0, m.t1, X, Y, p => p.me, P.accent, 2.5, null, 180);
     if (showM && okR){
@@ -2973,9 +3013,9 @@ const PIDLAB = (function(){
       if (okR){
         if (r.td !== null) bracketH(ctx, X(r.tS), X(r.td), y0, P.muted, "delay " + (r.td - r.tS).toFixed(2) + " s", L, R);
         if (r.t10 !== null && r.t90 !== null) bracketH(ctx, X(r.t10), X(r.t90), y0 + 14, P.pollen, "rise " + (r.t90 - r.t10).toFixed(2) + " s", L, R);
-        else text(ctx, "rise: never reached 90%", L + 4, y0 + 18, {color: P.pollen, size: 13, weight: "600"});
+        else text(ctx, r.cutBy ? "rise: cut before 90%" : "rise: never reached 90%", L + 4, y0 + 18, {color: P.pollen, size: 13, weight: "600"});
         if (r.ts !== null) bracketH(ctx, X(r.tS), X(r.ts), y0 + 28, P.ok, "settle " + (r.ts - r.tS).toFixed(2) + " s", L, R);
-        else text(ctx, "settle: not yet inside the band", L + 4, y0 + 32, {color: P.ok, size: 13, weight: "600"});
+        else text(ctx, r.cutBy ? "settle: cut before settling" : "settle: not yet inside the band", L + 4, y0 + 32, {color: P.ok, size: 13, weight: "600"});
       } else text(ctx, r && r.moving ? "target moving: no markers" : "markers appear after a move", L + 4, y0 + 4, {color: P.muted, size: 13});
     }
     CH.overlay(ctx, cv, Tt, Tt + ph);
@@ -3009,7 +3049,7 @@ const PIDLAB = (function(){
     CH.update();
   }
   buildApp();
-  return {tick, show: () => {}, get: () => ({app, target: app === "aim" ? 0 : S.target, meas: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), err: errorNow(), c: S.c, hist: S.hist, t: S.t, t0: S.m.t0, integral: S.c.integral, gains: gains(), kf: app === "lift" ? S.lift.kf : 0, grav: app === "lift" ? (S.lift.heavy ? 0.3 : 0.18) : 0, on: [pOn.checked, iOn.checked, dOn.checked, true], aimMode: app === "aim" ? S.aim.mode : null, done: !!S.done}), chart: CH};
+  return {tick, show: () => {}, get: () => ({app, target: app === "aim" ? 0 : S.target, meas: app === "turn" ? S.turn.h : app === "lift" ? S.lift.p : (S.aim.found ? S.aim.meas : null), err: errorNow(), c: S.c, hist: S.hist, t: S.t, t0: S.steps.length ? S.steps[S.steps.length - 1].t0 : 0, integral: S.c.integral, gains: gains(), kf: app === "lift" ? S.lift.kf : 0, grav: app === "lift" ? (S.lift.heavy ? 0.3 : 0.18) : 0, on: [pOn.checked, iOn.checked, dOn.checked, true], aimMode: app === "aim" ? S.aim.mode : null, done: !!S.done}), chart: CH};
 })();
 
 /* =====================================================================
@@ -4034,6 +4074,7 @@ const PIDVIZ = (function(){
     const X2 = t => L + (t - (g.t - 2)) / 2 * pw, Y2 = v => T + ph / 2 - v / em * ph * 0.46;
     ctx.strokeStyle = P.line; ctx.beginPath(); ctx.moveTo(L, Y2(0)); ctx.lineTo(L + pw, Y2(0)); ctx.stroke();
     ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); rec.forEach((p, i) => { const x = X2(p.t), y = Y2(p.e); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }); ctx.stroke();
+    if (g.app === "aim"){ ctx.fillStyle = P.ink; rec.forEach(p => { ctx.beginPath(); ctx.arc(X2(p.t), Y2(p.e), 2.5, 0, Math.PI * 2); ctx.fill(); }); }   // one dot per loop pass: flat runs = no new camera frame
     let slope = 0;
     if (rec.length > 3){
       const a = rec[rec.length - 4], b = rec[rec.length - 1];

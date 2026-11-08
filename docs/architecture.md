@@ -101,11 +101,15 @@ Sim:
 - Physics: rotation has a 0.05 power deadband (friction), `w` follows `u * 300` deg/s with a 0.18 s lag. Lift has gravity 0.18 (0.3 heavy), optional feedforward 0.18.
 - Camera: 30 fps frames, 60 ms latency and +/-0.8 deg noise when "Camera noise and delay" is on, 35 deg half field of view. `trueBearing()` uses `atan2(-dx, -dy)`. Positive bearing = target to the left = positive output turns left. In the Java panel the drive call takes `-power` because the drive's turn input is positive to the right.
 - `S.hist` entries every 0.02 s: `{t, e, sp, me, p, i, d, o, mv}`. `mv` marks samples where the target moved (strafing or dragging), which disables markers.
-- `S.steps`: one entry per new target (`newTarget()`): `{t0, sp, start, app}`.
+- `S.steps`: one entry per new target (`newTarget()`): `{t0, sp, start, app, cfg}`. `cfg` = `cfgNow()`: the gains key and a preset name. A bump sets `tEnd`.
+- `S.stuck`: seconds the turn sits outside the 1.5 deg break window without moving (drives the "loop still running: stuck" chip).
+- `S.ghost` (compare runs): when `newTarget()` starts a move whose `cfg` differs from the previous move's, `keepGhost()` stores the previous move as `{name, e0, pts: [{dt, e}], r}`. `plot1()` draws the samples faint, scaled onto the marked move (`level(st, r.e0, 1 - e / ghost.e0)`), and `respTable()` adds a "Last run" column from `r`. Legend entry `#pid-ghostkey`, button `#pid-ghostclr`. Cleared on a job switch, kept by Reset run.
 
-Response markers (`response(step, tEnd)`): first non-null error `e0`, progress `p = 1 - e / e0`. Dead time at p >= 0.05, rise time from p 0.1 to 0.9, peak and overshoot from max p, settling band +/-max(tol, 2% of e0) held for 0.4 s, steady-state error as the mean error of the last 0.5 s after 1.5 s. Moves smaller than 2 x tol show no markers. Levels on the plot: turn and lift `sp - (1 - p) * e0`, aim `(1 - p) * e0`. The markers use the last move that started before the right edge of the view, so scrolling back shows older moves.
+Response markers (`response(step, tEnd)`): first non-null error `e0`, progress `p = 1 - e / e0`. Dead time at p >= 0.05, rise time from p 0.1 to 0.9, peak and overshoot from max p, settling band +/-max(tol, 2% of e0) held for 0.4 s, steady-state error as the mean error of the last 0.5 s after 1.5 s. Moves smaller than 2 x tol show no markers. Levels on the plot: turn and lift `sp - (1 - p) * e0`, aim `(1 - p) * e0`. The markers use the last move that started before the right edge of the view, so scrolling back shows older moves. A move with a finite end (next move or bump) and no settling time returns `cutBy`: the table heads the column "This move (cut)", adds a note row, and writes "cut before 90%" and "cut before settling" in place of numbers the cut hid.
 
-`PIDLAB.get()` returns `{app, target, meas, err, c, hist, t, t0, integral, gains, on, aimMode, done}` for `PIDVIZ`.
+On aim, the D mini chart draws one dot per loop pass and `#pid-dnote` (class `aim-only`) explains the D spikes: 30 camera frames per second against a 50 Hz loop.
+
+`PIDLAB.get()` returns `{app, target, meas, err, c, hist, t, t0, integral, gains, on, aimMode, done}` for `PIDVIZ`. `t0` is the start of the latest move.
 
 `PIDVIZ.loop()` draws the control loop SVG `#pid-loop` (viewBox 1040 x 280). Term boxes show `gain x input = term` live, dashed when a term is switched off, "not running" when the PID is skipped. `PIDVIZ.minis()` draws the integral (area under error since the last reset, last 6 s) and derivative (slope over the last 2 s) mini charts.
 

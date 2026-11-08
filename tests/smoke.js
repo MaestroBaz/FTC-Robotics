@@ -520,6 +520,30 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(src.includes("const lx = Math.max(xr - 8, L + 4 + ctx.measureText(lab).width)") && src.includes("ctx.strokeText(lab, lx, ly)"), "feedback: open-loop offset label has a halo and never clips at the y axis");
   // ==== end area feedback ====
 
+  // ==== area pid ====
+  check(!/\bS\.m\b|function metrics\(/.test(src), "pid: the old metrics() and S.m state are gone");
+  await pg.goto(URL + "#pid"); await pg.waitForTimeout(300);
+  await pg.click('.appbtn[data-app="turn"]'); await pg.waitForTimeout(300);   // a hash change keeps the job from the aim checks above
+  check(await pg.$eval("#pid-dnote", e => e.hidden), "pid: the D spike note hides on the turn job");
+  await pg.click('.appbtn[data-app="aim"]'); await pg.waitForTimeout(300);
+  check(await pg.$eval("#pid-dnote", e => !e.hidden && /30 new frames/.test(e.textContent) && /50 times/.test(e.textContent)), "pid: on aim, the note under the D chart explains the 30 fps camera vs the 50 Hz loop");
+  await pg.click('.appbtn[data-app="lift"]'); await pg.waitForTimeout(300);
+  check(await pg.$eval("#pid-ghostkey", e => e.hidden), "pid: no last run before the gains change");
+  await pg.click('[data-ps="PD"]'); await pg.waitForTimeout(3500);
+  await pg.click('[data-ps="PD + F (tuned)"]'); await pg.waitForTimeout(3500);
+  const ghostHead = await pg.$$eval("#pid-resp th", ths => ths.map(t => t.textContent));
+  const ghostOff = await pg.$$eval("#pid-resp tr", rs => { const r = rs.find(x => /Steady-state/.test(x.children[0].textContent)); return r ? [r.children[1].textContent, r.children[2].textContent] : []; });
+  console.log("  lift PD + F vs last run:", ghostHead.join(" | "), ghostOff.join(" | "));
+  check((await pg.textContent("#pid-ghostkey")).includes("last run: PD") && !(await pg.$eval("#pid-ghostkey", e => e.hidden)), "pid: a preset change keeps the last run as a faint line with a legend entry");
+  check(ghostHead.includes("Last run: PD") && Math.abs(parseFloat(ghostOff[0])) < 0.3 && parseFloat(ghostOff[1]) > 1.5, "pid: markers table reads lift PD + F next to the last run, PD, which stops short");
+  await pg.click('[data-tg="4"]'); await pg.waitForTimeout(500); await pg.click("#pid-bump"); await pg.waitForTimeout(600);
+  const cutTxt = await pg.textContent("#pid-resp");
+  check(/The bump cut this move/.test(cutTxt) && /This move \(cut\)/.test(cutTxt) && /cut before settling/.test(cutTxt), "pid: a move cut before it settled is labeled cut, with what was measured before the cut");
+  await pg.click("#pid-ghostclr"); await pg.waitForTimeout(300);
+  check((await pg.$eval("#pid-ghostkey", e => e.hidden)) && (await pg.$$("#pid-resp .ghost")).length === 0, "pid: Clear last run removes the line and the table column");
+  await pg.click('.appbtn[data-app="turn"]'); await pg.waitForTimeout(300);
+  // ==== end area pid ====
+
   // ---- phone width ----
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   m.on("pageerror", e => errs.push("mobile: " + e.message));
