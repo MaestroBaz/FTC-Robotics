@@ -171,3 +171,9 @@ Each step in the PR loop (`PR[]`) and the conflict story (`STEPS[]`) carries a `
 ## Testing
 
 `tests/smoke.js` drives the page with Playwright from `file://`. Modules are not on `window`, so tests read the DOM (chips, aria-pressed, table text). Add a check there for each new behavior.
+
+- Canvas labels: `hookDrawn()` wraps `fillText` and keeps the strings per canvas id. `drawnOn(id, n)` returns the last `n`. The PID marker checks compare these labels with the markers table.
+- Element shots go through `shot(locator, name)`, which hides `.topbar` for the picture. Without it the sticky bar lands over the middle of a tall section.
+- `pngOf(bar)` clicks a bar's Save PNG and returns the file name and PNG size.
+- A sim state in a picture: pause with `window.__setPause(true)`, check the chip, take the shot, unpause.
+- No `window.__lab` hook (issue 18, decided 2026-11-08): every check above works through the DOM, the canvas hook and `__setPause`.

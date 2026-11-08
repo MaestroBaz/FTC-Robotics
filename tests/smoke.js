@@ -20,6 +20,18 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   pg.on("pageerror", e => errs.push(e.message));
   pg.on("console", m => { if (m.type() === "error") errs.push(m.text()); });
   const chips = () => pg.evaluate(() => document.querySelector("#pid-chips").textContent);
+  // element shots hide the sticky top bar: a tall section scrolls under it, and it covered the PID I and D mini charts (#19)
+  const shot = (loc, name) => loc.screenshot({ path: path.join(SHOTS, name), style: ".topbar{visibility:hidden !important}" });
+  // Save PNG on a chart bar: returns the file name and the PNG size read from its IHDR
+  const pngOf = async bar => {
+    const [dl] = await Promise.all([pg.waitForEvent("download"), pg.click(bar + " .tc-png")]);
+    const png = fs.readFileSync(await dl.path());
+    return { name: dl.suggestedFilename(), isPng: png.slice(1, 4).toString() === "PNG", w: png.readUInt32BE(16), h: png.readUInt32BE(20) };
+  };
+  // every string drawn with fillText on a canvas, by canvas id (#19: canvas marker labels get assertions)
+  const drawnOn = (id, n) => pg.evaluate(([id, n]) => (window.__drawn && window.__drawn[id] || []).slice(-n), [id, n]);
+  const hookDrawn = () => pg.evaluate(() => { if (window.__drawn) return; window.__drawn = {}; const f = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (s) { const a = window.__drawn[this.canvas.id] || (window.__drawn[this.canvas.id] = []); a.push(String(s)); if (a.length > 2000) a.splice(0, 1000); return f.apply(this, arguments); }; });
   const respRows = () => pg.evaluate(() => [...document.querySelectorAll("#pid-resp tr")].slice(1)
     .map(r => r.children[0].textContent.split(" (")[0] + "=" + r.children[1].textContent).join("; "));
 
@@ -156,7 +168,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.$$('#jv-wcode .w.on')).length === 2, "the hardwareMap.get chip finds both lines");
   await pg.click('#jv-wfiles button[data-f="PIDController.java"]');
   check(!!(await pg.$('#jv-wcode .w[data-w="this"]')) && !!(await pg.$('#jv-wcode .w[data-w="ctor"]')), "PIDController shows this. and the constructor");
-  await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-words.png") });
+  await shot(pg.locator("#lab-java"), "java-words.png");
   // ==== area java-b: Scope, Every word explained, Error clinic ====
   await pg.click('#jv-wfiles button[data-f="MainTeleOp.java"]');
   await pg.click('#jv-wcode .w[data-w="robotcall"]');
@@ -175,7 +187,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(firstRight === 2, "error 1: the right fix is not the top choice");
   await pg.click("#jv-echoices .choice[data-c='2']");
   check(/BUILD SUCCESSFUL/.test(await pg.textContent("#jv-eprob")) && (await pg.textContent("#jv-etitle")) === "1. Missing import", "the right fix builds and names the error");
-  await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-errors.png") });
+  await shot(pg.locator("#lab-java"), "java-errors.png");
   await pg.click("#jv-errlist [data-e='1']");
   check(await pg.$eval("#jv-eprob", el => el.innerText.split("\n").some(l => /^\s+symbol: method clip/.test(l)) && el.innerText.split("\n").some(l => /^\s+location: class Range/.test(l))), "error 2 Build text puts symbol and location on their own indented lines");
   check(await pg.$eval('.jpane[data-jp="modules"]', p => { const l = p.querySelector(".legend"), m = p.querySelector("#jv-map"); return !!l && !!(l.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_FOLLOWING); }), "project map legend sits above the map");
@@ -206,7 +218,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.check("#jv-swbrk");
   check(/falls into FEEDING/.test(await pg.textContent("#jv-swmsg")), "forgetting break falls through into FEEDING");
   check(await pg.$$eval("#jv-swcode .ln", ls => { const f = ls.findIndex(l => /case FEEDING/.test(l.textContent)); const fell = ls.slice(f + 1, f + 4); return fell.every(l => l.classList.contains("err") && !l.classList.contains("run")); }), "fall-through lines show red, not green");
-  await pg.locator("#lab-java").screenshot({ path: path.join(SHOTS, "java-decide.png") });
+  await shot(pg.locator("#lab-java"), "java-decide.png");
 
   // ---- Ask the room: Hide folds the question, Show brings it back ----
   await pg.click("#lab-java details.ask .ask-x");
@@ -312,19 +324,29 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const turnPid = await respRows();
   console.log("  turn PID:", turnPid);
   check(/Settling time=\d/.test(turnPid), "tuned turn PID settles");
-  await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-turn.png") });
+  await hookDrawn(); await pg.waitForTimeout(150);
+  const turnLabels = await drawnOn("pid-plot1", 120), turnRows = await respRows();   // read both now: the table and the canvas show the same move
+  const lab = re => turnLabels.filter(s => re.test(s)).pop() || "";
+  const riseRow = (turnRows.match(/Rise time=([\d.]+) s/) || [])[1], settleRow = (turnRows.match(/Settling time=([\d.]+) s/) || [])[1];
+  check(lab(/^10%$/) && lab(/^90%$/) && /^overshoot \d+% = [\d.]+ deg$/.test(lab(/^overshoot/)) && /^delay [\d.]+ s$/.test(lab(/^delay /)),
+    "pid canvas: the target vs sensor chart draws the 10%, 90%, overshoot and delay markers: " + [lab(/^overshoot/), lab(/^delay /)].join(", "));
+  check(lab(/^rise /) === "rise " + riseRow + " s" && lab(/^settle /) === "settle " + settleRow + " s",
+    "pid canvas: the rise and settle brackets match the markers table: " + lab(/^rise /) + ", " + lab(/^settle /));
+  await shot(pg.locator("#lab-pid"), "pid-turn.png");
 
   // ---- lift: F (PIDF) holds the lift with P only, and the loop diagram grows a 4th box with no error arrow ----
   await pg.click('.appbtn[data-app="lift"]'); await pg.waitForTimeout(300);
   await pg.click('[data-ps="P only"]'); await pg.waitForTimeout(3000);
   const liftP = await chips();
+  const liftOff = (await drawnOn("pid-plot1", 120)).filter(s => /^offset /.test(s)).pop() || "";
+  check(/^offset 1\.[5-9] in$/.test(liftOff), "pid canvas: lift P only marks the steady offset below the target: " + liftOff);
   await pg.$eval("#pid-kf", el => { el.value = 0.18; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(3000);
   const liftF = await chips();
   console.log("  lift P only:", liftP, "| with F:", liftF);
   const errOf = s => +(s.match(/error (-?[\d.]+) in/) || [0, 99])[1], outOf = s => +(s.match(/output (-?[\d.]+)/) || [0, 0])[1];
   check(Math.abs(errOf(liftF)) < Math.abs(errOf(liftP)) && Math.abs(errOf(liftF)) < 0.5 && outOf(liftF) > 0.15, "F closes the P-only gap on the lift with no I");
   check((await pg.$eval("#pid-loop", s => s.innerHTML)).includes("no error") && (await pg.textContent("#pid-use")).includes("power = power + 0.18"), "lift shows the F box without an error arrow and the F line in the code");
-  await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-lift-f.png") });
+  await shot(pg.locator("#lab-pid"), "pid-lift-f.png");
   await pg.click('.appbtn[data-app="turn"]'); await pg.waitForTimeout(300);
   check(!(await pg.$eval("#pid-loop", s => s.innerHTML)).includes("no error"), "turn has no F box");
   // ==== area pid: the turn sim matches turnToHeading(): stuck outside 1.5 deg, and a bump after the loop ended is not undone ====
@@ -359,13 +381,17 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.mouse.move(bb.x + bb.width * 0.62, bb.y + 40); await pg.mouse.down();
   await pg.mouse.move(bb.x + 30, bb.y + 150, { steps: 8 }); await pg.mouse.up();
   await pg.waitForTimeout(300);
-  check(/SEARCHING/.test(await chips()), "aim searches when the HIVE leaves the camera view");
+  // Pause holds the state while the shot is taken, so each picture shows the state its name says
+  const aimShot = async (state, name) => { await pg.evaluate(() => window.__setPause(true));
+    const ok = new RegExp(state).test(await chips()); if (ok) await shot(pg.locator("#lab-pid"), name);
+    await pg.evaluate(() => window.__setPause(false)); return ok; };
+  check(await aimShot("SEARCHING", "pid-aim-searching.png"), "aim searches when the HIVE leaves the camera view");
   let locked = false;
   for (let i = 0; i < 12 && !locked; i++) { await pg.waitForTimeout(400); locked = /LOCKED ON/.test(await chips()); }
-  check(locked, "aim finds the HIVE again and locks on");
+  check(locked && await aimShot("LOCKED ON", "pid-aim-locked.png"), "aim finds the HIVE again and locks on");
   await pg.click("#pid-hold"); await pg.waitForTimeout(200);
   check(/AIM OFF/.test(await chips()), "releasing the aim button shows AIM OFF");
-  await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-aim.png") });
+  await shot(pg.locator("#lab-pid"), "pid-aim.png");
 
   // ---- chart controls ----
   await pg.click("#pid-cbar .tc-all"); await pg.waitForTimeout(200);
@@ -375,7 +401,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.waitForTimeout(200);
   check((await pg.getAttribute("#pid-cbar .tc-live", "aria-pressed")) === "false" &&
         (await pg.getAttribute("#pid-cbar .tc-all", "aria-pressed")) === "false", "drag on the chart zooms in");
-  await pg.locator("#lab-pid").screenshot({ path: path.join(SHOTS, "pid-zoom.png") });
+  await shot(pg.locator("#lab-pid"), "pid-zoom.png");
   await pg.click("#pid-cbar .tc-pause"); await pg.waitForTimeout(150);
   check((await pg.textContent("#ts-chip")) === "PAUSED", "chart Pause pauses the sim");
   await pg.click("#pid-cbar .tc-play");
@@ -394,10 +420,21 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   }
   console.log("  launcher closed-loop spin-up: low", low, "peak", peak);
   check(low < 800 && peak > 1100 && peak < 1200, "closed-loop launcher spins up without overshooting the HIVE window");
+  // #19: launcher behavior read from the chips. Open loop follows the battery, closed loop holds the HIVE window
+  const fbChips = async () => { const t = await pg.textContent("#fb-ready");
+    return { o: +t.match(/open loop: (\d+)/)[1], c: +t.match(/closed loop: (\d+)/)[1], ready: /launcherReady\(\) = true/.test(t) }; };
+  const inHive = w => w >= 1120 && w <= 1200;
   await pg.click("#fb-feed"); await pg.waitForTimeout(2500);
+  const fbFresh = await fbChips();
   await pg.$eval("#fb-v", el => { el.value = 11.8; el.dispatchEvent(new Event("input")); }); await pg.waitForTimeout(2500);
+  const fbSag = await fbChips();
+  console.log("  launcher 12.5 V:", JSON.stringify(fbFresh), "| 11.8 V:", JSON.stringify(fbSag));
+  check(inHive(fbFresh.o) && fbSag.o < 1120 && fbSag.o < fbFresh.o - 40, "launcher: open loop speed falls as the battery sags, out of the HIVE window at 11.8 V: " + fbFresh.o + " -> " + fbSag.o);
+  check(inHive(fbFresh.c) && inHive(fbSag.c) && fbSag.ready, "launcher: closed loop holds the HIVE window and launcherReady() at 11.8 V: " + fbFresh.c + " -> " + fbSag.c);
   await pg.click("#fb-feed"); await pg.waitForTimeout(2000);
-  await pg.locator("#lab-feedback").screenshot({ path: path.join(SHOTS, "feedback.png") });
+  const fbScore = await pg.$$eval("#fb-score tr", rs => rs.slice(1).map(r => [...r.children].slice(1, 4).map(td => +td.textContent).join("/")));
+  check(fbScore[0] === "1/1/0" && fbScore[1] === "2/0/0", "launcher: the shot at 11.8 V falls short open loop and lands closed loop (in/short/long): " + fbScore.join(" vs "));
+  await shot(pg.locator("#lab-feedback"), "feedback.png");
 
   // ---- one loop: Pause, Resume and Reset run ----
   await pg.goto(URL + "#oneloop"); await pg.waitForTimeout(300);
@@ -408,7 +445,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check((await pg.textContent("#ol-pause")) === "Pause", "Resume runs the sim again");
   await pg.click("#ol-reset"); await pg.waitForTimeout(100);
   check(/ 0 in/.test(await pg.textContent("#ol-errA")) && / 0 in/.test(await pg.textContent("#ol-errB")), "Reset run clears the error chips");
-  await pg.locator("#lab-oneloop").screenshot({ path: path.join(SHOTS, "oneloop.png") });
+  await shot(pg.locator("#lab-oneloop"), "oneloop.png");
   // ==== area oneloop: stuck line in the header, diagram and code B agree ====
   await pg.click("#ol-launch"); await pg.waitForTimeout(400);
   check(/^stuck on line 6: sleep\(1000\)$/.test(await pg.textContent("#ol-stA")), "one loop: the sleep panel names the stuck line during Launch");
@@ -432,7 +469,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/STRAFE_COUNTS_PER_INCH/.test(await enRun()) && /yourcodethinks23\.9intapemeasure\(real\)2[34]\.\d/.test((await pg.textContent("#en-kv")).replace(/\s+/g, "")), "encoders: a measured 3.27 lands a ramped strafe on the line and names STRAFE_COUNTS_PER_INCH");
   check(/opModeIsActive\(\)/.test(await pg.textContent("#lab-encoders .goal")) && !/wheels slipping/.test(await pg.textContent("#lab-encoders .lede")), "encoders: the goal names the STOP rule, the lede leaves the vote open");
   await pg.$eval("#en-dia", el => { el.value = "4.09"; el.dispatchEvent(new Event("input")); });
-  await pg.locator("#lab-encoders").screenshot({ path: path.join(SHOTS, "encoders.png") });
+  await shot(pg.locator("#lab-encoders"), "encoders.png");
 
   // ==== area mecanum: Drive modes tab 4 ====
   // MC sits inside the page IIFE, so these checks read the DOM, not MC.get()
@@ -449,7 +486,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(!/IMU zero is off/.test(await zeroNote()), "the wrong-zero warning stays hidden until the robot moves");
   await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(800);
   check(/IMU zero is off/.test(await zeroNote()) && (await mcRow("IMU heading")) === "0 deg", "after a reset facing the wall, Forward shows the wrong-zero warning");
-  await pg.locator("#lab-mecanum").screenshot({ path: path.join(SHOTS, "mecanum.png") });
+  await shot(pg.locator("#lab-mecanum"), "mecanum.png");
   // AUTO uses Pinpoint axes: +X away from the drivers, +Y toward the left wall
   await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
   await pg.check('#lab-mecanum input[value="auto"]'); await pg.waitForTimeout(200);
@@ -586,7 +623,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     const onLabel = await near("#fb-plot", "--pollen", [60, hiveY - 8, 126, hiveY + 1]);
     check(onLabel === 0, "charts #9: no yellow curve pixels inside the HIVE window label (" + onLabel + ")");
     await pg.click("#fb-burst"); await pg.waitForTimeout(1200);
-    await pg.locator("#lab-feedback").screenshot({ path: path.join(SHOTS, "feedback-fire3.png") });
+    await shot(pg.locator("#lab-feedback"), "feedback-fire3.png");
     await pg.click('#ts-ticks span[data-v="1"]');
     // #26: one Save PNG per chart, a real PNG with a title strip above the chart
     check((await pg.$$("#fb-cbar .tc-png, #pid-cbar .tc-png, #mc-cbar .tc-png")).length === 3, "charts #26: tabs 4, 6 and 7 each have a Save PNG button");
@@ -625,8 +662,10 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     await pg.click("#mc-cbar .tc-pause"); await pg.waitForTimeout(150);
     check((await pg.textContent("#ts-chip")) === "PAUSED", "charts #27: the wheel chart Pause pauses the sim");
     await pg.click("#mc-cbar .tc-play"); await pg.click("#mc-cbar .tc-live");
+    const mcPng = await pngOf("#mc-cbar"), mcBox = await pg.$eval("#mc-plot", c => [c.width, c.height]);
+    check(mcPng.isPng && /^ftc-mecanum-wheel-powers-over-time-robot-centric/.test(mcPng.name) && mcPng.w > mcBox[0] && mcPng.h > mcBox[1] + 30, "charts #26: the wheel chart Save PNG downloads " + mcPng.name + " " + mcPng.w + "x" + mcPng.h);
     await pg.click('#lab-mecanum [data-p="0,0,0"]');
-    await pg.locator("#lab-mecanum").screenshot({ path: path.join(SHOTS, "mecanum-chart.png") });
+    await shot(pg.locator("#lab-mecanum"), "mecanum-chart.png");
     const mf = await b.newPage({ viewport: { width: 1366, height: 768 } });
     await mf.goto(URL + "#mecanum"); await mf.waitForTimeout(300);
     const mcTop = await mf.evaluate(() => Math.round(document.querySelector("#lab-mecanum .grid2").getBoundingClientRect().top));
@@ -665,6 +704,8 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('[data-tg="4"]'); await pg.waitForTimeout(500); await pg.click("#pid-bump"); await pg.waitForTimeout(600);
   const cutTxt = await pg.textContent("#pid-resp");
   check(/The bump cut this move/.test(cutTxt) && /This move \(cut\)/.test(cutTxt) && /cut before settling/.test(cutTxt), "pid: a move cut before it settled is labeled cut, with what was measured before the cut");
+  const pidPng = await pngOf("#pid-cbar"), pidBox = await pg.$$eval("#pid-plot1, #pid-plot2", cs => cs.map(c => [c.width, c.height]));
+  check(pidPng.isPng && pidPng.name === "ftc-pid-lift-to-height-encoder.png" && pidPng.w > pidBox[0][0] && pidPng.h > pidBox[0][1] + pidBox[1][1] + 30, "charts #26: the PID Save PNG downloads " + pidPng.name + " " + pidPng.w + "x" + pidPng.h + ", both charts in one picture");
   await pg.click("#pid-ghostclr"); await pg.waitForTimeout(300);
   check((await pg.$eval("#pid-ghostkey", e => e.hidden)) && (await pg.$$("#pid-resp .ghost")).length === 0, "pid: Clear last run removes the line and the table column");
   await pg.click('.appbtn[data-app="turn"]'); await pg.waitForTimeout(300);
