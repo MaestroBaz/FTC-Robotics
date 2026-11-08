@@ -326,6 +326,16 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
 .mistakes .bad{color:var(--red); text-decoration:line-through; text-decoration-thickness:1px;}
 .mistakes .good{color:var(--ok); font-weight:600;}
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important;} .topbar, .jtopics{transition:none;} }
+/* ==== area lifecycle: Driver Hub and robot side by side, then the message, then the state diagram, all above the fold at 1366x768 ==== */
+#lab-lifecycle .lc-right{gap:10px;}
+#lab-lifecycle .lc-top{display:flex; gap:10px; align-items:flex-start;}
+#lab-lifecycle .lc-top .dhub{flex:1; min-width:0;}
+#lab-lifecycle .dhub .scr{min-height:98px;}   /* 4 lines: name, status, Ready, loops */
+#lc-canvas{flex:0 0 220px; width:220px;}
+#lc-code{font:14px/1.4 var(--mono);}   /* bigger for the back row, tighter rows so the team version ends above 768 px */
+#lc-code .ln::before{color:var(--ink); opacity:.7;}   /* line numbers carry the votes, so the back row needs to read them */
+@media (max-width: 600px){ #lab-lifecycle .lc-top{flex-wrap:wrap;} #lc-canvas{flex-basis:100%;} #lc-code{font-size:13px;} }
+/* ==== end area lifecycle ==== */
 </style>
 </head>
 <body>
@@ -694,17 +704,18 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
   <div class="labhead">
     <div>
       <h2>What runs when you press INIT, START and STOP</h2>
+      <p class="goal">Goal: say which line runs after INIT, after START and after STOP. Team rule 1: no threads.</p>
       <p class="lede">Step through a LinearOpMode with the Driver Hub buttons. The highlighted line is running now. Switch to the AI-written version to see why a background thread breaks the rules.</p>
     </div>
-    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init. What does the robot do between INIT and START? What happens after STOP?</span><span class="vote" data-right="1"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">The thread starts moving the arm right after INIT, before the match starts. That breaks rule G304.H (robot motionless after INIT). After STOP the <code>while (true)</code> loop never ends, so the thread keeps running until the Robot Controller app gives up and restarts.</div>
+    <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">The AI version starts a thread in init: a second piece of code running alongside yours. What does the robot do after INIT? After STOP?</span><span class="vote" data-right="1"><button class="opt" type="button">Nothing moves until START, and STOP ends everything</button><button class="opt" type="button">The arm moves right after INIT, and the thread keeps running after STOP</button><button class="opt" type="button">The arm moves after INIT, and STOP kills the thread</button></span><span class="vhint">Teams hold up A, B or C. Click what each team holds up, Team 1 first. Right-click takes the last vote back. Reveal pays a point to every team that got it right.</span><br><span class="reveal">Reveal answer</span></summary>
+      <div class="a">The thread starts moving the arm right after INIT, before the match starts. This breaks rule G304.H: the robot sits still after INIT. STOP ends <code>runOpMode()</code>, but nobody tells the thread to stop. Its <code>while (true)</code> loop keeps running until the app restarts.</div>
     </details>
   </div>
   <div class="grid2">
     <div class="stack">
       <div class="panel">
         <div class="row" style="justify-content:space-between; margin-bottom:10px">
-          <h3 style="margin:0">MainTeleOp.java</h3>
+          <h3 id="lc-file" style="margin:0; text-transform:none; font-family:var(--mono)">MainTeleOp.java</h3>
           <div class="row">
             <label class="tg"><input type="radio" name="lcv" value="good" checked> Team version</label>
             <label class="tg"><input type="radio" name="lcv" value="bad"> AI version with thread</label>
@@ -713,26 +724,24 @@ pre.code .ln.test{background:color-mix(in srgb,var(--pollen) 22%,transparent); b
         <pre class="code" id="lc-code"></pre>
       </div>
     </div>
-    <div class="stack">
-      <div class="dhub">
-        <div class="scr" id="lc-screen"></div>
-        <div class="btns">
-          <button class="bi" id="lc-init">INIT</button>
-          <button class="bs" id="lc-start" disabled>START</button>
-          <button class="bx" id="lc-stop" disabled>STOP</button>
+    <div class="stack lc-right">
+      <div class="lc-top">
+        <div class="dhub">
+          <div class="scr" id="lc-screen"></div>
+          <div class="btns">
+            <button class="bi" id="lc-init">INIT</button>
+            <button class="bs" id="lc-start" disabled>START</button>
+            <button class="bx" id="lc-stop" disabled>STOP</button>
+          </div>
         </div>
-      </div>
-      <div class="panel">
-        <h3>Robot state</h3>
-        <div class="row" style="margin-bottom:10px" id="lc-chips"></div>
-        <canvas id="lc-canvas" height="170"></canvas>
+        <canvas id="lc-canvas" height="178" aria-label="Robot" role="img"></canvas>
       </div>
       <div class="msg" id="lc-msg">Press INIT on the Driver Hub.</div>
+      <svg class="diag" id="lc-sd" role="img" aria-label="OpMode state diagram, lights up as the OpMode runs"></svg>
     </div>
   </div>
   <div class="stack" style="margin-top:16px">
-    <div class="panel"><h3>State diagram <small>lights up as the OpMode runs</small></h3><svg class="diag" id="lc-sd" role="img" aria-label="OpMode state diagram"></svg></div>
-    <div class="panel"><h3>A BIOBUZZ match <small>158 seconds, to scale</small></h3><svg class="diag" id="lc-tl" role="img" aria-label="Match timeline"></svg></div>
+    <div class="panel"><h3>A BIOBUZZ match <small>two OpModes, each with its own INIT, START, STOP. 158 s to scale, INIT before the match not timed</small></h3><svg class="diag" id="lc-tl" role="img" aria-label="Match timeline"></svg></div>
   </div>
 </section>
 
@@ -1302,14 +1311,16 @@ const LC = (function(){
         "        telemetry.update();",
         "        waitForStart();",
         "        while (opModeIsActive()) {",
-        "            robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);",
+        "            robot.drive(-gamepad1.left_stick_y,",
+        "                        gamepad1.left_stick_x,",
+        "                        gamepad1.right_stick_x);",
         "            telemetry.update();",
         "        }",
         "        robot.stopDrive();",
         "    }",
         "}"
       ],
-      initSeq: [5, 6, 7], wait: 8, loop: [9, 10, 11], after: [13], threadAt: -1, thread: []
+      initSeq: [5, 6, 7], wait: 8, loop: [9, 10, 13], after: [15], threadAt: -1, thread: []
     },
     bad: {
       name: "Main TeleOp AI",
@@ -1322,42 +1333,60 @@ const LC = (function(){
         "        robot.init(hardwareMap);",
         "        new Thread(() -> {",
         "            while (true) {",
-        "                robot.armSweep();   // keep the arm moving",
+        "                robot.armSweep();  // keep the arm moving",
         "            }",
         "        }).start();",
         '        telemetry.addLine("Ready");',
         "        telemetry.update();",
         "        waitForStart();",
         "        while (opModeIsActive()) {",
-        "            robot.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);",
+        "            robot.drive(-gamepad1.left_stick_y,",
+        "                        gamepad1.left_stick_x,",
+        "                        gamepad1.right_stick_x);",
         "            telemetry.update();",
         "        }",
         "        robot.stopDrive();",
         "    }",
         "}"
       ],
-      initSeq: [5, 6, 11, 12], wait: 13, loop: [14, 15, 16], after: [18], threadAt: 6, thread: [7, 8]
+      initSeq: [5, 6, 11, 12], wait: 13, loop: [14, 15, 18], after: [20], threadAt: 6, thread: [7, 8]
     }
   };
   let v = VERS.good, st;
-  const code = $("#lc-code"), scr = $("#lc-screen"), msg = $("#lc-msg"), chips = $("#lc-chips"), cv = $("#lc-canvas");
+  const code = $("#lc-code"), scr = $("#lc-screen"), msg = $("#lc-msg"), cv = $("#lc-canvas");
   const bI = $("#lc-init"), bS = $("#lc-start"), bX = $("#lc-stop");
-  function fresh(){ return {phase: "off", pc: -1, t: 0, idx: 0, loops: 0, thread: false, arm: 0, armT: 0, violation: false, stopT: 0, restart: false}; }
+  function fresh(){ return {phase: "off", pc: -1, t: 0, idx: 0, loops: 0, thread: false, arm: 0, armT: 0, violation: false, stopT: 0}; }
+  // Team version: each press comes with a vote on what runs next. The highlight after the press is the reveal.
+  // Line numbers count the drive call as 3 lines (11 to 13).
+  const team = () => v === VERS.good;
   function reset(){
     st = fresh();
     renderCode(code, v.lines);
+    $("#lc-file").textContent = v.name.replace(/ /g, "") + ".java";
     bI.disabled = false; bS.disabled = true; bX.disabled = true;
-    setMsg("Press INIT on the Driver Hub.", "");
+    setMsg(team() ? "Vote before INIT: which lines run when you press INIT? A: lines 6 to 8, then the code waits at line 9. B: every line, top to bottom, once. C: lines 10 to 14, the loop." : "Press INIT on the Driver Hub.", "");
     update();
   }
   function setMsg(t, cls){ msg.textContent = t; msg.className = "msg " + (cls || ""); }
   $$('input[name="lcv"]').forEach(r => r.addEventListener("change", () => { v = VERS[r.value]; reset(); }));
-  bI.addEventListener("click", () => { st = fresh(); st.phase = "init"; st.idx = 0; st.t = 0; st.pc = v.initSeq[0]; bI.disabled = true; bX.disabled = false; setMsg("INIT pressed: code before waitForStart() runs once. Set up hardware here. Nothing may move.", ""); });
-  bS.addEventListener("click", () => { st.phase = "run"; st.idx = 0; st.t = 0; bS.disabled = true; setMsg("START pressed: waitForStart() returns and the loop runs about 50 to 100 times per second (slowed down here).", st.violation ? "bad" : ""); });
+  bI.addEventListener("click", () => {
+    // A thread from the last run lives on in the Robot Controller app: a new INIT does not stop it. Only a version switch (reset) clears it.
+    const keep = st.thread, armT = st.armT;
+    st = fresh(); st.thread = keep; st.armT = armT;
+    st.phase = "init"; st.idx = 0; st.t = 0; st.pc = v.initSeq[0]; bI.disabled = true; bX.disabled = false;
+    setMsg("INIT pressed: the code before waitForStart() runs once. Set up hardware here. No driving.", "");
+  });
+  bS.addEventListener("click", () => {
+    st.phase = "run"; st.idx = 0; st.t = 0; bS.disabled = true;
+    setMsg(team() ? "START pressed: waitForStart() returns. Lines 10 to 14 repeat about 50 times per second, slowed down here. Vote before STOP: what runs next? A: line 16, robot.stopDrive(), once. B: nothing, the program freezes. C: lines 6 to 8 again."
+      : "START pressed: waitForStart() returns and the loop runs about 50 times per second (slowed down here).", st.violation ? "bad" : "");
+  });
   bX.addEventListener("click", () => {
     if (st.phase === "init" || st.phase === "wait" || st.phase === "run"){
+      const early = st.phase === "init" || st.phase === "wait";
       st.phase = "after"; st.idx = 0; st.t = 0; st.pc = v.after[0]; bS.disabled = true; bX.disabled = true;
-      setMsg("STOP pressed: opModeIsActive() turns false, the loop ends, code after the loop runs.", "");
+      setMsg(early ? "STOP pressed before START: waitForStart() stops waiting, opModeIsActive() is false, so the loop never runs. The code after the loop runs."
+        : "STOP pressed: opModeIsActive() turns false, the loop ends, and the code after the loop runs once.", "");
     }
   });
   function tick(dt){
@@ -1371,41 +1400,33 @@ const LC = (function(){
         st.pc = v.initSeq[st.idx];
       } else { st.phase = "wait"; st.pc = v.wait; bS.disabled = false;
         if (v.threadAt >= 0){ st.violation = true; setMsg("Rule G304.H broken: the robot moves after INIT, before the match starts. Referees call this.", "bad"); }
-        else setMsg("Waiting at waitForStart(). The robot sits still, as rule G304.H requires. Press START.", "ok");
+        else setMsg("Lines 6 to 8 ran once. A config name in robot.init() missing from the Driver Hub config crashes the OpMode here, at INIT. Now the code waits at line 9, robot still (rule G304.H). Vote before START: what runs next? A: lines 6 to 8 again. B: line 16, then the OpMode ends. C: lines 10 to 14, over and over.", "ok");
       }
       if (st.pc === v.threadAt) st.thread = true;
     } else if (st.phase === "run"){
-      st.loops += Math.round(dt * 60);
+      st.loops += dt * 60;
       if (st.t > 0.35){ st.t = 0; st.idx = (st.idx + 1) % v.loop.length; }
       st.pc = v.loop[st.idx];
     } else if (st.phase === "after" && st.t > 0.8){
       st.phase = "done"; st.pc = -1; st.t = 0;
-      if (st.thread){ setMsg("runOpMode() ended, but the thread's while (true) loop is still running. The arm keeps moving.", "bad"); }
-      else { setMsg("OpMode finished cleanly. Press INIT to run again.", "ok"); bI.disabled = false; st.loops = 0; }
-    } else if (st.phase === "done" && st.thread && st.t > 3){
-      st.thread = false; st.restart = true; st.arm = 0;
-      setMsg("The Robot Controller app detects an OpMode that will not stop, logs an error and restarts. In a match you lose the robot for several seconds.", "bad");
+      if (st.thread) setMsg("runOpMode() ended, but nobody told the thread to stop. Its while (true) loop keeps running inside the Robot Controller app, even into the next OpMode. Only a restart of the app stops the thread.", "bad");
+      else { setMsg("OpMode finished cleanly. Press INIT to run again.", "ok"); st.loops = 0; }
       bI.disabled = false;
     }
     update();
   }
   function update(){
-    const lines = (st.pc >= 0) ? [st.pc] : [];
+    const lines = st.pc < 0 ? [] : v.lines[st.pc].endsWith(",") ? [st.pc, st.pc + 1, st.pc + 2] : [st.pc];   // the drive call spans 3 lines
     markLines(code, lines, st.thread ? v.thread : []);
     const phaseName = {off: "stopped", init: "INIT running", wait: "waiting for START", run: "running loop", after: "after loop", done: "OpMode ended"}[st.phase];
     let t = '<div class="op">' + esc(v.name) + "</div>";
     if (st.phase === "off") t += "<div>Select OpMode, press INIT</div>";
     else {
       t += "<div>Status: " + esc(phaseName) + "</div>";
-      if (st.phase !== "init" || st.idx >= 2) t += "<div>Ready</div>";
-      if (st.phase === "run") t += "<div>loops: " + st.loops + "</div>";
-      if (st.restart) t += '<div style="color:#ff8a8a">ERROR: OpMode stuck in stop(). Restarting robot...</div>';
+      if (st.phase !== "init" || st.idx >= v.initSeq.length - 1) t += "<div>Ready</div>";
+      if (st.phase === "run") t += "<div>loops: " + Math.floor(st.loops) + "</div>";
     }
     scr.innerHTML = t;
-    chips.innerHTML =
-      chip("phase: " + phaseName, st.phase === "run" ? "run" : st.phase === "wait" ? "ok" : "") +
-      chip(st.thread ? "thread: running" : "thread: none", st.thread ? "bad" : "ok") +
-      chip(st.violation ? "G304.H: violated" : "G304.H: ok", st.violation ? "bad" : "ok");
     draw();
   }
   function draw(){
@@ -1417,7 +1438,7 @@ const LC = (function(){
       c.restore();
       c.fillStyle = P.ink; c.beginPath(); c.arc(0, -s * 0.12, 6, 0, Math.PI * 2); c.fill();
     }});
-    text(ctx, "arm servo", w / 2 + 70, h / 2 - 40, {color: st.thread ? P.red : P.muted});
+    text(ctx, "arm servo", 12, 16, {color: st.thread ? P.red : P.muted});
     text(ctx, moving ? "drive: following gamepad" : "drive: stopped", 12, h - 12, {color: moving ? P.accent : P.muted});
   }
   return {reset, tick, show: draw, get: () => ({phase: st.phase, thread: st.thread, violation: st.violation})};
@@ -3562,29 +3583,33 @@ const DG = (function(){
     const cur = {off: "OFF", init: "INIT", wait: "WAIT", run: "RUN", after: "STOP", done: "STOP"}[g.phase];
     let s = SV.defs(pre);
     const B = [["OFF", 10, "OpMode selected", "nothing runs"], ["INIT", 150, "init code runs", "set up hardware"], ["WAIT", 290, "waitForStart()", "robot must not move"], ["RUN", 430, "while loop", "drive, launch, aim"], ["STOP", 570, "after the loop", "stopDrive()"]];
-    B.forEach(b => { s += SV.box(b[1], 70, 120, 62, [b[0], b[2], b[3]], {hot: cur === b[0], size: 14}); });
-    s += SV.ar(pre, [[130, 101], [148, 101]], {label: "INIT", at: [139, 62], lcol: "acc"});
-    s += SV.ar(pre, [[270, 101], [288, 101]], {label: "done", at: [279, 62]});
-    s += SV.ar(pre, [[410, 101], [428, 101]], {label: "START", at: [419, 62], lcol: "ok"});
-    s += SV.ar(pre, [[550, 101], [568, 101]], {label: "STOP", at: [559, 62], lcol: "red"});
-    s += SV.ar(pre, [[470, 70], [470, 40], [510, 40], [510, 68]], {col: "acc", label: "about 50 times per second", at: [490, 32], lcol: "acc"});
-    if (g.thread) s += SV.box(470, 150, 220, 34, ["AI thread still running"], {stroke: "red", sw: 2, tcol: "red"});
-    if (g.violation) s += SV.box(250, 150, 200, 34, ["G304.H: robot moved"], {stroke: "red", sw: 2, tcol: "red"});
-    SV.set($("#lc-sd"), 700, 195, s);
+    // Compact: the diagram sits under the Driver Hub, so the lit box stays on screen while you press the buttons
+    s += SV.tx(10, 16, "State diagram", {size: 13, weight: "700", anchor: "start"});
+    B.forEach(b => { s += SV.box(b[1], 44, 120, 62, [b[0], b[2], b[3]], {hot: cur === b[0], size: 14}); });
+    s += SV.ar(pre, [[130, 75], [148, 75]], {label: "INIT", at: [139, 36], lcol: "acc"});
+    s += SV.ar(pre, [[270, 75], [288, 75]], {label: "by itself", at: [279, 36]});
+    s += SV.ar(pre, [[410, 75], [428, 75]], {label: "START", at: [419, 36], lcol: "ok"});
+    s += SV.ar(pre, [[550, 75], [568, 75]], {label: "STOP", at: [559, 36], lcol: "red"});
+    s += SV.ar(pre, [[470, 44], [470, 16], [510, 16], [510, 42]], {col: "acc", label: "about 50 times per second", at: [490, 10], lcol: "acc"});
+    if (g.thread) s += SV.box(470, 116, 220, 32, ["AI thread still running"], {stroke: "red", sw: 2, tcol: "red"});
+    if (g.violation) s += SV.box(250, 116, 200, 32, ["G304.H: robot moved"], {stroke: "red", sw: 2, tcol: "red"});
+    SV.set($("#lc-sd"), 700, 152, s);
   }
   function timeline(){
     let s = "";
     const L = 20, W = 660, total = 20 + 30 + 8 + 120, sc = W / total;
+    // INIT happens before the match and is not timed: a dashed block, 20 units wide, in front of the to-scale 158 s
     const segs = [["INIT", 20, P.muted], ["AUTO 0:30", 30, P.accent], ["8 s", 8, P.line], ["TELEOP 2:00", 120, P.ok]];
     let x = L;
     const xt = L + (20 + 30 + 8 + 60) * sc;
-    segs.forEach(sg => { const w = sg[1] * sc; s += '<rect x="' + x + '" y="20" width="' + w + '" height="34" fill="' + alpha(sg[2], 0.35) + '" stroke="' + sg[2] + '"/>'; s += SV.tx(sg[0] === "TELEOP 2:00" ? (x + xt) / 2 : x + w / 2, 42, sg[0], {weight: "700", size: 12}); x += w; });
+    segs.forEach((sg, i) => { const w = sg[1] * sc; s += '<rect x="' + x + '" y="20" width="' + w + '" height="34" fill="' + alpha(sg[2], i ? 0.35 : 0.15) + '" stroke="' + sg[2] + '"' + (i ? "" : ' stroke-dasharray="4 3"') + "/>"; s += SV.tx(sg[0] === "TELEOP 2:00" ? (x + xt) / 2 : x + w / 2, 42, sg[0], {weight: "700", size: 12}); x += w; });
     s += '<line x1="' + xt + '" y1="14" x2="' + xt + '" y2="60" stroke="' + P.pollen + '" stroke-width="2" stroke-dasharray="4 3"/>';
-    s += SV.tx(L, 74, "INIT: robot must stay still (G304.H)", {size: 12, col: "mut", anchor: "start"});
-    s += SV.tx(L + 20 * sc, 92, "AUTO: no drivers, code only", {size: 12, col: "acc", anchor: "start"});
+    s += SV.tx(L, 74, "Before the match: INIT the AUTO OpMode, robot still (G304.H)", {size: 12, col: "mut", anchor: "start"});
+    s += SV.tx(L + 20 * sc, 92, "AUTO: no drivers. The 30 s timer on the Driver Hub ends the OpMode.", {size: 12, col: "acc", anchor: "start"});
     s += SV.tx(L + 118 * sc, 74, "drivers in control", {size: 12, col: "ok"});
+    s += SV.tx(L + (50 + 4) * sc, 110, "8 s: INIT the TeleOp OpMode", {size: 12, col: "mut"});
     s += SV.tx(xt, 12, "last 60 s: NECTAR into FLOWERS", {size: 12, col: "pol"});
-    SV.set($("#lc-tl"), 700, 104, s);
+    SV.set($("#lc-tl"), 700, 120, s);
   }
   /* ---- drive modes: rotation picture ---- */
   function driveVec(){

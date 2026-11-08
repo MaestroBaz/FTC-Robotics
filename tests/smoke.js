@@ -85,6 +85,24 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     return fold.evaluate(() => { const lh = document.querySelector("section.lab.on .labhead"); return [Math.round(lh.getBoundingClientRect().height), Math.round(lh.nextElementSibling.getBoundingClientRect().top)]; }); };
   for (const t of ["pid", "feedback", "oneloop"]) { const [lh, top] = await foldOf(t);
     check(lh <= 190 && top <= 330, t + ": Ask the room block " + lh + " px, first block starts at " + top + " px"); }
+  // ==== area lifecycle: code, message and lit state diagram all above the fold while you press the buttons; votes per press; threads outlive STOP ====
+  await fold.goto(URL + "#lifecycle"); await fold.waitForTimeout(300);
+  const lcBottom = sel => fold.$eval(sel, e => Math.round(e.getBoundingClientRect().bottom));
+  await fold.click("#lc-init"); await fold.waitForTimeout(2600);
+  check(/Vote before START/.test(await fold.textContent("#lc-msg")), "lifecycle: the wait message asks the vote before START");
+  const lcB = [await lcBottom("#lc-code"), await lcBottom("#lc-msg"), await lcBottom("#lc-sd")];
+  check(lcB.every(y => y <= 768), "lifecycle at 1366x768: code, message and state diagram end above the fold: " + lcB.join(", "));
+  await fold.click("#lc-start"); await fold.waitForTimeout(1200);
+  await fold.click("#lc-stop"); await fold.waitForTimeout(200);
+  check((await fold.$eval("#lc-code .ln.hl", e => e.dataset.n)) === "16", "lifecycle: STOP highlights line 16, robot.stopDrive()");
+  await fold.check('input[name="lcv"][value="bad"]');
+  check((await fold.textContent("#lc-file")) === "MainTeleOpAI.java", "lifecycle: the file name follows the class name");
+  await fold.click("#lc-init"); await fold.waitForTimeout(2600); await fold.click("#lc-start"); await fold.waitForTimeout(500);
+  await fold.click("#lc-stop"); await fold.waitForTimeout(1200);
+  check(/nobody told the thread to stop/.test(await fold.textContent("#lc-msg")) && !(await fold.$eval("#lc-init", e => e.disabled)), "lifecycle: after STOP the thread runs on and INIT is free again");
+  await fold.click("#lc-init"); await fold.waitForTimeout(200);
+  check((await fold.$$("#lc-code .ln.hl2")).length === 2, "lifecycle: a new INIT does not stop the old thread");
+  // ==== end area lifecycle ====
   await fold.close();
 
   // ---- Every word explained ----
