@@ -766,7 +766,7 @@ ul.tree .ro{color:var(--muted);}
       <p class="lede">Both launchers fire POLLEN at the HIVE. Orange uses <code>setPower(0.8)</code>. Blue uses <code>setVelocity(1160)</code>, which reads the encoder and corrects. Drag the battery voltage or run a whole match.</p>
     </div>
     <details class="ask"><summary><span class="tag">Ask the room</span><span class="q">A fresh battery reads 13.6 V. By the end of a match it reads 11.8 V. What happens to a launcher set to <code>setPower(0.8)</code>?</span><span class="vote" data-right="1"><button class="opt" type="button">Same speed, 0.8 is 0.8</button><button class="opt" type="button">Slower wheel, shots fall short</button><button class="opt" type="button">Faster wheel, shots fly long</button></span><span class="vhint">Teams hold up A, B or C. Click the answer each team holds up, then reveal. Right-click takes one back.</span><br><span class="reveal">Reveal answer</span></summary>
-      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for.</div>
+      <div class="a">Power is a fraction of battery voltage. Lower voltage means a slower wheel, so shots fall short late in the match. <code>setVelocity()</code> measures the speed with the encoder and adds power until the wheel reaches the target. This is the "external feedback" the Control Award asks for. The hub firmware runs a PIDF loop for it: P, I and D as on tab 7, plus F, a feedforward that sizes the power for the target before any error shows up. Your own <code>PIDController</code> is for positions, where F does nothing.</div>
     </details>
   </div>
   <div class="grid2">
@@ -1835,7 +1835,7 @@ function TimeChart(o){
 
 const FB = (function(){
   renderCode($("#fb-codeA"), ["// open loop", "launcher.setPower(0.8);", "// speed depends on battery"]);
-  renderCode($("#fb-codeB"), ["// closed loop (encoder)", "launcher.setVelocity(1160);", "// SDK corrects with PIDF"]);
+  renderCode($("#fb-codeB"), ["// closed loop (encoder)", "launcher.setVelocity(1160);", "// hub runs PIDF, F = feedforward"]);
   const KV = 116, TAU = 0.35, TARGET = 1160, LO = 1120, HI = 1200;
   let T = 0, V = 12.5, match = null, queue = [];
   const o = {w: 0}, c = {w: 0, i: 0}; let lastU = 0;
@@ -3329,6 +3329,9 @@ const DG = (function(){
     s += SV.box(460, 34, 180, 50, ["Flywheel " + Math.round(g.o) + " t/s", "nobody checks it"], {mono: true, stroke: (g.o < 1120 || g.o > 1200) ? "red" : "ok", sw: 2});
     s += SV.box(250, 100, 110, 30, ["battery " + g.V.toFixed(1) + " V"], {size: 12, stroke: "red", tcol: "red"});
     s += SV.ar(pre, [[305, 100], [305, 86]], {col: "red"});
+    s += SV.tx(420, 112, "PIDF = P, I, D plus F, a feedforward term: power sized for the", {anchor: "start", size: 11, col: "mut"});
+    s += SV.tx(420, 126, "target speed itself, applied before any error exists. The hub", {anchor: "start", size: 11, col: "mut"});
+    s += SV.tx(420, 140, "firmware runs all four. SDK recipe: F = 32767 / max ticks per s.", {anchor: "start", size: 11, col: "mut"});
     const y = 170;
     s += SV.tx(10, y - 12, "Closed loop: setVelocity(1160)", {anchor: "start", weight: "700", size: 13, col: "acc"});
     s += SV.box(10, y, 112, 50, ["target 1160", "ticks/s"], {mono: true});

@@ -117,3 +117,11 @@ Request: printable cheat sheets for the students, 1-2 pages, double sided.
 Output, first version: `docs/course/cheatsheet.html`, two text-heavy letter pages. Baz rejected it: too verbose, no illustrations.
 
 Output, second version (same day): two double-sided sheets, 4 pages, built from inline SVG diagrams with one-line captions. Sheet 1, Java and GitHub: a MainTeleOp cut into 8 colored bands with numbered callouts, Three files one robot (OpModes above Robot.java with its private parts and public doors, hardware below), Zoom levels as nested boxes, 12 word tiles with a picture each; Where your code lives (working files, local repo, GitHub, with commit, push, pull and the laptop-dies line), the pull request as a flowchart with the review loop, a merge conflict as a commit graph plus the marker lines, the menu-or-terminal table and the PR checklist. Sheet 2, how the robot thinks: the INIT, START, STOP timeline, the loop as a cycle beside a sleep-frozen timeline, the launcher state machine, drive modes on a top-view field plus three mecanum mini robots and the wheel formulas; open vs closed loop block diagrams, the 2-minute match chart with the HIVE window, the PID loop with P, I and D as three pushes, an annotated step response with four mini curves (generated from a small simulation), and the tuning recipe. Chrome drops leading spaces in inline SVG text, so code indentation is encoded as x offsets. Four smoke checks: 4 pages fit, no clipped code, at least 3 diagrams per page, no SVG label runs past its figure.
+
+## 18. The F in PIDF (2026-11-07)
+
+Request: Baz asked whether PIDF comes from the SDK, since the sheet and the lab say "PIDF on the hub" and never define F.
+
+Answer: yes. `DcMotorEx.setVelocityPIDFCoefficients(p, i, d, f)` sets the four numbers the hub firmware uses for `setVelocity()` in `RUN_USING_ENCODER`. F is feedforward: power sized for the target itself, applied before any error exists. SDK recipe: `F = 32767 / maxTicksPerSec`, `P = 0.1 F`, `I = 0.1 P`, `D = 0`. The students' own `PIDController` is for positions, where a constant F does nothing, so the course keeps F out of tab 7 on purpose.
+
+Output: one-line definition of F wherever PIDF appears: the Feedback tab block diagram, its code comment and its Ask the room answer, and the closed-loop caption on cheat sheet page 4. Glossary entry for PIDF.

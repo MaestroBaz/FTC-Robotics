@@ -27,3 +27,7 @@ _Avoid_: checklist, plan
 **No-go Gate**:
 A condition that blocks the Crash Course when unmet. A failure with a workable fallback is not a gate.
 _Avoid_: blocker, requirement
+
+**PIDF**:
+The velocity loop the REV hub firmware runs for setVelocity(): P, I and D as in PID, plus F, a feedforward term that sizes the power for the target itself before any error exists. The students' own PIDController has no F because it targets positions.
+_Avoid_: PID with F, feed-forward PID

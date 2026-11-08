@@ -510,7 +510,7 @@
   <div class="two">
     <div class="fig">
       <h2>Open loop vs closed loop</h2>
-      <svg viewBox="0 0 357 190" role="img" aria-label="Open loop block diagram above a closed loop block diagram">
+      <svg viewBox="0 0 357 214" role="img" aria-label="Open loop block diagram above a closed loop block diagram">
         <g style="font-size:9.5px">
           <text x="6" y="14" class="b">OPEN LOOP</text><text x="78" y="14" class="c m" style="font-size:8.8px">launcher.setPower(0.8)</text>
           <rect x="6" y="24" width="86" height="28" rx="5" class="bx"/><text x="49" y="42" text-anchor="middle">80% of battery</text>
@@ -531,6 +531,8 @@
           <path d="M325 124 L325 150 L100 150 L100 123" class="ag"/>
           <rect x="166" y="140" width="80" height="20" rx="5" class="ok"/><text x="206" y="154" text-anchor="middle" class="c">encoder measures</text>
           <text x="178" y="182" text-anchor="middle" class="c">sensor + target + correction, every pass. On any battery, the wheel hits 1160.</text>
+          <text x="178" y="196" text-anchor="middle" class="c">F = feedforward: power sized for the target itself, before any</text>
+          <text x="178" y="208" text-anchor="middle" class="c">error exists. The hub runs P, I, D and F for you, 4 numbers.</text>
         </g>
       </svg>
     </div>
