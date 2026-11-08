@@ -409,29 +409,30 @@ Team rounds:
 
 Lab tab 7. The message for the room: one class, every sensor. The PID code never changes. Only the sensor, the error, and 3 numbers change (4 on a lift: F holds against gravity).
 
+Open (3 min): Ask the room vote. After Reveal, click "Lift to height", press P only (stops 1.8 in short, output 0.18), then PID (tuned) (I closes the gap). Then press P only again and slide kF to 0.18: the gap closes with no I. Name it: this is the F in PIDF from the launcher. On the launcher F is kF x target speed and the hub does it. On a lift F is a constant. On a turn there is no F. Then click "Turn to heading (IMU)" for Part A.
+
 Part A, what P, I and D do (12 min). Use "Turn to heading (IMU)" at 0.25x speed, and pause on the moments below:
 0. Start with the control loop diagram at the top: target, error, the 3 term boxes, power, drivetrain, IMU, and the arrow back. Trace one lap with your finger. Each term box shows the live math, for example `0.020 x -12.3 = -0.25`, so moving a slider changes the box at once. The two small charts under the diagram show what I and D mean: I is the shaded area under the error curve, D is the slope of the red line.
-0b. Response markers (dotted lines on the Target vs sensor chart, with a table under the chart). Name each one with the room: dead time (delay before the sensor sees motion), rise time (10% to 90% of the way), overshoot and peak time, settling time (enters the green band and stays), steady-state error (offset at the end). Use the table to compare presets. Save "P too high" for the aim job in Part B, where the overshoot shows up in the table. "Response time" is a loose word: ask students to say rise time or settling time instead.
+0b. Response markers (dotted lines on the Target vs sensor chart, with a table under the "What each term asks for" chart). Name each one with the room: dead time (delay before the sensor sees motion), rise time (10% to 90% of the way), overshoot and peak time, settling time (enters the green band and stays), steady-state error (offset at the end). Use the table to compare presets. Save "P too high" for the aim job in Part B, where the overshoot shows up in the table. "Response time" is a loose word: ask students to say rise time or settling time instead.
 1. Preset "P only". P = kP x error. Point at the blue P line on the bottom chart: big error, big push.
-2. Skip "P too high" here. The 0.6 power limit caps both P presets for most of the turn, so the two look alike. Show the difference on the aim job in Part B.
-3. Preset "PD". D = kD x (how fast the error changes). The red D line pushes against the motion near the target: the brake. Before you press Play, teams predict where the robot stops: A on the target, B about 2 degrees short, C past the target. Then show the robot stopping about 2 degrees past the target: friction beats the tiny P power near the end.
-4. Preset "PID (tuned)". I adds up the leftover error over time. The yellow I line grows until the robot finishes.
-5. Press "Bump the robot". Before the press, teams predict: A the robot stays at the bumped angle, B the robot comes back, C the robot overshoots the other way. The controller recovers on its own.
+2. Preset "PD". D = kD x (how fast the error changes). Before you press it, teams predict the overshoot in the markers table compared with P only: A bigger, B about the same, C smaller. Answer C: P only about 11%, PD about 3%. Point at the red D line: it pushes against the motion near the target. D brakes. The faster the error shrinks, the harder D pushes back.
+3. P only and PD get stuck outside the 1.5 deg window, so AUTO waits on this turn forever. The chip reads "loop still running: stuck". Press PID (tuned): I grows until the robot moves again and the loop ends. The yellow I line shows it.
+4. Press PD. While the robot sits stuck about 2 deg off (the loop still runs), teams predict what Bump does: A stays at the bumped angle, B comes back, C overshoots the other way. Press Bump. Answer B. Then press PID (tuned), wait for "loop ended", and press Bump again: the robot stays. turnToHeading() stopped checking. TeleOp code runs every pass, so the lift and auto-aim always fight back.
 
-Part B, same class, other sensors (10 min):
-- "Lift to height (encoder)": P only holds 1.8 in low. Open the vote: which term fixes the 2-inch gap, and why does P alone fail? Reveal, score. Then PID, then tick "Carrying 3 balls". Then slide F (kF) to 0.18 with P only: the gap closes at once, no I needed. Name it: this is the F in PIDF from the launcher. On the launcher F is kF x target speed and the hub does it. On a lift F is a constant. On a turn there is no F.
+Part B, same class, other sensors (7 min):
+- "Lift to height (encoder)": tick "Carrying 3 balls": kF 0.18 is no longer enough, gravity now needs 0.30.
 - "Auto-aim at the HIVE (camera)": the aim button starts held. Drag the HIVE to a new spot and release: the robot turns to face the HIVE. Drag the HIVE outside the yellow camera cone: the banner reads SEARCHING and the robot spins toward the side where the camera last saw the target, then the PID takes over. This is why the code has an `else` branch with `lastBearing`. Without the branch the robot sits still when the camera loses the target. Then tick "Driver strafes side to side". The robot keeps facing the target while sliding. Before you switch presets, teams predict what "P too high" does to overshoot in the markers table: A smaller, B the same, C bigger. Compare "P only" and "P too high": overshoot grows from about half the move to about two thirds, so too much P overshoots. Then compare the PD and PID presets: I adds overshoot here, so not every job needs all three terms.
 
-Part C, the class in words (3 min): open the Java tab, "Every word explained" card, PIDController.java. Word hunt for 3 words: the number multiplied by the error, the stored error from the last loop pass, the method the OpMode calls every loop. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is 6 lines in MainTeleOp. The code builds without a camera attached.
+Part C, the class in words (3 min): open the Java tab, "Every word explained" card, PIDController.java. Word hunt for 3 words: the number multiplied by the error, the stored error from the last loop pass, the method the OpMode calls every loop. Then point at the "Using it for this job" panel of the camera job: auto-aim on the right bumper is about 10 lines in MainTeleOp. The code builds without a camera attached.
 
-Tuning on the real robot: kP first until the robot overshoots a little, then kD until the overshoot stops, then F if the robot stops short against gravity (measure the power that just holds the lift), then a small kI if it stops short from friction. Test 5 times. Commit the numbers with a message saying what you tested.
+Tuning on the real robot: on a lift or arm, find F first (set kP, kI and kD to 0, raise kF until the lift holds still). Then kP until the robot overshoots a little, then kD until the overshoot stops, then a small kI if it stops short from friction. Test 5 times. Commit the numbers with a message saying what you tested.
 
 [Verify] where the HIVE AprilTags sit this season (CM 9.9: clusters under each CELL, facing down) and whether the team's camera sees them from the mount. The aim code works with any bearing: AprilTag `ftcPose.bearing`, a Limelight `getTx()` (flip the sign), or a color blob.
 
 Team rounds:
-- Prediction: where PD stops (1 point).
-- Prediction: what the bump does (1 point).
 - Vote: which term fixes the lift gap (1 point per right team).
+- Prediction: PD overshoot vs P only (1 point).
+- Prediction: what the bump does (1 point).
 - Prediction: "P too high" and overshoot on the aim job (1 point).
 - Word hunt on PIDController.java: 3 words (1 point each).
 
