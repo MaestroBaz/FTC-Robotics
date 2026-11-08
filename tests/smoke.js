@@ -156,17 +156,24 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#fb-feed"); await pg.waitForTimeout(2000);
   await pg.locator("#lab-feedback").screenshot({ path: path.join(SHOTS, "feedback.png") });
 
-  // ---- cheat sheet prints on exactly two letter pages, nothing clipped ----
+  // ---- cheat sheets: two double-sided letter sheets (4 pages), diagram-led, nothing clipped ----
   const cs = await b.newPage();
   await cs.emulateMedia({ media: "print" });
   await cs.goto("file://" + path.resolve(__dirname, "..", "docs", "course", "cheatsheet.html")); await cs.waitForTimeout(300);
   const fit = await cs.evaluate(() => [...document.querySelectorAll(".page")].map(p => {
     const box = p.getBoundingClientRect(), kids = [...p.children], foot = kids[kids.length - 1], body = kids[kids.length - 2];
     const clippedCode = [...p.querySelectorAll("pre")].some(pre => pre.scrollWidth > pre.clientWidth + 1);
-    return { fits: body.getBoundingClientRect().bottom + foot.getBoundingClientRect().height <= box.bottom + 1, clippedCode };
+    // every SVG text must sit inside its own figure's box: a label that runs past the edge is clipped on paper
+    const overflow = [...p.querySelectorAll(".fig svg")].flatMap(svg => {
+      const r = svg.getBoundingClientRect();
+      return [...svg.querySelectorAll("text")].filter(t => { const b = t.getBoundingClientRect(); return b.right > r.right + 1 || b.left < r.left - 1; }).map(t => t.textContent.slice(0, 30));
+    });
+    return { fits: body.getBoundingClientRect().bottom + foot.getBoundingClientRect().height <= box.bottom + 1, clippedCode, figures: p.querySelectorAll(".fig svg").length, overflow };
   }));
-  check(fit.length === 2 && fit.every(f => f.fits), "cheat sheet content fits on two pages above the footers");
+  check(fit.length === 4 && fit.every(f => f.fits), "cheat sheets: 4 pages, content fits above the footers");
   check(fit.every(f => !f.clippedCode), "no cheat sheet code line is clipped");
+  check(fit.every(f => f.figures >= 3), "every cheat sheet page carries at least 3 diagrams");
+  check(fit.every(f => f.overflow.length === 0), "no diagram label runs past its figure: " + fit.flatMap(f => f.overflow).join(" | "));
   await cs.close();
 
   // ---- phone width ----

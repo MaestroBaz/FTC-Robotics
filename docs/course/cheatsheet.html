@@ -3,270 +3,621 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FTC Java Cheat Sheet</title>
+<title>FTC Java Cheat Sheets</title>
 <style>
-  /* Two letter pages, printed double sided. Page 1: read any OpMode. Page 2: how the robot thinks. */
+  /* Two sheets, printed double sided on letter paper.
+     Sheet 1: page 1 Java, page 2 GitHub. Sheet 2: page 3 one loop and drive modes, page 4 feedback and PID.
+     Every figure is inline SVG in CSS pixels: a full-width figure is 730 units wide, a half-width figure 357. */
   @page{size:letter; margin:0.4in 0.45in;}
-  :root{--ink:#18202c; --muted:#5a6474; --line:#c9cdc6; --accent:#1d5fd0; --soft:#f1f3ef; --code:#f6f7f4;}
+  :root{--ink:#18202c; --muted:#5a6474; --line:#c9cdc6; --accent:#1d5fd0; --ok:#1d8650; --red:#cf3535; --pollen:#e3ad00; --soft:#eef2fb; --code:#f6f7f4;}
   *{box-sizing:border-box;}
   html,body{margin:0; padding:0;}
-  body{font:9pt/1.28 "IBM Plex Sans", "Segoe UI", Arial, Helvetica, sans-serif; color:var(--ink); background:#fff;}
-  .page{width:7.6in; height:10.2in; margin:0 auto; padding:0; page-break-after:always; display:flex; flex-direction:column; gap:5pt; overflow:hidden;}
+  body{font:9.2pt/1.28 "IBM Plex Sans", "Segoe UI", Arial, Helvetica, sans-serif; color:var(--ink); background:#fff;}
+  .page{width:7.6in; height:10.2in; margin:0 auto; padding:0; page-break-after:always; display:flex; flex-direction:column; gap:6pt; overflow:hidden;}
   .page:last-child{page-break-after:auto;}
   @media screen{ body{background:#e9ebe6; padding:20px 0;} .page{background:#fff; height:auto; min-height:10.2in; padding:0.4in 0.45in; margin-bottom:20px; box-shadow:0 2px 12px rgba(0,0,0,.15);} }
-  h1{font:800 16pt/1 "Arial Narrow", "Helvetica Neue", Arial, sans-serif; text-transform:uppercase; letter-spacing:.02em; margin:0;}
+  h1{font:800 17pt/1 "Arial Narrow", "Helvetica Neue", Arial, sans-serif; text-transform:uppercase; letter-spacing:.02em; margin:0;}
   h1 small{font:600 8.5pt/1 Arial, sans-serif; text-transform:none; letter-spacing:0; color:var(--muted); margin-left:8pt;}
   h2{font:800 10pt/1 "Arial Narrow", "Helvetica Neue", Arial, sans-serif; text-transform:uppercase; letter-spacing:.03em; margin:0 0 3pt; color:var(--accent);}
-  h2 span{display:inline-block; min-width:13pt; height:13pt; line-height:13pt; text-align:center; background:var(--accent); color:#fff; border-radius:3pt; margin-right:4pt; font-size:9pt;}
-  h2 small{font:500 7.5pt Arial, sans-serif; color:var(--muted); text-transform:none; letter-spacing:0; margin-left:4pt;}
-  p{margin:0 0 2.5pt;}
+  h2 small{font:500 7.8pt Arial, sans-serif; color:var(--muted); text-transform:none; letter-spacing:0; margin-left:5pt;}
+  p{margin:0 0 2pt;}
   .head{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2pt solid var(--ink); padding-bottom:3pt;}
-  .head .team{font-size:8.5pt; color:var(--muted);}
-  .head .team b{display:inline-block; min-width:1.5in; border-bottom:1pt solid var(--ink);}
+  .head .r{font-size:8.5pt; color:var(--muted);}
+  .head .r b{display:inline-block; min-width:1.4in; border-bottom:1pt solid var(--ink);}
   .rules{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6pt;}
   .rule{border:1.2pt solid var(--ink); border-radius:4pt; padding:3pt 6pt; font-weight:600; font-size:8.6pt;}
-  .rule i{font-style:normal; display:block; font:800 10.5pt "Arial Narrow", Arial, sans-serif; color:var(--accent);}
-  .cols{display:grid; grid-template-columns:minmax(0,1.42fr) minmax(0,1fr); gap:8pt; align-items:start;}
-  .cols3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8pt; align-items:start;}
-  .box{border:1pt solid var(--line); border-radius:4pt; padding:4pt 6pt;}
-  .box.soft{background:var(--soft);}
-  pre{margin:0; font:7.4pt/1.3 "JetBrains Mono", Menlo, Consolas, monospace; background:var(--code); border:1pt solid var(--line); border-radius:4pt; padding:4pt 6pt; white-space:pre; overflow:hidden;}
-  pre b{font-weight:700; color:var(--accent);}
-  pre em{font-style:italic; color:var(--muted);}
-  pre .n{display:inline-block; width:11pt; margin-left:-3pt; color:#fff; background:var(--accent); border-radius:2pt; text-align:center; font-weight:700; font-size:7pt; line-height:10pt; vertical-align:1pt;}
+  .rule i{font-style:normal; display:block; font:800 10pt "Arial Narrow", Arial, sans-serif; color:var(--accent);}
+  .two{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10pt; align-items:start;}
+  .fig svg{display:block; width:100%; height:auto;}
+  .cap{font-size:8.3pt; color:var(--muted); margin-top:2pt;}
+  .cap b{color:var(--ink);}
   code{font:8pt "JetBrains Mono", Menlo, Consolas, monospace; background:var(--code); padding:0 2pt; border-radius:2pt;}
-  table{border-collapse:collapse; width:100%; font-size:7.9pt;}
+  table{border-collapse:collapse; width:100%; font-size:8pt;}
   th,td{text-align:left; vertical-align:top; padding:1.5pt 4pt; border-bottom:0.6pt solid var(--line);}
   th{font-size:7pt; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); border-bottom:1pt solid var(--ink);}
   td code{font-size:7.6pt; white-space:nowrap;}
   td:first-child{white-space:nowrap; font-weight:600;}
-  .legend{display:flex; flex-direction:column; gap:2.5pt; font-size:8.2pt;}
-  .legend span i{font-style:normal; display:inline-block; width:11pt; height:11pt; line-height:11pt; text-align:center; color:#fff; background:var(--accent); border-radius:2pt; font-weight:700; font-size:7pt; margin-right:3pt;}
-  .words{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:2pt 10pt; font-size:7.9pt;}
-  .words div{border-bottom:0.6pt solid var(--line); padding:1.5pt 0;}
-  .words code{font-weight:700; background:none; padding:0;}
-  .check{columns:3; column-gap:12pt; font-size:8.2pt; margin:0; padding:0; list-style:none;}
-  .check li{break-inside:avoid; padding-left:13pt; position:relative; margin-bottom:1pt;}
+  .check{columns:2; column-gap:12pt; font-size:8.3pt; margin:0; padding:0; list-style:none;}
+  .check li{break-inside:avoid; padding-left:13pt; position:relative; margin-bottom:2pt;}
   .check li::before{content:""; position:absolute; left:0; top:2pt; width:8pt; height:8pt; border:1pt solid var(--ink); border-radius:1.5pt;}
   .foot{margin-top:auto; border-top:1pt solid var(--line); padding-top:3pt; font-size:7.3pt; color:var(--muted); display:flex; justify-content:space-between;}
-  .tip{font-size:7.9pt; color:var(--muted);}
-  .terms{display:grid; grid-template-columns:1fr 1fr; gap:1pt 8pt; font-size:7.9pt;}
+  /* SVG vocabulary */
+  svg text{font-family:"IBM Plex Sans", "Segoe UI", Arial, Helvetica, sans-serif; font-size:10.5px; fill:var(--ink);}
+  svg .m{font-family:"JetBrains Mono", Menlo, Consolas, monospace; font-size:9.6px;}
+  svg .k{font-weight:700; fill:var(--accent);}
+  svg .b{font-weight:700;}
+  svg .c{font-size:9px; fill:var(--muted);}
+  svg .h{font-size:11.5px; font-weight:700; fill:var(--accent);}
+  svg .w{fill:#fff;}
+  svg .bx{fill:#fff; stroke:var(--ink); stroke-width:1.3;}
+  svg .sf{fill:var(--soft); stroke:var(--accent); stroke-width:1.3;}
+  svg .gy{fill:#f1f3ef; stroke:var(--line); stroke-width:1;}
+  svg .ok{fill:#e6f3ea; stroke:var(--ok); stroke-width:1.3;}
+  svg .rd{fill:#fbe8e8; stroke:var(--red); stroke-width:1.3;}
+  svg .ar{fill:none; stroke:var(--ink); stroke-width:1.4; marker-end:url(#mk);}
+  svg .ac{fill:none; stroke:var(--accent); stroke-width:1.6; marker-end:url(#mka);}
+  svg .ag{fill:none; stroke:var(--ok); stroke-width:1.6; marker-end:url(#mkg);}
+  svg .ad{fill:none; stroke:var(--ink); stroke-width:1.2; stroke-dasharray:4 3; marker-end:url(#mk);}
+  svg .ln{fill:none; stroke:var(--ink); stroke-width:1.2;}
+  svg .thin{fill:none; stroke:var(--line); stroke-width:1;}
+  svg .cur{fill:none; stroke:var(--accent); stroke-width:2; stroke-linejoin:round;}
+  svg .cur2{fill:none; stroke:var(--pollen); stroke-width:2; stroke-linejoin:round;}
+  svg .dash{fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:4 3;}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="mk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#18202c"/></marker>
+  <marker id="mka" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d5fd0"/></marker>
+  <marker id="mkg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d8650"/></marker>
+</defs></svg>
 
-<!-- ================= PAGE 1: READ ANY OPMODE ================= -->
+<!-- ================= PAGE 1: JAVA ================= -->
 <section class="page">
   <div class="head">
-    <h1>Read any OpMode <small>FTC Java Cheat Sheet, page 1 of 2</small></h1>
-    <div class="team">Name <b>&nbsp;</b> Team <b style="min-width:0.8in">&nbsp;</b></div>
+    <h1>Read any OpMode <small>FTC Java Cheat Sheet 1, page 1: Java</small></h1>
+    <div class="r">Name <b>&nbsp;</b> Team <b style="min-width:0.8in">&nbsp;</b></div>
   </div>
-
   <div class="rules">
-    <div class="rule"><i>Rule 1</i>One loop. No threads. No <code>sleep()</code> inside TeleOp.</div>
-    <div class="rule"><i>Rule 2</i>Two kinds of files: <code>Robot.java</code> owns the hardware, OpModes decide.</div>
-    <div class="rule"><i>Rule 3</i>Every change goes through a pull request. You explain every line.</div>
+    <div class="rule"><i>Rule 1</i>One loop. No threads. No <code>sleep()</code> in TeleOp.</div>
+    <div class="rule"><i>Rule 2</i><code>Robot.java</code> owns the hardware. OpModes decide.</div>
+    <div class="rule"><i>Rule 3</i>Every change is a pull request. You explain every line.</div>
   </div>
 
-  <div class="cols">
-    <div>
-      <h2>The 8 parts of every OpMode <small>top to bottom, every time</small></h2>
-<pre><span class="n">1</span><b>package</b> org.firstinspires.ftc.teamcode;
+  <div class="fig">
+    <h2>A file, cut open <small>the 8 parts, top to bottom, in every OpMode you will ever read</small></h2>
+    <svg viewBox="0 0 730 330" role="img" aria-label="MainTeleOp.java with its eight parts marked">
+      <rect x="0" y="0" width="470" height="330" rx="8" class="gy"/>
+      <rect x="1" y="4" width="468" height="12" fill="#dfe7fa"/>
+      <rect x="1" y="27" width="468" height="24" fill="#e6f3ea"/>
+      <rect x="1" y="62" width="468" height="12" fill="#fbf1d2"/>
+      <rect x="1" y="74" width="468" height="12" fill="#dfe7fa"/>
+      <rect x="1" y="97" width="468" height="12" fill="#e6f3ea"/>
+      <rect x="1" y="120" width="468" height="47" fill="#fbf1d2"/>
+      <rect x="1" y="178" width="468" height="104" fill="#dfe7fa"/>
+      <rect x="1" y="247" width="468" height="24" fill="#e6f3ea"/>
+      <g class="m" xml:space="preserve" style="white-space:pre">
+        <text x="12" y="14"><tspan class="k">package</tspan> org.firstinspires.ftc.teamcode;</text>
+        <text x="12" y="37"><tspan class="k">import</tspan> com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;</text>
+        <text x="12" y="48.5"><tspan class="k">import</tspan> com.qualcomm.robotcore.eventloop.opmode.TeleOp;</text>
+        <text x="12" y="72"><tspan class="k">@TeleOp</tspan>(name = "Main TeleOp")</text>
+        <text x="12" y="83.5"><tspan class="k">public class</tspan> MainTeleOp <tspan class="k">extends</tspan> LinearOpMode {</text>
+        <text x="35" y="107"><tspan class="k">private final</tspan> Robot robot = <tspan class="k">new</tspan> Robot();</text>
+        <text x="35" y="130"><tspan class="k">@Override</tspan></text>
+        <text x="35" y="141.5"><tspan class="k">public void</tspan> runOpMode() {</text>
+        <text x="58" y="153">robot.init(hardwareMap);</text>
+        <text x="58" y="164.5">waitForStart();</text>
+        <text x="58" y="188"><tspan class="k">while</tspan> (opModeIsActive()) {</text>
+        <text x="81" y="199.5"><tspan class="k">double</tspan> speed = 1.0;</text>
+        <text x="81" y="211"><tspan class="k">if</tspan> (gamepad1.left_bumper) speed = 0.4;</text>
+        <text x="81" y="222.5">robot.drive(-gamepad1.left_stick_y * speed,</text>
+        <text x="156" y="234">gamepad1.left_stick_x * speed,</text>
+        <text x="156" y="245.5">gamepad1.right_stick_x * speed);</text>
+        <text x="81" y="257">telemetry.addData("Heading", robot.headingDegrees());</text>
+        <text x="81" y="268.5">telemetry.update();</text>
+        <text x="58" y="280">}</text>
+        <text x="58" y="291.5">robot.stopDrive();</text>
+        <text x="35" y="303">}</text>
+        <text x="12" y="314.5">}</text>
+      </g>
+      <g>
+        <line x1="470" y1="10" x2="486" y2="14" class="thin"/><circle cx="492" cy="14" r="7" fill="#1d5fd0"/><text x="492" y="17.5" class="w b" text-anchor="middle" style="font-size:9px">1</text>
+        <text x="504" y="12" class="b">package</text><text x="504" y="23" class="c">the folder this file lives in. Line 1, always.</text>
+        <line x1="470" y1="39" x2="486" y2="50" class="thin"/><circle cx="492" cy="50" r="7" fill="#1d8650"/><text x="492" y="53.5" class="w b" text-anchor="middle" style="font-size:9px">2</text>
+        <text x="504" y="48" class="b">imports</text><text x="504" y="59" class="c">addresses of classes from other packages.</text>
+        <line x1="470" y1="68" x2="486" y2="86" class="thin"/><circle cx="492" cy="86" r="7" fill="#e3ad00"/><text x="492" y="89.5" class="w b" text-anchor="middle" style="font-size:9px">3</text>
+        <text x="504" y="84" class="b">annotation</text><text x="504" y="95" class="c">puts the OpMode on the Driver Hub list.</text>
+        <line x1="470" y1="80" x2="486" y2="122" class="thin"/><circle cx="492" cy="122" r="7" fill="#1d5fd0"/><text x="492" y="125.5" class="w b" text-anchor="middle" style="font-size:9px">4</text>
+        <text x="504" y="120" class="b">class</text><text x="504" y="131" class="c">the blueprint. Same name as the file. extends = gets</text><text x="504" y="142" class="c">telemetry, gamepad1, hardwareMap for free.</text>
+        <line x1="470" y1="103" x2="486" y2="164" class="thin"/><circle cx="492" cy="164" r="7" fill="#1d8650"/><text x="492" y="167.5" class="w b" text-anchor="middle" style="font-size:9px">5</text>
+        <text x="504" y="162" class="b">field</text><text x="504" y="173" class="c">a box the whole class shares. One Robot, built once.</text>
+        <line x1="470" y1="143" x2="486" y2="204" class="thin"/><circle cx="492" cy="204" r="7" fill="#e3ad00"/><text x="492" y="207.5" class="w b" text-anchor="middle" style="font-size:9px">6</text>
+        <text x="504" y="202" class="b">runOpMode</text><text x="504" y="213" class="c">the SDK's blank spot, filled in by you.</text><text x="504" y="224" class="c">Set up, then wait for START. Nothing moves before.</text>
+        <line x1="470" y1="230" x2="486" y2="250" class="thin"/><circle cx="492" cy="250" r="7" fill="#1d5fd0"/><text x="492" y="253.5" class="w b" text-anchor="middle" style="font-size:9px">7</text>
+        <text x="504" y="248" class="b">the loop</text><text x="504" y="259" class="c">read the sticks, decide, move, show, repeat.</text><text x="504" y="270" class="c">About 50 passes a second. Never sleep here.</text>
+        <line x1="470" y1="262" x2="486" y2="300" class="thin"/><circle cx="492" cy="300" r="7" fill="#1d8650"/><text x="492" y="303.5" class="w b" text-anchor="middle" style="font-size:9px">8</text>
+        <text x="504" y="298" class="b">telemetry</text><text x="504" y="309" class="c">lines for the Driver Hub screen. No update(), no screen.</text>
+      </g>
+    </svg>
+  </div>
 
-<span class="n">2</span><b>import</b> com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-<b>import</b> com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-<span class="n">3</span><b>@TeleOp</b>(name = "Main TeleOp")
-<span class="n">4</span><b>public class</b> MainTeleOp <b>extends</b> LinearOpMode {
-
-<span class="n">5</span>    <em>// one Robot object, built once, shared by every method</em>
-    <b>private final</b> Robot robot = <b>new</b> Robot();
-
-<span class="n">6</span>    <b>@Override</b>
-    <b>public void</b> runOpMode() {
-        robot.init(hardwareMap);
-        waitForStart();          <em>// nothing moves before START</em>
-
-<span class="n">7</span>        <em>// one pass, about 50 times a second, until STOP</em>
-        <b>while</b> (opModeIsActive()) {
-            <b>double</b> speed = 1.0;
-            <b>if</b> (gamepad1.left_bumper) {
-                speed = 0.4;     <em>// slow mode while held</em>
-            }
-            robot.drive(-gamepad1.left_stick_y * speed,
-                         gamepad1.left_stick_x * speed,
-                         gamepad1.right_stick_x * speed);
-
-            <b>if</b> (gamepad2.rightBumperWasPressed()) {
-                robot.launcherOn();   <em>// once per press</em>
-            }
-<span class="n">8</span>            telemetry.addData("Heading", "%.1f deg",
-                    robot.headingDegrees());
-            telemetry.update();
-        }
-        robot.stopDrive();
-    }
-}</pre>
+  <div class="two">
+    <div class="fig">
+      <h2>Three files, one robot</h2>
+      <svg viewBox="0 0 357 236" role="img" aria-label="Two OpModes and PIDController use Robot.java, which talks to the hardware">
+        <rect x="6" y="6" width="104" height="38" rx="6" class="sf"/><text x="58" y="22" text-anchor="middle" class="b">MainTeleOp.java</text><text x="58" y="36" text-anchor="middle" class="c">driver control</text>
+        <rect x="126" y="6" width="104" height="38" rx="6" class="sf"/><text x="178" y="22" text-anchor="middle" class="b">LeaveAndPark.java</text><text x="178" y="36" text-anchor="middle" class="c">30 s AUTO</text>
+        <rect x="246" y="6" width="106" height="38" rx="6" class="bx"/><text x="299" y="22" text-anchor="middle" class="b">PIDController.java</text><text x="299" y="36" text-anchor="middle" class="c">error in, power out</text>
+        <path d="M58 44 L58 84" class="ac"/><path d="M178 44 L178 84" class="ac"/>
+        <text x="64" y="66" class="c">has a Robot,</text><text x="64" y="77" class="c">calls robot.drive()</text>
+        <path d="M246 25 L236 25" class="ad"/><text x="299" y="56" text-anchor="middle" class="c">a turn, a lift, auto-aim</text>
+        <rect x="6" y="86" width="346" height="110" rx="8" class="bx"/>
+        <text x="14" y="102" class="h">Robot.java</text><text x="92" y="102" class="c">the only file that touches hardware</text>
+        <text x="14" y="121" class="c b">private, inside only</text>
+        <g class="m" style="font-size:8.6px">
+          <rect x="14" y="127" width="52" height="15" rx="3" class="gy"/><text x="40" y="138" text-anchor="middle">frontLeft</text>
+          <rect x="70" y="127" width="56" height="15" rx="3" class="gy"/><text x="98" y="138" text-anchor="middle">frontRight</text>
+          <rect x="130" y="127" width="50" height="15" rx="3" class="gy"/><text x="155" y="138" text-anchor="middle">backLeft</text>
+          <rect x="184" y="127" width="54" height="15" rx="3" class="gy"/><text x="211" y="138" text-anchor="middle">backRight</text>
+          <rect x="242" y="127" width="48" height="15" rx="3" class="gy"/><text x="266" y="138" text-anchor="middle">launcher</text>
+          <rect x="294" y="127" width="28" height="15" rx="3" class="gy"/><text x="308" y="138" text-anchor="middle">imu</text>
+          <rect x="326" y="131" width="7" height="7" rx="1" class="ln"/><path d="M327.5 131 v-3 a2 2 0 0 1 4 0 v3" class="ln"/>
+        </g>
+        <text x="14" y="160" class="c b">public, the doors any OpMode can use</text>
+        <g class="m" style="font-size:8.6px">
+          <rect x="14" y="166" width="72" height="16" rx="3" class="sf"/><text x="50" y="177.5" text-anchor="middle">drive(a, l, y)</text>
+          <rect x="92" y="166" width="68" height="16" rx="3" class="sf"/><text x="126" y="177.5" text-anchor="middle">launcherOn()</text>
+          <rect x="166" y="166" width="82" height="16" rx="3" class="sf"/><text x="207" y="177.5" text-anchor="middle">launcherReady()</text>
+          <rect x="254" y="166" width="92" height="16" rx="3" class="sf"/><text x="300" y="177.5" text-anchor="middle">headingDegrees()</text>
+        </g>
+        <path d="M179 196 L179 212" class="ar"/>
+        <rect x="6" y="214" width="346" height="20" rx="6" class="gy"/><text x="179" y="228" text-anchor="middle" class="c">Control Hub: drive motors, launcher, IMU, camera. Names from the config.</text>
+      </svg>
+      <p class="cap">If a line names a motor and the file is not Robot.java, the line is in the wrong file.</p>
     </div>
-    <div>
-      <h2>What each part does</h2>
-      <div class="legend">
-        <span><i>1</i><b>package</b>: the folder this file lives in. Line 1 of every file, always the same.</span>
-        <span><i>2</i><b>imports</b>: addresses of classes from other packages. Alt+Enter writes them for you.</span>
-        <span><i>3</i><b>annotation</b>: puts the OpMode on the Driver Hub list under that name. AUTO uses <code>@Autonomous</code>.</span>
-        <span><i>4</i><b>class</b>: the blueprint. Same name as the file. <code>extends</code> = gets telemetry, gamepad1, hardwareMap for free.</span>
-        <span><i>5</i><b>field</b>: a box the whole class shares. One Robot object serves every method.</span>
-        <span><i>6</i><b>runOpMode</b>: the SDK's blank spot, filled in by you. Set up, then wait for START.</span>
-        <span><i>7</i><b>the loop</b>: read the sticks, decide, move, show, repeat. Never sleep here.</span>
-        <span><i>8</i><b>telemetry</b>: lines for the Driver Hub screen. No <code>update()</code>, no screen.</span>
-      </div>
-      <h2 style="margin-top:7pt">Who does what</h2>
-      <p><b>Robot.java</b> knows the motor names and the wheel math. Private parts, public actions. One per robot.</p>
-      <p><b>An OpMode</b> has a Robot and decides: read the gamepad, call an action, show telemetry.</p>
-      <p><b>PIDController.java</b> turns an error into power. One class for the turn, the lift and auto-aim.</p>
-      <p class="tip">If a line names a motor and the file is not Robot.java, the line is in the wrong file.</p>
+    <div class="fig">
+      <h2>Zoom levels <small>each box lives inside the one around it</small></h2>
+      <svg viewBox="0 0 357 236" role="img" aria-label="Project, module, package, class, method, line as nested boxes">
+        <rect x="2" y="2" width="353" height="232" rx="8" fill="#fff" stroke="#18202c" stroke-width="1.5"/><text x="12" y="17" class="b">PROJECT</text><text x="72" y="17" class="m">robot-code-2026-biobuzz</text><text x="222" y="17" class="c">your Git repo</text>
+        <rect x="14" y="26" width="329" height="196" rx="7" class="sf"/><text x="24" y="41" class="b">MODULE</text><text x="78" y="41" class="m">TeamCode</text><text x="140" y="41" class="c">yours. FtcRobotController is FIRST's</text>
+        <rect x="26" y="50" width="305" height="160" rx="6" fill="#fff" stroke="#5a6474" stroke-width="1.2" stroke-dasharray="5 3"/><text x="36" y="65" class="b">PACKAGE</text><text x="96" y="65" class="m">org.firstinspires.ftc.teamcode</text><text x="36" y="77" class="c">one folder. Line 1 names it. Same package: no import needed.</text>
+        <rect x="38" y="84" width="281" height="114" rx="6" class="ok"/><text x="48" y="99" class="b">CLASS</text><text x="92" y="99" class="m">MainTeleOp</text><text x="168" y="99" class="c">one .java file, one blueprint</text>
+        <rect x="50" y="108" width="257" height="78" rx="5" fill="#fff" stroke="#e3ad00" stroke-width="1.3"/><text x="60" y="123" class="b">METHOD</text><text x="116" y="123" class="m">runOpMode() { ... }</text><text x="60" y="135" class="c">a named block of code. drive() and init() are methods too.</text>
+        <rect x="62" y="142" width="233" height="34" rx="4" class="rd"/><text x="72" y="156" class="b">LINE</text><text x="104" y="156" class="m">robot.drive(axial, 0, 0);</text><text x="72" y="169" class="c">one statement. Ends with a semicolon.</text>
+      </svg>
+      <p class="cap"><b>An import is an address.</b> <code>import com.qualcomm.robotcore.hardware.DcMotor;</code> = folders com, qualcomm, robotcore, hardware, then the class DcMotor. Alt+Enter in Android Studio writes it: pick <b>Import class</b>, never Create class.</p>
     </div>
   </div>
 
-  <div>
-    <h2>Words you will see <small>the ones the lab uses on every tab</small></h2>
-    <div class="words">
-      <div><code>public</code> any file can use it. Actions like <code>drive()</code>.</div>
-      <div><code>private</code> only this class can use it. Motors stay private.</div>
-      <div><code>static</code> belongs to the class, not one object: <code>Math.abs(x)</code>.</div>
-      <div><code>final</code> set once, never changed. A constant when on a number.</div>
-      <div><code>MAX_SPEED</code> UPPER_CASE = a tuned constant, changed in one place.</div>
-      <div><code>new Robot()</code> builds one object from the blueprint.</div>
-      <div><code>this.kP</code> the box in this object. Plain <code>kP</code>: the number passed in.</div>
-      <div><code>Robot()</code> no return type = the constructor. Runs once, inside <code>new</code>.</div>
-      <div><code>void</code> the method hands nothing back. Call it as its own line.</div>
-      <div><code>double</code> <code>boolean</code> a decimal, or true/false. Before a name: what it hands back.</div>
-      <div><code>return</code> hands the value back and ends the method right there.</div>
-      <div><code>(double a, double b)</code> parameters: the inputs, filled in order by the caller.</div>
-      <div><code>enum</code> a type with a short fixed list of values. A typo fails the build.</div>
-      <div><code>switch case break</code> jump to the matching case. Forget <code>break</code>: it runs on.</div>
-      <div><code>if else &amp;&amp;</code> run when true, else the other block. <code>&amp;&amp;</code> = both true.</div>
-      <div><code>while (opModeIsActive())</code> repeat until STOP. One pass = one loop.</div>
-      <div><code>hardwareMap.get(DcMotor.class, "name")</code> which kind, and the exact config name.</div>
-      <div><code>-gamepad1.left_stick_y</code> stick up reads negative. The minus fixes it.</div>
-      <div><code>left_bumper</code> true while held. <code>rightBumperWasPressed()</code> true once per press.</div>
-      <div><code>Range.clip(x, -1, 1)</code> keeps x inside the limits. Power stays in -1 to 1.</div>
-      <div><code>"%.1f"</code> a decimal with 1 digit after the point, for telemetry.</div>
-      <div><code>ElapsedTime</code> a stopwatch object. <code>seconds()</code> and <code>reset()</code>.</div>
-      <div><code>//</code> a comment. Say why, not what.</div>
-      <div><code>;</code> <code>{ }</code> end of a statement. A block, and the life of its variables.</div>
-    </div>
+  <div class="fig">
+    <h2>Words you will see <small>each one has a picture</small></h2>
+    <svg viewBox="0 0 730 146" role="img" aria-label="Twelve Java words with a small picture each">
+      <g style="font-size:9px">
+        <!-- row 1 -->
+        <rect x="0" y="0" width="178" height="46" rx="5" class="gy"/>
+        <rect x="8" y="8" width="14" height="30" rx="2" class="bx"/><path d="M22 8 L34 14 L34 44 L22 38 Z" class="sf"/><circle cx="31" cy="27" r="1.4"/>
+        <text x="46" y="16" class="b" style="font-size:10.5px">public</text><text x="46" y="28" class="c">open door: any file calls it</text><text x="46" y="40" class="m" style="font-size:8px">public void drive(...)</text>
+        <rect x="184" y="0" width="178" height="46" rx="5" class="gy"/>
+        <rect x="194" y="22" width="20" height="16" rx="2" class="bx"/><path d="M198 22 v-6 a6 6 0 0 1 12 0 v6" class="ln"/><circle cx="204" cy="30" r="2"/>
+        <text x="230" y="16" class="b" style="font-size:10.5px">private</text><text x="230" y="28" class="c">locked room: this class only</text><text x="230" y="40" class="m" style="font-size:7.5px">private DcMotor lift;</text>
+        <rect x="368" y="0" width="178" height="46" rx="5" class="gy"/>
+        <rect x="376" y="8" width="34" height="30" rx="3" class="bx"/><text x="393" y="19" text-anchor="middle" style="font-size:7.5px" class="b">Robot</text><rect x="381" y="23" width="24" height="10" rx="2" class="sf"/><text x="393" y="31" text-anchor="middle" style="font-size:6.5px">MAX</text>
+        <text x="414" y="16" class="b" style="font-size:10.5px">static</text><text x="414" y="28" class="c">belongs to the class itself</text><text x="414" y="40" class="m" style="font-size:8px">Robot.MAX_SPEED</text>
+        <rect x="552" y="0" width="178" height="46" rx="5" class="gy"/>
+        <rect x="560" y="12" width="30" height="20" rx="3" class="bx"/><text x="575" y="26" text-anchor="middle" class="m" style="font-size:9px">0.8</text><rect x="586" y="22" width="10" height="8" rx="1" class="bx"/><path d="M588 22 v-3 a3 3 0 0 1 6 0 v3" class="ln"/>
+        <text x="598" y="16" class="b" style="font-size:10.5px">final</text><text x="598" y="28" class="c">set once, then locked</text><text x="598" y="40" class="m" style="font-size:8px">final double MAX = 0.8;</text>
+        <!-- row 2 -->
+        <rect x="0" y="50" width="178" height="46" rx="5" class="gy"/>
+        <rect x="6" y="62" width="12" height="22" rx="2" fill="#fff" stroke="#18202c" stroke-dasharray="3 2"/><path d="M20 73 L30 73" class="ar"/><rect x="32" y="62" width="12" height="22" rx="2" class="sf"/>
+        <text x="46" y="66" class="b" style="font-size:10.5px">new</text><text x="46" y="78" class="c">blueprint to one real object</text><text x="46" y="90" class="m" style="font-size:7.5px">robot = new Robot();</text>
+        <rect x="184" y="50" width="178" height="46" rx="5" class="gy"/>
+        <rect x="192" y="58" width="16" height="12" rx="2" class="bx"/><path d="M208 64 L220 64" class="ac"/><rect x="192" y="76" width="16" height="12" rx="2" class="bx"/><text x="211" y="86" class="c" style="font-size:7.5px">void</text>
+        <text x="230" y="66" class="b" style="font-size:10.5px">return</text><text x="230" y="78" class="c">hands a value back.</text><text x="230" y="90" class="c">void: nothing comes back.</text>
+        <rect x="368" y="50" width="178" height="46" rx="5" class="gy"/>
+        <circle cx="384" cy="62" r="3.5" class="ln"/><circle cx="384" cy="62" r="1.8" fill="#1d5fd0"/><circle cx="384" cy="73" r="3.5" class="ln"/><circle cx="384" cy="84" r="3.5" class="ln"/><path d="M391 62 h12 M391 73 h12 M391 84 h12" class="thin"/>
+        <text x="414" y="66" class="b" style="font-size:10.5px">enum</text><text x="414" y="78" class="c">one value from a fixed list;</text><text x="414" y="90" class="c">a typo fails the build.</text>
+        <rect x="552" y="50" width="178" height="46" rx="5" class="gy"/>
+        <path d="M580 70 a11 11 0 1 1 -2 -8" class="ac"/>
+        <text x="598" y="66" class="b" style="font-size:10.5px">while</text><text x="598" y="78" class="c">repeat the block until STOP</text><text x="598" y="90" class="m" style="font-size:7.2px">while (opModeIsActive())</text>
+        <!-- row 3 -->
+        <rect x="0" y="100" width="178" height="46" rx="5" class="gy"/>
+        <path d="M4 123 L14 123 L24 112" class="ar"/><path d="M14 123 L24 134" class="ar"/><text x="26" y="112" class="m" style="font-size:7px">if</text><text x="26" y="138" class="m" style="font-size:7px">else</text>
+        <text x="46" y="116" class="b" style="font-size:10.5px">if / else</text><text x="46" y="128" class="c">one of two blocks runs.</text><text x="46" y="140" class="c">&amp;&amp; both true, || either one</text>
+        <rect x="184" y="100" width="178" height="46" rx="5" class="gy"/>
+        <rect x="190" y="106" width="34" height="34" rx="4" class="bx"/><text x="207" y="115" text-anchor="middle" style="font-size:6.5px" class="c">this</text><rect x="196" y="119" width="22" height="14" rx="2" class="sf"/><text x="207" y="129.5" text-anchor="middle" class="m" style="font-size:8px">kP</text>
+        <text x="230" y="116" class="b" style="font-size:10.5px">this.kP</text><text x="230" y="128" class="c">the box inside this object;</text><text x="230" y="140" class="c">plain kP: the number given</text>
+        <rect x="368" y="100" width="178" height="46" rx="5" class="gy"/>
+        <rect x="376" y="108" width="16" height="30" rx="2" class="bx"/><path d="M379 114 h10 M379 121 h10 M379 128 h10" class="thin"/><path d="M394 121 L402 121" class="ar"/><rect x="404" y="114" width="6" height="14" rx="1" class="sf"/>
+        <text x="414" y="116" class="b" style="font-size:10.5px">get</text><text x="414" y="128" class="c">find a device by config name</text><text x="414" y="140" class="m" style="font-size:7.5px">hardwareMap.get(cls, id)</text>
+        <rect x="552" y="100" width="178" height="46" rx="5" class="gy"/>
+        <text x="560" y="130" class="m" style="font-size:16px">; { }</text>
+        <text x="598" y="116" class="b" style="font-size:10.5px">; and { }</text><text x="598" y="128" class="c">; ends a statement.</text><text x="598" y="140" class="c">{ } groups lines in a block.</text>
+      </g>
+    </svg>
   </div>
 
-  <div class="foot"><span>FTC Java Crash Course, BIOBUZZ 2026-27, FTC SDK v12.0</span><span>Turn over: how the robot thinks</span></div>
+  <div class="foot"><span>FTC Java Crash Course, BIOBUZZ 2026-27, FTC SDK v12.0</span><span>Turn over: GitHub teamwork</span></div>
 </section>
 
-<!-- ================= PAGE 2: HOW THE ROBOT THINKS ================= -->
+<!-- ================= PAGE 2: GITHUB ================= -->
 <section class="page">
   <div class="head">
-    <h1>How the robot thinks <small>FTC Java Cheat Sheet, page 2 of 2</small></h1>
-    <div class="team">Predict first. Then run. Then explain.</div>
+    <h1>GitHub teamwork <small>FTC Java Cheat Sheet 1, page 2: sharing one robot's code</small></h1>
+    <div class="r">Commit often. Push when it works.</div>
   </div>
 
-  <div class="cols3" style="grid-template-columns:minmax(0,1.34fr) minmax(0,1fr) minmax(0,1fr)">
-    <div class="box">
-      <h2><span>1</span>One loop, no sleep</h2>
-      <p><code>sleep(1000)</code> freezes the loop: motors keep the last power and nobody can steer for a second.</p>
-      <p>A <b>state machine</b> checks one thing per pass and moves on. Driving keeps working while the launcher spins up.</p>
-<pre style="font-size:7pt"><b>enum</b> LaunchState {
-  IDLE, SPINNING_UP, FEEDING
-}
+  <div class="fig">
+    <h2>Where your code lives <small>three places, two moves between them</small></h2>
+    <svg viewBox="0 0 730 212" role="img" aria-label="Working files, local repo and GitHub with commit, push and pull arrows">
+      <rect x="4" y="22" width="190" height="130" rx="8" class="gy"/><text x="99" y="40" text-anchor="middle" class="b">WORKING FILES</text><text x="99" y="52" text-anchor="middle" class="c">your laptop: the folder you edit</text>
+      <rect x="18" y="64" width="90" height="22" rx="3" class="bx"/><text x="63" y="79" text-anchor="middle" class="m" style="font-size:8.5px">MainTeleOp.java</text><text x="114" y="79" class="c" fill="#cf3535">changed</text>
+      <rect x="18" y="92" width="90" height="22" rx="3" class="bx"/><text x="63" y="107" text-anchor="middle" class="m" style="font-size:8.5px">Robot.java</text>
+      <text x="99" y="138" text-anchor="middle" class="c">Ctrl+Z is your only undo here</text>
+      <rect x="270" y="22" width="190" height="130" rx="8" class="sf"/><text x="365" y="40" text-anchor="middle" class="b">LOCAL REPO</text><text x="365" y="52" text-anchor="middle" class="c">your laptop: the history, in .git</text>
+      <g class="m" style="font-size:8.5px">
+        <rect x="284" y="64" width="162" height="18" rx="3" class="bx"/><text x="292" y="76.5" class="k">b62</text><text x="318" y="76.5">Add slow mode</text><text x="440" y="76.5" text-anchor="end" class="c">you</text>
+        <rect x="284" y="86" width="162" height="18" rx="3" class="bx"/><text x="292" y="98.5" class="k">b72</text><text x="318" y="98.5">Add Robot.java</text><text x="440" y="98.5" text-anchor="end" class="c">Ava</text>
+        <rect x="284" y="108" width="162" height="18" rx="3" class="bx"/><text x="292" y="120.5" class="k">a1f</text><text x="318" y="120.5">SDK v12.0</text><text x="440" y="120.5" text-anchor="end" class="c">FIRST</text>
+      </g>
+      <text x="365" y="142" text-anchor="middle" class="c">every commit: who, what, when, why</text>
+      <rect x="536" y="22" width="190" height="130" rx="8" class="ok"/><text x="631" y="40" text-anchor="middle" class="b">GITHUB</text><text x="631" y="52" text-anchor="middle" class="c">the team's copy, online</text>
+      <g class="m" style="font-size:8.5px">
+        <rect x="550" y="64" width="162" height="18" rx="3" class="bx"/><text x="558" y="76.5" class="k">05e</text><text x="584" y="76.5">Fix motor name</text><text x="706" y="76.5" text-anchor="end" class="c">Leo</text>
+        <rect x="550" y="86" width="162" height="18" rx="3" class="bx"/><text x="558" y="98.5" class="k">b72</text><text x="584" y="98.5">Add Robot.java</text><text x="706" y="98.5" text-anchor="end" class="c">Ava</text>
+        <rect x="550" y="108" width="162" height="18" rx="3" class="bx"/><text x="558" y="120.5" class="k">a1f</text><text x="584" y="120.5">SDK v12.0</text><text x="706" y="120.5" text-anchor="end" class="c">FIRST</text>
+      </g>
+      <text x="631" y="142" text-anchor="middle" class="c">reviewers, teammates, the robot</text>
+      <path d="M194 80 L268 80" class="ac"/><text x="232" y="70" text-anchor="middle" class="b" style="font-size:9.5px">commit</text><text x="232" y="96" text-anchor="middle" class="c">Ctrl+K</text><text x="232" y="107" text-anchor="middle" class="m" style="font-size:8px">git commit</text>
+      <path d="M460 72 L534 72" class="ag"/><text x="497" y="62" text-anchor="middle" class="b" style="font-size:9.5px">push</text><text x="497" y="86" text-anchor="middle" class="c" style="font-size:8px">Ctrl+Shift+K</text><text x="497" y="97" text-anchor="middle" class="m" style="font-size:8px">git push</text>
+      <path d="M534 118 L460 118" class="ag"/><text x="497" y="132" text-anchor="middle" class="b" style="font-size:9.5px">pull</text><text x="497" y="144" text-anchor="middle" class="m" style="font-size:8px">git pull</text>
+      <path d="M4 172 L460 172" class="ln" stroke-dasharray="4 3"/><text x="232" y="186" text-anchor="middle" class="c">Laptop dies: everything on this side is gone. A commit alone does not save you.</text>
+      <path d="M536 172 L726 172" class="ln"/><text x="631" y="186" text-anchor="middle" class="b" style="font-size:9.5px" fill="#1d8650">Here, the team has it.</text>
+      <text x="365" y="206" text-anchor="middle" class="c">Push gets rejected when GitHub has a commit you do not: pull first, then push again.</text>
+    </svg>
+  </div>
 
-<b>switch</b> (launchState) {
-  <b>case</b> IDLE:
-    <b>if</b> (gamepad2.rightBumperWasPressed()) {
-      robot.launcherOn();
-      launchState = LaunchState.SPINNING_UP;
-    }
-    <b>break</b>;
-  <b>case</b> SPINNING_UP:
-    <b>if</b> (robot.launcherReady()) {
-      launchState = LaunchState.FEEDING;
-    }
-    <b>break</b>;
-  <b>case</b> FEEDING:
-    robot.feedOnce();
-    launchState = LaunchState.IDLE;
-    <b>break</b>;
-}</pre>
-      <p class="tip" style="margin-top:2pt">Timing without sleep: <code>if (timer.seconds() &gt; 0.5)</code> inside the loop. Threads move the robot before START (rule G304.H).</p>
+  <div class="two">
+    <div class="fig">
+      <h2>One pull request, start to finish</h2>
+      <svg viewBox="0 0 357 262" role="img" aria-label="Pull request loop from pull main to delete branch">
+        <g style="font-size:9.5px">
+          <rect x="6" y="6" width="150" height="30" rx="5" class="bx"/><text x="81" y="18" text-anchor="middle" class="b">1 Pull main</text><text x="81" y="30" text-anchor="middle" class="c" style="font-size:8px">start from the team's latest</text>
+          <rect x="6" y="46" width="150" height="30" rx="5" class="bx"/><text x="81" y="58" text-anchor="middle" class="b">2 New branch</text><text x="81" y="70" text-anchor="middle" class="m" style="font-size:8px">maya/slow-mode</text>
+          <rect x="6" y="86" width="150" height="30" rx="5" class="bx"/><text x="81" y="98" text-anchor="middle" class="b">3 Code, then build</text><text x="81" y="110" text-anchor="middle" class="c" style="font-size:8px">Build &gt; Make Project, no errors</text>
+          <rect x="6" y="126" width="150" height="30" rx="5" class="bx"/><text x="81" y="138" text-anchor="middle" class="b">4 Commit</text><text x="81" y="150" text-anchor="middle" class="c" style="font-size:8px">"Add slow mode on left bumper"</text>
+          <rect x="6" y="166" width="150" height="30" rx="5" class="bx"/><text x="81" y="178" text-anchor="middle" class="b">5 Push</text><text x="81" y="190" text-anchor="middle" class="c" style="font-size:8px">now GitHub has the branch</text>
+          <rect x="6" y="206" width="150" height="30" rx="5" class="sf"/><text x="81" y="218" text-anchor="middle" class="b">6 Open the PR</text><text x="81" y="230" text-anchor="middle" class="c" style="font-size:8px">fill the template, tick the AI box</text>
+          <path d="M81 36 L81 44" class="ar"/><path d="M81 76 L81 84" class="ar"/><path d="M81 116 L81 124" class="ar"/><path d="M81 156 L81 164" class="ar"/><path d="M81 196 L81 204" class="ar"/>
+          <path d="M156 221 L170 221 L170 39 L186 39" class="ar"/>
+          <rect x="188" y="24" width="130" height="30" rx="5" class="sf"/><text x="253" y="36" text-anchor="middle" class="b">7 Review</text><text x="253" y="48" text-anchor="middle" class="c" style="font-size:8px">a teammate reads every line</text>
+          <path d="M253 54 L253 70" class="ar"/>
+          <path d="M253 72 L298 100 L253 128 L208 100 Z" class="bx"/><text x="253" y="104" text-anchor="middle" class="b">Approved?</text>
+          <path d="M298 100 L330 100 L330 160 L300 160" class="ar"/><text x="322" y="134" text-anchor="middle" class="c">no</text>
+          <rect x="192" y="148" width="106" height="24" rx="5" class="rd"/><text x="245" y="164" text-anchor="middle" class="b">Fix, commit, push</text>
+          <path d="M192 160 L178 160 L178 39 L186 39" class="ad"/>
+          <path d="M253 128 L253 188" class="ag"/><text x="262" y="184" class="c">yes</text>
+          <rect x="188" y="190" width="130" height="24" rx="5" class="ok"/><text x="253" y="206" text-anchor="middle" class="b">8 Squash and merge</text>
+          <path d="M253 214 L253 228" class="ar"/>
+          <rect x="188" y="230" width="130" height="24" rx="5" class="ok"/><text x="253" y="246" text-anchor="middle" class="b">9 Delete the branch</text>
+          <text x="6" y="256" class="c">then everyone pulls main again</text>
+        </g>
+      </svg>
+      <p class="cap">Nobody pushes to <b>main</b>. Your reviewer asks about 2 lines. "The AI wrote it" is not an answer.</p>
     </div>
-    <div class="box">
-      <h2><span>2</span>Open loop vs closed loop</h2>
-      <p><code>setPower(0.8)</code> is <b>open loop</b>: 80% of whatever the battery gives. 13.6 V at the start, 11.8 V at the end, so late shots fall short.</p>
-      <p><code>setVelocity(1160)</code> is <b>closed loop</b>: the encoder measures the speed and the hub adds power until the wheel hits 1160 ticks/s, on any battery. Sensor, target, correction, every pass.</p>
-      <p class="tip">Shoot only when <code>launcherReady()</code> is true: within 40 ticks/s of the target.</p>
-      <h2 style="margin-top:6pt"><span>3</span>Drive modes</h2>
-      <p><b>Robot-centric</b>: stick up = the robot's front. Turn the robot and "up" turns with it.</p>
-      <p><b>Field-centric</b>: stick up = away from the driver wall, whatever the robot faces. The IMU heading rotates the stick before the wheel math.</p>
-      <p class="tip">Same mecanum math underneath: <code>fl = axial + lateral + yaw</code>, scaled so no wheel passes 1.0.</p>
-    </div>
-    <div class="box soft">
-      <h2><span>4</span>PID: error in, power out</h2>
-      <p><b>P</b> <code>kP * error</code>. Big error, big push. Alone it stops short when friction or gravity eats the small push. Too much: overshoot and wobble.</p>
-      <p><b>I</b> <code>kI * (error added up)</code>. Supplies the missing push when P stalls short. Only near the target (the I-zone). Too much: slow wind-up.</p>
-      <p><b>D</b> <code>kD * (how fast the error changes)</code>. The brake near the target. Too much: jitter on a noisy sensor.</p>
-      <p><b>Tune on the robot:</b> kP until it overshoots a little. Then kD until the overshoot stops. Then a small kI only if it stops short. Test 5 times, then commit the numbers.</p>
-      <div class="terms">
-        <span><b>Rise time</b> 10% to 90% of the way</span>
-        <span><b>Overshoot</b> past the target, in %</span>
-        <span><b>Settling time</b> in the band, and stays</span>
-        <span><b>Steady-state error</b> the offset at the end</span>
-      </div>
-      <p class="tip" style="margin-top:2pt">One class, every sensor: IMU for a turn, encoder for the lift, camera for auto-aim. Camera data is late and noisy, so PD beats PID there.</p>
+    <div class="fig">
+      <h2>Two people, one line: a merge conflict</h2>
+      <svg viewBox="0 0 357 262" role="img" aria-label="Commit graph with a conflict and its fix">
+        <text x="6" y="44" class="c">main</text>
+        <path d="M30 40 L346 40" class="ln" stroke-width="2"/>
+        <circle cx="50" cy="40" r="6" class="bx"/><circle cx="100" cy="40" r="6" class="bx"/>
+        <text x="30" y="58" class="c">speed = 0.5</text>
+        <path d="M100 40 C118 40 118 14 136 14 L176 14 C194 14 194 40 212 40" class="ln" stroke="#1d5fd0" stroke-width="2"/>
+        <circle cx="156" cy="14" r="6" class="sf"/><text x="122" y="8" class="c" fill="#1d5fd0">Maya: speed = 0.4</text>
+        <circle cx="212" cy="40" r="6" class="ok"/><text x="222" y="30" class="c" fill="#1d8650">PR #1 merged</text>
+        <path d="M100 40 C118 40 118 72 136 72 L262 72" class="ln" stroke="#cf3535" stroke-width="2"/>
+        <circle cx="156" cy="72" r="6" class="rd"/><text x="122" y="92" class="c" fill="#cf3535">Leo: speed = 0.3</text>
+        <text x="258" y="79" class="b" fill="#cf3535" style="font-size:13px">X</text><text x="268" y="92" class="c">PR #2: conflict</text>
+        <path d="M212 40 C240 40 250 66 272 70" class="ln" stroke="#1d5fd0" stroke-width="2" stroke-dasharray="4 3"/>
+        <circle cx="282" cy="72" r="6" class="sf"/><text x="216" y="108" class="c">merge main in, keep one line</text>
+        <path d="M282 72 C302 72 302 40 322 40" class="ln" stroke="#1d8650" stroke-width="2"/><circle cx="322" cy="40" r="6" class="ok"/><text x="292" y="30" class="c" fill="#1d8650">PR #2 merged</text>
+        <rect x="6" y="120" width="345" height="86" rx="6" class="gy"/>
+        <text x="14" y="134" class="c">What Git shows Leo in the file:</text>
+        <g class="m" style="font-size:9px">
+          <text x="14" y="150" fill="#cf3535">&lt;&lt;&lt;&lt;&lt;&lt;&lt; leo/precision</text>
+          <text x="14" y="163">speed = 0.3;</text>
+          <text x="14" y="176" fill="#cf3535">=======</text>
+          <text x="14" y="189">speed = 0.4;</text>
+          <text x="14" y="202" fill="#cf3535">&gt;&gt;&gt;&gt;&gt;&gt;&gt; main</text>
+        </g>
+        <text x="190" y="163" class="c">Git refuses to guess.</text>
+        <text x="190" y="176" class="c">Keep one line, delete the 3 marker lines,</text>
+        <text x="190" y="189" class="c">build, commit, push. The PR turns green.</text>
+        <text x="6" y="230" class="b">Android Studio:</text><text x="98" y="230" class="c">Git &gt; Merge &gt; origin/main, then Accept yours or Accept theirs.</text>
+        <text x="6" y="248" class="b">Terminal:</text><text x="98" y="248" class="m" style="font-size:8.8px">git merge origin/main</text><text x="226" y="248" class="c">edit, then commit and push.</text>
+      </svg>
     </div>
   </div>
 
-  <div class="cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+  <div class="two" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)">
     <div>
-      <h2><span>5</span>Git: the team's memory <small>menu, or the terminal</small></h2>
+      <h2>Menu or terminal, same thing</h2>
       <table>
         <tr><th>Step</th><th>Android Studio</th><th>Terminal</th></tr>
         <tr><td>Get the latest</td><td>Git &gt; Pull</td><td><code>git switch main</code> then <code>git pull</code></td></tr>
         <tr><td>Branch</td><td>Git &gt; New Branch</td><td><code>git switch -c maya/slow-mode</code></td></tr>
-        <tr><td>Commit</td><td>Ctrl+K (Cmd+K)</td><td><code>git add .</code> then <code>git commit -m "Add slow mode"</code></td></tr>
+        <tr><td>Commit</td><td>Ctrl+K</td><td><code>git add .</code> then <code>git commit -m "Add slow mode"</code></td></tr>
         <tr><td>Push</td><td>Ctrl+Shift+K</td><td><code>git push -u origin maya/slow-mode</code></td></tr>
-        <tr><td>Pull request</td><td>github.com &gt; Pull request</td><td><code>gh pr create --fill</code></td></tr>
-        <tr><td>Merge</td><td>Approve &gt; Squash and merge</td><td><code>gh pr merge --squash --delete-branch</code></td></tr>
-        <tr><td>Conflict</td><td>Git &gt; Merge origin/main, pick a side</td><td><code>git merge origin/main</code>, edit, commit, push</td></tr>
+        <tr><td>Pull request</td><td>github.com, green button</td><td><code>gh pr create --fill</code></td></tr>
+        <tr><td>Merge</td><td>Approve, Squash and merge</td><td><code>gh pr merge --squash --delete-branch</code></td></tr>
       </table>
-      <p class="tip" style="margin-top:3pt">A commit lives on your laptop until you push. A conflict means Git refuses to guess: pick the line, build, push.</p>
     </div>
     <div>
-      <h2><span>6</span>Build error decoder</h2>
-      <table>
-        <tr><th>Red text says</th><th>Fix</th></tr>
-        <tr><td><code>cannot find symbol</code></td><td>Java does not know the name here. Click the red word, Alt+Enter, Import class. Never Create class. Check the spelling.</td></tr>
-        <tr><td><code>';' expected</code></td><td>Add <code>;</code> at the end of the line above the red one.</td></tr>
-        <tr><td><code>should be declared in X.java</code></td><td>Class name and file name differ. Shift+F6 renames both, capitals too.</td></tr>
-        <tr><td><code>has private access</code></td><td>An OpMode reached inside Robot for a motor. Add a public action to Robot.java and call that.</td></tr>
-        <tr><td><code>double to int</code></td><td>A decimal went into a whole-number box. Use <code>double</code>, or <code>(int)</code> on purpose.</td></tr>
-        <tr><td><code>package ... does not exist</code></td><td>The import address is wrong, or a file moved folders. Keep every file in the flat teamcode folder.</td></tr>
-      </table>
+      <h2>Before you open a pull request</h2>
+      <ul class="check">
+        <li>Builds without errors</li>
+        <li>No threads, no sleep in TeleOp</li>
+        <li>Hardware lives in Robot.java only</li>
+        <li>Hardware names match the config</li>
+        <li>No move between INIT and START</li>
+        <li>Tuned numbers are named constants</li>
+        <li>AI box ticked if AI helped, and what for</li>
+        <li>I explain every line to my reviewer</li>
+      </ul>
     </div>
   </div>
 
-  <div class="box">
-    <h2><span>7</span>Before you open a pull request</h2>
-    <ul class="check">
-      <li>Builds without errors</li>
-      <li>No threads, no sleep in TeleOp</li>
-      <li>Hardware lives in Robot.java only</li>
-      <li>Hardware names match the robot config</li>
-      <li>Robot does not move between INIT and START</li>
-      <li>Tuned numbers are named constants</li>
-      <li>Telemetry shows the values I expected</li>
-      <li>AI box ticked if AI helped, and what for</li>
-      <li>I explain every line to my reviewer. "The AI wrote it" is not an answer</li>
-    </ul>
+  <div class="foot"><span>Sheet 1 of 2. Sheet 2: how the robot thinks</span><span>Branch names: you/what-it-does. Commit messages: what and why</span></div>
+</section>
+
+<!-- ================= PAGE 3: ONE LOOP AND DRIVE MODES ================= -->
+<section class="page">
+  <div class="head">
+    <h1>How the robot thinks <small>FTC Java Cheat Sheet 2, page 1: one loop, no sleep</small></h1>
+    <div class="r">Predict first. Then run. Then explain.</div>
   </div>
 
-  <div class="foot"><span>Lab: lab/index.html in the team repo. Handout: team-coding-standard.md</span><span>Next: the hands-on session: clone, build, open your first pull request</span></div>
+  <div class="fig">
+    <h2>What runs when you press INIT, START and STOP</h2>
+    <svg viewBox="0 0 730 112" role="img" aria-label="Timeline from INIT through START to STOP">
+      <g style="font-size:9.5px">
+        <rect x="20" y="8" width="54" height="20" rx="4" class="bx"/><text x="47" y="22" text-anchor="middle" class="b">INIT</text>
+        <rect x="330" y="8" width="60" height="20" rx="4" class="ok"/><text x="360" y="22" text-anchor="middle" class="b">START</text>
+        <rect x="620" y="8" width="54" height="20" rx="4" class="rd"/><text x="647" y="22" text-anchor="middle" class="b">STOP</text>
+        <path d="M47 28 L47 44" class="ar"/><path d="M360 28 L360 44" class="ar"/><path d="M647 28 L647 44" class="ar"/>
+        <rect x="47" y="46" width="150" height="30" rx="4" class="sf"/><text x="122" y="59" text-anchor="middle" class="m" style="font-size:8.8px">runOpMode() starts</text><text x="122" y="71" text-anchor="middle" class="m" style="font-size:8.8px">robot.init(hardwareMap)</text>
+        <rect x="197" y="46" width="163" height="30" rx="4" class="gy"/><text x="278" y="59" text-anchor="middle" class="m" style="font-size:8.8px">waitForStart()</text><text x="278" y="71" text-anchor="middle" class="c">robot stays still (rule G304.H)</text>
+        <rect x="360" y="46" width="287" height="30" rx="4" class="ok"/><text x="503" y="59" text-anchor="middle" class="m" style="font-size:8.8px">while (opModeIsActive()) { ... }</text><text x="503" y="71" text-anchor="middle" class="c">one pass, about 50 times a second</text>
+        <rect x="647" y="46" width="76" height="30" rx="4" class="rd"/><text x="685" y="59" text-anchor="middle" class="c">loop ends</text><text x="685" y="71" text-anchor="middle" class="m" style="font-size:8.5px">stopDrive()</text>
+        <text x="122" y="96" text-anchor="middle" class="c">find the motors by name, set directions, reset the IMU</text>
+        <text x="503" y="96" text-anchor="middle" class="c">a thread started in init moves before START and keeps running after STOP: that is why we never use one</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="two">
+    <div class="fig">
+      <h2>One pass of the loop <small>and what sleep() does to it</small></h2>
+      <svg viewBox="0 0 357 236" role="img" aria-label="The loop as a cycle, next to a timeline frozen by sleep">
+        <g style="font-size:9.5px">
+          <circle cx="100" cy="118" r="62" fill="none" stroke="#c9cdc6" stroke-width="1"/>
+          <rect x="56" y="28" width="88" height="24" rx="12" class="sf"/><text x="100" y="44" text-anchor="middle" class="b">1 read sticks</text>
+          <rect x="136" y="106" width="64" height="24" rx="12" class="sf"/><text x="168" y="122" text-anchor="middle" class="b">2 decide</text>
+          <rect x="56" y="184" width="88" height="24" rx="12" class="sf"/><text x="100" y="200" text-anchor="middle" class="b">3 set power</text>
+          <rect x="2" y="106" width="70" height="24" rx="12" class="sf"/><text x="37" y="122" text-anchor="middle" class="b">4 telemetry</text>
+          <path d="M142 46 C156 56 164 80 166 104" class="ac"/><path d="M166 132 C162 158 144 178 136 192" class="ac"/><path d="M58 192 C44 178 36 156 36 132" class="ac"/><path d="M38 104 C42 80 50 58 58 46" class="ac"/>
+          <text x="100" y="112" text-anchor="middle" class="b">50 times</text><text x="100" y="126" text-anchor="middle" class="b">a second</text>
+          <text x="100" y="226" text-anchor="middle" class="c">decide = the state machine, one check per pass</text>
+          <g xml:space="preserve" style="white-space:pre">
+          <text x="212" y="30" class="b">loop passes over time</text>
+          <g stroke="#1d5fd0" stroke-width="2"><path d="M212 44 v12 M220 44 v12 M228 44 v12 M236 44 v12 M244 44 v12 M252 44 v12 M260 44 v12 M268 44 v12 M276 44 v12 M284 44 v12 M292 44 v12 M300 44 v12 M308 44 v12 M316 44 v12 M324 44 v12 M332 44 v12 M340 44 v12 M348 44 v12"/></g>
+          <text x="212" y="70" class="c" style="font-size:8.5px">no sleep: sticks read every pass</text>
+          <g stroke="#1d5fd0" stroke-width="2"><path d="M212 86 v12 M220 86 v12 M228 86 v12"/></g>
+          <rect x="234" y="84" width="92" height="16" class="rd"/><text x="280" y="96" text-anchor="middle" class="m" style="font-size:8px">sleep(1000)</text>
+          <g stroke="#1d5fd0" stroke-width="2"><path d="M332 86 v12 M340 86 v12 M348 86 v12"/></g>
+          <text x="212" y="114" class="c" style="font-size:8.5px">1 s frozen: sticks ignored, the</text><text x="212" y="125" class="c" style="font-size:8.5px">motor keeps its old power, the</text><text x="212" y="136" class="c" style="font-size:8.5px">driver cannot steer. Hits the wall.</text>
+          <text x="212" y="160" class="b">timing without sleep</text>
+          <text x="206" y="174" class="m" style="font-size:7.5px">if (timer.seconds() &gt; 0.5) {</text>
+          <text x="224" y="186" class="m" style="font-size:7.5px">robot.feedOnce();</text>
+          <text x="224" y="198" class="m" style="font-size:7.5px">timer.reset();</text>
+          <text x="206" y="210" class="m" style="font-size:7.5px">}</text>
+          <text x="212" y="226" class="c" style="font-size:8.5px">the loop keeps running in between</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="fig">
+      <h2>The launcher state machine <small>one named state at a time</small></h2>
+      <svg viewBox="0 0 357 236" role="img" aria-label="Three states: IDLE, SPINNING_UP, FEEDING">
+        <g style="font-size:9.5px">
+          <circle cx="62" cy="130" r="40" class="bx"/><text x="62" y="134" text-anchor="middle" class="b m">IDLE</text>
+          <circle cx="178" cy="60" r="40" class="sf"/><text x="178" y="56" text-anchor="middle" class="b m" style="font-size:9px">SPINNING</text><text x="178" y="68" text-anchor="middle" class="b m" style="font-size:9px">_UP</text>
+          <circle cx="294" cy="130" r="40" class="ok"/><text x="294" y="134" text-anchor="middle" class="b m">FEEDING</text>
+          <path d="M92 102 L144 72" class="ac"/><text x="40" y="58" class="c">bumper pressed:</text><text x="40" y="69" class="c m" style="font-size:8.3px">launcherOn()</text>
+          <path d="M212 72 L264 102" class="ac"/><text x="232" y="70" class="c m" style="font-size:8.3px">launcherReady()</text><text x="232" y="81" class="c">speed in the window</text>
+          <path d="M254 140 L102 140" class="ac"/><text x="178" y="156" text-anchor="middle" class="c m" style="font-size:8.3px">feedOnce()</text><text x="178" y="167" text-anchor="middle" class="c">one ball, back to IDLE</text>
+          <path d="M294 170 C294 204 62 204 62 170" class="ad"/><text x="178" y="216" text-anchor="middle" class="c">B in any state: cancel, back to IDLE</text>
+          <text x="178" y="230" text-anchor="middle" class="c">while it spins up, driving keeps working: the loop never waits</text>
+        </g>
+      </svg>
+      <p class="cap"><code>enum LaunchState { IDLE, SPINNING_UP, FEEDING }</code> then <code>switch (launchState)</code> with one <code>case</code> per state and a <code>break</code> after each.</p>
+    </div>
+  </div>
+
+  <div class="fig">
+    <h2>Drive modes <small>the same four wheels, two meanings of "stick up"</small></h2>
+    <svg viewBox="0 0 730 268" role="img" aria-label="Robot-centric versus field-centric, and mecanum wheel math">
+      <g style="font-size:9.5px">
+        <rect x="10" y="10" width="330" height="210" rx="6" class="gy"/>
+        <rect x="10" y="206" width="330" height="14" fill="#dfe7fa"/><text x="175" y="216" text-anchor="middle" class="c">DRIVER WALL: you stand here</text>
+        <text x="20" y="26" class="c">left wall</text>
+        <g transform="translate(175 118)">
+          <rect x="-26" y="-26" width="52" height="52" rx="6" class="bx"/>
+          <rect x="-30" y="-24" width="8" height="14" class="gy"/><rect x="-30" y="10" width="8" height="14" class="gy"/><rect x="22" y="-24" width="8" height="14" class="gy"/><rect x="22" y="10" width="8" height="14" class="gy"/>
+          <path d="M8 0 L-16 0" class="ar"/><text x="0" y="42" text-anchor="middle" class="c">the robot's front faces the left wall</text>
+        </g>
+        <path d="M145 118 L60 118" class="ac"/><text x="100" y="106" text-anchor="middle" class="b" fill="#1d5fd0">robot-centric</text><text x="100" y="136" text-anchor="middle" class="c">"up" = the robot's front</text>
+        <path d="M175 86 L175 42" class="ag"/><text x="240" y="52" text-anchor="middle" class="b" fill="#1d8650">field-centric</text><text x="240" y="64" text-anchor="middle" class="c">"up" = away from the drivers,</text><text x="240" y="75" text-anchor="middle" class="c">whatever the robot faces</text>
+        <circle cx="300" cy="166" r="20" class="bx"/><circle cx="300" cy="155" r="6" fill="#18202c"/><text x="300" y="200" text-anchor="middle" class="c">left stick up</text>
+        <text x="10" y="236" class="c" style="font-size:8.5px">Field-centric rotates the stick by the IMU heading before the wheel math.</text>
+        <text x="10" y="248" class="c" style="font-size:8.5px">Reset the heading with the robot facing away from you.</text>
+        <text x="10" y="260" class="c" style="font-size:8.5px">AUTO reuses the same rotation math on odometry coordinates.</text>
+        <text x="360" y="22" class="b">Mecanum: three mini robots, top view</text>
+        <g transform="translate(362 36)">
+          <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
+          <g class="gy"><rect x="6" y="6" width="12" height="24"/><rect x="82" y="6" width="12" height="24"/><rect x="6" y="50" width="12" height="24"/><rect x="82" y="50" width="12" height="24"/></g>
+          <g class="ln"><path d="M8 28 L16 8 M84 8 L92 28 M8 52 L16 72 M84 72 L92 52"/></g>
+          <g class="ac"><path d="M12 30 L12 10 M88 30 L88 10 M12 74 L12 54 M88 74 L88 54"/></g>
+          <path d="M50 44 L50 14" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">forward</text><text x="50" y="108" text-anchor="middle" class="c">all four +</text>
+        </g>
+        <g transform="translate(486 36)">
+          <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
+          <g class="gy"><rect x="6" y="6" width="12" height="24"/><rect x="82" y="6" width="12" height="24"/><rect x="6" y="50" width="12" height="24"/><rect x="82" y="50" width="12" height="24"/></g>
+          <g class="ln"><path d="M8 28 L16 8 M84 8 L92 28 M8 52 L16 72 M84 72 L92 52"/></g>
+          <g class="ac"><path d="M12 30 L12 10 M88 10 L88 30 M12 54 L12 74 M88 74 L88 54"/></g>
+          <path d="M40 40 L70 40" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">strafe right</text><text x="50" y="108" text-anchor="middle" class="c">fl + fr - bl - br +</text>
+        </g>
+        <g transform="translate(610 36)">
+          <rect x="18" y="0" width="64" height="80" rx="5" class="bx"/>
+          <g class="gy"><rect x="6" y="6" width="12" height="24"/><rect x="82" y="6" width="12" height="24"/><rect x="6" y="50" width="12" height="24"/><rect x="82" y="50" width="12" height="24"/></g>
+          <g class="ln"><path d="M8 28 L16 8 M84 8 L92 28 M8 52 L16 72 M84 72 L92 52"/></g>
+          <g class="ac"><path d="M12 30 L12 10 M88 10 L88 30 M12 74 L12 54 M88 30 L88 54"/></g>
+          <path d="M36 28 A18 18 0 1 1 64 28" class="ar"/><text x="50" y="96" text-anchor="middle" class="b">turn right</text><text x="50" y="108" text-anchor="middle" class="c">left side + right side -</text>
+        </g>
+        <rect x="360" y="156" width="364" height="84" rx="6" class="gy"/>
+        <g class="m" style="font-size:9px" xml:space="preserve" style="white-space:pre">
+          <text x="370" y="172">fl = axial + lateral + yaw</text><text x="550" y="172">fr = axial - lateral - yaw</text>
+          <text x="370" y="186">bl = axial - lateral + yaw</text><text x="550" y="186">br = axial + lateral - yaw</text>
+        </g>
+        <text x="370" y="202" class="c">axial = forward, lateral = sideways, yaw = turn.</text>
+        <text x="370" y="213" class="c">If any wheel passes 1.0, divide all four by the biggest.</text>
+        <text x="370" y="224" class="c">One wheel wired backwards: the robot drives in circles.</text>
+        <text x="370" y="235" class="c">Fix its direction in Robot.java, not in the math.</text>
+        <text x="542" y="258" text-anchor="middle" class="c">Blue arrows: which way each wheel spins. The rollers turn that into motion.</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="foot"><span>FTC Java Crash Course, BIOBUZZ 2026-27</span><span>Turn over: feedback and PID</span></div>
+</section>
+
+<!-- ================= PAGE 4: FEEDBACK AND PID ================= -->
+<section class="page">
+  <div class="head">
+    <h1>Feedback and PID <small>FTC Java Cheat Sheet 2, page 2: sensor in, power out</small></h1>
+    <div class="r">One class. Every sensor. Three numbers.</div>
+  </div>
+
+  <div class="two">
+    <div class="fig">
+      <h2>Open loop vs closed loop</h2>
+      <svg viewBox="0 0 357 190" role="img" aria-label="Open loop block diagram above a closed loop block diagram">
+        <g style="font-size:9.5px">
+          <text x="6" y="14" class="b">OPEN LOOP</text><text x="78" y="14" class="c m" style="font-size:8.8px">launcher.setPower(0.8)</text>
+          <rect x="6" y="24" width="86" height="28" rx="5" class="bx"/><text x="49" y="42" text-anchor="middle">80% of battery</text>
+          <path d="M92 38 L124 38" class="ar"/>
+          <rect x="126" y="24" width="60" height="28" rx="5" class="bx"/><text x="156" y="42" text-anchor="middle">motor</text>
+          <path d="M186 38 L218 38" class="ar"/>
+          <rect x="220" y="24" width="130" height="28" rx="5" class="rd"/><text x="285" y="37" text-anchor="middle" class="b" style="font-size:9px">wheel speed: whatever</text><text x="285" y="48" text-anchor="middle" class="c">13.6 V fast, 11.8 V slow</text>
+          <text x="6" y="86" class="b">CLOSED LOOP</text><text x="92" y="86" class="c m" style="font-size:8.8px">launcher.setVelocity(1160)</text>
+          <rect x="6" y="96" width="60" height="28" rx="5" class="bx"/><text x="36" y="109" text-anchor="middle" class="c">target</text><text x="36" y="120" text-anchor="middle" class="b">1160</text>
+          <path d="M66 110 L88 110" class="ar"/>
+          <circle cx="100" cy="110" r="11" class="bx"/><text x="100" y="114" text-anchor="middle" class="b">-</text>
+          <path d="M111 110 L134 110" class="ar"/><text x="122" y="102" text-anchor="middle" class="c">error</text>
+          <rect x="136" y="96" width="66" height="28" rx="5" class="sf"/><text x="169" y="109" text-anchor="middle" class="c">PIDF on</text><text x="169" y="120" text-anchor="middle" class="c">the hub</text>
+          <path d="M202 110 L224 110" class="ar"/>
+          <rect x="226" y="96" width="50" height="28" rx="5" class="bx"/><text x="251" y="114" text-anchor="middle">motor</text>
+          <path d="M276 110 L298 110" class="ar"/>
+          <rect x="300" y="96" width="50" height="28" rx="5" class="ok"/><text x="325" y="114" text-anchor="middle" class="b">1160</text>
+          <path d="M325 124 L325 150 L100 150 L100 123" class="ag"/>
+          <rect x="166" y="140" width="80" height="20" rx="5" class="ok"/><text x="206" y="154" text-anchor="middle" class="c">encoder measures</text>
+          <text x="178" y="182" text-anchor="middle" class="c">sensor + target + correction, every pass. On any battery, the wheel hits 1160.</text>
+        </g>
+      </svg>
+    </div>
+    <div class="fig">
+      <h2>A 2-minute match, both launchers</h2>
+      <svg viewBox="0 0 357 190" role="img" aria-label="Wheel speed over a match for open loop and closed loop">
+        <g style="font-size:9.5px">
+          <rect x="40" y="10" width="300" height="140" fill="#fff" stroke="#c9cdc6"/>
+          <rect x="40" y="54" width="300" height="36" fill="#e6f3ea"/><text x="46" y="66" class="c" fill="#1d8650">HIVE window 1120 to 1200: the ball goes in</text>
+          <text x="36" y="58" text-anchor="end" class="c">1200</text><text x="36" y="94" text-anchor="end" class="c">1120</text><text x="36" y="20" text-anchor="end" class="c">1300</text><text x="36" y="146" text-anchor="end" class="c">1000</text>
+          <text x="40" y="164" class="c">0 s</text><text x="340" y="164" text-anchor="end" class="c">120 s</text><text x="190" y="164" text-anchor="middle" class="c">battery 13.6 V down to 11.8 V</text>
+          <path d="M40 30 L120 48 L200 70 L280 94 L340 112" class="cur2"/>
+          <text x="150" y="42" class="b" fill="#e3ad00">setPower(0.8): drifts out</text>
+          <path d="M40 140 L52 72 L60 72 L70 100 L80 73 L130 73 L140 98 L150 73 L200 73 L210 99 L220 73 L280 73 L290 98 L300 73 L340 73" class="cur"/>
+          <text x="84" y="134" class="b" fill="#1d5fd0">setVelocity(1160): dips at each shot, recovers</text>
+          <text x="190" y="182" text-anchor="middle" class="c">Shoot only when launcherReady(): speed within 40 of the target.</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="fig">
+    <h2>PID: one loop, three pushes <small>the same class for a turn (IMU), a lift (encoder) and auto-aim (camera)</small></h2>
+    <svg viewBox="0 0 730 176" role="img" aria-label="PID control loop block diagram">
+      <g style="font-size:9.5px">
+        <rect x="6" y="58" width="70" height="34" rx="5" class="bx"/><text x="41" y="72" text-anchor="middle" class="c">target</text><text x="41" y="85" text-anchor="middle" class="b">90 deg</text>
+        <path d="M76 75 L104 75" class="ar"/>
+        <circle cx="118" cy="75" r="13" class="bx"/><text x="118" y="79" text-anchor="middle" class="b">-</text>
+        <path d="M131 75 L166 75" class="ar"/><text x="148" y="66" text-anchor="middle" class="c">error</text>
+        <path d="M166 75 L166 24 L196 24" class="ar"/><path d="M166 75 L196 75" class="ar"/><path d="M166 75 L166 126 L196 126" class="ar"/>
+        <rect x="198" y="8" width="230" height="32" rx="5" class="sf"/><text x="208" y="22" class="b">P</text><text x="222" y="22" class="m" style="font-size:9px">kP x error</text><text x="208" y="35" class="c">the push: big error, big power. Stops short alone.</text>
+        <rect x="198" y="59" width="230" height="32" rx="5" class="ok"/><text x="208" y="73" class="b">I</text><text x="222" y="73" class="m" style="font-size:9px">kI x (error added up)</text><text x="208" y="86" class="c">the catch-up: beats friction and gravity.</text>
+        <rect x="198" y="110" width="230" height="32" rx="5" class="rd"/><text x="208" y="124" class="b">D</text><text x="222" y="124" class="m" style="font-size:9px">kD x (how fast error changes)</text><text x="208" y="137" class="c">the brake: pushes back near the target.</text>
+        <path d="M428 24 L452 24 L452 62" class="ar"/><path d="M428 75 L452 75" class="ar"/><path d="M428 126 L452 126 L452 88" class="ar"/>
+        <circle cx="464" cy="75" r="13" class="bx"/><text x="464" y="79" text-anchor="middle" class="b">+</text>
+        <path d="M477 75 L500 75" class="ar"/>
+        <rect x="502" y="58" width="56" height="34" rx="5" class="bx"/><text x="530" y="72" text-anchor="middle" class="c">clip to</text><text x="530" y="85" text-anchor="middle" class="b">-1 .. 1</text>
+        <path d="M558 75 L578 75" class="ar"/>
+        <rect x="580" y="58" width="78" height="34" rx="5" class="bx"/><text x="619" y="72" text-anchor="middle" class="c">power to</text><text x="619" y="85" text-anchor="middle" class="b">the motors</text>
+        <path d="M658 75 L680 75" class="ar"/>
+        <rect x="682" y="58" width="44" height="34" rx="5" class="gy"/><text x="704" y="79" text-anchor="middle" class="c">robot</text>
+        <path d="M704 92 L704 160 L118 160 L118 90" class="ag"/>
+        <rect x="360" y="150" width="120" height="20" rx="5" class="ok"/><text x="420" y="164" text-anchor="middle" class="c">sensor: IMU, encoder or camera</text>
+        <text x="600" y="118" text-anchor="middle" class="c">I-zone: I adds up only when |kP x error| &lt; 0.35,</text><text x="600" y="130" text-anchor="middle" class="c">so a long move cannot wind it up.</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="fig">
+    <h2>Reading the response <small>the words the lab's markers table uses</small></h2>
+    <svg viewBox="0 0 730 184" role="img" aria-label="Annotated step response and four small comparison curves">
+      <g style="font-size:9.5px">
+        <rect x="10" y="10" width="430" height="160" fill="#fff" stroke="#c9cdc6"/>
+        <rect x="10" y="32" width="430" height="16" fill="#e6f3ea"/><text x="436" y="60" text-anchor="end" class="c" fill="#1d8650">settling band</text>
+        <line x1="10" y1="40" x2="440" y2="40" class="dash"/><text x="14" y="28" class="c">target</text>
+        <polyline points="14.2,159.4 18.4,157.9 22.6,155.6 26.8,152.6 31.0,148.9 35.2,144.6 39.4,139.9 43.6,134.7 47.8,129.1 52.0,123.2 56.2,116.9 60.4,110.4 64.6,103.6 68.8,96.7 73.0,89.5 77.2,82.4 81.4,75.2 85.6,68.2 89.8,61.3 94.0,54.7 98.2,48.4 102.4,42.5 106.6,37.0 110.8,31.9 115.0,27.3 119.2,23.2 123.4,19.7 127.6,16.6 131.8,14.0 136.0,11.9 140.2,10.4 144.4,9.3 148.6,8.6 152.8,8.4 157.0,8.5 161.2,9.0 165.4,9.9 169.6,11.0 173.8,12.5 178.0,14.1 182.2,15.9 186.4,17.9 190.6,20.0 194.8,22.2 199.0,24.4 203.2,26.6 207.4,28.9 211.6,31.1 215.8,33.2 220.0,35.3 224.2,37.3 228.4,39.1 232.6,40.8 236.8,42.4 241.0,43.9 245.2,45.1 249.4,46.3 253.6,47.2 257.8,48.1 262.0,48.7 266.2,49.2 270.4,49.6 274.6,49.8 278.8,49.9 283.0,49.9 287.2,49.7 291.4,49.4 295.6,49.1 299.8,48.7 304.0,48.2 308.2,47.6 312.4,47.0 316.6,46.3 320.8,45.7 325.0,45.0 329.2,44.3 333.4,43.6 337.6,42.9 341.8,42.2 346.0,41.5 350.2,40.9 354.4,40.3 358.6,39.8 362.8,39.4 367.0,39.0 371.2,38.6 375.4,38.3 379.6,38.0 383.8,37.8 388.0,37.6 392.2,37.4 396.4,37.2 400.6,37.0 404.8,36.9 409.0,36.8 413.2,36.7 417.4,36.7 421.6,36.8 425.8,36.8 430.0,36.9" class="cur"/>
+        <line x1="14" y1="166" x2="31" y2="166" class="ln"/><text x="12" y="181" class="c">dead time: nothing moves yet</text>
+        <line x1="40" y1="100" x2="40" y2="166" class="dash"/><line x1="92" y1="100" x2="92" y2="166" class="dash"/><path d="M40 140 L92 140" class="ar"/><text x="62" y="152" class="c">rise time (10% to 90%)</text>
+        <line x1="152" y1="8" x2="152" y2="68" class="dash"/><text x="152" y="80" text-anchor="middle" class="c">peak time</text>
+        <text x="250" y="22" class="c">overshoot: how far past the target, in %</text>
+        <line x1="300" y1="30" x2="300" y2="166" class="dash"/><text x="436" y="160" text-anchor="end" class="c">settling time: enters the band and stays</text>
+        <text x="412" y="100" text-anchor="end" class="c">steady-state error: the offset at the end</text>
+        <text x="300" y="181" text-anchor="middle" class="c">time</text>
+        <g transform="translate(460 6)"><rect x="0" y="0" width="128" height="64" fill="#fff" stroke="#c9cdc6"/><line x1="0" y1="17.6" x2="128" y2="17.6" class="dash"/><svg x="0" y="0" width="128" height="64" viewBox="0 0 160 80"><polyline points="11.4,69.9 12.8,69.7 14.2,69.3 15.6,68.8 17.0,68.1 18.4,67.4 19.8,66.6 21.2,65.8 22.6,64.9 24.0,63.9 25.4,62.9 26.8,61.8 28.2,60.7 29.6,59.6 31.0,58.5 32.4,57.3 33.8,56.2 35.2,55.0 36.6,53.9 38.0,52.8 39.4,51.6 40.8,50.5 42.2,49.4 43.6,48.3 45.0,47.2 46.4,46.2 47.8,45.2 49.2,44.1 50.6,43.2 52.0,42.2 53.4,41.3 54.8,40.4 56.2,39.5 57.6,38.6 59.0,37.8 60.4,37.0 61.8,36.3 63.2,35.5 64.6,34.9 66.0,34.3 67.4,33.8 68.8,33.3 70.2,32.9 71.6,32.6 73.0,32.3 74.4,32.0 75.8,31.7 77.2,31.5 78.6,31.3 80.0,31.1 81.4,31.0 82.8,30.9 84.2,30.7 85.6,30.6 87.0,30.5 88.4,30.5 89.8,30.4 91.2,30.3 92.6,30.3 94.0,30.2 95.4,30.2 96.8,30.1 98.2,30.1 99.6,30.1 101.0,30.0 102.4,30.0 103.8,30.0 105.2,30.0 106.6,29.9 108.0,29.9 109.4,29.9 110.8,29.9 112.2,29.9 113.6,29.9 115.0,29.9 116.4,29.9 117.8,29.9 119.2,29.9 120.6,29.8 122.0,29.8 123.4,29.8 124.8,29.8 126.2,29.8 127.6,29.8 129.0,29.8 130.4,29.8 131.8,29.8 133.2,29.8 134.6,29.8 136.0,29.8 137.4,29.8 138.8,29.8 140.2,29.8 141.6,29.8 143.0,29.8 144.4,29.8 145.8,29.8 147.2,29.8 148.6,29.8 150.0,29.8" class="cur"/></svg><text x="124" y="58" text-anchor="end" class="c b">P only: stops short</text></g>
+        <g transform="translate(598 6)"><rect x="0" y="0" width="128" height="64" fill="#fff" stroke="#c9cdc6"/><line x1="0" y1="17.6" x2="128" y2="17.6" class="dash"/><svg x="0" y="0" width="128" height="64" viewBox="0 0 160 80"><polyline points="11.4,69.8 12.8,69.2 14.2,68.2 15.6,67.0 17.0,65.5 18.4,63.8 19.8,62.0 21.2,59.9 22.6,57.6 24.0,55.3 25.4,52.8 26.8,50.2 28.2,47.5 29.6,44.7 31.0,41.8 32.4,38.9 33.8,35.9 35.2,32.8 36.6,29.7 38.0,26.6 39.4,23.5 40.8,20.5 42.2,17.6 43.6,14.9 45.0,12.4 46.4,10.1 47.8,8.1 49.2,6.5 50.6,5.1 52.0,4.1 53.4,3.4 54.8,3.0 56.2,3.0 57.6,3.3 59.0,3.9 60.4,4.8 61.8,6.0 63.2,7.4 64.6,9.0 66.0,10.7 67.4,12.6 68.8,14.6 70.2,16.6 71.6,18.7 73.0,20.7 74.4,22.7 75.8,24.7 77.2,26.5 78.6,28.1 80.0,29.6 81.4,31.0 82.8,32.1 84.2,33.0 85.6,33.7 87.0,34.2 88.4,34.5 89.8,34.5 91.2,34.4 92.6,34.0 94.0,33.4 95.4,32.7 96.8,31.8 98.2,30.7 99.6,29.6 101.0,28.4 102.4,27.1 103.8,25.7 105.2,24.4 106.6,23.0 108.0,21.7 109.4,20.4 110.8,19.2 112.2,18.1 113.6,17.1 115.0,16.2 116.4,15.4 117.8,14.8 119.2,14.3 120.6,14.0 122.0,13.8 123.4,13.7 124.8,13.8 126.2,14.1 127.6,14.4 129.0,14.9 130.4,15.5 131.8,16.1 133.2,16.9 134.6,17.7 136.0,18.5 137.4,19.4 138.8,20.3 140.2,21.2 141.6,22.1 143.0,22.9 144.4,23.7 145.8,24.5 147.2,25.2 148.6,25.8 150.0,26.3" class="cur"/></svg><text x="124" y="58" text-anchor="end" class="c b">P too high: wobbles</text></g>
+        <g transform="translate(460 80)"><rect x="0" y="0" width="128" height="64" fill="#fff" stroke="#c9cdc6"/><line x1="0" y1="17.6" x2="128" y2="17.6" class="dash"/><svg x="0" y="0" width="128" height="64" viewBox="0 0 160 80"><polyline points="11.4,69.8 12.8,69.3 14.2,68.5 15.6,67.5 17.0,66.3 18.4,64.9 19.8,63.3 21.2,61.7 22.6,59.9 24.0,58.1 25.4,56.3 26.8,54.4 28.2,52.6 29.6,50.7 31.0,48.9 32.4,47.2 33.8,45.4 35.2,43.7 36.6,42.1 38.0,40.6 39.4,39.1 40.8,37.7 42.2,36.3 43.6,35.1 45.0,33.9 46.4,32.7 47.8,31.7 49.2,30.7 50.6,29.8 52.0,28.9 53.4,28.2 54.8,27.5 56.2,27.0 57.6,26.5 59.0,26.0 60.4,25.6 61.8,25.2 63.2,24.9 64.6,24.7 66.0,24.4 67.4,24.2 68.8,24.0 70.2,23.8 71.6,23.7 73.0,23.5 74.4,23.4 75.8,23.3 77.2,23.2 78.6,23.1 80.0,23.1 81.4,23.0 82.8,22.9 84.2,22.9 85.6,22.8 87.0,22.8 88.4,22.8 89.8,22.7 91.2,22.7 92.6,22.7 94.0,22.7 95.4,22.6 96.8,22.6 98.2,22.6 99.6,22.6 101.0,22.6 102.4,22.6 103.8,22.6 105.2,22.5 106.6,22.5 108.0,22.5 109.4,22.5 110.8,22.5 112.2,22.5 113.6,22.5 115.0,22.5 116.4,22.5 117.8,22.5 119.2,22.5 120.6,22.5 122.0,22.5 123.4,22.5 124.8,22.5 126.2,22.5 127.6,22.5 129.0,22.5 130.4,22.5 131.8,22.5 133.2,22.5 134.6,22.5 136.0,22.5 137.4,22.5 138.8,22.5 140.2,22.5 141.6,22.5 143.0,22.5 144.4,22.5 145.8,22.5 147.2,22.5 148.6,22.5 150.0,22.5" class="cur"/></svg><text x="124" y="58" text-anchor="end" class="c b">PD: clean, a bit short</text></g>
+        <g transform="translate(598 80)"><rect x="0" y="0" width="128" height="64" fill="#fff" stroke="#c9cdc6"/><line x1="0" y1="17.6" x2="128" y2="17.6" class="dash"/><svg x="0" y="0" width="128" height="64" viewBox="0 0 160 80"><polyline points="11.4,69.8 12.8,69.3 14.2,68.5 15.6,67.5 17.0,66.3 18.4,64.9 19.8,63.3 21.2,61.7 22.6,59.9 24.0,58.1 25.4,56.3 26.8,54.4 28.2,52.6 29.6,50.7 31.0,48.9 32.4,47.2 33.8,45.4 35.2,43.7 36.6,42.1 38.0,40.5 39.4,38.9 40.8,37.4 42.2,35.9 43.6,34.4 45.0,33.0 46.4,31.7 47.8,30.4 49.2,29.1 50.6,27.8 52.0,26.6 53.4,25.5 54.8,24.4 56.2,23.3 57.6,22.3 59.0,21.3 60.4,20.4 61.8,19.5 63.2,18.7 64.6,17.9 66.0,17.1 67.4,16.4 68.8,15.8 70.2,15.3 71.6,14.8 73.0,14.3 74.4,14.0 75.8,13.6 77.2,13.3 78.6,13.1 80.0,12.8 81.4,12.6 82.8,12.4 84.2,12.3 85.6,12.1 87.0,12.0 88.4,11.9 89.8,11.8 91.2,11.7 92.6,11.6 94.0,11.6 95.4,11.5 96.8,11.4 98.2,11.4 99.6,11.4 101.0,11.3 102.4,11.3 103.8,11.3 105.2,11.4 106.6,11.5 108.0,11.6 109.4,11.8 110.8,12.0 112.2,12.2 113.6,12.5 115.0,12.7 116.4,13.1 117.8,13.4 119.2,13.7 120.6,14.1 122.0,14.4 123.4,14.8 124.8,15.2 126.2,15.6 127.6,16.0 129.0,16.4 130.4,16.8 131.8,17.2 133.2,17.6 134.6,18.0 136.0,18.4 137.4,18.8 138.8,19.2 140.2,19.5 141.6,19.8 143.0,20.1 144.4,20.3 145.8,20.5 147.2,20.7 148.6,20.8 150.0,21.0" class="cur"/></svg><text x="124" y="58" text-anchor="end" class="c b">PID: reaches the target</text></g>
+        <text x="593" y="162" text-anchor="middle" class="c">Not every job needs all three. Camera data is late and</text><text x="593" y="174" text-anchor="middle" class="c">noisy, so for auto-aim PD beats PID.</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="fig">
+    <h2>Tune it on the real robot <small>in this order, 5 test runs each</small></h2>
+    <svg viewBox="0 0 730 56" role="img" aria-label="Three tuning steps">
+      <g style="font-size:9.5px">
+        <circle cx="20" cy="26" r="12" fill="#1d5fd0"/><text x="20" y="30" text-anchor="middle" class="w b">1</text>
+        <text x="40" y="22" class="b">kP up until it overshoots a little</text><text x="40" y="36" class="c">too low: slow and short. Too high: wobbles.</text>
+        <circle cx="262" cy="26" r="12" fill="#cf3535"/><text x="262" y="30" text-anchor="middle" class="w b">2</text>
+        <text x="282" y="22" class="b">kD up until the overshoot stops</text><text x="282" y="36" class="c">too high: jitters on a noisy sensor.</text>
+        <circle cx="504" cy="26" r="12" fill="#1d8650"/><text x="504" y="30" text-anchor="middle" class="w b">3</text>
+        <text x="524" y="22" class="b">a small kI only if it stops short</text><text x="524" y="36" class="c">commit the numbers and what you tested.</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="foot"><span>Sheet 2 of 2. Lab: lab/index.html in the team repo</span><span>Next: the hands-on session: clone, build, open your first pull request</span></div>
 </section>
 
 </body>
