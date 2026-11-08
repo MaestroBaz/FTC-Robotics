@@ -515,6 +515,17 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(800);
   check(/IMU zero is off/.test(await zeroNote()) && (await mcRow("IMU heading")) === "0 deg", "after a reset facing the wall, Forward shows the wrong-zero warning");
   await shot(pg.locator("#lab-mecanum"), "mecanum.png");
+  // fix-daydocs: the plan's step 1 ends on the front_left bug run, step 2 resets before Rotate, so the reveal reads +1 -1 -1 +1
+  await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
+  await pg.check('#lab-mecanum input[value="robot"]'); await pg.check("#mc-bug");
+  await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(1500);
+  await pg.uncheck("#mc-bug"); await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
+  await pg.check('#lab-mecanum input[value="field"]'); await pg.click("#mc-reset"); await pg.click("#mc-turn90");
+  await pg.click('#lab-mecanum [data-p="0,-1,0"]'); await pg.waitForTimeout(1000);
+  const sent2 = [];
+  for (const n of ["frontLeft", "frontRight", "backLeft", "backRight"]) sent2.push(await mcRow(n));
+  const planMc = fs.readFileSync(path.resolve(__dirname, "..", "docs", "course", "crash-course-plan.md"), "utf8");
+  check(sent2.join(" ") === "1.00 -1.00 -1.00 1.00" && (await mcRow("IMU heading")) === "90 deg" && planMc.includes("Untick the bug, then press Center sticks and Reset robot before step 2.") && planMc.includes('Pick Field-centric, press Reset robot, press "Rotate robot 90 deg left (by hand)", then Forward'), "docs: plan Module 4 step 2 after the bug run, as written, reads " + sent2.join(" ") + " at 90 deg");
   // AUTO uses Pinpoint axes: +X away from the drivers, +Y toward the left wall
   await pg.click('#lab-mecanum [data-p="0,0,0"]'); await pg.click("#mc-reset");
   await pg.check('#lab-mecanum input[value="auto"]'); await pg.waitForTimeout(200);
@@ -957,6 +968,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
     check(ctrl.includes("no external feedback in TeleOp") && ctrl.includes("Fire 3 fast") && plan.includes("as its own `STRAFE_COUNTS_PER_INCH`"), "docs: control award vote names TeleOp, the Fire 3 fast label, the plan keeps 4.09 and a strafe constant");
     check(vis.includes("if (newFrame)") && vis.includes("PID only on new frames") && src.includes("PID only on new frames"), "docs: vision and the lab teach the same aim code, PID only on new frames");
     check(course("team-coding-standard.md").includes("`DcMotor[] wheels") && src.includes("DcMotor[] wheels"), "docs: the team standard allows the array the Loops card uses");
+    // fix-daydocs: cheat sheets go out in the final round, Module 0 sets up teams before the practice vote, sheet numbers match the lab
+    const cheat = course("cheatsheet.html"), runSh = course("run-sheet.md");
+    check(plan.includes("Hand them out in the final round, not at the door") && plan.includes("Hand out the cheat sheets and `team-coding-standard.md` now.") && !plan.includes("at the door.") && runSh.includes("Cheat sheets stay in the box until the final round"), "docs: plan and run sheet hold the cheat sheets until the final round");
+    check(plan.includes("Do the Teams and the game steps below first") && !plan.includes("press 1x") && plan.includes("The card's Robot.java adds MAX_SPEED = 0.8"), "docs: Module 0 order, no 1x button, MAX_SPEED named on the card only");
+    check(/>8 Approved\?</.test(cheat) && />9 Squash and merge</.test(cheat) && />10 Delete branch</.test(cheat) && cheat.includes("<h2>Four files, one robot</h2>"), "docs: cheat sheet PR loop numbers match the lab, four files heading");
     check(!/feedOnce/.test(docsSrc + src) && (src.match(/robot\.feederOn\(\)/g) || []).length >= 3, "no feedOnce() left in the lab or the course docs, and the lab calls robot.feederOn()");
   }
   // ==== end area java ====

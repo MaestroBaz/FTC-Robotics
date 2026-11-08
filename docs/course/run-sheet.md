@@ -47,6 +47,7 @@ Controls to remember:
 - Ask the room: click the answer each team holds up, Team 1 first. Right-click takes the last vote back. Only Reveal answer opens the answer. The right answers are spread over A, B and C. Press Hide after the reveal, so the demo gets the full width.
 - Header: auto-hide folds it to one thin line. Point at the line, or tap it, to open it. The pin at the right end of the tab row, or key H, turns auto-hide off and on.
 - Reset scores: two clicks. The first click only arms the button.
+- Cheat sheets stay in the box until the final round: they answer the votes on tabs 2 to 7.
 - Sim speed: P pause, [ slower, ] faster, . step 0.1 s.
 
 ## Fallbacks (act within 5 minutes)

@@ -6,7 +6,7 @@ Interactive lab for the projector: https://claude.ai/artifact/4TYMuabeQX1RxzrJHu
 
 Homework for the night before: https://claude.ai/artifact/Sp91vcA66zYtaZfurQQz7S (FTC Crash Course: Homework for Tonight, about 3 hours, GitHub first).
 
-Slow motion: the slider under the tabs sets the simulation speed on a log scale from 0.05x to 2x. Click a label (0.05, 0.1, 0.25, 0.5, 1, 2) to jump to a speed, or press 1x. Pause, and Step 0.1 s. Keys: P pause, [ slower, ] faster, . step. Run each demo once at 1x so the room sees the real speed, then replay at 0.1x or 0.05x and pause on the moment you explain.
+Slow motion: the slider under the tabs sets the simulation speed on a log scale from 0.05x to 2x. Click a label (0.05, 0.1, 0.25, 0.5, 1, 2) to jump to a speed. Pause, and Step 0.1 s. Keys: P pause, [ slower, ] faster, . step. Run each demo once at 1x so the room sees the real speed, then replay at 0.1x or 0.05x and pause on the moment you explain.
 
 Charts (tab 4 wheel powers, tab 6 launcher, tab 7 PID): every chart keeps the full run. Pick a live window (5 to 60 s), press Show all, drag across a chart to zoom into one part, or use the Scroll back slider. Double-click a chart to return to live. Each chart bar also has Pause, Play, Reset run and Save PNG. Save PNG saves the chart as drawn, with its title, time span and legend. Inside the published artifact some browsers block the download: right-click the picture under the bar, Save image as.
 
@@ -41,7 +41,7 @@ Design choices:
 The Run Sheet in `run-sheet.md` turns this list into gates, a prep order and fallbacks for the day.
 
 - [ ] Print `team-coding-standard.md`, one per student.
-- [ ] Print `cheatsheet.html` double sided, one set of 2 sheets per student.
+- [ ] Print `cheatsheet.html` double sided, one set of 2 sheets per student. Hand them out in the final round, not at the door: the sheets answer the votes.
 - [ ] Print `run-sheet.md`.
 - [ ] Print 6 sets of A, B and C cards, one set per team.
 - [ ] Test the projector with `lab/index.html` opened from disk, browser full screen (F11) at zoom 100%. Check that the vote options and code read from the back row, and that all 6 Compile answers on Java card 2 show without scrolling. Set zoom 125% only if the back row fails at 100%: card 2 and the error clinic then need a scroll. Press Hide after each vote so the demo gets the screen.
@@ -72,7 +72,7 @@ Talking points (5 min):
 - Judges interview students, not code. A robot the team cannot explain loses Control and Inspire contention.
 - FIRST allows AI and asks for credit. The team rule: you merge only code you explain line by line to a reviewer. "The AI wrote it" does not pass review.
 - Show the old code for 2 minutes. Ask: "Who tells me what this thread does at STOP?" Silence makes the point. Do not shame anyone.
-- Then open lab tab 2 and pick "AI version with thread". Run the practice vote below first, so the demo does not give the answer away. Then press INIT, START and STOP: the arm moves right after INIT, and once init finishes the robot breaks rule G304.H before the match starts. After STOP the thread keeps running until the Robot Controller app restarts. Two minutes, no lecture needed.
+- Then open lab tab 2 and pick "AI version with thread". Do the Teams and the game steps below first (Reset scores, names, cards), then run the practice vote, so the demo does not give the answer away. Then press INIT, START and STOP: the arm moves right after INIT, and once init finishes the robot breaks rule G304.H before the match starts. After STOP the thread keeps running until the Robot Controller app restarts. Two minutes, no lecture needed.
 - Show the 3 rules on the wall:
   1. One loop. No threads. No `sleep()` inside TeleOp.
   2. Two kinds of files: `Robot.java` (hardware) and OpModes (behavior).
@@ -112,7 +112,7 @@ Word hunt routine ("Every word explained" card): say the job, not the word. Star
 
 Spot the bug routine ("Error clinic: fix it" card): one error per team, in team order. The team reads the red text aloud, talks for 30 seconds, then names a fix. Click the fix, right or wrong. A wrong fix passes the same error to the next team. Errors 2, 5 and 9 stay for the final round if time allows.
 
-Read aloud: the Every word explained card shows a short version of each file. The full files are below. Say what each method does while you scroll. Students follow on the projector.
+Read aloud: scroll the short version on the Every word explained card and say what each method does. The card's Robot.java adds MAX_SPEED = 0.8 to show a constant. The full files below, typed in the hands-on session, leave it out.
 
 ```java
 package org.firstinspires.ftc.teamcode;
@@ -334,8 +334,8 @@ Team rounds:
 ## Module 4: Drive modes, robot-centric and field-centric (25 min)
 
 Lab tab 4, in this order:
-1. Robot-centric (6 min): press each preset. Read the wheel powers out loud. Press Forward + turn with Normalize on and let the robot draw a circle. Press Center sticks, then Reset robot: the old path stays as a dashed line. Turn Normalize off and press Forward + turn again. The new circle is wider: the left wheels asked for 1.60 and got cut to 1.00, so the turn shrank. Press Center sticks and Reset robot, tick Normalize, then tick "Bug: front_left not reversed". Teams predict what Forward does: A drives straight, B curves, C spins in place. Press Forward. Right answer B: frontLeft pushes backward, so the robot slides left and turns left at the same time. It drives a tight circle about 3 ft across, not a spin on the spot. Untick the bug before step 2.
-2. Vote (3 min): field-centric, the robot faces the left wall, the driver pushes the stick up. Right answer C: slides away from the drivers, still facing the wall. Reveal, score. Pick Field-centric, press "Rotate robot 90 deg left (by hand)", then Forward: the robot slides away from the drivers and keeps facing the wall. Read the wheel powers out loud: +1, -1, -1, +1. Press Center sticks, Reset robot, and Rotate robot 90 deg left again. Pick Robot-centric and press Forward: the robot drives from the middle into the left wall. The "rotation in one picture" panel shows the stick and the robot at its IMU heading on the left, and what the robot receives on the right.
+1. Robot-centric (6 min): press each preset. Read the wheel powers out loud. Press Forward + turn with Normalize on and let the robot draw a circle. Press Center sticks, then Reset robot: the old path stays as a dashed line. Turn Normalize off and press Forward + turn again. The new circle is wider: the left wheels asked for 1.60 and got cut to 1.00, so the turn shrank. Press Center sticks and Reset robot, tick Normalize, then tick "Bug: front_left not reversed". Teams predict what Forward does: A drives straight, B curves, C spins in place. Press Forward. Right answer B: frontLeft pushes backward, so the robot slides left and turns left at the same time. It drives a tight circle about 3 ft across, not a spin on the spot. Untick the bug, then press Center sticks and Reset robot before step 2.
+2. Vote (3 min): field-centric, the robot faces the left wall, the driver pushes the stick up. Right answer C: slides away from the drivers, still facing the wall. Reveal, score. Pick Field-centric, press Reset robot, press "Rotate robot 90 deg left (by hand)", then Forward: the robot slides away from the drivers and keeps facing the wall. Read the wheel powers out loud: +1, -1, -1, +1. Press Center sticks, Reset robot, and Rotate robot 90 deg left again. Pick Robot-centric and press Forward: the robot drives from the middle into the left wall. The "rotation in one picture" panel shows the stick and the robot at its IMU heading on the left, and what the robot receives on the right.
 3. Field-centric with a wrong zero (5 min): pick Field-centric and press Reset robot. Press "Rotate robot 90 deg left (by hand)", then press "Reset heading" while the robot faces the left wall. The mistake: a driver pressed A with the robot facing the wall. Teams predict: where does Forward go now? Press Forward: the robot drives into the left wall, like robot-centric. The IMU reads 0 deg, so the code thinks the robot faces away from the drivers. Fix: press Center sticks, press Rotate 3 more times until the front points away from the drivers, then press "Reset heading". Forward works again. Rule: press A only with the front pointing away from the drivers.
 4. AUTO (5 min): click a few points on the field and watch the robot drive straight to each. Then click a point in the far corner and tick "Turn to 90 deg while driving" while the robot still moves: the robot turns 90 deg and the path stays nearly straight. To repeat the demo, untick the box, wait for the heading to read 0 deg, click a far point, and tick the box during the drive. Point out: no driver here, and the robot needs a position from odometry, not only a heading.
 5. Read the three use-case cards together (3 min).
@@ -465,7 +465,7 @@ Team rounds:
 - Final word hunt (5 min): Java tab, "Every word explained" card, MainTeleOp. Use the word chips at the bottom. Five words, 2 points each. Pick words the room met during the day: the method the loop calls on the Robot object, the condition the loop checks, the call waiting for START, the annotation listing the OpMode on the Driver Hub, the keyword making a field private.
 - If time allows, two leftover Spot the bug errors from the "Error clinic: fix it" card, 2 points each.
 - Scores (2 min): read the scoreboard. Name the winner. Press the Teams button to hide the bar for the last slide.
-- What comes next (3 min): the hands-on Follow-up Session, where every student clones the repo, builds, and opens a pull request. Hand out `team-coding-standard.md` if not done at the door. Ask each student to bring a GitHub username to the next meeting.
+- What comes next (3 min): the hands-on Follow-up Session, where every student clones the repo, builds, and opens a pull request. Hand out the cheat sheets and `team-coding-standard.md` now. Ask each student to bring a GitHub username to the next meeting.
 
 ## Follow-up session: Autonomous with encoders (lab tab 8)
 
