@@ -23,6 +23,7 @@ Format: the Crash Course moves, cut down for typing. Each module opens with a vo
 - [ ] Camera mount: on the robot centerline, tilted up toward the CELLS, no sideways roll. The tags face down, so a level camera at bumper height sees them only from far away. [Verify] the tilt angle from the launch spot: the robot must see at least one tag of a cluster where the drivers launch.
 - [ ] Print test tags at 3.25 in, black square edge to black square edge, one tag from each cluster, for example IDs 30, 34, 38 and 42. Tape each on stiff card. A wrong print size makes range wrong.
 - [ ] Mentor branch `mentor/vision-demo` with the finished code from this doc, built and deployed for the opener.
+- [ ] [Verify] the flip before the room votes on the flip. With `mentor/vision-demo` deployed, run PracticeVision. Hold each printed card the way Module 0 holds the card and read roll on the Driver Hub. A cluster pose assumes the tag faces down under a CELL, so a card held upright facing the camera reads an unknown roll. Mark the card edge with roll under 90 either way as TOP. Flip the card: Scores must read false. If roll sits near +90 or -90, or jumps, hold the card face down above the camera, the way a tag sits under a CELL, and use the same pose in Module 0 and Module 2.
 - [ ] Lab open on the projector at tab 7, "Auto-aim at the HIVE (camera)".
 - [ ] Clear floor space for the robot to turn in place. A student holds the robot's E-stop role: the Driver Hub STOP button.
 - [ ] Every laptop: Gradle sync done on school Wi-Fi, `main` pulled after the last session.
@@ -116,7 +117,7 @@ On the robot (mentor drives, the room reads the Driver Hub):
 - Press START. Hold up one tag. Write on the whiteboard: cluster name, percent found, range, bearing, roll.
 - Hold the tag on a tape mark and read `range`. Move the tag 12 in farther along the tape. `range` grows by 12 in, within 1.5 in. The number itself points at the CELL opening, not at the card, so never compare `range` with the tape directly. The 12 in step reads wrong by a fixed factor: check the print size, then the camera calibration. [Verify] on the robot.
 - Move the tag to the robot's left. Bearing goes positive. Move the tag right: negative.
-- Flip the tag upside down. Roll jumps near 180 and Scores reads false.
+- Flip the tag upside down. Roll jumps near 180 and Scores reads false. [Verify] in the checklist: a handheld card reads roll only in the pose the mentor marked.
 - Hold one tag of each cluster in turn. Write all 4 cluster names on the whiteboard and check them against the SDK list above, then use them in Module 3.
 
 ## Break (10 min)

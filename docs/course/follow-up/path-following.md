@@ -329,9 +329,31 @@ The list holds only points. The launch goes in the for loop, after the robot sto
 for (int i = 0; i < path.size() && opModeIsActive(); i++) {
     driveTo(path.get(i), i + 1);
     if (i == 1) {
-        launchPreloads();   // blocking: launcher state machine, opModeIsActive() and a timeout
+        launchPreloads();   // blocking: spin up, feed, stop, with opModeIsActive() and timeouts
     }
 }
+```
+
+`launchPreloads()` is new. No earlier session wrote the method, so the build fails with `cannot find symbol` until you add it. Type it in `PathAuto.java` under `driveTo()`:
+
+```java
+    // AUTO only: spin up, feed, spin down. A blocking loop is fine in AUTO.
+    private void launchPreloads() {
+        ElapsedTime timer = new ElapsedTime();
+        robot.launcherOn();
+        while (opModeIsActive() && !robot.launcherReady() && timer.seconds() < 2.0) {
+            telemetry.addData("Launcher", "spinning up");
+            telemetry.update();
+        }
+        robot.feederOn();
+        timer.reset();
+        while (opModeIsActive() && timer.seconds() < 3.0) {   // [Verify] seconds to feed 4 POLLEN
+            telemetry.addData("Launcher", "feeding");
+            telemetry.update();
+        }
+        robot.feederOff();
+        robot.launcherOff();
+    }
 ```
 
 [Verify] the LEAVE and PARK definitions and the PARK zone position in CM Section 10 before you pick the points. The PARK point must leave the robot touching no wall, or LEAVE is lost. [Verify] whether the field mirrors between the red and blue alliance. If the field mirrors, the other alliance path flips the sign of every Y and every heading.

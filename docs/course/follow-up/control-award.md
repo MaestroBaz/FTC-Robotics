@@ -63,10 +63,10 @@ As the team reference doc (`docs/course/ftc-reference-2026-27.md`, section 4) st
 
 | Team | Job | Lab tab | Sensor |
 |---|---|---|---|
-| 1, 2 | Turn to heading | 7 PID | Control Hub IMU |
-| 3, 4 | Lift to height | 7 PID | Lift motor encoder |
-| 5 | Auto-aim at the HIVE | 7 PID | Camera (AprilTag bearing) |
-| 6 | Launcher speed | 6 Feedback | Launcher motor encoder |
+| 1, 2 | Turn to heading | 7 PID control | Control Hub IMU |
+| 3, 4 | Lift to height | 7 PID control | Lift motor encoder |
+| 5 | Auto-aim at the HIVE | 7 PID control | Camera (AprilTag bearing) |
+| 6 | Launcher speed | 6 Closed loop: launcher | Launcher motor encoder |
 
 ## Session plan (60 min)
 
