@@ -385,6 +385,9 @@ td.hit{color:var(--ok);}
 .labhead .goal{margin:0 0 6px; font:600 17px/1.3 var(--body); color:var(--ink);}
 /* before the first vote is revealed: titles only, so the subtitles and arrows do not answer it. Hidden, not removed, so the boxes keep their size */
 .places.bare .ph span, .places.bare .parrow{visibility:hidden;}
+@media (max-width: 600px){   /* diagrams at full size, 12 px labels and up: scroll sideways inside the panel */
+  #lab-gitflow .panel:has(> #gx-org), #lab-gitflow .panel:has(> #gx-pr), #lab-gitflow .stack:has(> #gt-svg){overflow-x:auto;}
+  #gx-org{min-width:900px;} #gx-pr{min-width:880px;} #gt-svg{min-width:760px;} }
 /* ==== end area gitflow ==== */
 /* ==== area mecanum: Drive modes tab 4 ==== */
 /* goal line: same values as the whole-lab .labhead .goal rule, scoped so the tab renders before that rule merges */
@@ -3484,7 +3487,7 @@ const GT = (function(){
     {t: "Leo opens PR #2: conflict", x: "GitHub says: This branch has conflicts that must be resolved. Maya and Leo changed the same line.", as: "github.com shows the conflict. Do not panic, and do not delete anything.", cmd: "git push -u origin leo/precision\n# github.com: This branch has conflicts that must be resolved"},
     {t: "Fix the conflict", x: "Leo merges main into his branch. Android Studio opens the merge tool. Which line stays? Teams vote: A keep Maya's 0.4. B keep Leo's 0.3. C ask Maya and try both on the robot. Score the votes with the team keys. Then click a side in Fix the conflict.", as: "Git > Merge > origin/main > Merge. Then pick a side in the 3-pane tool.", cmd: "git fetch origin\ngit merge origin/main\n# edit the file: keep one line, delete the <<<<<<< ======= >>>>>>> markers"},
     {t: "Leo pushes the fix", x: "Leo asked Maya and tested both on the robot. Git does not pick. People do. The merge commit records the decision. Maya reviews again because the code changed.", as: "Ctrl+K, then Ctrl+Shift+K. Ask the reviewer to look again.", cmd: "git add .\ngit commit -m \"Merge main into leo/precision\"\ngit push"},
-    {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. Squash put it on main as one commit. Pull request #2 on github.com keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -d leo/precision"}
+    {t: "PR #2 merged", x: "main has one slow mode value, the one the team picked. Squash put it on main as one commit. Pull request #2 on github.com keeps both tries, who made each one, and why.", as: "github.com: Approve > Squash and merge > Delete branch", cmd: "git switch main\ngit pull\ngit branch -D leo/precision   # squash merge needs -D"}
   ];
   const LANES = [{n: "main", y: 50}, {n: "maya/slow-mode", y: 135}, {n: "leo/precision", y: 215}];
   const X = col => 130 + col * 96;
@@ -3499,6 +3502,9 @@ const GT = (function(){
   ];
   const EDGES = [["c1", "c2", 0], ["c2", "m1", 2], ["c2", "l1", 3], ["c2", "c3", 5], ["m1", "c3", 5, 1], ["l1", "l2", 8], ["c3", "l2", 8, 1], ["c3", "c4", 9], ["l2", "c4", 9, 1]];
   function nd(id){ return NODES.find(n => n.id === id); }
+  // the team kept main's 0.4: Leo's branch now matches main, so PR #2 changes nothing and Leo closes it unmerged
+  const DROPPED = {t: "PR #2 closed, not merged", x: "The team kept Maya's 0.4, so Leo's branch now matches main and PR #2 changes nothing. Leo closes PR #2 without merging and deletes his branch. The PR on github.com keeps both tries, who made each one, and why.", as: "github.com: Close pull request > Delete branch", cmd: "git switch main\ngit pull\ngit branch -D leo/precision   # PR closed, not merged, so -D"};
+  const dropped = () => step === 9 && choice === "0.4";
   function svgDraw(){
     const s = step;
     let o = "";
@@ -3511,7 +3517,7 @@ const GT = (function(){
       o += '<text x="12" y="' + (L.y - 8) + '" font-family="JetBrains Mono, monospace" font-size="15" font-weight="600" fill="' + (i === 0 ? P.accent : P.ink) + '">' + L.n + (laneFade[i] ? " (deleted)" : "") + "</text></g>";
     });
     EDGES.forEach(e => {
-      if (s < e[2]) return;
+      if (s < e[2] || (dropped() && e[1] === "c4")) return;
       const a = nd(e[0]), b = nd(e[1]);
       const x1 = X(a.col), y1 = LANES[a.lane].y, x2 = X(b.col), y2 = LANES[b.lane].y;
       // a branch two lanes down drops early, so Leo's line leaves main left of Maya's commit and never seems to grow out of it
@@ -3520,7 +3526,7 @@ const GT = (function(){
       o += '<path d="M' + x1 + " " + y1 + " C" + mx + " " + y1 + " " + mx + " " + y2 + " " + ex + " " + y2 + (drop ? " L" + x2 + " " + y2 : "") + '" fill="none" stroke="' + (e[3] ? P.muted : P.ink) + '" stroke-width="2.5"' + (e[3] ? ' stroke-dasharray="5 5"' : "") + "/>";
     });
     NODES.forEach(n => {
-      if (s < n.s) return;
+      if (s < n.s || (dropped() && n.id === "c4")) return;
       const x = X(n.col), y = LANES[n.lane].y;
       const isNew = n.s === s && s > 0;
       let label = n.l;
@@ -3535,7 +3541,7 @@ const GT = (function(){
     return '<div class="pr"><div class="row" style="justify-content:space-between"><span class="t">#' + num + " " + esc(title) + "</span>" + chip(status, cls) + '</div><span class="note">' + esc(from) + " into main</span>" + (body ? "<div>" + body + "</div>" : "") + "</div>";
   }
   function render(){
-    const s = step, S = STEPS[s];
+    const s = step, S = dropped() ? Object.assign({}, STEPS[s], DROPPED) : STEPS[s];
     $("#gt-steps").innerHTML = STEPS.map((_, i) => '<span class="' + (i <= s ? "on" : "") + '"></span>').join("");
     $("#gt-title").textContent = (s + 1) + ". " + S.t;
     $("#gt-text").textContent = S.x;
@@ -3551,7 +3557,7 @@ const GT = (function(){
       prs += prCard(1, "Add slow mode on left bumper", "maya/slow-mode", st1[0], st1[1], s === 4 ? "Ava: What does 0.4 do?<br>Maya: Multiplies every wheel power by 0.4 while the left bumper is held, for lining up shots." : "");
     }
     if (s >= 6){
-      const st2 = s <= 7 ? ["Conflicts", "bad"] : s === 8 ? ["Review again", "warn"] : ["Merged", "ok"];
+      const st2 = s <= 7 ? ["Conflicts", "bad"] : s === 8 ? ["Review again", "warn"] : dropped() ? ["Closed", "warn"] : ["Merged", "ok"];
       prs += prCard(2, "Precision slow mode", "leo/precision", st2[0], st2[1], s <= 7 ? "This branch has conflicts that must be resolved.<br>MainTeleOp.java, line 23" : "");
     }
     $("#gt-prs").innerHTML = prs;
@@ -4169,7 +4175,7 @@ const GX = (function(){
   // the first Ask the room vote: commit and push labels stay hidden until Reveal or button 1
   const unbare = () => $("#gx-places").classList.remove("bare");
   $("#lab-gitflow .labhead details.ask").addEventListener("toggle", e => { if (e.target.open) unbare(); });
-  $("#gx-edit").addEventListener("click", () => { unbare(); if (!st.work.includes("MainTeleOp.java")) st.work.push("MainTeleOp.java"); st.flash = "work"; render(); cmd("git status\n#   modified:   MainTeleOp.java"); msg("Changed on your laptop only. Git sees 1 changed file, but it is not in history yet. Ctrl+Z is your only undo.", ""); });
+  $("#gx-edit").addEventListener("click", () => { unbare(); if (!st.work.includes("MainTeleOp.java")) st.work.push("MainTeleOp.java"); st.flash = "work"; render(); cmd("git status\n#   modified:   MainTeleOp.java"); msg("Changed on your laptop only. Git sees 1 changed file, but it is not in history yet, so git cannot bring the change back.", ""); });
   $("#gx-commit").addEventListener("click", () => {
     if (!st.work.length){ msg("Nothing to commit. Edit a file first.", "bad"); return; }
     cmd("git add .\ngit commit -m \"" + MSGS[st.n % MSGS.length] + "\"");
@@ -4182,7 +4188,7 @@ const GX = (function(){
     cmd("git push");
     st.remote = st.local.slice(); st.flash = "remote"; st.rejected = false; render(); msg("GitHub now has your commits. Your partner and your reviewer see them.", "ok");
   });
-  $("#gx-partner").addEventListener("click", () => { st.remote.push({id: hex(), m: "Fix motor name", by: "Leo"}); st.flash = "remote"; st.knows = false; render(); cmd("# on Leo's laptop, same branch maya/slow-mode:\ngit push"); msg("Leo pushed to your branch. GitHub now has a commit your laptop does not. You see it only after you pull.", ""); });
+  $("#gx-partner").addEventListener("click", () => { st.remote.push({id: hex(), m: "Fix motor name", by: "Leo"}); st.flash = "remote"; st.knows = false; render(); cmd("# on Leo's laptop, same branch maya/slow-mode:\ngit push"); msg("Leo pushed to your branch. GitHub now has a commit your laptop does not. Teams: predict what Push does.", ""); });
   $("#gx-pull").addEventListener("click", () => {
     const b = behind(), a = ahead();
     if (!b.length){ msg("You already have everything from GitHub.", ""); return; }

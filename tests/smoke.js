@@ -293,6 +293,7 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(await pg.evaluate(() => { const f = document.querySelectorAll("#gx-places .flash"); return f.length === 1 && f[0] === document.querySelectorAll("#gx-places .place")[1]; }), "#23: each press flashes only the box it changed");
   await pg.click("#gx-partner");
   check(/to pull: \?/.test(await pg.textContent("#gx-status")), "after Leo pushes, the laptop does not know the pull count yet");
+  check(!/pull/i.test(await pg.textContent("#gx-msg")) && /predict/.test(await pg.textContent("#gx-msg")), "after Leo pushes, the message asks for a prediction and does not hint at a pull");
   await pg.click("#gx-push"); await pg.waitForTimeout(900);
   check(await pg.evaluate(() => document.querySelectorAll("#gx-places .place")[2].classList.contains("reject")), "a rejected push keeps the GitHub box red");
   await pg.click("#gx-pull");
@@ -314,8 +315,11 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   check(/Teams vote/.test(await gf.textContent("#gt-text")) && !/test/.test(await gf.textContent("#gt-text")), "conflict step 8 asks the room and does not give away the answer");
   check(/team keys/.test(await gf.textContent("#gt-text")) && /Fix the conflict/.test(await gf.textContent("#gt-text")), "step 8 says to score with the team keys and where the sides sit");
   check((await gf.$$eval("#gt-markers .ln", els => els.map(e => e.textContent.trim()))).includes("<<<<<<< HEAD"), "the conflict markers read <<<<<<< HEAD as git writes them");
-  await gf.click("#gt-theirs"); await gf.click("#gt-next"); await gf.click("#gt-next");
+  await gf.click("#gt-yours"); await gf.click("#gt-next"); await gf.click("#gt-next");
   check(/one commit/.test(await gf.textContent("#gt-text")) && /Pull request #2/.test(await gf.textContent("#gt-text")) && !/History keeps/.test(await gf.textContent("#gt-text")), "step 10 says squash puts one commit on main and the PR keeps both tries");
+  check(/Precision \(#2\)/.test(await gf.textContent("#gt-svg")) && /keep 0\.3/.test(await gf.textContent("#gt-svg")) && /Merged/.test(await gf.textContent("#gt-prs")) && /branch -D leo/.test(await gf.textContent("#gt-cmd")), "Accept yours (the plan's path): PR #2 merges 0.3 onto main, and the squash branch goes with -D");
+  await gf.click("#gt-back"); await gf.click("#gt-back"); await gf.click("#gt-theirs"); await gf.click("#gt-next"); await gf.click("#gt-next");
+  check(/changes nothing/.test(await gf.textContent("#gt-text")) && !/Precision \(#2\)/.test(await gf.textContent("#gt-svg")) && !/Merged/.test(await gf.$$eval("#gt-prs .pr", els => els[1].textContent)) && /Close pull request/.test(await gf.textContent("#gt-as")) && /closed, not merged/.test(await gf.textContent("#gt-title")), "Accept theirs: PR #2 changes nothing, so Leo closes it unmerged and main gets no Precision commit");
   for (let i = 0; i < 5; i++) await gf.click("#gx-prnext");
   check(/Open PR/.test(await gf.textContent("#lab-gitflow")) && /Compare & pull request/.test(await gf.textContent("#gx-prcmd")), "the PR loop reaches Open PR after 5 steps");
   check(!/git push/.test(await gf.textContent("#gx-prcmd")), "the Open PR step does not suggest that push opens the PR");
@@ -824,6 +828,9 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await m.goto(URL + "#pid"); await m.waitForTimeout(1500);
   check((await m.evaluate(() => document.documentElement.scrollWidth)) <= 390, "no sideways scroll at 390 px");
   await m.screenshot({ path: path.join(SHOTS, "mobile-pid.png") });
+  await m.goto(URL + "#gitflow"); await m.waitForTimeout(300);
+  const gxPhone = await m.evaluate(() => ({ org: document.querySelector("#gx-org").getBoundingClientRect().width, pr: document.querySelector("#gx-pr").getBoundingClientRect().width, gt: document.querySelector("#gt-svg").getBoundingClientRect().width, page: document.documentElement.scrollWidth }));
+  check(gxPhone.org >= 900 && gxPhone.pr >= 880 && gxPhone.gt >= 760 && gxPhone.page <= 390, "tab 3 at 390 px: the diagrams keep full size and scroll inside their panel, no page scroll: " + JSON.stringify(gxPhone));
 
   // ==== area java ====
   {
