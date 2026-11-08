@@ -137,6 +137,24 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   await pg.click("#lab-java .ask-show");
   check(await pg.isVisible("#lab-java details.ask"), "Show the question brings it back");
 
+  // ==== area java-a: Java card nav, card switching, cards 0 to 5 ====
+  await pg.click('.jt[data-jt="inherit"]');
+  await pg.click('#jv-ovbtns .b[data-ov="0"]');
+  check((await pg.$eval("#jv-ovprob div:last-child", d => d.style.color)) === "rgb(126, 226, 168)", "BUILD SUCCESSFUL. 0 errors. shows green, not red");
+  check(/^4\. extends/.test(await pg.textContent('.jpane[data-jp="inherit"] h3')), "the card heading carries the rail number");
+  await pg.evaluate(() => window.scrollTo(0, 900)); await pg.waitForTimeout(100);
+  await pg.click('.jt[data-jt="decide"]'); await pg.waitForTimeout(100);
+  check((await pg.$eval('.jpane[data-jp="decide"]', p => p.getBoundingClientRect().top)) >= 0, "a card switch from far down the page opens the new card on its heading");
+  await pg.evaluate(() => window.scrollTo(0, 0));
+  const phone = await b.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  await phone.goto(URL + "#java"); await phone.waitForTimeout(300);
+  await phone.evaluate(() => { if (!document.body.classList.contains("autohide")) document.querySelector("#ah-toggle").click(); });
+  check((await phone.$eval('.jt[data-jt="scope"]', b => getComputedStyle(b).color)) !== "rgba(0, 0, 0, 0)", "390 px with auto-hide: the card list shows titles, not blank buttons");
+  await phone.tap('.jt[data-jt="scope"]'); await phone.waitForTimeout(100);
+  check(await phone.isVisible('.jpane[data-jp="scope"]'), "390 px: a tap on a card title opens that card");
+  await phone.close();
+  // ==== end area java-a ====
+
   // ---- Auto-hide: the menu folds to one line, opens on hover, H toggles it ----
   const ahOn = () => pg.evaluate(() => document.body.classList.contains("autohide"));
   const menuOpen = () => pg.evaluate(() => getComputedStyle(document.querySelector(".tbfull")).visibility === "visible");
